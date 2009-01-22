@@ -21,22 +21,22 @@ class Household(object):
         self._RentedOutLand = shared.Boolean()
         self._members = set()
 
-    def GetHID(self):
+    def get_HID(self):
         "Returns the ID of this household."
         return self._HID
 
-    def AnyNonWoodFuel(self):
+    def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
         return self._anyNonWoodFuel
 
-    def OwnHousePlot(self):
+    def own_house_plot(self):
         "Boolean for whether household owns the plot of land on which it resides"
         return self._OwnHousePlot
 
-    def OwnAnyLand(self):
+    def own_any_land(self):
         "Boolean for whether household owns any land"
         return self._OwnLand
 
-    def RentedOutLand(self):
+    def rented_out_land(self):
         "Boolean for whether household rented out any of its land"
         return self._RentedOutLand

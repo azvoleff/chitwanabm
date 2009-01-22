@@ -18,14 +18,14 @@ class Neighborhood(object):
         self._ElecAvailable = shared.Boolean()
         self._members = set()
 
-    def GetNID(self):
+    def get_NID(self):
         "Returns the ID of this neighborhood."
         return self._NID
 
-    def GetNumYearsFamilyServices(self):
-        "Boolean for whether household uses any non-wood fuel."
+    def years_non_family_services(self):
+        "Number of years non-family services have been available."
         return self._NumYearsNonFamilyServices
 
-    def ElecAvailable(self):
+    def elec_available(self):
         "Boolean for whether neighborhood has electricity."
         return self._ElecAvailable

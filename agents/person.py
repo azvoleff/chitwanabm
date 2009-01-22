@@ -21,28 +21,28 @@ class Person(object):
         self._sex = None #TODO
         self._spousePID = None #TODO
 
-    def GetPID(self):
+    def get_PID(self):
         return self._PID
 
-    def Marry(self, spouse):
+    def marry(self, spouse):
         "Marries this agent to another Person instance."
         self._spousePID = spouse.GetPID()
         other._spousePID = self.GetPID()
 
-    def IsMarried(self):
+    def is_married(self):
         "Returns a boolean indicating if person is married or not."
         if self._spousePID == None:
             return False
         else:
             return True
 
-    def Survival(self):
+    def survival(self):
         "Determines whether Person will survive the timestep."
         # TODO: when called, this function will take into account 
         # age/sex/whatever else to determine whether the person agent survives 
         # or dies during this time step
 
-    def KillAgent(self):
+    def kill_agent(self):
         "Kills an agent, and fixes the relationships of spouses, households, etc."
         # TODO: this function will "kill" the agent, most likely as a result of 
         # the outcome of the Survival function. Will need to deal with children 
