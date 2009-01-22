@@ -6,19 +6,23 @@ Class for person agents.
 
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
-class PIDGenerator():
-    def __init__()
-    i = 0
-    i += 1
-    yield i
 
-class Person():
+import shared
+
+PIDGen = shared.IDGenerator()
+
+class Person(object):
+    "Represents a single person agent"
     def __init__(self, birthday):
         self._birthDate = birthday
+
+        self._PID = PIDGen.next()
         self._age = None #TODO
         self._sex = None #TODO
-        self._PID = PIDGenerator()
-        self._spousePID = None
+        self._spousePID = None #TODO
+
+    def GetPID(self):
+        return self._PID
 
     def Marry(self, spouse):
         "Marries this agent to another Person instance."
@@ -46,8 +50,7 @@ class Person():
 
 #class Ancestors(list):
     "Stores a list of person agents for later recall and analysis"
-    #def AddPerson(self, person):
-
     # TODO: This class will contain a list of deceased person agents, mostly for 
     # debugging the model, although the results could also be used for plotting 
     # purposes.
+    #def AddPerson(self, person):
