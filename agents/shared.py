@@ -18,7 +18,7 @@ class IDGenerator(object):
         self._PID += 1
         return self._PID
 
-def Boolean(trueProb = .5):
+def Boolean(trueProb=.5):
     if np.random.rand() < trueProb:
         return True
     else:
