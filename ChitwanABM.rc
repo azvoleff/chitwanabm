@@ -1,0 +1,27 @@
+# Part of Chitwan Valley agent-based model.
+#
+# Default values of parameters for the Chitwan Valley Non-Spatial Agent-based 
+# Model. Values are read in to set defaults prior to initialization of the model 
+# by the runModel script.
+#
+# Alex Zvoleff, aiz2101@columbia.edu
+
+# Model-wide parameters
+initial_num_persons = 5000
+initial_num_households = 750
+initial_num_neighborhoods = 65
+
+# Person agent parameters
+hazard_death = [.2, .03, .1, .2, .3, .6, .7, .8, .98, 1] #TODO
+
+# Household agent parameters
+prob_any_non_wood_fuel = 
+prob_own_house_plot = 
+prob_own_any_land = 
+prob_rented_out_land = 
+
+# Neighborhood agent parameters
+prob_elec = 
+
+# Landscape parameters
+
