@@ -1,10 +1,5 @@
-#!/usr/bin/env python
 """
-Part of Chitwan Valley agent-based model.
-
 Class for household agents.
-
-Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import shared
@@ -22,7 +17,7 @@ class Household(object):
         self._members = set()
 
     def get_HID(self):
-        "Returns the ID of this household."
+        "Returns the ID of this household"
         return self._HID
 
     def any_non_wood_fuel(self):
