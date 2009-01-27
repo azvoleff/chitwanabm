@@ -9,5 +9,18 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 def main(modelRun):
-    for person in modelRun.persons():
-        person.Survive()
+    """This function contains the main model loop. Passed to it is an instance 
+    of the modelRun class, which contains parameters defining the size of each 
+    timestep, the person, household, and neighborhood agents to be used in the 
+    model, and the landuse parameters."""
+
+    for t in modelRun.timeSteps()
+
+        for person in modelRun.persons():
+            # Mortality
+            person.Survive()
+
+            # Marriages
+
+        # Calculate and update land use
+
