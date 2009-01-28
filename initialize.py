@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Part of Chitwan Valley (non-spatial) agent-based model.
 
