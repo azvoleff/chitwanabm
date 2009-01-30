@@ -6,6 +6,8 @@ Class for person agents.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+from chitwanABM import 
+
 PIDGen = IDGenerator()
 
 class Population(object):
