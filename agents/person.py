@@ -6,7 +6,8 @@ Class for person agents.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-from chitwanABM import 
+from chitwanABM import rcParams
+from chitwanABM.agents import IDGenerator, boolean_choice
 
 PIDGen = IDGenerator()
 
@@ -28,6 +29,24 @@ class Population(object):
         #for couple in self.couples():
         #    couple.extend(self._persons[couple.
 
+    def kill_agent(self):
+        "Kills an agent, and fixes the relationships of spouses, households, etc."
+        # TODO: this function will "kill" an agent, most likely as a result of 
+        # the outcome of the deaths function. Will need to deal with children 
+        # and spouse PIDs
+
+    def deaths(self, time):
+        "Determines whether Person will survive the timestep."
+        # TODO: when called, this function will take into account 
+        # age/sex/whatever else to determine whether each person agent survives 
+        # or dies during this time step
+
+    def births(self, time):
+        "Determines whether Person will give birth in the timestep."
+        for person in self._persons:
+            if person.getSex == 'female':
+                # check whether to give birth
+
 class Person(object):
     "Represents a single person agent"
     def __init__(self, birthday, age=None):
@@ -36,9 +55,11 @@ class Person(object):
         # agents used to initialize the model, to represent agents who existed 
         # prior to time 0
         self._birthDate = birthday
-
         self._PID = PIDGen.next()
-        self._sex = None #TODO
+        if boolean_choice(.5):
+            self._sex = 'female'
+        else:
+            self._sex = 'male'
 
     def get_PID(self):
         return self._PID
@@ -51,8 +72,8 @@ class Person(object):
 
     def marry(self, spouse):
         "Marries this agent to another Person instance."
-        self._spousePID = spouse.GetPID()
-        other._spousePID = self.GetPID()
+        self._spousePID = spouse.get_PID()
+        other._spousePID = self.get_PID()
 
     def is_married(self):
         "Returns a boolean indicating if person is married or not."
@@ -61,20 +82,8 @@ class Person(object):
         else:
             return True
 
-    def survival(self):
-        "Determines whether Person will survive the timestep."
-        # TODO: when called, this function will take into account 
-        # age/sex/whatever else to determine whether the person agent survives 
-        # or dies during this time step
-
-    def kill_agent(self):
-        "Kills an agent, and fixes the relationships of spouses, households, etc."
-        # TODO: this function will "kill" the agent, most likely as a result of 
-        # the outcome of the Survival function. Will need to deal with children 
-        # and spouse PIDs
-
 #class Ancestors(list):
-    "Stores a list of person agents for later recall and analysis"
+    #"Stores a list of person agents for later recall and analysis"
     # TODO: This class will contain a list of deceased person agents, mostly for 
     # debugging the model, although the results could also be used for plotting 
     # purposes.
