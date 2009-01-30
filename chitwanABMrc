@@ -5,21 +5,29 @@
 # Alex Zvoleff, aiz2101@columbia.edu
 
 # Model-wide parameters
-#initial_num_persons : 5000
-#initial_num_households : 750
-#initial_num_neighborhoods : 65
+model.timesteps : 25
+model.time_interval : 1
+model.initial_num_persons : 5000
+model.initial_num_households : 750
+model.initial_num_neighborhoods : 65
+#model.datapath : /home/azvoleff/chitwanABMResults
 
 # Person agent parameters
-#hazard_death : .2, .03, .1, .2, .3, .6, .7, .8, .98, 1 #TODO
+hazard_death : .2, .03, .1, .2, .3, .6, .7, .8, .98, 1
+hazard_birth : 0, .03, .1, .2, .3, .6, .7, .8, .98, 1
+hazard_marriage : 0, 0, .1, .2, .3, .6, .7, .8, .98, 1
 
 # Household agent parameters
-#prob_any_non_wood_fuel :
-#prob_own_house_plot : 
-#prob_own_any_land : 
-#prob_rented_out_land : 
+prob_any_non_wood_fuel : .5
+prob_own_house_plot : .5
+prob_own_any_land : .5
+prob_rented_out_land : .5
 
 # Neighborhood agent parameters
-#prob_elec : 
+prob_elec : .1
 
 # Landscape parameters
-
+initial_proportion_veg : .3
+initial_proportion_ag : .3
+initial_proportion_private_infrastructure : .1
+initial_proportion_public_infrastructure : .05
