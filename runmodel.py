@@ -9,3 +9,9 @@ NOTE: Borrows code from matplotlib, particularly for rcsetup functions.
 
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
+
+from chitwanABM import rcParams
+
+if rcParams['model.use_psyco'] == True:
+    import psyco
+    psyco.full()
