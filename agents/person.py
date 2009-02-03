@@ -14,11 +14,11 @@ from chitwanABM.agents import IDGenerator, boolean_choice
 PIDGen = IDGenerator()
 
 class Population(object):
-    "Represents a set of persons sharing certain demographic characteristics."
+    "Represents a set of neighborhoods sharing certain demographic characteristics."
     def __init__(self):
         # This will store a dictionary of all persons in the population, keyed 
         # by PID
-        self._persons = {}
+        self._neighborhoods = {}
 
         # Now setup the demographic variables for this population, based on the 
         # values given in the model rc file
@@ -26,7 +26,7 @@ class Population(object):
         self._hazard_death = rcParams['hazard_death']
         self._hazard_marriage = rcParams['hazard_marriage']
 
-    def getCouple(self):
+    def get_couple(self):
         # Couples will start out as a list of one spouse from each couple, then 
         # be extended to become a list of couples.
         couples = []
@@ -39,30 +39,62 @@ class Population(object):
         #for couple in self.couples():
         #    couple.extend(self._persons[couple.
 
-    def kill_agent(self):
-        "Kills an agent, and fixes the relationships of spouses, households, etc."
-        # TODO: this function will "kill" an agent, most likely as a result of 
-        # the outcome of the deaths function. Will need to deal with children 
-        # and spouse PIDs
-
+    def births(self, time):
+        """"Runs through the population and agents give birth probabilistically 
+        based on their sex, age and the hazard_birth for this population"""
+        # TODO: This should take account of the last time the agent gave birth 
+        # and adjust the hazard accordingly
+        for neighborhood in self._neighborhoods:
+            for household in neighborhood.get_households():
+                for person in household.get_persons():
+                    if (person.get_sex() == 'female') and (np.random.random()
+                            < self._hazard_birth[person.get_age()]):
+                                # Agent gives birth:
+                                household.add_person(person.give_birth(time))
+                        
     def deaths(self, time):
         """"Runs through the population and kills agents probabilistically based 
         on their age and the hazard_death for this population"""
-
-    def births(self, time):
-        """"Runs through the population and agents give birth probabilistically based 
-        on their sex, age and the hazard_birth for this population"""
         # TODO: This should take account of the last time the agent gave birth 
-        # to ajust the hazard accordingly
-        for person in self._persons:
-            if person.get_sex() == 'female' and \
-                    np.random.random() < self._hazard_death[person.get_age()]:
-                        # Agent gives birth:
+        # and adjust the hazard accordingly
+        for neighborhood in self._neighborhoods:
+            for household in neighborhood.get_households():
+                for person in household.get_persons():
+                    if (person.get_sex() == 'female') and (np.random.random()
+                            < self._hazard_birth[person.get_age()]):
+                                # Agent dies:
+                                person.kill()
+                                household.remove_person(person.give_birth(time))
                         
-
+    def marriages(self, time):
+        # TODO: This should take account of the last time the agent gave birth 
+        # and adjust the hazard accordingly
+        for neighborhood in self._neighborhoods:
+            for household in neighborhood.get_households():
+                for person in household.get_persons():
+                    if (person.get_sex() == 'female') and (np.random.random()
+                            < self._hazard_birth[person.get_age()]):
+                                # Agent gets married:
+                                person.marry(person.get_PID, ))
+                        
     def increment_age(self):
         """Adds one to the age of each agent. The units of age are dependent on 
         the units of the input rc parameters."""
+        for neighborhood in self._neighborhoods:
+            for household in neighborhood.get_households():
+                for person in household.get_persons():
+                    person._age += 1
+
+    def kill_agent(self):
+        "Kills an agent, removing it from its household, and its marriage."
+
+    def census(self):
+        "Returns the number of persons in the population."
+        total = 0
+        for neighborhood in self._neighborhoods:
+            for household in neighborhood.get_households():
+                total += household.num_members()
+        return total
 
 class Person(object):
     "Represents a single person agent"
@@ -118,6 +150,14 @@ class Person(object):
         self._spousePID = spouse.get_PID()
         other._spousePID = self.get_PID()
 
+    if self.get_sex()=='female':
+        def give_birth(self):
+            "Agent gives birth. New agent inherits characterists of parents."
+            print "Gave birth"
+            baby = Person() # TODO: specify the inherited characteristics
+
+            return baby
+
     def is_married(self):
         "Returns a boolean indicating if person is married or not."
         if self._spousePID == None:
@@ -125,9 +165,9 @@ class Person(object):
         else:
             return True
 
-#class Ancestors(list):
-    #"Stores a list of person agents for later recall and analysis"
+class Ancestors(list):
+    #"Stores a list of deceased person agents for later recall and analysis"
     # TODO: This class will contain a list of deceased person agents, mostly for 
     # debugging the model, although the results could also be used for plotting 
     # purposes.
-    #def AddPerson(self, person):
+    def AddPerson(self, person):
