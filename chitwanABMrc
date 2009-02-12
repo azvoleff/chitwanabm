@@ -1,20 +1,22 @@
 # Default values of parameters for the Chitwan Valley Non-Spatial Agent-based 
-# Model. Values are read in to set defaults prior to initialization of the model 
-# by the runModel script.
+# Model. Values are read in to set defaults prior to initialization of the 
+# model by the runModel script.
 #
 # Alex Zvoleff, aiz2101@columbia.edu
 
 # Model-wide parameters
-model.timesteps : 25
-model.time_interval : 1
+model.timezero : 1996 # The beginning of the model
+model.endtime : 2020 # When the model stops
+model.timestep : 1 # The size of each timestep
 model.initial_num_persons : 5000
 model.initial_num_households : 750
 model.initial_num_neighborhoods : 65
-#model.datapath : /home/azvoleff/chitwanABMResults
+model.datapath : /home/azvoleff/chitwanABMresults
+model.use_psyco : True
 
 # Person agent parameters
-hazard_death : .2, .03, .1, .2, .3, .6, .7, .8, .98, 1
 hazard_birth : 0, .03, .1, .2, .3, .6, .7, .8, .98, 1
+hazard_death : .2, .03, .1, .2, .3, .6, .7, .8, .98, 1
 hazard_marriage : 0, 0, .1, .2, .3, .6, .7, .8, .98, 1
 
 # Household agent parameters
