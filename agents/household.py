@@ -15,7 +15,9 @@ class Household(object):
         self._OwnHousePlot = boolean_choice()
         self._OwnLand = boolean_choice()
         self._RentedOutLand = boolean_choice()
-        self._members = set()
+
+        # _members stores household members in a dictionary keyed by PID
+        self._members = {}
 
     def get_HID(self):
         "Returns the ID of this household"
@@ -23,10 +25,17 @@ class Household(object):
 
     def add_person(self, person):
         "Adds a new person to the household, either from birth or marriage"
+        if self._members.has_key(person.get_PID()):
+            raise KeyError("person %s is already a member of household %s"%(person.get_PID(), self._HID))
+        self._members[person.get_PID()] = person
 
     def remove_person(self, person):
         """Removes a person from household, either from death, migration, or 
         marriage to a member of another household."""
+        try:
+            self._members.pop(person.get_PID())
+        except KeyError:
+            raise KeyError("person %s is not a member of household %s"%(person.get_PID(), self._HID))
 
     def num_members(self):
         return len(self._members)
