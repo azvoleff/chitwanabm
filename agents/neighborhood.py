@@ -43,6 +43,3 @@ class Neighborhood(object):
     def elec_available(self):
         "Boolean for whether neighborhood has electricity."
         return self._ElecAvailable
-
-    def add_neighborhood():
-        ""
