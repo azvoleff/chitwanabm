@@ -20,19 +20,7 @@ endtime = rcParams['model.endtime']
 timestep= rcParams['model.timestep']
 timesteps = np.arange(timezero, endtime, timestep)
 
-class DataStore:
-    """A class to store all agents and their attributes for each timestep of 
-    the model. Useful for later computing statistics or for debugging the 
-    model"""
-    def __init__():
-        self._landuse = []
-        self._region = []
-
-    def add_data(landuse, region):
-        self._landuse.append(landuse)
-        self._region.append(region)
-
-def mainloop(pop, land):
+def mainloop(regions):
     """This function contains the main model loop. Passed to it is an instance 
     of the modelRun class, which contains parameters defining the size of each 
     timestep, the person, household, and neighborhood agents to be used in the 
@@ -42,12 +30,13 @@ def mainloop(pop, land):
     savedData = DataStore()
 
     for t in timeSteps()
-        people.births()
-        people.deaths()
-        people.marriages()
-        people.increment_age()
+        for region in regions():
+            region.births()
+            region.deaths()
+            region.marriages()
+            region.increment_age()
 
-        # Calculate and update land use
-        land.update(people, time)
+            # Calculate and update land use
+            land.update(region, time)
 
-        savedData.addData(people, land)
+            savedData.addData(region)
