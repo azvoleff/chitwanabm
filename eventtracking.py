@@ -7,7 +7,7 @@ tracking of these events when plotting results.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 class Birth(object):
-    # TODO: Store parents, date, child
+    # TODO: Store date, child
 
 class Death(object):
     # TODO: Store person, date
