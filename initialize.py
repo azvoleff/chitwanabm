@@ -1,5 +1,5 @@
 """
-Part of Chitwan Valley (non-spatial) agent-based model.
+Part of Chitwan Valley agent-based model.
 
 Sets up a CV_ABM_NS model run: Initializes neighborhood/household/person agents 
 and land use based on a set of distributions for the value of particular 
@@ -10,11 +10,36 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 from chitwanABM.agents import Person, Household, Neighborhood
 
-def read_census(textfile):
-def read_household_relationships(textfile):
-    relations = {}
+def assemble_neighborhoods(neighborhoodsFile):
+    """Reads in data from the CVFS (from dataset DS0014) on number of years 
+    non-family services were available within a 30 min walk of each 
+    neighborhood (SCHLFT, HLTHFT, BUSFT, MARFT, EMPFT) and on whether 
+    neighborhood was electrified (ELEC)."""
+    neigh_data = read_CVFS_Data(neighborhoodsFile) 
 
-    return relations
+    neighborhoods = {}
+    for NID in relations.iterkeys():
+        # Axinn (2007) uses the "average number of years non-family services 
+        # were within a 30 minute walk" so, compute this:
+        yrs_nonfamily_services = 0
+        yrs_nonfamily_services += int(relations[NID]['SCHLFT']) # years schools w/in 30 min walk
+        yrs_nonfamily_services += int(relations[NID]['HLTHFT']) # years health w/in 30 min walk
+        yrs_nonfamily_services += int(relations[NID]['BUSFT']) # years bus w/in 30 min walk
+        yrs_nonfamily_services += int(relations[NID]['MARFT']) # years market w/in 30 min walk
+        yrs_nonfamily_services += int(relations[NID]['EMPFT']) # years employer w/in 30 min walk
+        avg_yrs_nonfamily_services = yrs_nonfamily_services / 5
+
+        ELEC = bool(relations[NID]['ELEC']) # is neighborhood electrified
+
+        neighborhood = Neighborhood(
+
+def assemble_households(householdsFile):
+    """Reads in data from the CVFS (from dataset DS0002) on several statistics 
+    for each household (BAA43, BAA44, BAA10A, BAA18A, BAA43)."""
+    household_data = read_CVFS_Data(householdsFile) 
+    neighborhoods = {}
+    for HID in relations.iterkeys():
+
 
 def assemble_agents(relationshipsFile, censusFile):
     """Reads data in from the CVFS census (dataset DS0003 (public) or 
@@ -41,29 +66,34 @@ def assemble_agents(relationshipsFile, censusFile):
             household_sets[HID] = relations[PID]
    
     # For each household, create a SUBJECT -> RESPID mapping. For example:
-    # dictionary[HHID][SUBJECT] = RESPID (Remember that RESPID is same as PID)
-    RESPID_dict= {}
+    # dictionary[HHID][SUBJECT] = PID (Remember that PID is the same as RESPID)
+    RESPID_dict = {}
     for HID in household_sets.iterkeys():
         household_set = household_sets[HID]
         for PID in household_set.iterkeys():
             relation = household_set[PID]
             SUBJECT = int(relation['SUBJECT'])
-            RESPID_dict[HID][SUBJECT] = RESPID
-
-    # Now convert the references to subject IDs in the household_sets to 
-    # reference PIDs (same thing as RESPIDs).
-    for HID in household_sets.iterkeys():
-        household_set = household_sets[HID]
-        for PID in household_set.iterkeys():
+            RESPID_dict[HID][SUBJECT] = PID
 
     # Loop over all agents in the relationship grid. PID here is the same thing 
     # as RESPID in the CVFS data
+    people = []
     for PID in relations.iterkeys():
         # Get the agents sex and age from the census data
         CENAGE = int(census[PID]['CENAGE'])
         CENGENDR = census[PID]['CENGENDR']
+        
+        # Read in SUBJECT IDs of parents/spouse/children
+        mother_SUBJECT = relations[PID]['PARENT1']
+        father_SUBJECT = relations[PID]['PARENT2']
+        spouse_SUBJECT = relations[PID]['SPOUSE1']
 
-        newPerson = Person(birthdate=None, age=CENAGE, sex=CENGENDR)
+        # Convert SUBJECT IDs into RESPIDs (PIDs)
+        father_PID = father_SUBJECT
+        mother_PID = 
+        spouse_PID = 
+
+        newPerson = Person(birthdate=None, age=CENAGE, sex=CENGENDR, mother_PID=mother_PID, father_PID=father_PID, initial_agent=True)
 
         respondentrelations = relations[PID]
 
