@@ -13,12 +13,21 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import os
 import sys
 import getopt
-import time
 import pickle
 
-from chitwanABM import rcParams
+import numpy as np
 
-modelRunStartTime = time.time()    
+from chitwanABM import rcParams, initialize, modelloop
+from chitwanABM.agents import Region
+
+try:
+    # Try to load a random state from the rcfile
+    np.random.RandomState = rcParams['model.RandomState']
+except KeyError:
+    # Otherwise store the current RandomState for later reuse (for testing, 
+    # etc.)
+    RandomState = np.random.RandomState
+    rcParams['model.RandomState'] = RandomState
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -26,21 +35,17 @@ if rcParams['model.use_psyco'] == True:
 
 def main():
     # Initialize
-    
-    # Run the modellooop
+
+
+    # Run the model loop
+    modelloop.main_loop(regions)
     
     # Save the results
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
-
-def elapsedTime(startTime):
-    elapsed = int(time.time() - startTime)
-    hours = elapsed / 3600
-    minutes = (elapsed - hours * 3600) / 60
-    seconds = elapsed - hours * 3600 - minutes * 60
-    return "%ih %im %is" %(hours, minutes, seconds)
+    results_dir = rcParams['model.RandomState']
 
 if __name__ == "__main__":
     sys.exit(main())
