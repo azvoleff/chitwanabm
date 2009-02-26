@@ -51,6 +51,10 @@ def main_loop(regions):
         saved_data.append(copy.deepcopy(regions))
         print "Elapsed time: ", elapsed_time(modelrun_starttime)
 
+    print "Finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
+
+    return saved_data
+
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)
     hours = elapsed / 3600
