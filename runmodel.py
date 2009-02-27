@@ -2,7 +2,7 @@
 """
 Part of Chitwan Valley agent-based model.
 
-Wrapper to run a set of CV_ABM_NS model runs: Reads in input parameters, then 
+Wrapper to run a set of Chitwan ABM model runs: Reads in input parameters, then 
 calls routines to initialize and run the model, and output model statistics.
 
 NOTE: Borrows code from matplotlib, particularly for rcsetup functions.
@@ -13,6 +13,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import os
 import sys
 import getopt
+import time
 import pickle
 
 import numpy as np
@@ -38,14 +39,20 @@ def main():
 
 
     # Run the model loop
-    modelloop.main_loop(regions)
+    results = modelloop.main_loop(regions)
     
     # Save the results
+    results_file = os.path.join(str(rcParams['model.resultspath']), "results.P")
+    pickle.dump(results, results_file)
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
-    results_dir = rcParams['model.RandomState']
+    saved_params_file = os.path.join(str(rcParams['model.resultspath']), "chitwanABMrc")
+
+    # TODO: write a function that will save the output of "git show" so that 
+    # the SHA-1 of the commit is saved, along with any diffs from the commit.  
+    # This file can also contain the start/stop times of the model run.
 
 if __name__ == "__main__":
     sys.exit(main())
