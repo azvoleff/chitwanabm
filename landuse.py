@@ -9,12 +9,13 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import numpy as np
 
 class LandUse():
-    def __init__(self, coeff):
+    def __init__(self):
         'Initializes a land use type object.'
         self._time = []
         self._proportions = []
         # 'coeffs' is a vector of OLS regression coefficients
-        self._coeffs = coeff
+        # TODO: define this coeff matrix
+        self._coeffs = []
 
     def add_value(self, time, proportion):
         'Adds a new landuse value in manually (without OLS)'
