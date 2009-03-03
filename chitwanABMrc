@@ -8,11 +8,18 @@
 model.timezero : 1996 # The beginning of the model
 model.endtime : 2020 # When the model stops
 model.timestep : 1 # The size of each timestep
+#    'model.RandomState' : [1], # Seeds the random number generator (useful for regenerating results later)
 model.initial_num_persons : 5000
 model.initial_num_households : 750
 model.initial_num_neighborhoods : 65
-model.datapath : /home/azvoleff/chitwanABMresults
+model.resultspath : /home/azvoleff/chitwanABMresults
 model.use_psyco : True
+
+# Location of input data (these are restricted data)
+input.census_file : /media/Restricted/CVABM_initialization_data/DS0004_export.csv
+input.relationships_grid_file : /media/Restricted/CVABM_initialization_data/DS0016_export.csv
+input.households_file : /media/Restricted/CVABM_initialization_data/DS0002_export.csv
+input.neighborhoods_file : /media/Restricted/CVABM_initialization_data/DS0014_export.csv
 
 # Person agent parameters
 hazard_birth : 0, .03, .1, .2, .3, .6, .7, .8, .98, 1
