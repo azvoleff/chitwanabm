@@ -21,6 +21,7 @@ hazard_time_units = rcParams['hazard_time_units']
 birth_hazards = rcParams['hazard_birth']
 death_hazards = rcParams['hazard_death']
 marriage_hazards = rcParams['hazard_marriage']
+migration_hazards = rcParams['hazard_migration']
 
 class UnitsError(Exception):
     pass
@@ -74,6 +75,12 @@ def calc_hazard_death(person):
     age = person.get_age()
     hazard_index = __hazard_index__(age)
     return death_hazards[hazard_index]
+
+def calc_hazard_migration(person):
+    "Calculates the hazard of death for an agent."
+    age = person.get_age()
+    hazard_index = __hazard_index__(age)
+    return migration_hazards[hazard_index]
 
 def calc_landuse(region):
     "Calculates land use based on population parameters and past land use."
