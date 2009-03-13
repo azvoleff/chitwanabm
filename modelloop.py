@@ -23,7 +23,7 @@ endtime = rcParams['model.endtime']
 timestep = rcParams['model.timestep']
 timesteps = np.arange(timezero, endtime, timestep)
 
-def main_loop(regions):
+def main_loop(region):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
     be used in the model, and the land-use parameters."""
@@ -33,22 +33,27 @@ def main_loop(regions):
     
     # Save the starting time of the model to use in printing elapsed time while 
     # it runs.
-    modelrun_starttime = time.time()    
+    modelrun_starttime = time.time()
+    print "\n******************************************************************************"
     print "Model run starttime:", time.strftime("%I:%M:%S %p")
 
-    for t in timeSteps()
+    for t in timesteps:
         print "\ttimestep: ", str(t)
 
-        # This is written to handle multiple regions, although currently there 
-        # is only one, for all of Chitwan.
-        for region in regions():
-            region.births()
-            region.deaths()
-            region.marriages()
-            region.update_landuse()
-            region.increment_age()
+        # This could easily be written to handle multiple regions, although 
+        # currently there is only one, for all of Chitwan.
+        region.births(t)
+        region.deaths(t)
+        region.migration(t)
+        #region.marriages(t)
+        #region.update_landuse(t)
+
+        region.increment_age()
             
-        saved_data.append(copy.deepcopy(regions))
+        saved_data.append(copy.deepcopy(region))
+        
+        num_persons = region.census()
+        print "\tNumber of person agents:", str(num_persons)
         print "Elapsed time: ", elapsed_time(modelrun_starttime)
 
     print "Finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)

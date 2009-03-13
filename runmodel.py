@@ -21,10 +21,10 @@ import numpy as np
 from chitwanABM import rcParams, initialize, modelloop
 from chitwanABM.agents import Region
 
-try:
-    # Try to load a random state from the rcfile
+# Try to load a random state from the rcfile
+if rcParams['model.RandomState'] != None:
     np.random.RandomState = rcParams['model.RandomState']
-except KeyError:
+else:
     # Otherwise store the current RandomState for later reuse (for testing, 
     # etc.)
     RandomState = np.random.RandomState
@@ -36,14 +36,19 @@ if rcParams['model.use_psyco'] == True:
 
 def main():
     # Initialize
-
+    region = Region()
+    initialize.assemble_region(region)
 
     # Run the model loop
-    results = modelloop.main_loop(regions)
+    results = modelloop.main_loop(region)
     
     # Save the results
+    print "\nSaving results to text...",
     results_file = os.path.join(str(rcParams['model.resultspath']), "results.P")
-    pickle.dump(results, results_file)
+    output = open(results_file, 'w')
+    pickle.dump(results, output)
+    output.close()
+    print "done."
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 

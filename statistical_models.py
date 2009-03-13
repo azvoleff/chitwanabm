@@ -36,16 +36,16 @@ def __hazard_index__(t):
         if hazard_time_units == 'months':
             return t
         if hazard_time_units == 'years':
-            return int(t / 12)
+            return int((t * 12) / 12)
         if hazard_time_units == 'decades':
-            return int(t / 120)
+            return int((t * 12) / 120)
     elif model_time_units == 'years':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
         if hazard_time_units == 'years':
             return t
         if hazard_time_units == 'decades':
-            return int(t /10)
+            return int(t / 10)
     elif model_time_units == 'decades':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
