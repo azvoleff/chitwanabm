@@ -13,6 +13,12 @@ import warnings
 from chitwanABM import rcParams
 from chitwanABM.agents import Person, Household, Neighborhood
 
+# Reset ID generators in chitwanABM.agents
+chitwanABM.agents.PIDGen.reset()
+chitwanABM.agents.HIDGen.reset()
+chitwanABM.agents.NIDGen.reset()
+chitwanABM.agents.RIDGen.reset()
+
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
     objects, where the first line of the file gives the column headings (used 
@@ -62,16 +68,24 @@ def assemble_neighborhoods(neighborhoodsFile):
         neighborhood = Neighborhood(NEIGHID, initial_agent=True)
 
         # Axinn (2007) uses the "average number of years non-family services 
-        # were within a 30 minute walk" so, compute this:
-        yrs_nonfamily_services = 0
-        #yrs_nonfamily_services += int(neigh_data['SCHLFT']) # years schools w/in 30 min walk
-        #yrs_nonfamily_services += int(neigh_data['HLTHFT']) # years health w/in 30 min walk
-        #yrs_nonfamily_services += int(neigh_data['BUSFT']) # years bus w/in 30 min walk
-        #yrs_nonfamily_services += int(neigh_data['MARFT']) # years market w/in 30 min walk
-        #yrs_nonfamily_services += int(neigh_data['EMPFT']) # years employer w/in 30 min walk
-        #neighborhood.__avg_years_nonfamily_services = yrs_nonfamily_services / 5
+        # were within a 30 minute walk". The data are stored for each service 
+        # for each year, using Nepali years. For example, SCHLFT10 for a 
+        # particular neighborhood stores the number of minutes on foot to 
+        # walk to the nearest school from that neighborhood for that year 
+        # (the '10' represents Nepali year 2010, which is 1953/1954 in 
+        # Western years).
+        services = ['SCHLFT', 'HLTHFT', 'BUSFT', 'MARFT', 'EMPFT']
+        years = range(10, 52)
+        years_avail = 0
+        for service in services:
+            for year in years:
+                exec("min_on_ft = int(neigh_data['%s%s']")
+                if min_on_ft <= 30:
+                    years_avail += 1
 
-        #neighborhood._elec_available =  bool(neigh_data['ELEC']) # is neighborhood electrified
+        neighborhood.__avg_years_nonfamily_services = yrs_avail / 5
+
+        neighborhood._elec_available =  bool(neigh_data['ELEC52']) # is neighborhood electrified (in 1995/1996)
 
         neighborhoods.append(neighborhood)
 
