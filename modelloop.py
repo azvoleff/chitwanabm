@@ -42,18 +42,19 @@ def main_loop(region):
 
         # This could easily be written to handle multiple regions, although 
         # currently there is only one, for all of Chitwan.
-        region.births(t)
-        region.deaths(t)
-        region.migration(t)
-        #region.marriages(t)
-        #region.update_landuse(t)
+        num_births = region.births(t)
+        num_deaths = region.deaths(t)
+        num_marriages = region.marriages(t)
+        num_migrations = region.migrations(t)
+        region.update_landuse(t)
 
         region.increment_age()
             
         saved_data.append(copy.deepcopy(region))
         
         num_persons = region.census()
-        print "\tNumber of person agents:", str(num_persons)
+        print "\tPopulation: %s\tBirths: %s\tDeaths: %s\tMarriages: %s\tMigrations: %s"%(
+                num_persons, num_births, num_deaths, num_marriages, num_migrations)
         print "Elapsed time: ", elapsed_time(modelrun_starttime)
 
     print "Finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
