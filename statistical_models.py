@@ -36,16 +36,16 @@ def __hazard_index__(t):
         if hazard_time_units == 'months':
             return t
         if hazard_time_units == 'years':
-            return int((t * 12) / 12)
+            return (t * 12) / 12
         if hazard_time_units == 'decades':
-            return int((t * 12) / 120)
+            return (t * 12) / 120
     elif model_time_units == 'years':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
         if hazard_time_units == 'years':
             return t
         if hazard_time_units == 'decades':
-            return int(t / 10)
+            return t / 10
     elif model_time_units == 'decades':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
@@ -56,31 +56,47 @@ def __hazard_index__(t):
     else:
         raise UnitsError("unhandled model_time_units or hazard_time_units")
 
+# If the hazard time units don't match the model timestep units, then the 
+# hazards need to be converted. The above function can be used to calculate the 
+# multiplier, by using t=1
+hazard_multiplier = __hazard_index__(1.)
+
 #def hazard_birth(person, neighborhood, landuse):
 def calc_hazard_birth(person):
     "Calculates the hazard of birth for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return birth_hazards[hazard_index]
+    return hazard_multiplier * birth_hazards[hazard_index]
 
 #def hazard_marriage(person, neighborhood, landuse):
 def calc_hazard_marriage(person):
     "Calculates the hazard of marriage for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return marriage_hazards[hazard_index]
+    return hazard_multiplier * marriage_hazards[hazard_index]
+
+minHazIndex = 999
+maxHazIndex = -999
 
 def calc_hazard_death(person):
     "Calculates the hazard of death for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return death_hazards[hazard_index]
+    if hazard_index < minHazIndex:
+        minHazIndex = hazard_index
+    if hazard_index > maxHazIndex:
+        maxHazIndex = hazard_index
+    print minHazIndex, maxHazIndex
+    try:
+        return hazard_multiplier * death_hazards[hazard_index]
+    except:
+        raise IndexError("error calculating death hazard (index %s)"%(hazard_index))
 
 def calc_hazard_migration(person):
     "Calculates the hazard of death for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return migration_hazards[hazard_index]
+    return hazard_multiplier * migration_hazards[hazard_index]
 
 def calc_landuse(region):
     "Calculates land use based on population parameters and past land use."
