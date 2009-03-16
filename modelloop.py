@@ -35,11 +35,15 @@ def main_loop(region):
     # it runs.
     modelrun_starttime = time.time()
     print "\n******************************************************************************"
-    print "Model run starttime:", time.strftime("%I:%M:%S %p")
+    print time.strftime("%I:%M:%S %p") + ": started model run." 
+    print "******************************************************************************\n"
 
     for t in timesteps:
-        print "\ttimestep: ", str(t)
-
+        # The weird expression below is needed to handle the imprecision of 
+        # machine representation of floating point numbers.
+        if (np.ceil(t) - t) <= .001:
+            print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
+            print "Model  time:", str(t)
         # This could easily be written to handle multiple regions, although 
         # currently there is only one, for all of Chitwan.
         num_births = region.births(t)
@@ -53,11 +57,16 @@ def main_loop(region):
         saved_data.append(copy.deepcopy(region))
         
         num_persons = region.census()
-        print "\tPopulation: %s\tBirths: %s\tDeaths: %s\tMarriages: %s\tMigrations: %s"%(
-                num_persons, num_births, num_deaths, num_marriages, num_migrations)
-        print "Elapsed time: ", elapsed_time(modelrun_starttime)
 
-    print "Finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
+        if num_persons == 0:
+            print "End of model run: population is zero."
+
+        print "\tPop: %s\tBirths: %s\tDeaths: %s\tMarr: %s\tMigr: %s"%(
+                num_persons, num_births, num_deaths, num_marriages, num_migrations)
+
+    print "\n******************************************************************************"
+    print time.strftime("%I:%M:%S %p") + ":  finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
+    print "******************************************************************************\n"
 
     return saved_data
 

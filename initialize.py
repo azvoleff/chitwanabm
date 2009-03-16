@@ -14,10 +14,10 @@ from chitwanABM import rcParams
 from chitwanABM.agents import Person, Household, Neighborhood
 
 # Reset ID generators in chitwanABM.agents
-chitwanABM.agents.PIDGen.reset()
-chitwanABM.agents.HIDGen.reset()
-chitwanABM.agents.NIDGen.reset()
-chitwanABM.agents.RIDGen.reset()
+#chitwanABM.agents.PIDGen.reset()
+#chitwanABM.agents.HIDGen.reset()
+#chitwanABM.agents.NIDGen.reset()
+#chitwanABM.agents.RIDGen.reset()
 
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
@@ -75,15 +75,15 @@ def assemble_neighborhoods(neighborhoodsFile):
         # (the '10' represents Nepali year 2010, which is 1953/1954 in 
         # Western years).
         services = ['SCHLFT', 'HLTHFT', 'BUSFT', 'MARFT', 'EMPFT']
-        years = range(10, 52)
+        years = range(10, 53)
         years_avail = 0
         for service in services:
             for year in years:
-                exec("min_on_ft = int(neigh_data['%s%s']")
+                exec("min_on_ft = int(neigh_data['%s%s'])"%(service, year))
                 if min_on_ft <= 30:
                     years_avail += 1
 
-        neighborhood.__avg_years_nonfamily_services = yrs_avail / 5
+        neighborhood.__avg_years_nonfamily_services = years_avail / 5.
 
         neighborhood._elec_available =  bool(neigh_data['ELEC52']) # is neighborhood electrified (in 1995/1996)
 
@@ -143,7 +143,7 @@ def assemble_persons(relationshipsFile, censusFile):
             SUBJECT_RESPID_map[HHID][SUBJECT] = RESPID
 
     # Loop over all agents in the relationship grid.
-    persons = []
+    personsDict = {}
     RESPID_HHID_map = {} # Links persons with their HHID
     for relation in relations.itervalues():
         RESPID = int(relation['RESPID'])
@@ -155,10 +155,10 @@ def assemble_persons(relationshipsFile, censusFile):
             CENAGE = int(census[RESPID]['CENAGE'])
             CENGENDR = census[RESPID]['CENGENDR']
         except KeyError:
-            print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
+            #print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
             continue
         except ValueError:
-            print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
+            #print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
             continue
         
         # Read in SUBJECT IDs of parents/spouse/children
@@ -191,9 +191,26 @@ def assemble_persons(relationshipsFile, censusFile):
         # Finally, make the new person.
         person = Person(None, RESPID, mother_RESPID, father_RESPID, CENAGE, 
                 CENGENDR, initial_agent=True)
+        person._spouse = spouse_RESPID
 
-        persons.append(person)
+        personsDict[RESPID] = person
 
+    # Now, for each person in the personsDict, convert the RESPIDs for mother, 
+    # father, and spouse to be references to the actual instances  of the 
+    # mother, father and spouse agents.
+    persons = []
+    for person in personsDict.values():
+        try:
+            if person._mother != None:
+                person._mother = personsDict[person._mother]
+            if person._father != None:
+                person._father = personsDict[person._father]
+            if person._spouse != None:
+                person._spouse = personsDict[person._spouse]
+            persons.append(person)
+        except KeyError:
+            print "WARNING: person %s skipped due to mother/father/spouse KeyError. This agent will be excluded from the model."%(person.get_ID())
+            
     return persons, RESPID_HHID_map
 
 def assemble_region(region):
@@ -229,7 +246,7 @@ def assemble_region(region):
         try:
             NEIGHID = HHID_NEIGHID_map[HHID]
         except KeyError:
-            print "WARNING: household %s is not in DS0002. This agent will be excluded from the model."%(HHID)
+            #print "WARNING: household %s is not in DS0002. This agent will be excluded from the model."%(HHID)
             continue
         # Get a reference to this neighborhood
         neighborhood = region.get_agent(NEIGHID)
