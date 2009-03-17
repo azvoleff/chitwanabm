@@ -40,11 +40,13 @@ def main():
     initialize.assemble_region(region)
 
     # Run the model loop
-    results = modelloop.main_loop(region)
+    results, run_ID_number = modelloop.main_loop(region)
     
     # Save the results
     print "\nSaving results to text...",
-    results_file = os.path.join(str(rcParams['model.resultspath']), "results.P")
+    results_path = os.path.join(str(rcParams['model.resultspath']), run_ID_number)
+    os.mkdir(results_path)
+    results_file = os.path.join(results_path, "results.P")
     output = open(results_file, 'w')
     pickle.dump(results, output)
     output.close()
