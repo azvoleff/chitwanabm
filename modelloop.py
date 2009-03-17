@@ -55,7 +55,7 @@ def main_loop(region):
 
         region.increment_age()
             
-        saved_data.append(copy.deepcopy(region))
+        #saved_data.append(copy.deepcopy(region))
         
         num_persons = region.census()
 
