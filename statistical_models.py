@@ -36,16 +36,16 @@ def __hazard_index__(t):
         if hazard_time_units == 'months':
             return t
         if hazard_time_units == 'years':
-            return (t * 12) / 12
+            return int(round((t * 12) / 12.))
         if hazard_time_units == 'decades':
-            return (t * 12) / 120
+            return int(round((t * 12) / 120.))
     elif model_time_units == 'years':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
         if hazard_time_units == 'years':
             return t
         if hazard_time_units == 'decades':
-            return t / 10
+            return int(round(t / 10.))
     elif model_time_units == 'decades':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
@@ -57,9 +57,30 @@ def __hazard_index__(t):
         raise UnitsError("unhandled model_time_units or hazard_time_units")
 
 # If the hazard time units don't match the model timestep units, then the 
-# hazards need to be converted. The above function can be used to calculate the 
-# multiplier, by using t=1
-hazard_multiplier = __hazard_index__(1.)
+# hazards need to be converted.
+if model_time_units == 'months':
+    if hazard_time_units == 'months':
+        hazard_multiplier =  1
+    if hazard_time_units == 'years':
+        hazard_multiplier =  (1 * 12) / 12.
+    if hazard_time_units == 'decades':
+        hazard_multiplier =  (1 * 12) / 120.
+elif model_time_units == 'years':
+    if hazard_time_units == 'months':
+        raise UnitsError("model_time_units cannot be greater than hazard_time_units")
+    if hazard_time_units == 'years':
+        hazard_multiplier =  1
+    if hazard_time_units == 'decades':
+        hazard_multiplier =  1 / 10.
+elif model_time_units == 'decades':
+    if hazard_time_units == 'months':
+        raise UnitsError("model_time_units cannot be greater than hazard_time_units")
+    if hazard_time_units == 'years':
+        raise UnitsError("model_time_units cannot be greater than hazard_time_units")
+    if hazard_time_units == 'decades':
+        hazard_multiplier =  1
+else:
+    raise UnitsError("unhandled model_time_units or hazard_time_units")
 
 #def hazard_birth(person, neighborhood, landuse):
 def calc_hazard_birth(person):
