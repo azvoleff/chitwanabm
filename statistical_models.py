@@ -75,18 +75,10 @@ def calc_hazard_marriage(person):
     hazard_index = __hazard_index__(age)
     return hazard_multiplier * marriage_hazards[hazard_index]
 
-minHazIndex = 999
-maxHazIndex = -999
-
 def calc_hazard_death(person):
     "Calculates the hazard of death for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    if hazard_index < minHazIndex:
-        minHazIndex = hazard_index
-    if hazard_index > maxHazIndex:
-        maxHazIndex = hazard_index
-    print minHazIndex, maxHazIndex
     try:
         return hazard_multiplier * death_hazards[hazard_index]
     except:
