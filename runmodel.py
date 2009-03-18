@@ -35,7 +35,15 @@ if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
 
-def main():
+def main(argv=None):
+    if argv==None:
+        argv = sys.argv
+
+    try:
+        rc_file = sys.argv[1]
+    except IndexError:
+        pass
+
     # The run_ID_number provides an ID number (built from the start time) to 
     # uniquely identify this model run.
     run_ID_number = time.strftime("%Y%m%d-%H%M%S")
@@ -51,16 +59,19 @@ def main():
 
     # Run the model loop
     print "\n******************************************************************************"
-    print time.strftime("%I:%M:%S %p") + ": started model run number %s."%(run_ID_number)
+    start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
+    print  "%s: started model run number %s."%(start_time, run_ID_number)
     print "******************************************************************************\n"
     results = modelloop.main_loop(region)
     print "\n******************************************************************************"
-    print time.strftime("%I:%M:%S %p") + ":  finished model run." 
+    end_time = time.strftime("%m/%d/%Y %I:%M:%S %p") 
+    print "%s: finished model run number %s."%(end_time, run_ID_number)
+
     print "******************************************************************************\n"
 
     
     # Save the results
-    print "\nSaving results to text...",
+    print "Saving results to text...",
     results_file = os.path.join(results_path, "results.P")
     output = open(results_file, 'w')
     pickle.dump(results, output)
@@ -69,14 +80,18 @@ def main():
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
-    run_RC_file = os.path.join(results_path, "modelRunRC")
-    write_RC_file(run_RC_file)
+    run_RC_file = os.path.join(results_path, "chitwanABMrc")
+    RC_file_header = """# This file contains the parameters used for a chitwanABM model run.
+# Model run ID:\t%s
+# Start time:\t%s
+# End time:\t\t%s
+# Code version:\t234234098"""%(run_ID_number, start_time, end_time)
+    write_RC_file(run_RC_file, RC_file_header, rcParams)
     # TODO: write a function that will save the output of "git show" so that 
     # the SHA-1 of the commit is saved, along with any diffs from the commit.  
     # This file can also contain the start/stop times of the model run.
 
     print "done."
-
 
 if __name__ == "__main__":
     sys.exit(main())
