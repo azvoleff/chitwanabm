@@ -8,7 +8,14 @@ plots basic statistics summarizing the model run.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+import sys
+
 import matplotlib.pyplot as plt
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    pass
 
 def plot_pop_stats(results, plot_file):
     time = results.get_times()
@@ -47,3 +54,6 @@ def plot_pop_stats(results, plot_file):
     plt.title(plotTitle)
     plt.savefig(plot_file)
     plt.clf()
+
+if __name__ == "__main__":
+    sys.exit(main())
