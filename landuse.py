@@ -6,8 +6,6 @@ Land use class: Tracks land use and land use change.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-import numpy as np
-
 class LandUse():
     def __init__(self):
         'Initializes a land use type object.'

@@ -10,9 +10,9 @@ used.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-from chitwanABM import rcParams
-
 import numpy as np
+
+from chitwanABM import rcParams
 
 model_time_units = rcParams['model.time_units']
 hazard_time_units = rcParams['hazard_time_units']

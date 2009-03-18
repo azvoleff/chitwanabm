@@ -22,15 +22,6 @@ from chitwanABM import rcParams, initialize, modelloop
 from chitwanABM.agents import Region
 from chitwanABM.rcsetup import write_RC_file
 
-# Try to load a random state from the rcfile
-if rcParams['model.RandomState'] != None:
-    np.random.RandomState = rcParams['model.RandomState']
-else:
-    # Otherwise seed the RandomState with a known random integer, and save the 
-    # seed for later reuse (for testing, etc.).
-    RandomState = int(10**8 * np.random.random())
-    rcParams['model.RandomState'] = RandomState
-
 if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
