@@ -254,8 +254,6 @@ def assemble_region(region):
         household = neighborhood.get_agent(HHID)
         household.add_agent(person)
 
-    print "\nNum persons:", str(len(persons))
-    print "Num households:", str(len(households))
-    print "Num neighborhoods:", str(len(neighborhoods))
+    print "\nPersons: %s, Households: %s, Neighborhoods: %s"%(region.num_persons(), region.num_households(), region.num_neighborhoods())
 
     return region
