@@ -85,7 +85,7 @@ def main(argv=None):
 # Model run ID:\t%s
 # Start time:\t%s
 # End time:\t\t%s
-# Code version:\t234234098"""%(run_ID_number, start_time, end_time)
+# Code version:\t"""%(run_ID_number, start_time, end_time)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
     # TODO: write a function that will save the output of "git show" so that 
     # the SHA-1 of the commit is saved, along with any diffs from the commit.  
