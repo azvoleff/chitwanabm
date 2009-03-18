@@ -6,17 +6,24 @@ tracking of these events when plotting results.
 
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
-class Birth(object):
-    # TODO: Store date, child
 
-class Death(object):
-    # TODO: Store person, date
+class Event(dict):
+    def
 
-class Marriage(object):
-    # TODO: Store both spouses, date
+class Results(object):
+    def __init__(self, start_time):
+        self._time = [start_time]
+        self._censues= {}
+        self._births = {}
+        self._deaths = {}
+        self._marriages = {}
+        self._migrations = {}
 
-class Migration(object):
-    # TODO: Store persons, date, "reason"
+    def increment_time(self):
+        self.
 
-class MoveOut(object):
-    # TODO: Store person, date, "reason"
+    def add_births(self, births):
+        if len(self._births) == (len(self._time) - 1)
+            self._births.append(births)
+        else:
+            raise Error("model results already stored for this timestep")
