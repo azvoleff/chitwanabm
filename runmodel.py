@@ -20,14 +20,15 @@ import numpy as np
 
 from chitwanABM import rcParams, initialize, modelloop
 from chitwanABM.agents import Region
+from chitwanABM.rcsetup import write_RC_file
 
 # Try to load a random state from the rcfile
 if rcParams['model.RandomState'] != None:
     np.random.RandomState = rcParams['model.RandomState']
 else:
-    # Otherwise store the current RandomState for later reuse (for testing, 
-    # etc.)
-    RandomState = np.random.RandomState
+    # Otherwise seed the RandomState with a known random integer, and save the 
+    # seed for later reuse (for testing, etc.).
+    RandomState = int(10**8 * np.random.random())
     rcParams['model.RandomState'] = RandomState
 
 if rcParams['model.use_psyco'] == True:
@@ -54,7 +55,7 @@ def main():
     print "******************************************************************************\n"
     results = modelloop.main_loop(region)
     print "\n******************************************************************************"
-    print time.strftime("%I:%M:%S %p") + ":  finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
+    print time.strftime("%I:%M:%S %p") + ":  finished model run." 
     print "******************************************************************************\n"
 
     

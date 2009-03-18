@@ -53,7 +53,7 @@ def main_loop(region):
             
         #saved_data.append(copy.deepcopy(region))
         
-        num_persons = region.census()
+        num_persons = region.num_persons()
 
         if num_persons == 0:
             print "End of model run: population is zero."

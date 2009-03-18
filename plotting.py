@@ -20,7 +20,7 @@ def main(argv=None):
 def plot_pop_stats(results, plot_file):
     time = results.get_times()
 
-    censuses = results.get_censuses() # Final populations for each time step.
+    censuses = results.get_populations() # Final populations for each time step.
     births = results.get_times()
     deaths = results.get_times()
     marr = results.get_migrations()
