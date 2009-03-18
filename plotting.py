@@ -8,7 +8,7 @@ plots basic statistics summarizing the model run.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-import matplotlib.pyplot at plt
+import matplotlib.pyplot as plt
 
 def plot_pop_stats(results, plot_file):
     time = results.get_times()
@@ -16,16 +16,17 @@ def plot_pop_stats(results, plot_file):
     censuses = results.get_censuses() # Final populations for each time step.
     births = results.get_times()
     deaths = results.get_times()
-    migra = results.get_migrations()
+    marr = results.get_migrations()
+    migr = results.get_migrations()
 
-    events = [births, deaths, migra]
-    labels = ["Births", "Deaths", "Moves"]
+    events = [births, deaths, marr, migr]
+    labels = ["Births", "Deaths", "Marriages", "Moves"]
 
     plt.figure()
     plt.clf()
 
     # Plot the population vs time
-    pylab.plot(time, censuses, color='k', linewidth=1, linestyle='k', label="Population")
+    pylab.plot(time, censuses, color='k', linewidth=2, linestyle='-', label="Population")
     plt.plot(censuses, time, )
     plt.xlabel("Year")
     plt.ylabel("Population")
@@ -36,9 +37,9 @@ def plot_pop_stats(results, plot_file):
     axR.yaxis.set_label_position("right")
     
     # Now plot births, deaths, and migrations, vs time.
-    colors = ['#ff6c01', '#00cd00', 'b']
-    linewidths = [1, 1, 1]
-    linestyles = ['--', '-.', ':']
+    colors = ['k', '#ff6c01', '#00cd00', 'b']
+    linewidths = [1, 1, 1, 1]
+    linestyles = ['-', '--', '-.', ':']
     for event, color, linewidth, linestyle, label in zip(events, colors, linewidths, linestyles, labels):
         pylab.plot(time, event, color=color, linewidth=linewidth, linestyle=linestyle, label=label)
 
