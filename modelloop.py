@@ -34,12 +34,6 @@ def main_loop(region):
     # Save the starting time of the model to use in printing elapsed time while 
     # it runs.
     modelrun_starttime = time.time()
-    # The run_ID_number provides an ID number (built from the start time) to 
-    # uniquely identify this model run.
-    run_ID_number = time.strftime("%Y%m%d-%H%M%S")
-    print "\n******************************************************************************"
-    print time.strftime("%I:%M:%S %p") + ": started model run number %s."%(run_ID_number)
-    print "******************************************************************************\n"
 
     for t in timesteps:
         # The weird expression below is needed to handle the imprecision of 
@@ -67,11 +61,7 @@ def main_loop(region):
         print "    Pop: %s\tBirths: %s\tDeaths: %s\tMarr: %s\tMigr: %s"%(
                 num_persons, num_births, num_deaths, num_marriages, num_migrations)
 
-    print "\n******************************************************************************"
-    print time.strftime("%I:%M:%S %p") + ":  finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
-    print "******************************************************************************\n"
-
-    return saved_data, run_ID_number
+    return saved_data
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)

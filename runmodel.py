@@ -35,31 +35,47 @@ if rcParams['model.use_psyco'] == True:
     psyco.full()
 
 def main():
+    # The run_ID_number provides an ID number (built from the start time) to 
+    # uniquely identify this model run.
+    run_ID_number = time.strftime("%Y%m%d-%H%M%S")
+    results_path = os.path.join(str(rcParams['model.resultspath']), run_ID_number)
+    try:
+        os.mkdir(results_path)
+    except OSError:
+        raise OSError("error creating results directory")
+    
     # Initialize
     region = Region()
     initialize.assemble_region(region)
 
     # Run the model loop
-    results, run_ID_number = modelloop.main_loop(region)
+    print "\n******************************************************************************"
+    print time.strftime("%I:%M:%S %p") + ": started model run number %s."%(run_ID_number)
+    print "******************************************************************************\n"
+    results = modelloop.main_loop(region)
+    print "\n******************************************************************************"
+    print time.strftime("%I:%M:%S %p") + ":  finished model run. Total elapsed time: ", elapsed_time(modelrun_starttime)
+    print "******************************************************************************\n"
+
     
     # Save the results
     print "\nSaving results to text...",
-    results_path = os.path.join(str(rcParams['model.resultspath']), run_ID_number)
-    os.mkdir(results_path)
     results_file = os.path.join(results_path, "results.P")
     output = open(results_file, 'w')
     pickle.dump(results, output)
     output.close()
-    print "done."
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
-    saved_params_file = os.path.join(str(rcParams['model.resultspath']), "chitwanABMrc")
-
+    run_RC_file = os.path.join(results_path, "modelRunRC")
+    write_RC_file(run_RC_file)
     # TODO: write a function that will save the output of "git show" so that 
     # the SHA-1 of the commit is saved, along with any diffs from the commit.  
     # This file can also contain the start/stop times of the model run.
+
+    print "done."
+
 
 if __name__ == "__main__":
     sys.exit(main())
