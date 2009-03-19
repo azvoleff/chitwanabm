@@ -31,7 +31,7 @@ def load_results(results_file):
         raise IOError("error loading results file %s"%(results_file))
 
     results = pickle.load(in_file)
-
+    in_file.close()
     return results
 
 def plot_pop_stats(results, plot_file):
