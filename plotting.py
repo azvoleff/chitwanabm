@@ -73,7 +73,7 @@ def plot_pop_stats(results, plot_file):
     plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
     plt.legend(loc='lower left')
     plt.xlabel("Year")
-    plt.ylabel("Number of events", rotation=270)
+    plt.ylabel("Events (per  month)", rotation=270)
 
     
     # Label first year, last year, and years that end in 0 and 5
