@@ -18,7 +18,7 @@ import pickle
 
 import numpy as np
 
-from chitwanABM import rcParams, initialize, modelloop
+from chitwanABM import rcParams, read_rc_params, initialize, modelloop
 from chitwanABM.agents import Region
 from chitwanABM.rcsetup import write_RC_file
 
@@ -32,6 +32,7 @@ def main(argv=None):
 
     try:
         rc_file = sys.argv[1]
+        rcParams = read_rc_params(rc_file)
     except IndexError:
         pass
 
