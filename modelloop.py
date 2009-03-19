@@ -13,6 +13,7 @@ import copy
 import numpy as np
 
 from chitwanABM import rcParams
+from chitwanABM.eventtracking import Results
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -29,13 +30,15 @@ def main_loop(region):
     be used in the model, and the land-use parameters."""
 
     # saved_data will store the results of each timestep.
-    saved_data = []
+    saved_data = Results()
     
     # Save the starting time of the model to use in printing elapsed time while 
     # it runs.
     modelrun_starttime = time.time()
 
     for t in timesteps:
+        saved_data.add_timestep(t)
+
         # The weird expression below is needed to handle the imprecision of 
         # machine representation of floating point numbers.
         if (np.ceil(t) - t) <= .001:
@@ -49,10 +52,21 @@ def main_loop(region):
         num_migrations = region.migrations(t)
         region.update_landuse(t)
 
+        num_persons = region.num_persons()
+        num_households = region.num_households()
+        num_neighborhoods = region.num_neighborhoods()
+
+        # store results:
+        saved_data.add_num_births(num_births)
+        saved_data.add_num_deaths(num_deaths)
+        saved_data.add_num_marriages(num_marriages)
+        saved_data.add_num_migrations(num_migrations)
+        saved_data.add_num_persons(num_persons)
+        saved_data.add_num_households(num_households)
+        saved_data.add_num_neighborhoods(num_neighborhoods)
+
         region.increment_age()
             
-        #saved_data.append(copy.deepcopy(region))
-        
         num_persons = region.num_persons()
 
         if num_persons == 0:

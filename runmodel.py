@@ -15,6 +15,7 @@ import sys
 import getopt
 import time
 import pickle
+import tempfile
 
 import numpy as np
 
@@ -60,7 +61,9 @@ def main(argv=None):
     print "%s: finished model run number %s."%(end_time, run_ID_number)
 
     print "******************************************************************************\n"
-
+    
+    # Store the run ID in the results for later tracking purposes
+    results.set_model_run_ID(run_ID_number)
     
     # Save the results
     print "Saving results to text...",

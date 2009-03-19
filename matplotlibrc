@@ -116,7 +116,7 @@ axes.edgecolor      : black   # axes edge color
 axes.linewidth      : 1.0     # edge linewidth
 axes.grid           : False   # display grid or not
 axes.titlesize      : 12      # fontsize of the axes title
-axes.labelsize      : 10      # fontsize of the x any y labels
+axes.labelsize      : 12      # fontsize of the x any y labels
 axes.labelcolor     : black
 axes.axisbelow      : False   # whether axis gridlines and ticks are below
                               # the axes elements (lines, text, etc)
@@ -153,7 +153,7 @@ ytick.labelsize      : 8     # fontsize of the tick labels
 ### Legend
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
-legend.fontsize      : large
+legend.fontsize      : 8
 #legend.pad           : 0.2    # the fractional whitespace inside the legend border
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
@@ -165,16 +165,16 @@ legend.fontsize      : large
 
 ### FIGURE
 # See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
-figure.figsize   : 3.25, 2    # figure size in inches
-figure.dpi       : 80      # figure dots per inch
+figure.figsize   : 4.3, 2.75    # figure size in inches
+figure.dpi       : 300      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 figure.edgecolor : white   # figure edgecolor
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height
 figure.subplot.left  : 0.13  # the left side of the subplots of the figure
-figure.subplot.right : 0.97   # the right side of the subplots of the figure
-figure.subplot.bottom : 0.32   # the bottom of the subplots of the figure
+figure.subplot.right : 0.89   # the right side of the subplots of the figure
+figure.subplot.bottom : 0.14   # the bottom of the subplots of the figure
 figure.subplot.top : 0.88      # the top of the subplots of the figure
 #figure.subplot.wspace : 0.2   # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots

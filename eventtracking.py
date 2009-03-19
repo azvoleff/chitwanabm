@@ -7,23 +7,91 @@ tracking of these events when plotting results.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-class Event(dict):
-    def
-
 class Results(object):
-    def __init__(self, start_time):
-        self._time = [start_time]
-        self._censues= {}
-        self._births = {}
-        self._deaths = {}
-        self._marriages = {}
-        self._migrations = {}
+    def __init__(self):
+        self._timesteps = []
+        self._model_run_ID = None
+        self._num_persons = []
+        self._num_households = []
+        self._num_neighborhoods = []
+        self._num_births = []
+        self._num_deaths = []
+        self._num_marriages = []
+        self._num_migrations = []
 
-    def increment_time(self):
-        self.
+    def set_model_run_ID(self, model_run_ID):
+        "Stores the model run ID for easier tracking of results."
+        self._model_run_ID = model_run_ID
 
-    def add_births(self, births):
-        if len(self._births) == (len(self._time) - 1)
-            self._births.append(births)
+    def get_model_run_ID(self):
+        "Stores the model run ID for easier tracking of results."
+        return self._model_run_ID
+
+    def add_timestep(self, timestep):
+        self._timesteps.append(timestep)
+
+    def add_num_persons(self, persons):
+        if len(self._num_persons) == (len(self._timesteps) - 1):
+            self._num_persons.append(persons)
+        else:
+            raise Error("number of persons already stored for this timestep")
+
+    def add_num_households(self, households):
+        if len(self._num_households) == (len(self._timesteps) - 1):
+            self._num_households.append(households)
+        else:
+            raise Error("number of households already stored for this timestep")
+
+    def add_num_neighborhoods(self, neighborhoods):
+        if len(self._num_neighborhoods) == (len(self._timesteps) - 1):
+            self._num_neighborhoods.append(neighborhoods)
+        else:
+            raise Error("number of neighborhoods already stored for this timestep")
+
+    def add_num_births(self, births):
+        if len(self._num_births) == (len(self._timesteps) - 1):
+            self._num_births.append(births)
         else:
             raise Error("model results already stored for this timestep")
+
+    def add_num_deaths(self, deaths):
+        if len(self._num_deaths) == (len(self._timesteps) - 1):
+            self._num_deaths.append(deaths)
+        else:
+            raise Error("number of deaths already stored for this timestep")
+
+    def add_num_marriages(self, marriages):
+        if len(self._num_marriages) == (len(self._timesteps) - 1):
+            self._num_marriages.append(marriages)
+        else:
+            raise Error("number of marriages already stored for this timestep")
+
+    def add_num_migrations(self, migrations):
+        if len(self._num_migrations) == (len(self._timesteps) - 1):
+            self._num_migrations.append(migrations)
+        else:
+            raise Error("number of migrations already stored for this timestep")
+
+    def get_timesteps(self):
+        return self._timesteps
+
+    def get_num_persons(self):
+        return self._num_persons
+
+    def get_num_households(self):
+        return self._num_households
+
+    def get_num_neighborhoods(self):
+        return self._neighborhoods
+
+    def get_num_births(self):
+        return self._num_births
+
+    def get_num_deaths(self):
+        return self._num_deaths
+
+    def get_num_marriages(self):
+        return self._num_marriages
+
+    def get_num_migrations(self):
+        return self._num_migrations
