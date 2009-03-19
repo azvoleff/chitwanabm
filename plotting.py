@@ -44,7 +44,7 @@ def plot_pop_stats(results, plot_file):
     migr = results.get_num_migrations()
 
     events = [births, deaths, marr, migr]
-    labels = ["Births", "Deaths", "Marriages", "Moves"]
+    labels = ["Births", "Deaths", "Marriages", "Migrations"]
 
     plt.figure()
     plt.clf()
@@ -61,7 +61,7 @@ def plot_pop_stats(results, plot_file):
     
     # Now plot births, deaths, and migrations, vs time.
     colors = ['k', '#ff6c01', '#00cd00', 'b']
-    linewidths = [1, 1, 1, 1]
+    linewidths = [.75, .75, .75, .75]
     #linestyles = ['-', '--', '-.', ':']
     linestyles = ['-', '-', '-', '-']
     for event, color, linewidth, linestyle, label in zip(events, colors, linewidths, linestyles, labels):
@@ -69,8 +69,12 @@ def plot_pop_stats(results, plot_file):
 
     model_run_ID = results.get_model_run_ID()
     plot_title = "Model run statistics for %s"%(model_run_ID)
+    #plt.title(plot_title)
+    plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
+    plt.legend(loc='lower left')
     plt.xlabel("Year")
     plt.ylabel("Number of events", rotation=270)
+
     
     # Label first year, last year, and years that end in 0 and 5
     tick_labels = [int(time[0])]
@@ -84,12 +88,8 @@ def plot_pop_stats(results, plot_file):
                 tick_years.append(value)
     tick_labels.append(int(time[-1]))
     tick_years.append(time[-1])
-    print tick_labels, tick_years
-
     plt.xticks(tick_years, tick_labels)
 
-    plt.legend(loc='lower left')
-    plt.title(plot_title)
     plt.savefig(plot_file)
     plt.clf()
 
