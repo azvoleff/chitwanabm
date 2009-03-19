@@ -32,7 +32,7 @@ def main(argv=None):
 
     try:
         rc_file = sys.argv[1]
-        rcParams = read_rc_params(rc_file)
+        print "\nWARNING: using default rc params. Custom rc_file use is not yet implemented.\n"
     except IndexError:
         pass
 
