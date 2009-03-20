@@ -73,7 +73,7 @@ def plot_pop_stats(results, plot_file):
     plot_title = "Model run statistics for %s"%(model_run_ID)
     #plt.title(plot_title)
     plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
-    plt.legend(loc='lower left')
+    plt.legend(loc='upper left')
     plt.xlabel("Year")
     plt.ylabel("Events (per  month)", rotation=270)
 
@@ -129,7 +129,7 @@ def shaded_plot_pop_stats(results_list, plot_file):
     plot_title = "Model run statistics for %s"%(model_run_ID)
     #plt.title(plot_title)
     plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
-    plt.legend(loc='lower left')
+    plt.legend(loc='upper left')
     plt.xlabel("Year")
     plt.ylabel("Events (per  month)", rotation=270)
 
