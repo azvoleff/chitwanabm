@@ -106,7 +106,7 @@ def shaded_plot_pop_stats(results_list, plot_file):
     mean_persons = num_persons_array.mean(0)
     std_persons = num_persons_array.std(0)
     plt.plot(time, mean_persons, color='k', linewidth=2, linestyle='-', label="Population")
-    plt.fill_between(time, mean_persons-(std_persons/2), mean_persons+(std_persons/2), color='k', linewidth=0, alpha=.5)
+    plt.fill_between(time, mean_persons-(std_persons*2), mean_persons+(std_persons*2), color='k', linewidth=0, alpha=.5)
     plt.ylabel("Population")
 
     # Setup the second axis (sharing the x-axis).
@@ -123,7 +123,7 @@ def shaded_plot_pop_stats(results_list, plot_file):
         mean = event.mean(0)
         std = event.std(0)
         plt.plot(time, mean, color=color, linewidth=linewidth, linestyle=linestyle, label=label)
-        plt.fill_between(time, mean-(std/2), mean+(std/2), color=color, linewidth=0, alpha=.5)
+        plt.fill_between(time, mean-(std*2), mean+(std*2), color=color, linewidth=0, alpha=.5)
 
     model_run_ID = results.get_model_run_ID()
     plot_title = "Model run statistics for %s"%(model_run_ID)
