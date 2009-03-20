@@ -11,8 +11,6 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import sys
 import pickle
 
-sys.path.append("/home/azvoleff/src/matplotlibsvn")
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -36,6 +34,12 @@ def load_results(results_file):
     in_file.close()
     return results
 
+def make_results_list(model_IDs):
+    for model_ID in model_IDs:
+        pass
+
+    return results_list
+
 def plot_pop_stats(results, plot_file):
     time = results.get_timesteps()
 
@@ -53,7 +57,6 @@ def plot_pop_stats(results, plot_file):
 
     # Plot the population vs time
     plt.plot(time, num_persons, color='k', linewidth=2, linestyle='-', label="Population")
-    plt.plot(num_persons, time, )
     plt.ylabel("Population")
 
     # Setup the second axis (sharing the x-axis).
@@ -76,9 +79,7 @@ def plot_pop_stats(results, plot_file):
     plt.legend(loc='upper left')
     plt.xlabel("Year")
     plt.ylabel("Events (per  month)", rotation=270)
-
     set_tick_labels(time)
-    
     plt.savefig(plot_file)
     plt.clf()
 
@@ -126,15 +127,13 @@ def shaded_plot_pop_stats(results_list, plot_file):
         plt.fill_between(time, mean-(std*2), mean+(std*2), color=color, linewidth=0, alpha=.5)
 
     model_run_ID = results.get_model_run_ID()
-    plot_title = "Model run statistics for %s"%(model_run_ID)
+    #plot_title = "Model run statistics for %s"%(model_run_ID)
     #plt.title(plot_title)
-    plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
+    #plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
     plt.legend(loc='upper left')
     plt.xlabel("Year")
     plt.ylabel("Events (per  month)", rotation=270)
-
     set_tick_labels(time)
-    
     plt.savefig(plot_file)
     plt.clf()
 
