@@ -78,11 +78,10 @@ def main(argv=None):
     plot_file = os.path.join(results_path, "plot.pdf")
     plot_pop_stats(results, plot_file)
 
-    # Save the output of "git show" so that the SHA-1 of the commit is saved, 
-    # along with any diffs from the commit.  This file can also contain the 
-    # start/stop times of the model run.
-    git_show_file = os.path.join(results_path, "git_show.txt")
-    commit_hash = git_info("/home/azvoleff/Code/Python/chitwanABM", git_show_file)
+    # Save the SHA-1 of the commit used to run the model, along with any diffs 
+    # from the commit (the output of the git-diff command).
+    git_diff_file = os.path.join(results_path, "git_diff.txt")
+    commit_hash = save_git_diff("/home/azvoleff/Code/Python/chitwanABM", git_diff_file)
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
@@ -97,17 +96,21 @@ def main(argv=None):
 
     print "done."
 
-def git_info(code_path, git_show_file):
-    try:
-        out_file = open(git_show_file, "w")
-    except IOError:
-        raise IOError("error writing to git-show output file: %s"%(git_show_file))
-    subprocess.check_call(['git-show','--pretty=format:%H'], stdout=out_file, cwd=code_path)
-    out_file.close()
+def save_git_diff(code_path, git_diff_file):
+    # First get commit hash from git-show
+    temp_file = tempfile.NamedTemporaryFile()
+    subprocess.check_call(['git-show','--pretty=format:%H'], stdout=temp_file, cwd=code_path)
+    temp_file = open(temp_file.name, "r")
+    commit_hash = temp_file.readline().strip('\n')
+    temp_file.close()
 
-    in_file = open(git_show_file, "r")
-    commit_hash = in_file.readline().strip('\n')
-    in_file.close()
+    # Now write output of git-diff to a file.
+    try:
+        out_file = open(git_diff_file, "w")
+    except IOError:
+        raise IOError("error writing to git-diff output file: %s"%(git_diff_file))
+    subprocess.check_call(['git-diff'], stdout=out_file, cwd=code_path)
+    out_file.close()
 
     return commit_hash
 if __name__ == "__main__":
