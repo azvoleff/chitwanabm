@@ -39,7 +39,7 @@ def make_results_list(root_dir, model_IDs=None):
     dirs = os.listdir(root_dir)
     # Remove all non dir objects from dirs
     for object in dirs:
-        if not os.path.isdir(object):
+        if not os.path.isdir(os.path.join(root_dir, object)):
             dirs.remove(object)
         elif model_IDs != None:
             model_ID = os.path.basename(dir)
@@ -137,10 +137,10 @@ def shaded_plot_pop_stats(results_list, plot_file):
         plt.plot(time, mean, color=color, linewidth=linewidth, linestyle=linestyle, label=label)
         plt.fill_between(time, mean-(std*2), mean+(std*2), color=color, linewidth=0, alpha=.5)
 
-    model_run_ID = results.get_model_run_ID()
-    #plot_title = "Model run statistics for %s"%(model_run_ID)
+    #plot_title = "Model run statistics for %s model runs"%(len(results_list))
     #plt.title(plot_title)
-    #plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
+    annotation = "%s model runs"%(len(results_list))
+    plt.annotate(annotation, (1.14,-.165), xycoords='axes fraction', horizontalalignment="right")
     plt.legend(loc='upper left')
     plt.xlabel("Year")
     plt.ylabel("Events (per  month)", rotation=270)
