@@ -203,10 +203,19 @@ def assemble_persons(relationshipsFile, censusFile):
         try:
             if person._mother != None:
                 person._mother = personsDict[person._mother]
+                if person._mother == person:
+                    print "WARNING: agent %s skipped because it is it's own mother"%(person.get_ID())
+                    continue
             if person._father != None:
                 person._father = personsDict[person._father]
+                if person._father == person:
+                    print "WARNING: agent %s skipped because it is it's own father"%(person.get_ID())
+                    continue
             if person._spouse != None:
                 person._spouse = personsDict[person._spouse]
+                if person._spouse == person:
+                    print "WARNING: agent %s skipped because it is married to itself"%(person.get_ID())
+                    continue
             persons.append(person)
         except KeyError:
             print "WARNING: person %s skipped due to mother/father/spouse KeyError. This agent will be excluded from the model."%(person.get_ID())
