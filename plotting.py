@@ -9,6 +9,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import sys
+import os
 import pickle
 
 import numpy as np
@@ -34,10 +35,20 @@ def load_results(results_file):
     in_file.close()
     return results
 
-def make_results_list(model_IDs):
-    for model_ID in model_IDs:
-        pass
-
+def make_results_list(root_dir, model_IDs=None):
+    dirs = os.listdir(root_dir)
+    # Remove all non dir objects from dirs
+    for object in dirs:
+        if not os.path.isdir(object):
+            dirs.remove(object)
+        elif model_IDs != None:
+            model_ID = os.path.basename(dir)
+            if model_ID not in model_IDs:
+                dirs.remove(object)
+    results_list = []
+    for dir in dirs:
+        new_results = load_results(os.path.join(root_dir, dir, "results.P"))
+        results_list.append(new_results)
     return results_list
 
 def plot_pop_stats(results, plot_file):
