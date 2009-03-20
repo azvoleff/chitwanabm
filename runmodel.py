@@ -16,7 +16,6 @@ import getopt
 import time
 import pickle
 import tempfile
-import cStringIO
 import subprocess
 
 import numpy as np
