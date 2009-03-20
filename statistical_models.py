@@ -62,9 +62,9 @@ if model_time_units == 'months':
     if hazard_time_units == 'months':
         hazard_multiplier =  1
     if hazard_time_units == 'years':
-        hazard_multiplier =  (1 * 12) / 12.
+        hazard_multiplier =  1 / 12.
     if hazard_time_units == 'decades':
-        hazard_multiplier =  (1 * 12) / 120.
+        hazard_multiplier =  1 / 120.
 elif model_time_units == 'years':
     if hazard_time_units == 'months':
         raise UnitsError("model_time_units cannot be greater than hazard_time_units")
