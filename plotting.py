@@ -36,19 +36,22 @@ def load_results(results_file):
     return results
 
 def make_results_list(root_dir, model_IDs=None):
-    dirs = os.listdir(root_dir)
-    # Remove all non dir objects from dirs
-    for object in dirs:
+    objects = os.listdir(root_dir)
+    # Pull out directories from objects
+    dirs = []
+    for object in objects:
         if not os.path.isdir(os.path.join(root_dir, object)):
-            dirs.remove(object)
-        elif model_IDs != None:
-            model_ID = os.path.basename(dir)
-            if model_ID not in model_IDs:
-                dirs.remove(object)
+            continue
+        model_ID = os.path.basename(object)
+        if model_IDs == None or model_ID in model_IDs:
+            dirs.append(object)
     results_list = []
     for dir in dirs:
-        new_results = load_results(os.path.join(root_dir, dir, "results.P"))
-        results_list.append(new_results)
+        try:
+            new_results = load_results(os.path.join(root_dir, dir, "results.P"))
+            results_list.append(new_results)
+        except IOError:
+            print "warning: no results file found in %s"%(dir)
     return results_list
 
 def plot_pop_stats(results, plot_file):
