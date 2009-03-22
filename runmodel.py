@@ -46,7 +46,7 @@ def main(argv=None):
     try:
         os.mkdir(results_path)
     except OSError:
-        raise OSError("error creating results directory")
+        raise OSError("error creating results directory %s"%(results_path))
     
     # Initialize
     region = Region()
