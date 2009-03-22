@@ -14,6 +14,10 @@ import numpy as np
 
 from chitwanABM import rcParams
 
+if rcParams['model.use_psyco'] == True:
+    import psyco
+    psyco.full()
+
 model_time_units = rcParams['model.time_units']
 hazard_time_units = rcParams['hazard_time_units']
 
@@ -55,6 +59,7 @@ def __hazard_index__(t):
             return t
     else:
         raise UnitsError("unhandled model_time_units or hazard_time_units")
+
 def convert_hazard_units(hazard):
     "Convert hazard so units match timestep used in the model."
     # If the hazard time units don't match the model timestep units, then the 
@@ -88,7 +93,10 @@ def calc_hazard_birth(person):
     "Calculates the hazard of birth for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return convert_hazard_units(birth_hazards[hazard_index])
+    #hazard_multiplier = 1 + (person.get_parent_agent().num_members()/30.)
+    #hazard_multiplier = 1 - (person.get_parent_agent().num_members()/25.)
+    hazard_multiplier = 1
+    return hazard_multiplier * convert_hazard_units(birth_hazards[hazard_index])
 
 #def hazard_marriage(person, neighborhood, landuse):
 def calc_hazard_marriage(person):
