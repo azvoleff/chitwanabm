@@ -52,14 +52,18 @@ def main(argv=None):
 
     # Run the model loop
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
-    print """*****************************************************************"
-"%s: started model run number %s."%(start_time, run_ID_number)
-*****************************************************************"""
-    results = modelloop.main_loop(region)
+    print """
+*******************************************************************************
+%s: started model run number %s.
+*******************************************************************************
+"""%(start_time, run_ID_number)
+    results = modelloop.main_loop(region) # This line actually runs the model.
     end_time = time.strftime("%m/%d/%Y %I:%M:%S %p") 
-    print """*****************************************************************"
-"%s: finished model run number %s."%(end_time, run_ID_number)
-"*****************************************************************"""
+    print """
+*******************************************************************************
+%s: finished model run number %s.
+*******************************************************************************
+"""%(end_time, run_ID_number)
     
     # Store the run ID in the results for later tracking purposes
     results.set_model_run_ID(run_ID_number)
