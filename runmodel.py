@@ -18,9 +18,7 @@ import pickle
 import tempfile
 import subprocess
 
-import numpy as np
-
-from chitwanABM import rcParams, read_rc_params, initialize, modelloop
+from chitwanABM import rcParams, initialize, modelloop
 from chitwanABM.agents import Region
 from chitwanABM.rcsetup import write_RC_file
 from chitwanABM.plotting import plot_pop_stats
@@ -53,16 +51,15 @@ def main(argv=None):
     initialize.assemble_region(region)
 
     # Run the model loop
-    print "\n******************************************************************************"
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
-    print  "%s: started model run number %s."%(start_time, run_ID_number)
-    print "******************************************************************************\n"
+    print """*****************************************************************"
+"%s: started model run number %s."%(start_time, run_ID_number)
+*****************************************************************"""
     results = modelloop.main_loop(region)
-    print "\n******************************************************************************"
     end_time = time.strftime("%m/%d/%Y %I:%M:%S %p") 
-    print "%s: finished model run number %s."%(end_time, run_ID_number)
-
-    print "******************************************************************************\n"
+    print """*****************************************************************"
+"%s: finished model run number %s."%(end_time, run_ID_number)
+"*****************************************************************"""
     
     # Store the run ID in the results for later tracking purposes
     results.set_model_run_ID(run_ID_number)
