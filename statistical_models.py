@@ -31,11 +31,13 @@ class UnitsError(Exception):
     pass
 
 def __hazard_index__(t):
-    """Matches units of time in model to those the hazard is expressed in. For 
+    """
+    Matches units of time in model to those the hazard is expressed in. For 
     instance: if hazards are specified for decades, whereas the model runs in 
     months, __hazard_index__ when provided with an age in months, convert it to 
     decades, rounding down. NOTE: all hazards must be expressed with the same 
-    time units."""
+    time units.
+    """
     if model_time_units == 'months':
         if hazard_time_units == 'months':
             return t
@@ -61,7 +63,12 @@ def __hazard_index__(t):
         raise UnitsError("unhandled model_time_units or hazard_time_units")
 
 def convert_hazard_units(hazard):
-    "Convert hazard so units match timestep used in the model."
+    """
+    Converts hazard so units match timestep used in the model, assuming hazard 
+    function is uniform across the interval.
+
+    Conversions are made according using conditional probability.
+    """
     # If the hazard time units don't match the model timestep units, then the 
     # hazards need to be converted.
     if model_time_units == 'months':
@@ -122,4 +129,5 @@ def calc_hazard_migration(person):
 
 def calc_landuse(region):
     "Calculates land use based on population parameters and past land use."
+    # TODO: finish coding this function.
     return landuse
