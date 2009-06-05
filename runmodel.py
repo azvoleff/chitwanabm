@@ -80,7 +80,7 @@ def main(argv=None):
     plot_pop_stats(results, plot_file)
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
-    # from the commit (the output of the git-diff command).
+    # from the commit (the output of the git diff command).
     git_diff_file = os.path.join(results_path, "git_diff.txt")
     commit_hash = save_git_diff("/home/azvoleff/Code/Python/chitwanABM", git_diff_file)
 
@@ -91,28 +91,29 @@ def main(argv=None):
     RC_file_header = """# This file contains the parameters used for a chitwanABM model run.
 # Model run ID:\t%s
 # Start time:\t%s
-# End time:\t\t%s
+# End time:\t%s
 # Code version:\t%s"""%(run_ID_number, start_time, end_time, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
     print "done."
 
 def save_git_diff(code_path, git_diff_file):
-    # First get commit hash from git-show
+    # First get commit hash from git show
     temp_file = tempfile.NamedTemporaryFile()
-    subprocess.check_call(['git-show','--pretty=format:%H'], stdout=temp_file, cwd=code_path)
+    subprocess.check_call(['git', 'show','--pretty=format:%H'], stdout=temp_file, cwd=code_path)
     temp_file = open(temp_file.name, "r")
     commit_hash = temp_file.readline().strip('\n')
     temp_file.close()
 
-    # Now write output of git-diff to a file.
+    # Now write output of git diff to a file.
     try:
         out_file = open(git_diff_file, "w")
     except IOError:
-        raise IOError("error writing to git-diff output file: %s"%(git_diff_file))
-    subprocess.check_call(['git-diff'], stdout=out_file, cwd=code_path)
+        raise IOError("error writing to git diff output file: %s"%(git_diff_file))
+    subprocess.check_call(['git', 'diff'], stdout=out_file, cwd=code_path)
     out_file.close()
 
     return commit_hash
+
 if __name__ == "__main__":
     sys.exit(main())
