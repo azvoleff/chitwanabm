@@ -39,11 +39,8 @@ def main_loop(region):
     for t in timesteps:
         saved_data.add_timestep(t)
 
-        # The weird expression below is needed to handle the imprecision of 
-        # machine representation of floating point numbers.
-        if (np.ceil(t) - t) <= .001:
-            print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
-            print "Model  time:", str(t)
+        print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
+        print "Model  time:", str(t)
         # This could easily be written to handle multiple regions, although 
         # currently there is only one, for all of Chitwan.
         num_births = region.births(t)
