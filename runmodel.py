@@ -81,7 +81,7 @@ def main(argv=None):
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
     # from the commit (the output of the git diff command).
-    git_diff_file = os.path.join(results_path, "git_diff.txt")
+    git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff("/home/azvoleff/Code/Python/chitwanABM", git_diff_file)
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
@@ -91,7 +91,7 @@ def main(argv=None):
     RC_file_header = """# This file contains the parameters used for a chitwanABM model run.
 # Model run ID:\t%s
 # Start time:\t%s
-# End time:\t%s
+# End time:\t\t%s
 # Code version:\t%s"""%(run_ID_number, start_time, end_time, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
