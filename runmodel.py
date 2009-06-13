@@ -47,8 +47,15 @@ def main(argv=None):
         raise OSError("error creating results directory %s"%(results_path))
     
     # Initialize
-    region = Region()
-    initialize.assemble_region(region)
+    stored_init_data = rcParams['input.init_data']
+    if stored_init_data == "None":
+        region = initialize.assemble_region()
+    else:
+        try:
+            open(stored_init_data, 'r')
+            region = pickle.load(stored_init_data)
+        except IOError:
+            raise IOError('error loading %s datafile')
 
     # Run the model loop
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
