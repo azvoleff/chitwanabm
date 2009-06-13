@@ -34,9 +34,9 @@ def __hazard_index__(t):
     """
     Matches units of time in model to those the hazard is expressed in. For 
     instance: if hazards are specified for decades, whereas the model runs in 
-    months, __hazard_index__ when provided with an age in months, convert it to 
-    decades, rounding down. NOTE: all hazards must be expressed with the same 
-    time units.
+    months, __hazard_index__, when provided with an age in months, will convert 
+    it to decades, rounding down. NOTE: all hazards must be expressed with the 
+    same time units.
     """
     if model_time_units == 'months':
         if hazard_time_units == 'months':
