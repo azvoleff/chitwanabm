@@ -11,7 +11,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import warnings
 
 from chitwanABM import rcParams
-from chitwanABM.agents import Person, Household, Neighborhood
+from chitwanABM.agents import Region, Person, Household, Neighborhood
 
 # Reset ID generators in chitwanABM.agents
 #chitwanABM.agents.PIDGen.reset()
@@ -222,9 +222,11 @@ def assemble_persons(relationshipsFile, censusFile):
             
     return persons, RESPID_HHID_map
 
-def assemble_region(region):
+def assemble_region():
     """Puts together a region from the CVFS data using the above functions to 
     input restricted CVFS data on persons, households, and neighborhoods."""
+    region = Region()
+
     census_file = rcParams['input.census_file']
     relationships_grid_file = rcParams['input.relationships_grid_file']
     households_file = rcParams['input.households_file']
