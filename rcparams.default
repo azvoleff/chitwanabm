@@ -22,24 +22,22 @@
 ##################################
 ###***START OF RC DEFINITION***###
 # Model-wide parameters
-'model.timezero' : [1996 | validate_float] # The year the model starts (inclusive)
-'model.endtime' : [2020 | validate_float] # What year the model stops (inclusive)
-'model.time_units' : ["months" | validate_time_units] # The size of each timestep
+'model.timebounds' : [((1996, 1), (2000,1)) | validate_time_bounds] # The year the model starts (inclusive)
 'model.timestep' : [1 | validate_int] # The size of each timestep (in model.time_units)
+'model.timestep_units' : ["months" | validate_time_units] # The size of each timestep
 'model.RandomState' : [None | validate_RandomState] # Seeds the random number generator (useful for regenerating results later)
 'model.initial_num_persons' : [5000 | validate_int]
 'model.initial_num_households' : [750 | validate_int]
 'model.initial_num_neighborhoods' : [65 | validate_int]
-'model.resultspath' : ["/media/Restricted/chitwanABM_runs" | novalidation]
+'model.resultspath' : ["/media/Restricted/Data/chitwanABM_runs" | novalidation]
 'model.use_psyco': [True | validate_boolean]
 
 # Location of input data (these are restricted data)
-#'input.init_data' : ["/media/Restricted/CVABM_initialization_data/init_data.pickle" | novalidation]
+#'input.init_data' : ["/media/Restricted/Data/chitwanABM_init_data/init_data.pickle" | novalidation]
 'input.init_data' : [None | novalidation]
-'input.census_file' : ["/media/Restricted/CVABM_initialization_data/DS0004_export.csv" | novalidation]
-'input.relationships_grid_file' : ["/media/Restricted/CVABM_initialization_data/DS0016_export.csv" | novalidation]
-'input.households_file' : ["/media/Restricted/CVABM_initialization_data/DS0002_export.csv" | novalidation]
-'input.neighborhoods_file' : ["/media/Restricted/CVABM_initialization_data/DS0014_export.csv" | novalidation]
+'input.relationships_grid_file' : ["/media/Restricted/Data/chitwanABM_init_data/hhrel.csv" | novalidation]
+'input.households_file' : ["/media/Restricted/Data/chitwanABM_init_data/hhag.csv" | novalidation]
+'input.neighborhoods_file' : ["/media/Restricted/Data/chitwanABM_init_data/neigh.csv" | novalidation]
 
 # Person agent parameters
 'hazard_time_units': ['years' | validate_time_units] # Specifies the time period for which precalculated hazards are specified

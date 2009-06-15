@@ -18,7 +18,7 @@ if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
 
-model_time_units = rcParams['model.time_units']
+model_time_units = rcParams['model.timestep_units']
 hazard_time_units = rcParams['hazard_time_units']
 
 #TODO: these hazards should be derived from the region, not directly from RcParams
