@@ -11,7 +11,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import warnings
 
 from chitwanABM import rcParams
-from chitwanABM.agents import Region, Person, Household, Neighborhood
+from chitwanABM.agents import Region, Person, Household, Neighborhood, RIDGen, PIDGen, HIDGen, NIDGen
 
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
@@ -61,25 +61,9 @@ def assemble_neighborhoods(neighborhoodsFile):
         NEIGHID = int(neigh_data["NEIGHID"])
         neighborhood = Neighborhood(NEIGHID, initial_agent=True)
 
-        # Axinn (2007) uses the "average number of years non-family services 
-        # were within a 30 minute walk". The data are stored for each service 
-        # for each year, using Nepali years. For example, SCHLFT10 for a 
-        # particular neighborhood stores the number of minutes on foot to 
-        # walk to the nearest school from that neighborhood for that year 
-        # (the '10' represents Nepali year 2010, which is 1953/1954 in 
-        # Western years).
-        services = ['SCHLFT', 'HLTHFT', 'BUSFT', 'MARFT', 'EMPFT']
-        years = range(10, 53)
-        years_avail = 0
-        for service in services:
-            for year in years:
-                exec("min_on_ft = int(neigh_data['%s%s'])"%(service, year))
-                if min_on_ft <= 30:
-                    years_avail += 1
+        neighborhood._avg_years_nonfamily_services = float(neigh_data["AVG_YRS_SRVC"])
 
-        neighborhood.__avg_years_nonfamily_services = years_avail / 5.
-
-        neighborhood._elec_available =  bool(neigh_data['ELEC52']) # is neighborhood electrified (in 1995/1996)
+        neighborhood._elec_available =  bool(neigh_data['ELEC_AVAIL']) # is neighborhood electrified (in 1995/1996)
 
         neighborhoods.append(neighborhood)
 
@@ -145,7 +129,7 @@ def assemble_persons(relationshipsFile):
         # Get the agent's sex and age
         try:
             CENAGE = int(relation['CENAGE'])
-            GENDER = relation['GENDER']
+            CENGENDR = relation['CENGENDR']
         except KeyError:
             print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
             continue
@@ -160,29 +144,41 @@ def assemble_persons(relationshipsFile):
 
         # Convert SUBJECT IDs into RESPIDs
         if father_SUBJECT != 0:
-            father_RESPID = SUBJECT_RESPID_map[HHID][father_SUBJECT]
+            try:
+                father_RESPID = SUBJECT_RESPID_map[HHID][father_SUBJECT]
+            except KeyError:
+                print "WARNING: father of person %s was excluded from the model. Person %s will have their father field set to None."%(RESPID, RESPID)
+            father_RESPID = None
         else:
             father_RESPID = None
 
         if mother_SUBJECT != 0:
-            mother_RESPID = SUBJECT_RESPID_map[HHID][mother_SUBJECT]
+            try:
+                mother_RESPID = SUBJECT_RESPID_map[HHID][mother_SUBJECT]
+            except KeyError:
+                print "WARNING: mother of person %s was excluded from the model. Person %s will have their mother field set to None."%(RESPID, RESPID)
+            mother_RESPID = None
         else:
             mother_RESPID = None
 
         if spouse_SUBJECT != 0:
-            spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_SUBJECT]
+            try:
+                spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_SUBJECT]
+            except KeyError:
+                print "WARNING: spouse of person %s was excluded from the model. Person %s will have their spouse field set to None."%(RESPID, RESPID)
+            spouse_RESPID = None
         else:
             spouse_RESPID = None
 
         # Convert numerical genders to "male" or "female". 1 = male, 2 = female
-        if GENDER == '1':
-            GENDER = "male"
-        elif GENDER == '2':
-            GENDER = "female"
+        if CENGENDR == '1':
+            CENGENDR = "male"
+        elif CENGENDR == '2':
+            CENGENDR = "female"
 
         # Finally, make the new person.
         person = Person(None, RESPID, mother_RESPID, father_RESPID, CENAGE, 
-                GENDER, initial_agent=True)
+                CENGENDR, initial_agent=True)
         person._spouse = spouse_RESPID
 
         personsDict[RESPID] = person
@@ -218,10 +214,10 @@ def assemble_region():
     """Puts together a region from the CVFS data using the above functions to 
     input restricted CVFS data on persons, households, and neighborhoods."""
     # Reset ID generators in chitwanABM.agents
-    chitwanABM.agents.PIDGen.reset()
-    chitwanABM.agents.HIDGen.reset()
-    chitwanABM.agents.NIDGen.reset()
-    chitwanABM.agents.RIDGen.reset()
+    PIDGen.reset()
+    HIDGen.reset()
+    NIDGen.reset()
+    RIDGen.reset()
 
     region = Region()
 
