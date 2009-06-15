@@ -101,8 +101,6 @@ def assemble_households(householdsFile):
         household._own_house_plot = bool(household_data['BAA43']) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
 
-        # NOTE: Need to handle households where this question was 
-        # innappropriate (where they did no farming)
         own_any_bari = bool(household_data['BAA10A']) # does the household own any bari land
         own_any_khet = bool(household_data['BAA18A']) # does the household own any khet land
 
@@ -115,13 +113,13 @@ def assemble_households(householdsFile):
 
     return households, HHID_NEIGHID_map
 
-def assemble_persons(relationshipsFile, censusFile):
-    """Reads data in from the CVFS census (dataset DS0003 (public) or 
-    DS0004 (restricted)) and from the household relationship grid, CVFS 
-    dataset DS0015 (public) or DS0016 (restricted), and assembles person, 
-    household, neighborhood, and region agents."""
+def assemble_persons(relationshipsFile):
+    """Reads data in from the CVFS census (dataset DS0004 (restricted)) and 
+    from the household relationship grid, CVFS DS0016 (restricted), which were 
+    combined into one file, hhrel.csv, by the data_preprocess.R R script. This 
+    function then assembles person agents from the data, including their 
+    relationships (parent, child, etc.) with other agents.."""
     relations = read_CVFS_data(relationshipsFile, "RESPID") 
-    census = read_CVFS_data(censusFile, "RESPID") 
 
     # For each household, create a SUBJECT -> RESPID mapping.  For example:
     # SUBJECT_RESPID_map[HHID][SUBJECT] = RESPID
@@ -144,15 +142,15 @@ def assemble_persons(relationshipsFile, censusFile):
         HHID = int(relation['HHID'])
         RESPID_HHID_map[RESPID] = HHID
 
-        # Get the agent's sex and age from the census data
+        # Get the agent's sex and age
         try:
-            CENAGE = int(census[RESPID]['CENAGE'])
-            CENGENDR = census[RESPID]['CENGENDR']
+            CENAGE = int(relation['CENAGE'])
+            GENDER = relation['GENDER']
         except KeyError:
-            #print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
+            print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
             continue
         except ValueError:
-            #print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
+            print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
             continue
         
         # Read in SUBJECT IDs of parents/spouse/children
@@ -177,14 +175,14 @@ def assemble_persons(relationshipsFile, censusFile):
             spouse_RESPID = None
 
         # Convert numerical genders to "male" or "female". 1 = male, 2 = female
-        if CENGENDR == '1':
-            CENGENDR = "male"
-        elif CENGENDR == '2':
-            CENGENDR = "female"
+        if GENDER == '1':
+            GENDER = "male"
+        elif GENDER == '2':
+            GENDER = "female"
 
         # Finally, make the new person.
         person = Person(None, RESPID, mother_RESPID, father_RESPID, CENAGE, 
-                CENGENDR, initial_agent=True)
+                GENDER, initial_agent=True)
         person._spouse = spouse_RESPID
 
         personsDict[RESPID] = person
@@ -227,12 +225,11 @@ def assemble_region():
 
     region = Region()
 
-    census_file = rcParams['input.census_file']
     relationships_grid_file = rcParams['input.relationships_grid_file']
     households_file = rcParams['input.households_file']
     neighborhoods_file = rcParams['input.neighborhoods_file']
 
-    persons, RESPID_HHID_map = assemble_persons(relationships_grid_file, census_file)
+    persons, RESPID_HHID_map = assemble_persons(relationships_grid_file)
     households, HHID_NEIGHID_map = assemble_households(households_file)
     neighborhoods = assemble_neighborhoods(neighborhoods_file)
 
@@ -257,7 +254,7 @@ def assemble_region():
         try:
             NEIGHID = HHID_NEIGHID_map[HHID]
         except KeyError:
-            #print "WARNING: household %s is not in DS0002. This agent will be excluded from the model."%(HHID)
+            print "WARNING: household %s is not in DS0002. This agent will be excluded from the model."%(HHID)
             continue
         # Get a reference to this neighborhood
         neighborhood = region.get_agent(NEIGHID)
