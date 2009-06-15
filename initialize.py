@@ -13,12 +13,6 @@ import warnings
 from chitwanABM import rcParams
 from chitwanABM.agents import Region, Person, Household, Neighborhood
 
-# Reset ID generators in chitwanABM.agents
-#chitwanABM.agents.PIDGen.reset()
-#chitwanABM.agents.HIDGen.reset()
-#chitwanABM.agents.NIDGen.reset()
-#chitwanABM.agents.RIDGen.reset()
-
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
     objects, where the first line of the file gives the column headings (used 
@@ -225,6 +219,12 @@ def assemble_persons(relationshipsFile, censusFile):
 def assemble_region():
     """Puts together a region from the CVFS data using the above functions to 
     input restricted CVFS data on persons, households, and neighborhoods."""
+    # Reset ID generators in chitwanABM.agents
+    chitwanABM.agents.PIDGen.reset()
+    chitwanABM.agents.HIDGen.reset()
+    chitwanABM.agents.NIDGen.reset()
+    chitwanABM.agents.RIDGen.reset()
+
     region = Region()
 
     census_file = rcParams['input.census_file']
