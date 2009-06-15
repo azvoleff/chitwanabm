@@ -8,19 +8,30 @@ library("foreign")
 ###############################################################################
 # First handle DS0004 - the census dataset
 census <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0004_REST.xpt")
-cenage <- census$CENAGE
-# 5 people don't know their age, and there are 2 NAs in the dataset
-cenage[cenage==-3] <- NA
-cenage <- na.omit(cenage)
-census.processed <- data.frame(CENAGE=cenage)
+census.processed <- with(census, data.frame(RESPID, CENAGE, CENGENDR))
+# 5 people don't know their age, and there are 2 NAs already in the dataset
+census.processed$CENAGE[census.processed$CENAGE==-3] <- NA
+census.processed$CENGENDR[census.processed$CENGENDR==1] <- "male"
+census.processed$CENGENDR[census.processed$CENGENDR==2] <- "female"
+census.processed <- na.omit(census.processed)
 
 ###############################################################################
-# Now handle DS0016 - the household relationship grid
+# Now handle DS0016 - the household relationship grid. Merge the census data 
+# with the relationship grid.
 hhrel <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0016_REST.xpt")
+hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
+hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
 hhag <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0002_REST.xpt")
+hhag.processed <- with(hhag, data.frame(HHID, NEIGHID, BAA10A, BAA18A, BAA43, BAA44))
+# Need to handle households where questions BAA10A and BAA18A were 
+# innappropriate (where they did no farming on that type of land).
+hhag.processed$BAA10A[hhag.processed$BAA10A==1] <- TRUE
+hhag.processed$BAA10A[hhag.processed$BAA10A!=1] <- FALSE
+hhag.processed$BAA18A[hhag.processed$BAA18A==1] <- TRUE
+hhag.processed$BAA18A[hhag.processed$BAA18A!=1] <- FALSE
 
 ###############################################################################
 # Now handle DS0014 - the neighborhoods history data
@@ -48,3 +59,6 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 ###############################################################################
 # Output data. Data is restricted so it has to be stored in an encrypted 
 # folder.
+write.csv(hhrel.processed, file="/media/Restricted/Data/chitwanABM_init_data/hhrel.csv", row.names=FALSE)
+write.csv(hhag.processed, file="/media/Restricted/Data/chitwanABM_init_data/hhag.csv", row.names=FALSE)
+write.csv(neigh.processed, file="/media/Restricted/Data/chitwanABM_init_data/neigh.csv", row.names=FALSE)
