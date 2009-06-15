@@ -19,10 +19,62 @@ if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
 
-timezero = rcParams['model.timezero']
-endtime = rcParams['model.endtime']
+class TimeSteps():
+    def __init__(self, bounds, timestep, units):
+        self._starttime = bounds[0]
+        self._endtime = bounds[1]
+        self._timestep = timestep
+        if units not in ['months', 'years']:
+            raise ValueError("time unit '%s' is an invalid unit. Valid units are 'months' or 'years'"%(units))
+        self._units = units
+
+        # Initialize the current month and year
+        self._year = self._starttime[0]
+        self._month = self._starttime[1]
+
+    def increment(self):
+        if self._units == "months":
+            assert self._month != 0, "Month cannot be 0 if units are months"
+            self._month += self._timestep
+            dyear = int((self._month - 1) / 12)
+            self._year += dyear
+            self._month = self._month - dyear*12
+        elif self._units == "years":
+            self._year += self._timestep
+
+    def in_bounds(self):
+        if self._year == self._endtime[0] and self._month >= self._endtime[1] \
+                or self._year > self._endtime[0]:
+            return False
+        else:
+            return True
+    
+    def get_cur_month(self):
+        return self._month
+
+    def get_cur_date(self):
+        return [self._year, self._month]
+
+    def get_cur_date_float(self):
+        return self._year + self._month/12.
+
+    def __str__(self):
+        if self._units == "months":
+            return "%s, %s"%(self._year, self._month)
+        if self._units == "years":
+            if self._month == 0:
+                return "%s"%(self._year)
+            else:
+                # Allow the model to start from the middle of a year and then 
+                # increment by years.
+                return "%s, %s"%(self._year, self._month)
+
+
+timebounds = rcParams['model.timebounds']
 timestep = rcParams['model.timestep']
-timesteps = np.arange(timezero, endtime, timestep)
+timestep_units = rcParams['model.timestep_units']
+
+model_time = TimeSteps(timebounds, timestep, timestep_units)
 
 def main_loop(region):
     """This function contains the main model loop. Passed to it is a list of 
@@ -36,18 +88,21 @@ def main_loop(region):
     # it runs.
     modelrun_starttime = time.time()
 
-    for t in timesteps:
-        saved_data.add_timestep(t)
+    while model_time.in_bounds():
+        saved_data.add_timestep(model_time.get_cur_date_float())
+        
+        if model_time.get_cur_month() == 1 or \
+                model_time.get_cur_date() == model_time._starttime:
+            print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
+            print "Model  time:", str(model_time)
 
-        print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
-        print "Model  time:", str(t)
         # This could easily be written to handle multiple regions, although 
         # currently there is only one, for all of Chitwan.
-        num_births = region.births(t)
-        num_deaths = region.deaths(t)
-        num_marriages = region.marriages(t)
-        num_migrations = region.migrations(t)
-        region.update_landuse(t)
+        num_births = region.births(model_time)
+        num_deaths = region.deaths(model_time)
+        num_marriages = region.marriages(model_time)
+        num_migrations = region.migrations(model_time)
+        region.update_landuse(model_time)
 
         num_persons = region.num_persons()
         num_households = region.num_households()
@@ -71,6 +126,8 @@ def main_loop(region):
 
         print "    Pop: %s\tBirths: %s\tDeaths: %s\tMarr: %s\tMigr: %s"%(
                 num_persons, num_births, num_deaths, num_marriages, num_migrations)
+
+        model_time.increment()
 
     return saved_data
 
