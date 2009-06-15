@@ -33,6 +33,11 @@ hhag.processed$BAA10A[hhag.processed$BAA10A!=1] <- FALSE
 hhag.processed$BAA18A[hhag.processed$BAA18A==1] <- TRUE
 hhag.processed$BAA18A[hhag.processed$BAA18A!=1] <- FALSE
 
+# Only include individuals in hhrel that are in households for which hhag 
+# information is available:
+in_hhag <- which(hhrel.processed$HHID %in% hhag.processed$HHID)
+hhrel.processed <- hhrel.processed[in_hhag,]
+
 ###############################################################################
 # Now handle DS0014 - the neighborhoods history data
 neigh <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0014_REST.xpt")
