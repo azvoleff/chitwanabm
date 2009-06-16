@@ -33,18 +33,17 @@
 'model.use_psyco': [True | validate_boolean]
 
 # Location of input data (these are restricted data)
-#'input.init_data' : ["/media/Restricted/Data/chitwanABM_init_data/init_data.pickle" | novalidation]
-'input.init_data' : [None | novalidation]
+'input.init_data' : ["/media/Restricted/Data/chitwanABM_init_data/init_data.pickle" | novalidation]
 'input.relationships_grid_file' : ["/media/Restricted/Data/chitwanABM_init_data/hhrel.csv" | novalidation]
 'input.households_file' : ["/media/Restricted/Data/chitwanABM_init_data/hhag.csv" | novalidation]
 'input.neighborhoods_file' : ["/media/Restricted/Data/chitwanABM_init_data/neigh.csv" | novalidation]
 
 # Person agent parameters
-'hazard_time_units': ['years' | validate_time_units] # Specifies the time period for which precalculated hazards are specified
-'hazard_birth' : [{(0, 10):0, (10, 20):.2, (20, 30):.99, (30, 40):.99, (40, 50):.5, (50, 60):.1, (60, 70):0, (70, 80):0, (80, 90):0, (90, 100):0, (100, 110):0} | validate_hazard(0, 110)]
-'hazard_death' : [{(0, 10):.4, (10, 20):.05, (20, 30):.1, (30, 40):.2, (40, 50):.5, (50, 60):.6, (60, 70):.7, (70, 80):.95, (80, 90):.99, (90, 100):.99, (100, 110):1} | validate_hazard(0, 110)]
-'hazard_marriage' : [{(0, 10):0, (10, 20):.4, (20, 30):.8, (30, 40):.6, (40, 50):.5, (50, 60):.3, (60, 70):.2, (70, 80):.05, (80, 90):.002, (90, 100):.01, (100, 110):.01} | validate_hazard(0, 110)]
-'hazard_migration' : [{(0, 10):0, (10, 20):.2, (20, 30):.2, (30, 40):.2, (40, 50):.1, (50, 60):.1, (60, 70):.05, (70, 80):.02, (80, 90):.01, (90, 100):.01, (100, 110):.01} | validate_hazard(0, 110)]
+'hazard.time_units': ['years' | validate_time_units] # Specifies the time period for which precalculated hazards are specified
+'hazard.birth' : [{(0, 10):0, (10, 20):.2, (20, 30):.99, (30, 40):.99, (40, 50):.5, (50, 60):.1, (60, 70):0, (70, 80):0, (80, 90):0, (90, 100):0, (100, 110):0} | validate_hazard(0, 110)]
+'hazard.death' : [{(0, 10):.4, (10, 20):.05, (20, 30):.1, (30, 40):.2, (40, 50):.5, (50, 60):.6, (60, 70):.7, (70, 80):.95, (80, 90):.99, (90, 100):.99, (100, 110):1} | validate_hazard(0, 110)]
+'hazard.marriage' : [{(0, 10):0, (10, 20):.4, (20, 30):.8, (30, 40):.6, (40, 50):.5, (50, 60):.3, (60, 70):.2, (70, 80):.05, (80, 90):.002, (90, 100):.01, (100, 110):.01} | validate_hazard(0, 110)]
+'hazard.migration' : [{(0, 10):0, (10, 20):.2, (20, 30):.2, (30, 40):.2, (40, 50):.1, (50, 60):.1, (60, 70):.05, (70, 80):.02, (80, 90):.01, (90, 100):.01, (100, 110):.01} | validate_hazard(0, 110)]
 
 # Household agent parameters
 'prob_any_non_wood_fuel' : [.5 | validate_unit_interval]
