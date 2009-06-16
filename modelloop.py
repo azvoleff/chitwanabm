@@ -20,27 +20,21 @@ if rcParams['model.use_psyco'] == True:
     psyco.full()
 
 class TimeSteps():
-    def __init__(self, bounds, timestep, units):
+    def __init__(self, bounds, timestep):
         self._starttime = bounds[0]
         self._endtime = bounds[1]
         self._timestep = timestep
-        if units not in ['months', 'years']:
-            raise ValueError("time unit '%s' is an invalid unit. Valid units are 'months' or 'years'"%(units))
-        self._units = units
 
         # Initialize the current month and year
         self._year = self._starttime[0]
         self._month = self._starttime[1]
 
     def increment(self):
-        if self._units == "months":
-            assert self._month != 0, "Month cannot be 0 if units are months"
-            self._month += self._timestep
-            dyear = int((self._month - 1) / 12)
-            self._year += dyear
-            self._month = self._month - dyear*12
-        elif self._units == "years":
-            self._year += self._timestep
+        assert self._month != 0, "Month cannot be 0"
+        self._month += self._timestep
+        dyear = int((self._month - 1) / 12)
+        self._year += dyear
+        self._month = self._month - dyear*12
 
     def in_bounds(self):
         if self._year == self._endtime[0] and self._month >= self._endtime[1] \
@@ -59,22 +53,15 @@ class TimeSteps():
         return self._year + (self._month-1)/12.
 
     def __str__(self):
-        if self._units == "months":
-            return "%s-%s"%(self._year, self._month)
-        if self._units == "years":
-            if self._month == 0:
-                return "%s"%(self._year)
-            else:
-                return "%s-%s"%(self._year, self._month)
+        return "%s-%s"%(self._year, self._month)
 
 
 timebounds = rcParams['model.timebounds']
 timestep = rcParams['model.timestep']
-timestep_units = rcParams['model.timestep_units']
 
-model_time = TimeSteps(timebounds, timestep, timestep_units)
+model_time = TimeSteps(timebounds, timestep)
 
-def main_loop(region):
+def main_loop(world):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
     be used in the model, and the land-use parameters."""
@@ -94,32 +81,32 @@ def main_loop(region):
             print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
             print "Model time:", str(model_time)
 
-        # This could easily be written to handle multiple regions, although 
-        # currently there is only one, for all of Chitwan.
-        print "Num marriages:", region.get_num_marriages()
-        num_births = region.births(model_time)
-        num_deaths = region.deaths(model_time)
-        num_marriages = region.marriages(model_time)
-        num_migrations = region.migrations(model_time)
-        region.update_landuse(model_time)
+        for region in world.iter_regions():
+            # This could easily handle multiple regions, although currently 
+            # there is only one, for all of Chitwan.
+            #print "Num marriages:", region.get_num_marriages()
+            num_births = region.births(model_time)
+            num_deaths = region.deaths(model_time)
+            num_marriages = region.marriages(model_time)
+            num_migrations = region.migrations(model_time)
+            region.update_landuse(model_time)
 
-        num_persons = region.num_persons()
-        num_households = region.num_households()
-        num_neighborhoods = region.num_neighborhoods()
+            num_persons = region.num_persons()
+            num_households = region.num_households()
+            num_neighborhoods = region.num_neighborhoods()
 
-        # store results:
-        saved_data.add_num_births(num_births)
-        saved_data.add_num_deaths(num_deaths)
-        saved_data.add_num_marriages(num_marriages)
-        saved_data.add_num_migrations(num_migrations)
-        saved_data.add_num_persons(num_persons)
-        saved_data.add_num_households(num_households)
-        saved_data.add_num_neighborhoods(num_neighborhoods)
+            # store results:
+            saved_data.add_num_births(num_births)
+            saved_data.add_num_deaths(num_deaths)
+            saved_data.add_num_marriages(num_marriages)
+            saved_data.add_num_migrations(num_migrations)
+            saved_data.add_num_persons(num_persons)
+            saved_data.add_num_households(num_households)
+            saved_data.add_num_neighborhoods(num_neighborhoods)
 
-        region.increment_age()
-            
-        num_persons = region.num_persons()
-
+            region.increment_age()
+                
+            num_persons = region.num_persons()
         if num_persons == 0:
             print "End of model run: population is zero."
 

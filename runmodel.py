@@ -18,9 +18,9 @@ import pickle
 import tempfile
 import subprocess
 
-from chitwanABM import rcParams, modelloop
-from chitwanABM.initialize import assemble_region, load_region
-from chitwanABM.agents import Region
+from chitwanABM import rcParams
+from chitwanABM.modelloop import main_loop
+from chitwanABM.initialize import assemble_world, load_world
 from chitwanABM.rcsetup import write_RC_file
 from chitwanABM.plotting import plot_pop_stats
 
@@ -49,15 +49,16 @@ def main(argv=None):
     
     # Initialize
     stored_init_data = rcParams['input.init_data']
-    if stored_init_data == "None":
-        print "Assembling region from pre-processed CVFS data..."
-        region = assemble_region()
-    else:
+    if stored_init_data != "None":
         try:
-            region = load_region(stored_init_data)
-            print "Using saved region from %s..."%stored_init_data
+            world = load_world(stored_init_data)
+            print "Using saved world from %s..."%stored_init_data
         except IOError:
-            raise IOError('error loading %s datafile'%stored_init_data)
+            print ('WARNING: error loading %s datafile'%stored_init_data)
+            stored_init_data = "None"
+    if stored_init_data == "None":
+        print "Assembling world from pre-processed CVFS data..."
+        world = assemble_world()
 
     # Run the model loop
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
@@ -66,7 +67,7 @@ def main(argv=None):
 %s: started model run number %s.
 *******************************************************************************
 """%(start_time, run_ID_number)
-    results = modelloop.main_loop(region) # This line actually runs the model.
+    results = main_loop(world) # This line actually runs the model.
     end_time = time.strftime("%m/%d/%Y %I:%M:%S %p") 
     print """
 *******************************************************************************

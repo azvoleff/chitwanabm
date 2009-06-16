@@ -11,9 +11,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import pickle
 
 from chitwanABM import rcParams
-from chitwanABM.agents import Region, Person, Household, Neighborhood, RIDGen, PIDGen, HIDGen, NIDGen
-
-timestep_units = rcParams['model.timestep_units']
+from chitwanABM.agents import world
 
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
@@ -61,7 +59,7 @@ def assemble_neighborhoods(neighborhoodsFile):
     neighborhoods = []
     for neigh_data in neigh_datas.itervalues():
         NEIGHID = int(neigh_data["NEIGHID"])
-        neighborhood = Neighborhood(NEIGHID, initial_agent=True)
+        neighborhood = world.new_neighborhood(NEIGHID, initial_agent=True)
 
         neighborhood._avg_years_nonfamily_services = float(neigh_data["AVG_YRS_SRVC"])
 
@@ -83,7 +81,7 @@ def assemble_households(householdsFile):
         NEIGHID = int(household_data['NEIGHID'])
         HHID_NEIGHID_map[HHID] = NEIGHID
         
-        household = Household(HHID, initial_agent=True)
+        household = world.new_household(HHID, initial_agent=True)
         household._own_house_plot = bool(household_data['BAA43']) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
 
@@ -130,7 +128,7 @@ def assemble_persons(relationshipsFile):
 
         # Get the agent's sex and age
         try:
-            CENAGE = int(relation['CENAGE'])
+            AGEMNTHS = int(relation['AGEMNTHS']) # Age of agent in months
             CENGENDR = relation['CENGENDR']
         except KeyError:
             print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
@@ -179,7 +177,7 @@ def assemble_persons(relationshipsFile):
             CENGENDR = "female"
 
         # Finally, make the new person.
-        person = Person(None, RESPID, mother_RESPID, father_RESPID, CENAGE, 
+        person = world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
                 CENGENDR, initial_agent=True)
         person._spouse = spouse_RESPID
 
@@ -212,16 +210,11 @@ def assemble_persons(relationshipsFile):
             
     return persons, RESPID_HHID_map
 
-def assemble_region():
-    """Puts together a region from the CVFS data using the above functions to 
-    input restricted CVFS data on persons, households, and neighborhoods."""
-    # Reset ID generators in chitwanABM.agents
-    PIDGen.reset()
-    HIDGen.reset()
-    NIDGen.reset()
-    RIDGen.reset()
-
-    region = Region()
+def assemble_world():
+    """Puts together a single region from the CVFS data using the above 
+    functions to input restricted CVFS data on persons, households, and 
+    neighborhoods."""
+    region = world.new_region()
 
     relationships_grid_file = rcParams['input.relationships_grid_file']
     households_file = rcParams['input.households_file']
@@ -262,23 +255,15 @@ def assemble_region():
 
     print "\nPersons: %s, Households: %s, Neighborhoods: %s"%(region.num_persons(), region.num_households(), region.num_neighborhoods())
 
-    return region
+    return world
 
-def save_region(region, filename):
+def save_world(region, filename):
     "Pickles a region for later reloading."
     file = open(filename, "w")
-    pickle.dump(region, file)
+    pickle.dump(world, file)
 
-def load_region(filename):
-    """Load a pickled region for use in the model. The region was stored with 
-    agent ages from the CVFS data, where they are expressed in years. If 
-    model.timestep_units is something else (months), then the ages must be 
-    converted."""
+def load_world(filename):
+    """Load a pickled region for use in the model."""
     file = open(filename, "r")
-    region = pickle.load(file)
-    # Convert person ages to be expressed in months if the model timestep is in 
-    # months
-    if timestep_units == "months":
-        for person in region.iter_persons():
-            person._age = person._age * 12
-    return region
+    world = pickle.load(file)
+    return world

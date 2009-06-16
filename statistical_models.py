@@ -18,7 +18,6 @@ if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
 
-model_time_units = rcParams['model.timestep_units']
 hazard_time_units = rcParams['hazard.time_units']
 
 #TODO: these hazards should be derived from the region, not directly from RcParams
@@ -38,29 +37,14 @@ def __hazard_index__(t):
     it to decades, rounding down. NOTE: all hazards must be expressed with the 
     same time units.
     """
-    if model_time_units == 'months':
-        if hazard_time_units == 'months':
-            return t
-        if hazard_time_units == 'years':
-            return int(round(t / 12.))
-        if hazard_time_units == 'decades':
-            return int(round(t / 120.))
-    elif model_time_units == 'years':
-        if hazard_time_units == 'months':
-            raise UnitsError("model_time_units cannot be greater than hazard_time_units")
-        if hazard_time_units == 'years':
-            return t
-        if hazard_time_units == 'decades':
-            return int(round(t / 10.))
-    elif model_time_units == 'decades':
-        if hazard_time_units == 'months':
-            raise UnitsError("model_time_units cannot be greater than hazard_time_units")
-        if hazard_time_units == 'years':
-            raise UnitsError("model_time_units cannot be greater than hazard_time_units")
-        if hazard_time_units == 'decades':
-            return t
+    if hazard_time_units == 'months':
+        return t
+    elif hazard_time_units == 'years':
+        return int(round(t / 12.))
+    elif hazard_time_units == 'decades':
+        return int(round(t / 120.))
     else:
-        raise UnitsError("unhandled model_time_units or hazard_time_units")
+        raise UnitsError("unhandled hazard_time_units")
 
 def convert_hazard_units(hazard):
     """
@@ -71,29 +55,14 @@ def convert_hazard_units(hazard):
     """
     # If the hazard time units don't match the model timestep units, then the 
     # hazards need to be converted.
-    if model_time_units == 'months':
-        if hazard_time_units == 'months':
-            return hazard
-        if hazard_time_units == 'years':
-            return 1 - (1 - hazard)**(1/12.)
-        if hazard_time_units == 'decades':
-            return 1 - (1 - hazard)**(1/120.)
-    elif model_time_units == 'years':
-        if hazard_time_units == 'months':
-            raise UnitsError("model_time_units cannot be greater than hazard_time_units")
-        if hazard_time_units == 'years':
-            return hazard
-        if hazard_time_units == 'decades':
-            return 1 - (1 - hazard)**(1/10.)
-    elif model_time_units == 'decades':
-        if hazard_time_units == 'months':
-            raise UnitsError("model_time_units cannot be greater than hazard_time_units")
-        if hazard_time_units == 'years':
-            raise UnitsError("model_time_units cannot be greater than hazard_time_units")
-        if hazard_time_units == 'decades':
-            return hazard
+    if hazard_time_units == 'months':
+        return hazard
+    elif hazard_time_units == 'years':
+        return 1 - (1 - hazard)**(1/12.)
+    elif hazard_time_units == 'decades':
+        return 1 - (1 - hazard)**(1/120.)
     else:
-        raise UnitsError("unhandled model_time_units or hazard_time_units")
+        raise UnitsError("unhandled hazard_time_units")
 
 #def hazard_birth(person, neighborhood, landuse):
 def calc_hazard_birth(person):
