@@ -56,18 +56,16 @@ class TimeSteps():
         return [self._year, self._month]
 
     def get_cur_date_float(self):
-        return self._year + self._month/12.
+        return self._year + (self._month-1)/12.
 
     def __str__(self):
         if self._units == "months":
-            return "%s, %s"%(self._year, self._month)
+            return "%s-%s"%(self._year, self._month)
         if self._units == "years":
             if self._month == 0:
                 return "%s"%(self._year)
             else:
-                # Allow the model to start from the middle of a year and then 
-                # increment by years.
-                return "%s, %s"%(self._year, self._month)
+                return "%s-%s"%(self._year, self._month)
 
 
 timebounds = rcParams['model.timebounds']
@@ -94,10 +92,11 @@ def main_loop(region):
         if model_time.get_cur_month() == 1 or \
                 model_time.get_cur_date() == model_time._starttime:
             print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
-            print "Model  time:", str(model_time)
+            print "Model time:", str(model_time)
 
         # This could easily be written to handle multiple regions, although 
         # currently there is only one, for all of Chitwan.
+        print "Num marriages:", region.get_num_marriages()
         num_births = region.births(model_time)
         num_deaths = region.deaths(model_time)
         num_marriages = region.marriages(model_time)

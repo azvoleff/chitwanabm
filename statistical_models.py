@@ -19,13 +19,13 @@ if rcParams['model.use_psyco'] == True:
     psyco.full()
 
 model_time_units = rcParams['model.timestep_units']
-hazard_time_units = rcParams['hazard_time_units']
+hazard_time_units = rcParams['hazard.time_units']
 
 #TODO: these hazards should be derived from the region, not directly from RcParams
-birth_hazards = rcParams['hazard_birth']
-death_hazards = rcParams['hazard_death']
-marriage_hazards = rcParams['hazard_marriage']
-migration_hazards = rcParams['hazard_migration']
+birth_hazards = rcParams['hazard.birth']
+death_hazards = rcParams['hazard.death']
+marriage_hazards = rcParams['hazard.marriage']
+migration_hazards = rcParams['hazard.migration']
 
 class UnitsError(Exception):
     pass
@@ -42,9 +42,9 @@ def __hazard_index__(t):
         if hazard_time_units == 'months':
             return t
         if hazard_time_units == 'years':
-            return int(round((t * 12) / 12.))
+            return int(round(t / 12.))
         if hazard_time_units == 'decades':
-            return int(round((t * 12) / 120.))
+            return int(round(t / 120.))
     elif model_time_units == 'years':
         if hazard_time_units == 'months':
             raise UnitsError("model_time_units cannot be greater than hazard_time_units")
@@ -67,7 +67,7 @@ def convert_hazard_units(hazard):
     Converts hazard so units match timestep used in the model, assuming hazard 
     function is uniform across the interval.
 
-    Conversions are made according using conditional probability.
+    Conversions are made accordingly using conditional probability.
     """
     # If the hazard time units don't match the model timestep units, then the 
     # hazards need to be converted.
@@ -118,7 +118,7 @@ def calc_hazard_death(person):
     hazard_index = __hazard_index__(age)
     try:
         return convert_hazard_units(death_hazards[hazard_index])
-    except:
+    except IndexError:
         raise IndexError("error calculating death hazard (index %s)"%(hazard_index))
 
 def calc_hazard_migration(person):
