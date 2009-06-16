@@ -8,10 +8,12 @@ characteristics for each agent.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-import warnings
+import pickle
 
 from chitwanABM import rcParams
 from chitwanABM.agents import Region, Person, Household, Neighborhood, RIDGen, PIDGen, HIDGen, NIDGen
+
+timestep_units = rcParams['model.timestep_units']
 
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
@@ -166,7 +168,7 @@ def assemble_persons(relationshipsFile):
                 spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_SUBJECT]
             except KeyError:
                 print "WARNING: spouse of person %s was excluded from the model. Person %s will have their spouse field set to None."%(RESPID, RESPID)
-            spouse_RESPID = None
+                spouse_RESPID = None
         else:
             spouse_RESPID = None
 
@@ -260,4 +262,23 @@ def assemble_region():
 
     print "\nPersons: %s, Households: %s, Neighborhoods: %s"%(region.num_persons(), region.num_households(), region.num_neighborhoods())
 
+    return region
+
+def save_region(region, filename):
+    "Pickles a region for later reloading."
+    file = open(filename, "w")
+    pickle.dump(region, file)
+
+def load_region(filename):
+    """Load a pickled region for use in the model. The region was stored with 
+    agent ages from the CVFS data, where they are expressed in years. If 
+    model.timestep_units is something else (months), then the ages must be 
+    converted."""
+    file = open(filename, "r")
+    region = pickle.load(file)
+    # Convert person ages to be expressed in months if the model timestep is in 
+    # months
+    if timestep_units == "months":
+        for person in region.iter_persons():
+            person._age = person._age * 12
     return region
