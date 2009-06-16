@@ -18,7 +18,8 @@ import pickle
 import tempfile
 import subprocess
 
-from chitwanABM import rcParams, initialize, modelloop
+from chitwanABM import rcParams, modelloop
+from chitwanABM.initialize import assemble_region, load_region
 from chitwanABM.agents import Region
 from chitwanABM.rcsetup import write_RC_file
 from chitwanABM.plotting import plot_pop_stats
@@ -49,13 +50,14 @@ def main(argv=None):
     # Initialize
     stored_init_data = rcParams['input.init_data']
     if stored_init_data == "None":
-        region = initialize.assemble_region()
+        print "Assembling region from pre-processed CVFS data..."
+        region = assemble_region()
     else:
         try:
-            open(stored_init_data, 'r')
-            region = pickle.load(stored_init_data)
+            region = load_region(stored_init_data)
+            print "Using saved region from %s..."%stored_init_data
         except IOError:
-            raise IOError('error loading %s datafile')
+            raise IOError('error loading %s datafile'%stored_init_data)
 
     # Run the model loop
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
