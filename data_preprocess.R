@@ -8,11 +8,14 @@ library("foreign")
 ###############################################################################
 # First handle DS0004 - the census dataset
 census <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0004_REST.xpt")
-census.processed <- with(census, data.frame(RESPID, CENAGE, CENGENDR))
-# 5 people don't know their age, and there are 2 NAs already in the dataset
-census.processed$CENAGE[census.processed$CENAGE==-3] <- NA
+# 5 people don't know their age, coded as -3 in dataset
+census$CENAGE[census$CENAGE==-3] <- NA
+# The model runs in months. So convert ages from years to months
+AGEMNTHS <- census$CENAGE*12
+census.processed <- with(census, data.frame(RESPID, AGEMNTHS, CENGENDR))
 census.processed$CENGENDR[census.processed$CENGENDR==1] <- "male"
 census.processed$CENGENDR[census.processed$CENGENDR==2] <- "female"
+# Eliminate the 5 people with unknown ages, and the 2 other NAs in the dataset
 census.processed <- na.omit(census.processed)
 
 ###############################################################################
