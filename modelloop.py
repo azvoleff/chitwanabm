@@ -78,17 +78,18 @@ def main_loop(world):
         
         if model_time.get_cur_month() == 1 or \
                 model_time.get_cur_date() == model_time._starttime:
-            print "Elapsed time: ", elapsed_time(modelrun_starttime) + "\n"
-            print "Model time:", str(model_time)
+            msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
+            msg = msg.rjust(80)
+            print msg
 
         for region in world.iter_regions():
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
-            #print "Num marriages:", region.get_num_marriages()
-            num_births = region.births(model_time)
-            num_deaths = region.deaths(model_time)
-            num_marriages = region.marriages(model_time)
-            num_migrations = region.migrations(model_time)
+            #print "Num marriages:", 
+            num_new_births = region.births(model_time)
+            num_new_deaths = region.deaths(model_time)
+            num_new_marriages = region.marriages(model_time)
+            num_new_migrations = region.migrations(model_time)
             region.update_landuse(model_time)
 
             num_persons = region.num_persons()
@@ -96,22 +97,23 @@ def main_loop(world):
             num_neighborhoods = region.num_neighborhoods()
 
             # store results:
-            saved_data.add_num_births(num_births)
-            saved_data.add_num_deaths(num_deaths)
-            saved_data.add_num_marriages(num_marriages)
-            saved_data.add_num_migrations(num_migrations)
+            saved_data.add_num_births(num_new_births)
+            saved_data.add_num_deaths(num_new_deaths)
+            saved_data.add_num_marriages(num_new_marriages)
+            saved_data.add_num_migrations(num_new_migrations)
             saved_data.add_num_persons(num_persons)
             saved_data.add_num_households(num_households)
             saved_data.add_num_neighborhoods(num_neighborhoods)
 
             region.increment_age()
                 
-            num_persons = region.num_persons()
+        print "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
+                str(model_time).ljust(7), num_persons, region.get_num_marriages(), num_households,
+                num_new_marriages, num_new_births, num_new_deaths, num_new_migrations)
+
         if num_persons == 0:
             print "End of model run: population is zero."
-
-        print "    Pop: %s\tBirths: %s\tDeaths: %s\tMarr: %s\tMigr: %s"%(
-                num_persons, num_births, num_deaths, num_marriages, num_migrations)
+            break
 
         model_time.increment()
 
