@@ -20,7 +20,6 @@ import subprocess
 
 from chitwanABM import rcParams
 from chitwanABM.modelloop import main_loop
-from chitwanABM.initialize import assemble_world, load_world
 from chitwanABM.rcsetup import write_RC_file
 from chitwanABM.plotting import plot_pop_stats
 
@@ -47,18 +46,13 @@ def main(argv=None):
     except OSError:
         raise OSError("error creating results directory %s"%(results_path))
     
-    # Initialize
+    # Load a pickled World for use in the model.
     stored_init_data = rcParams['input.init_data']
-    if stored_init_data != "None":
-        try:
-            world = load_world(stored_init_data)
-            print "Using saved world from %s..."%stored_init_data
-        except IOError:
-            print ('WARNING: error loading %s datafile'%stored_init_data)
-            stored_init_data = "None"
-    if stored_init_data == "None":
-        print "Assembling world from pre-processed CVFS data..."
-        world = assemble_world()
+    file = open(stored_init_data , "r")
+    try:
+        world = pickle.load(file)
+    except IOError:
+        raise IOError('error loading world data from  %s'%stored_init_data)
 
     # Run the model loop
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
@@ -90,9 +84,10 @@ def main(argv=None):
     plot_pop_stats(results, plot_file)
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
-    # from the commit (the output of the git diff command).
+    # from the commit (the output of the git diff command). sys.path[0] gives 
+    # the path of the currently running chitwanABM code.
     git_diff_file = os.path.join(results_path, "git_diff.patch")
-    commit_hash = save_git_diff("/home/azvoleff/Code/Python/chitwanABM", git_diff_file)
+    commit_hash = save_git_diff(sys.path[0], git_diff_file)
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 

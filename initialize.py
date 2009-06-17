@@ -1,9 +1,8 @@
 """
 Part of Chitwan Valley agent-based model.
 
-Sets up a CV_ABM_NS model run: Initializes neighborhood/household/person agents 
-and land use based on a set of distributions for the value of particular 
-characteristics for each agent.
+Sets up a chitwanABM model run: Initializes neighborhood/household/person agents 
+and land use using the original CVFS data.
 
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
@@ -11,7 +10,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import pickle
 
 from chitwanABM import rcParams
-from chitwanABM.agents import world
+from chitwanABM.agents import World
 
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 
@@ -49,7 +48,7 @@ def read_CVFS_data(textfile, key_field):
 
     return data
 
-def assemble_neighborhoods(neighborhoodsFile):
+def assemble_neighborhoods(neighborhoodsFile, model_world):
     """Reads in data from the CVFS (from dataset DS0014) on number of years 
     non-family services were available within a 30 min walk of each 
     neighborhood (SCHLFT, HLTHFT, BUSFT, MARFT, EMPFT) and on whether 
@@ -59,17 +58,14 @@ def assemble_neighborhoods(neighborhoodsFile):
     neighborhoods = []
     for neigh_data in neigh_datas.itervalues():
         NEIGHID = int(neigh_data["NEIGHID"])
-        neighborhood = world.new_neighborhood(NEIGHID, initial_agent=True)
-
+        neighborhood = model_world.new_neighborhood(NEIGHID, initial_agent=True)
         neighborhood._avg_years_nonfamily_services = float(neigh_data["AVG_YRS_SRVC"])
-
         neighborhood._elec_available =  bool(neigh_data['ELEC_AVAIL']) # is neighborhood electrified (in 1995/1996)
-
         neighborhoods.append(neighborhood)
 
     return neighborhoods
 
-def assemble_households(householdsFile):
+def assemble_households(householdsFile, model_world):
     """Reads in data from the CVFS (from dataset DS0002) on several statistics 
     for each household (BAA43, BAA44, BAA10A, BAA18A)."""
     household_datas = read_CVFS_data(householdsFile, "HHID")
@@ -81,7 +77,7 @@ def assemble_households(householdsFile):
         NEIGHID = int(household_data['NEIGHID'])
         HHID_NEIGHID_map[HHID] = NEIGHID
         
-        household = world.new_household(HHID, initial_agent=True)
+        household = model_world.new_household(HHID, initial_agent=True)
         household._own_house_plot = bool(household_data['BAA43']) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
 
@@ -97,7 +93,7 @@ def assemble_households(householdsFile):
 
     return households, HHID_NEIGHID_map
 
-def assemble_persons(relationshipsFile):
+def assemble_persons(relationshipsFile, model_world):
     """Reads data in from the CVFS census (dataset DS0004 (restricted)) and 
     from the household relationship grid, CVFS DS0016 (restricted), which were 
     combined into one file, hhrel.csv, by the data_preprocess.R R script. This 
@@ -177,7 +173,7 @@ def assemble_persons(relationshipsFile):
             CENGENDR = "female"
 
         # Finally, make the new person.
-        person = world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
+        person = model_world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
                 CENGENDR, initial_agent=True)
         person._spouse = spouse_RESPID
 
@@ -214,17 +210,21 @@ def assemble_world():
     """Puts together a single region from the CVFS data using the above 
     functions to input restricted CVFS data on persons, households, and 
     neighborhoods."""
-    region = world.new_region()
+    model_world = World()
 
     relationships_grid_file = rcParams['input.relationships_grid_file']
     households_file = rcParams['input.households_file']
     neighborhoods_file = rcParams['input.neighborhoods_file']
 
-    persons, RESPID_HHID_map = assemble_persons(relationships_grid_file)
-    households, HHID_NEIGHID_map = assemble_households(households_file)
-    neighborhoods = assemble_neighborhoods(neighborhoods_file)
+    persons, RESPID_HHID_map = assemble_persons(relationships_grid_file, model_world)
+    households, HHID_NEIGHID_map = assemble_households(households_file, model_world)
+    neighborhoods = assemble_neighborhoods(neighborhoods_file, model_world)
 
-    # Populate the region
+    # Populate the Chitwan region (the code could handle multiple regions too, 
+    # for instance, subdivide the population into different groups with 
+    # different hazards of migration. Currently just one region is used.
+    region = model_world.new_region()
+
     for neighborhood in neighborhoods:
         region.add_agent(neighborhood)
 
@@ -254,16 +254,9 @@ def assemble_world():
         household.add_agent(person)
 
     print "\nPersons: %s, Households: %s, Neighborhoods: %s"%(region.num_persons(), region.num_households(), region.num_neighborhoods())
+    return model_world
 
-    return world
-
-def save_world(region, filename):
-    "Pickles a region for later reloading."
+def save_world(world, filename):
+    "Pickles a world for later reloading."
     file = open(filename, "w")
     pickle.dump(world, file)
-
-def load_world(filename):
-    """Load a pickled region for use in the model."""
-    file = open(filename, "r")
-    world = pickle.load(file)
-    return world
