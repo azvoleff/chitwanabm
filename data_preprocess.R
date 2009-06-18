@@ -42,7 +42,7 @@ in_hhag <- which(hhrel.processed$HHID %in% hhag.processed$HHID)
 hhrel.processed <- hhrel.processed[in_hhag,]
 
 ###############################################################################
-# Now handle DS0014 - the neighborhoods history data
+# Now handle DS0014 - the neighborhood history data
 neigh <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0014_REST.xpt")
 # Axinn (2007) uses the "average number of years non-family services were 
 # within a 30 minute walk". The data are stored for each service for each year, 
