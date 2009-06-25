@@ -66,6 +66,27 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 
 
 ###############################################################################
+# Now handle the land use data. Import land use data from time 1 for 4 
+# different classes, as is done by Axinn (2007). The classes are:
+# 	Agricultural vegetation - BARI1, IKHET1, RKHET1
+# 	Non-agricultural vegetation - GRASSC1, GRASSP1, PLANTC1, PLANTP1
+# 	Private buildings - HHRESID1, MILL1, OTRBLD1
+# 	Public buildings - ROAD1, SCHOOL1, TEMPLE1
+# 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
+lu <- read.xport("/media/Restricted/Data/ICPSR_SupplementalData/Survey_conv/landuse.xpt")
+
+land.agveg <- with(lu,rowSums(cbind(BARI1, IKHET1, RKHET1)))
+land.nonagveg <- with(lu,rowSums(cbind(GRASSC1, GRASSP1, PLANTC1, PLANTP1)))
+land.privbldg <- with(lu,rowSums(cbind(HHRESID1, MILL1, OTRBLD1)))
+land.pubbldg <- with(lu,rowSums(cbind(ROAD1, SCHOOL1, TEMPLE1)))
+land.other <- with(lu,rowSums(cbind(CANAL1, POND1, RIVER1, SILT1, UNDVP1)))
+
+lu.processed <- data.frame(NEIGHID=lu$NEIGHID, land.agveg, land.nonagveg, land.privbldg, land.pubbldg, land.other)
+
+# Join these rows to the neighborhood data processed earlier.
+neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
+
+###############################################################################
 # Output data. Data is restricted so it has to be stored in an encrypted 
 # folder.
 write.csv(hhrel.processed, file="/media/Restricted/Data/chitwanABM_init_data/hhrel.csv", row.names=FALSE)
