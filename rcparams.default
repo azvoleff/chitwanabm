@@ -32,10 +32,10 @@
 'model.use_psyco': [True | validate_boolean]
 
 # Location of input data (these are restricted data)
-'input.init_data' : ["/media/Restricted/Data/ChitwanABM_init_data/init_data.pickle" | novalidation]
-'input.relationships_grid_file' : ["/media/Restricted/Data/ChitwanABM_init_data/hhrel.csv" | novalidation]
-'input.households_file' : ["/media/Restricted/Data/ChitwanABM_init_data/hhag.csv" | novalidation]
-'input.neighborhoods_file' : ["/media/Restricted/Data/ChitwanABM_init_data/neigh.csv" | novalidation]
+'input.init_data_file' : ["/media/Restricted/Data/ChitwanABM_init/init_data.pickle" | novalidation]
+'input.relationships_grid_file' : ["/media/Restricted/Data/ChitwanABM_init/hhrel.csv" | novalidation]
+'input.households_file' : ["/media/Restricted/Data/ChitwanABM_init/hhag.csv" | novalidation]
+'input.neighborhoods_file' : ["/media/Restricted/Data/ChitwanABM_init/neigh.csv" | novalidation]
 
 # Person agent parameters
 'hazard.time_units': ['years' | validate_time_units] # Specifies the time period for which precalculated hazards are specified

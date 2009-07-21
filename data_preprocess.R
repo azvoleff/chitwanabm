@@ -84,7 +84,7 @@ land.other <- with(lu, rowSums(cbind(CANAL1, POND1, RIVER1, SILT1, UNDVP1)))
 
 lu.processed <- data.frame(NEIGHID=lu$NEIGHID, land.agveg, land.nonagveg, land.privbldg, land.pubbldg, land.other)
 # Convert land areas expressed in square feet to square meters
-lu.processed[,2:6]  <- lu.processed[,2:6] * .09290304
+lu.processed[2:6]  <- lu.processed[2:6] * .09290304
 
 # Join these rows to the neighborhood data processed earlier.
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
@@ -92,6 +92,6 @@ neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 ###############################################################################
 # Output data. Data is restricted so it has to be stored in an encrypted 
 # folder.
-write.csv(hhrel.processed, file="/media/Restricted/Data/ChitwanABM_init_data/hhrel.csv", row.names=FALSE)
-write.csv(hhag.processed, file="/media/Restricted/Data/ChitwanABM_init_data/hhag.csv", row.names=FALSE)
-write.csv(neigh.processed, file="/media/Restricted/Data/ChitwanABM_init_data/neigh.csv", row.names=FALSE)
+write.csv(hhrel.processed, file="/media/Restricted/Data/ChitwanABM_init/hhrel.csv", row.names=FALSE)
+write.csv(hhag.processed, file="/media/Restricted/Data/ChitwanABM_init/hhag.csv", row.names=FALSE)
+write.csv(neigh.processed, file="/media/Restricted/Data/ChitwanABM_init/neigh.csv", row.names=FALSE)

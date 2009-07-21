@@ -47,12 +47,12 @@ def main(argv=None):
         raise OSError("error creating results directory %s"%(results_path))
     
     # Load a pickled World for use in the model.
-    stored_init_data = rcParams['input.init_data']
-    file = open(stored_init_data , "r")
+    stored_init_data_file = rcParams['input.init_data_file']
+    file = open(stored_init_data_file , "r")
     try:
         world = pickle.load(file)
     except IOError:
-        raise IOError('error loading world data from  %s'%stored_init_data)
+        raise IOError('error loading world data from  %s'%stored_init_data_file)
 
     # Run the model loop
     start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")

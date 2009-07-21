@@ -8,16 +8,19 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import pickle
+from subprocess import check_call, CalledProcessError
 
 from ChitwanABM import rcParams
 from ChitwanABM.agents import World
 
 def read_CVFS_data(textfile, key_field):
-    """Reads in CVFS data from a CSV file into a dictionary of dictionary 
-    objects, where the first line of the file gives the column headings (used 
-    as keys within the nested dictionary object). No conversion of the fields 
-    is done: they are all stored as strings, EXCEPT for the key_field, which is 
-    converted and stored as an int."""
+    """
+    Reads in CVFS data from a CSV file into a dictionary of dictionary objects, 
+    where the first line of the file gives the column headings (used as keys 
+    within the nested dictionary object). No conversion of the fields is done: 
+    they are all stored as strings, EXCEPT for the key_field, which is 
+    converted and stored as an int.
+    """
 
     try:
         file = open(textfile, 'r')
@@ -49,10 +52,12 @@ def read_CVFS_data(textfile, key_field):
     return data
 
 def assemble_neighborhoods(neighborhoodsFile, model_world):
-    """Reads in data from the CVFS (from dataset DS0014) on number of years 
+    """
+    Reads in data from the CVFS (from dataset DS0014) on number of years 
     non-family services were available within a 30 min walk of each 
     neighborhood (SCHLFT, HLTHFT, BUSFT, MARFT, EMPFT) and on whether 
-    neighborhood was electrified (ELEC)."""
+    neighborhood was electrified (ELEC).
+    """
     neigh_datas = read_CVFS_data(neighborhoodsFile, "NEIGHID") 
 
     neighborhoods = []
@@ -64,8 +69,8 @@ def assemble_neighborhoods(neighborhoodsFile, model_world):
         # All land areas are given in square meters
 
         neighborhood._land_agveg = float(neigh_data['land.agveg'])
-        neighborhood._land_nonnonprivbldg = float(neigh_data['land.nonprivbldg'])
-        neighborhood._land_privbldg = float(neigh_data['land.agveg'])
+        neighborhood._land_nonagveg= float(neigh_data['land.nonagveg'])
+        neighborhood._land_privbldg = float(neigh_data['land.privbldg'])
         neighborhood._land_pubbldg = float(neigh_data['land.pubbldg'])
         neighborhood._land_other = float(neigh_data['land.other'])
         neighborhoods.append(neighborhood)
@@ -73,8 +78,10 @@ def assemble_neighborhoods(neighborhoodsFile, model_world):
     return neighborhoods
 
 def assemble_households(householdsFile, model_world):
-    """Reads in data from the CVFS (from dataset DS0002) on several statistics 
-    for each household (BAA43, BAA44, BAA10A, BAA18A)."""
+    """
+    Reads in data from the CVFS (from dataset DS0002) on several statistics for 
+    each household (BAA43, BAA44, BAA10A, BAA18A).
+    """
     household_datas = read_CVFS_data(householdsFile, "HHID")
     
     households = []
@@ -101,11 +108,13 @@ def assemble_households(householdsFile, model_world):
     return households, HHID_NEIGHID_map
 
 def assemble_persons(relationshipsFile, model_world):
-    """Reads data in from the CVFS census (dataset DS0004 (restricted)) and 
-    from the household relationship grid, CVFS DS0016 (restricted), which were 
+    """
+    Reads data in from the CVFS census (dataset DS0004 (restricted)) and from 
+    the household relationship grid, CVFS DS0016 (restricted), which were 
     combined into one file, hhrel.csv, by the data_preprocess.R R script. This 
     function then assembles person agents from the data, including their 
-    relationships (parent, child, etc.) with other agents.."""
+    relationships (parent, child, etc.) with other agents.
+    """
     relations = read_CVFS_data(relationshipsFile, "RESPID") 
 
     # For each household, create a SUBJECT -> RESPID mapping.  For example:
@@ -214,9 +223,11 @@ def assemble_persons(relationshipsFile, model_world):
     return persons, RESPID_HHID_map
 
 def assemble_world():
-    """Puts together a single region from the CVFS data using the above 
-    functions to input restricted CVFS data on persons, households, and 
-    neighborhoods."""
+    """
+    Puts together a single world (with, currently, only a single region) from 
+    the CVFS data using the above functions to input restricted CVFS data on 
+    persons, households, and neighborhoods.
+    """
     model_world = World()
 
     relationships_grid_file = rcParams['input.relationships_grid_file']
@@ -267,3 +278,28 @@ def save_world(world, filename):
     "Pickles a world for later reloading."
     file = open(filename, "w")
     pickle.dump(world, file)
+
+def generate_world():
+    """
+    Performs the complete process necessary for initializing the model from    
+    CVFS restricted data.
+        1) Calls the necessary R script for preparing the necessary CSV 
+        initialization files from the CVFS data. 
+
+        2) Calls the assemble_world function to prepare an instance of the 
+        World class to be used in the model.
+
+        3) Saves this world instange in the standard location. NOTE: This must 
+        be an encrypted directory that is not publically accessible to conform 
+        to ICPSR and IRB requirements.
+    """
+    input_init_data_file = rcParams['input.init_data_file']
+    try:
+        check_call(["/usr/bin/Rscript", "data_preprocess.R"])
+    except CalledProcessError:
+        print "error running data_preprocess.R R script"
+    model_world = assemble_world()
+    try:
+        save_world(model_world, input_init_data_file)
+    except:
+        print "error saving world file to %s"%(input_init_data_file)
