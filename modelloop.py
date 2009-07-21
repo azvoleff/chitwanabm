@@ -90,7 +90,7 @@ def main_loop(world):
             num_new_deaths = region.deaths(model_time)
             num_new_marriages = region.marriages(model_time)
             num_new_migrations = region.migrations(model_time)
-            region.update_landuse(model_time)
+            landuse = region.update_landuse(model_time)
 
             num_persons = region.num_persons()
             num_households = region.num_households()
