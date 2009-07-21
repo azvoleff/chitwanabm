@@ -86,6 +86,14 @@ lu.processed <- data.frame(NEIGHID=lu$NEIGHID, land.agveg, land.nonagveg, land.p
 # Convert land areas expressed in square feet to square meters
 lu.processed[2:6]  <- lu.processed[2:6] * .09290304
 
+# Prior to merging, convert factor levels in lu (the NEIGHID column) to 
+# numeric, then back to factor, so that neighIDs with less than three 
+# characters (like 001) are instead represented as integers (001 -> 1). If this 
+# is not done, neighborhoods will be lost as merge will think neighborhood 001 
+# in dataframe lu has no complement in the neigh dataframe (where it is 
+# represented with a NEIGHID of 1 instead of 001).
+lu.processed$NEIGHID <- factor(as.numeric(lu.processed$NEIGHID))
+
 # Join these rows to the neighborhood data processed earlier.
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 
