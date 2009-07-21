@@ -12,8 +12,8 @@ import copy
 
 import numpy as np
 
-from chitwanABM import rcParams
-from chitwanABM.eventtracking import Results
+from ChitwanABM import rcParams
+from ChitwanABM.eventtracking import Results
 
 if rcParams['model.use_psyco'] == True:
     import psyco

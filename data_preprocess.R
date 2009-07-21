@@ -92,6 +92,6 @@ neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 ###############################################################################
 # Output data. Data is restricted so it has to be stored in an encrypted 
 # folder.
-write.csv(hhrel.processed, file="/media/Restricted/Data/chitwanABM_init_data/hhrel.csv", row.names=FALSE)
-write.csv(hhag.processed, file="/media/Restricted/Data/chitwanABM_init_data/hhag.csv", row.names=FALSE)
-write.csv(neigh.processed, file="/media/Restricted/Data/chitwanABM_init_data/neigh.csv", row.names=FALSE)
+write.csv(hhrel.processed, file="/media/Restricted/Data/ChitwanABM_init_data/hhrel.csv", row.names=FALSE)
+write.csv(hhag.processed, file="/media/Restricted/Data/ChitwanABM_init_data/hhag.csv", row.names=FALSE)
+write.csv(neigh.processed, file="/media/Restricted/Data/ChitwanABM_init_data/neigh.csv", row.names=FALSE)

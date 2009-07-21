@@ -17,9 +17,9 @@ at San Diego State University (SDSU) in the Department of Geography. Contact
 Alex Zvoleff or Prof. Li An at SDSU with any questions.
 
 The latest version of the code is available as a zipped snapshot from:
-    http://git.coupledsystems.com/chitwanABM/snapshot
+    http://git.coupledsystems.com/ChitwanABM/snapshot
 The source can also be downloaded via git from:
-    git://git.coupledsystems.com/chitwanABM
+    git://git.coupledsystems.com/ChitwanABM
 
 Alex Zvoleff
 SDSU/UCSB Joint Doctoral Student

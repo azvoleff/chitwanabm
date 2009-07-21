@@ -1,7 +1,7 @@
 ###############################################################################
 # Loads the CVFS data and prints summary info about several people, households, 
 # and neighborhoods that is used by the test.py script to verify the operation 
-# of the chitwanABM model.
+# of the ChitwanABM model.
 ###############################################################################
 
 library("foreign")

@@ -1,7 +1,7 @@
 """
 Part of Chitwan Valley agent-based model.
 
-Sets up a chitwanABM model run: Initializes neighborhood/household/person agents 
+Sets up a ChitwanABM model run: Initializes neighborhood/household/person agents 
 and land use using the original CVFS data.
 
 Alex Zvoleff, azvoleff@mail.sdsu.edu
@@ -9,8 +9,8 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import pickle
 
-from chitwanABM import rcParams
-from chitwanABM.agents import World
+from ChitwanABM import rcParams
+from ChitwanABM.agents import World
 
 def read_CVFS_data(textfile, key_field):
     """Reads in CVFS data from a CSV file into a dictionary of dictionary 

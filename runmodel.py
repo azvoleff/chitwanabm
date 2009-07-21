@@ -18,10 +18,10 @@ import pickle
 import tempfile
 import subprocess
 
-from chitwanABM import rcParams
-from chitwanABM.modelloop import main_loop
-from chitwanABM.rcsetup import write_RC_file
-from chitwanABM.plotting import plot_pop_stats
+from ChitwanABM import rcParams
+from ChitwanABM.modelloop import main_loop
+from ChitwanABM.rcsetup import write_RC_file
+from ChitwanABM.plotting import plot_pop_stats
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -85,15 +85,15 @@ def main(argv=None):
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
     # from the commit (the output of the git diff command). sys.path[0] gives 
-    # the path of the currently running chitwanABM code.
+    # the path of the currently running ChitwanABM code.
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
-    run_RC_file = os.path.join(results_path, "chitwanABMrc")
-    RC_file_header = """# This file contains the parameters used for a chitwanABM model run.
+    run_RC_file = os.path.join(results_path, "ChitwanABMrc")
+    RC_file_header = """# This file contains the parameters used for a ChitwanABM model run.
 # Model run ID:\t%s
 # Start time:\t%s
 # End time:\t\t%s

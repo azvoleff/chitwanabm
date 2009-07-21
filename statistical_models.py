@@ -12,7 +12,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import numpy as np
 
-from chitwanABM import rcParams
+from ChitwanABM import rcParams
 
 if rcParams['model.use_psyco'] == True:
     import psyco
