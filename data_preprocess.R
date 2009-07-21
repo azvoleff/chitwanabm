@@ -9,7 +9,8 @@ library("foreign")
 ###############################################################################
 # First handle DS0004 - the census dataset
 census <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0004_REST.xpt")
-# 5 people don't know their age, coded as -3 in dataset
+# 5 people don't know their age, coded as -3 in dataset. Exclude these 
+# individuals.
 census$CENAGE[census$CENAGE==-3] <- NA
 # The model runs in months. So convert ages from years to months
 AGEMNTHS <- census$CENAGE*12
@@ -75,13 +76,15 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
 lu <- read.xport("/media/Restricted/Data/ICPSR_SupplementalData/Survey_conv/landuse.xpt")
 
-land.agveg <- with(lu,rowSums(cbind(BARI1, IKHET1, RKHET1)))
-land.nonagveg <- with(lu,rowSums(cbind(GRASSC1, GRASSP1, PLANTC1, PLANTP1)))
-land.privbldg <- with(lu,rowSums(cbind(HHRESID1, MILL1, OTRBLD1)))
-land.pubbldg <- with(lu,rowSums(cbind(ROAD1, SCHOOL1, TEMPLE1)))
-land.other <- with(lu,rowSums(cbind(CANAL1, POND1, RIVER1, SILT1, UNDVP1)))
+land.agveg <- with(lu, rowSums(cbind(BARI1, IKHET1, RKHET1)))
+land.nonagveg <- with(lu, rowSums(cbind(GRASSC1, GRASSP1, PLANTC1, PLANTP1)))
+land.privbldg <- with(lu, rowSums(cbind(HHRESID1, MILL1, OTRBLD1)))
+land.pubbldg <- with(lu, rowSums(cbind(ROAD1, SCHOOL1, TEMPLE1)))
+land.other <- with(lu, rowSums(cbind(CANAL1, POND1, RIVER1, SILT1, UNDVP1)))
 
 lu.processed <- data.frame(NEIGHID=lu$NEIGHID, land.agveg, land.nonagveg, land.privbldg, land.pubbldg, land.other)
+# Convert land areas expressed in square feet to square meters
+lu.processed[,2:6]  <- lu.processed[,2:6] * .09290304
 
 # Join these rows to the neighborhood data processed earlier.
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
