@@ -61,6 +61,13 @@ def assemble_neighborhoods(neighborhoodsFile, model_world):
         neighborhood = model_world.new_neighborhood(NEIGHID, initial_agent=True)
         neighborhood._avg_years_nonfamily_services = float(neigh_data["AVG_YRS_SRVC"])
         neighborhood._elec_available =  bool(neigh_data['ELEC_AVAIL']) # is neighborhood electrified (in 1995/1996)
+        # All land areas are given in square meters
+
+        neighborhood._land_agveg = float(neigh_data['land.agveg'])
+        neighborhood._land_nonnonprivbldg = float(neigh_data['land.nonprivbldg'])
+        neighborhood._land_privbldg = float(neigh_data['land.agveg'])
+        neighborhood._land_pubbldg = float(neigh_data['land.pubbldg'])
+        neighborhood._land_other = float(neigh_data['land.other'])
         neighborhoods.append(neighborhood)
 
     return neighborhoods
