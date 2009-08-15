@@ -43,7 +43,8 @@ def convert_hazard_units(hazard):
 
 #TODO: these hazards should be derived from the region, not directly from RcParams
 birth_hazards = convert_hazard_units(rcParams['hazard.birth'])
-death_hazards = convert_hazard_units(rcParams['hazard.death'])
+death_hazards_male = convert_hazard_units(rcParams['hazard.death.male'])
+death_hazards_female = convert_hazard_units(rcParams['hazard.death.female'])
 marriage_hazards = convert_hazard_units(rcParams['hazard.marriage'])
 migration_hazards = convert_hazard_units(rcParams['hazard.migration'])
 
@@ -89,7 +90,10 @@ def calc_hazard_death(person):
     age = person.get_age()
     hazard_index = __hazard_index__(age)
     try:
-        return death_hazards[hazard_index]
+        if person.get_sex() == 'female':
+            return death_hazards_female[hazard_index]
+        elif person.get_sex() == 'male':
+            return death_hazards_male[hazard_index]
     except IndexError:
         raise IndexError("error calculating death hazard (index %s)"%(hazard_index))
 
