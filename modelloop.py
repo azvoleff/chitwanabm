@@ -76,15 +76,17 @@ def main_loop(world):
     while model_time.in_bounds():
         saved_data.add_timestep(model_time.get_cur_date_float())
         
-        if model_time.get_cur_month() == 1 or \
-                model_time.get_cur_date() == model_time._starttime:
-            print "  TOTAL | New Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
+        if model_time.get_cur_month() == 1 and \
+                model_time.get_cur_date() != model_time._starttime:
+            total_string = "TOTAL | New Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
                     sum(saved_data._num_marriages[-13:-1]),
                     sum(saved_data._num_births[-13:-1]),
                     sum(saved_data._num_deaths[-13:-1]),
                     sum(saved_data._num_migrations[-13:-1]))
+            total_string = total_string.center(len(stats_string))
+            print total_string
             msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
-            msg = msg.rjust(80)
+            msg = msg.rjust(len(stats_string))
             print msg
 
         for region in world.iter_regions():
@@ -112,9 +114,10 @@ def main_loop(world):
 
             region.increment_age()
                 
-        print "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
+        stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
                 str(model_time).ljust(7), num_persons, region.get_num_marriages(), num_households,
                 num_new_marriages, num_new_births, num_new_deaths, num_new_migrations)
+        print stats_string
 
         if num_persons == 0:
             print "End of model run: population is zero."
