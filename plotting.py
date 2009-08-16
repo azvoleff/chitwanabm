@@ -54,7 +54,7 @@ def make_results_list(root_dir, model_IDs=None):
             print "warning: no results file found in %s"%(dir)
     return results_list
 
-def plot_pop_stats(results, plot_file):
+def plot_pop_stats(results, plot_file, plot_type="raw_data"):
     time = results.get_timesteps()
 
     num_persons = results.get_num_persons() # Final populations for each time step.
@@ -63,8 +63,12 @@ def plot_pop_stats(results, plot_file):
     marr = results.get_num_marriages()
     migr = results.get_num_migrations()
 
-    events = [births, deaths, marr, migr]
-    labels = ["Births", "Deaths", "Marriages", "Migrations"]
+    if plot_type=="raw_data":
+        events = [births, deaths, marr, migr]
+        labels = ["Births", "Deaths", "Marriages", "Migrations"]
+    elif plot_type=="rates":
+        events = [births/num_persons, deaths/num_persons, marr/num_persons, migr]
+        labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
 
     plt.figure()
     plt.clf()
@@ -97,7 +101,7 @@ def plot_pop_stats(results, plot_file):
     plt.savefig(plot_file)
     plt.clf()
 
-def shaded_plot_pop_stats(results_list, plot_file):
+def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
     """Make a shaded plot of pop stats that includes 2 standard deviations error 
     bars (as shaded regions around each line)."""
     time = results_list[0].get_timesteps()
@@ -111,8 +115,12 @@ def shaded_plot_pop_stats(results_list, plot_file):
     marr_array = np.array([result.get_num_marriages() for result in results_list])
     migr_array = np.array([result.get_num_migrations() for result in results_list])
 
-    events = [births_array, deaths_array, marr_array, migr_array]
-    labels = ["Births", "Deaths", "Marriages", "Migrations"]
+    if plot_type=="raw_data":
+        events = [births_array, deaths_array, marr_array, migr_array]
+        labels = ["Births", "Deaths", "Marriages", "Migrations"]
+    elif plot_type=="rates":
+        events = [births_array/num_persons, deaths_array/num_persons, marr_array/num_persons, migr_array/numpersons]
+        labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
 
     plt.figure()
     plt.clf()
