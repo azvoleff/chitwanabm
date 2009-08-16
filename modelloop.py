@@ -78,6 +78,11 @@ def main_loop(world):
         
         if model_time.get_cur_month() == 1 or \
                 model_time.get_cur_date() == model_time._starttime:
+            print "  TOTAL | New Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
+                    sum(saved_data._num_marriages[-13:-1]),
+                    sum(saved_data._num_births[-13:-1]),
+                    sum(saved_data._num_deaths[-13:-1]),
+                    sum(saved_data._num_migrations[-13:-1]))
             msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
             msg = msg.rjust(80)
             print msg
@@ -86,11 +91,11 @@ def main_loop(world):
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
             #print "Num marriages:", 
-            num_new_births = region.births(model_time)
-            num_new_deaths = region.deaths(model_time)
-            num_new_marriages = region.marriages(model_time)
-            num_new_migrations = region.migrations(model_time)
-            landuse = region.update_landuse(model_time)
+            num_new_births = region.births(model_time.get_cur_date_float())
+            num_new_deaths = region.deaths(model_time.get_cur_date_float())
+            num_new_marriages = region.marriages(model_time.get_cur_date_float())
+            num_new_migrations = region.migrations(model_time.get_cur_date_float())
+            landuse = region.update_landuse(model_time.get_cur_date_float())
 
             num_persons = region.num_persons()
             num_households = region.num_households()
