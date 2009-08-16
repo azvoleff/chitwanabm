@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Part of Chitwan Valley agent-based model.
 
@@ -7,11 +8,16 @@ and land use using the original CVFS data.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+import sys
+
 import pickle
 from subprocess import check_call, CalledProcessError
 
 from ChitwanABM import rcParams
 from ChitwanABM.agents import World
+
+def main():
+    generate_world()
 
 def read_CVFS_data(textfile, key_field):
     """
@@ -295,11 +301,16 @@ def generate_world():
     """
     input_init_data_file = rcParams['input.init_data_file']
     try:
+        print "Calling R to preprocess CVFS data..."
         check_call(["/usr/bin/Rscript", "data_preprocess.R"])
     except CalledProcessError:
         print "error running data_preprocess.R R script"
+    print "Generating world from preprocessed CVFS data..."
     model_world = assemble_world()
     try:
         save_world(model_world, input_init_data_file)
     except:
         print "error saving world file to %s"%(input_init_data_file)
+
+if __name__ == "__main__":
+    sys.exit(main())
