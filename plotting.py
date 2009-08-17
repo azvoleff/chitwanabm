@@ -57,18 +57,24 @@ def make_results_list(root_dir, model_IDs=None):
 def plot_pop_stats(results, plot_file, plot_type="raw_data"):
     time = results.get_timesteps()
 
-    num_persons = results.get_num_persons() # Final populations for each time step.
-    births = results.get_num_births()
-    deaths = results.get_num_deaths()
-    marr = results.get_num_marriages()
-    migr = results.get_num_migrations()
+    num_persons = np.array(results.get_num_persons()) # Final populations for each time step.
+    births = np.array(results.get_num_births())
+    deaths = np.array(results.get_num_deaths())
+    marr = np.array(results.get_num_marriages())
+    migr = np.array(results.get_num_migrations())
 
     if plot_type=="raw_data":
-        events = [births, deaths, marr, migr]
-        labels = ["Births", "Deaths", "Marriages", "Migrations"]
+        #events = [births, deaths, marr, migr]
+        #labels = ["Births", "Deaths", "Marriages", "Migrations"]
+        events = [births, deaths, marr]
+        labels = ["Births", "Deaths", "Marriages"]
+        yaxis2label = "Events (per  month)"
     elif plot_type=="rates":
-        events = [births/num_persons, deaths/num_persons, marr/num_persons, migr]
-        labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
+        #events = [births/num_persons, deaths/num_persons, marr/num_persons, migr]
+        #labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
+        events = [births/(num_persons/1000.), deaths/(num_persons/1000.), marr/(num_persons/1000.)]
+        labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate"]
+        yaxis2label = "Events (per  1000 people / month)"
 
     plt.figure()
     plt.clf()
@@ -83,7 +89,7 @@ def plot_pop_stats(results, plot_file, plot_type="raw_data"):
     axR.yaxis.set_label_position("right")
     
     # Now plot births, deaths, and migrations, vs time.
-    colors = ['k', '#ff6c01', '#00cd00', 'b']
+    colors = ['#ff6c01', '#00cd00', 'b', 'k']
     linewidths = [.75, .75, .75, .75]
     #linestyles = ['-', '--', '-.', ':']
     linestyles = ['-', '-', '-', '-']
@@ -96,7 +102,7 @@ def plot_pop_stats(results, plot_file, plot_type="raw_data"):
     plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
     plt.legend(loc='upper left')
     plt.xlabel("Year")
-    plt.ylabel("Events (per  month)", rotation=270)
+    plt.ylabel(yaxis2label, rotation=270)
     set_tick_labels(time)
     plt.savefig(plot_file)
     plt.clf()
@@ -116,13 +122,23 @@ def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
     migr_array = np.array([result.get_num_migrations() for result in results_list])
 
     if plot_type=="raw_data":
-        events = [births_array, deaths_array, marr_array, migr_array]
-        labels = ["Births", "Deaths", "Marriages", "Migrations"]
+        #events = [births_array, deaths_array, marr_array, migr_array]
+        #labels = ["Births", "Deaths", "Marriages", "Migrations"]
+        events = [births_array, deaths_array, marr_array]
+        labels = ["Births", "Deaths", "Marriages"]
+        yaxis2label = "Events (per  month)"
     elif plot_type=="rates":
-        events = [births_array/num_persons_array,
-                deaths_array/num_persons_array, marr_array/num_persons_array,
-                migr_array/num_persons_array]
-        labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
+        #events = [births_array/num_persons_array,
+        #        deaths_array/num_persons_array, marr_array/num_persons_array,
+        #        migr_array/num_persons_array]
+        #labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
+        events = [births_array, deaths_array, marr_array]
+        # Convert events per month to events per 1000 people per month
+        for outer in xrange(len(events)):
+            for inner in xrange(len(events[outer])):
+                events[outer][inner] = events[outer][inner] / (num_persons_array[inner]/1000.)
+        labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate"]
+        yaxis2label = "Events (per  1000 people / month)"
 
     plt.figure()
     plt.clf()
@@ -140,7 +156,7 @@ def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
     axR.yaxis.set_label_position("right")
     
     # Now plot births, deaths, and migrations, vs time.
-    colors = ['k', '#ff6c01', '#00cd00', 'b']
+    colors = ['#ff6c01', '#00cd00', 'b', 'k']
     linewidths = [.75, .75, .75, .75]
     #linestyles = ['-', '--', '-.', ':']
     linestyles = ['-', '-', '-', '-']
@@ -156,7 +172,7 @@ def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
     plt.annotate(annotation, (1.14,-.165), xycoords='axes fraction', horizontalalignment="right")
     plt.legend(loc='upper left')
     plt.xlabel("Year")
-    plt.ylabel("Events (per  month)", rotation=270)
+    plt.ylabel(yaxis2label, rotation=270)
     set_tick_labels(time)
     plt.savefig(plot_file)
     plt.clf()
