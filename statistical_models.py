@@ -45,7 +45,8 @@ def convert_hazard_units(hazard):
 birth_hazards = convert_hazard_units(rcParams['hazard.birth'])
 death_hazards_male = convert_hazard_units(rcParams['hazard.death.male'])
 death_hazards_female = convert_hazard_units(rcParams['hazard.death.female'])
-marriage_hazards = convert_hazard_units(rcParams['hazard.marriage'])
+marriage_hazards_male = convert_hazard_units(rcParams['hazard.marriage.male'])
+marriage_hazards_female = convert_hazard_units(rcParams['hazard.marriage.female'])
 migration_hazards = convert_hazard_units(rcParams['hazard.migration'])
 
 class UnitsError(Exception):
@@ -83,7 +84,10 @@ def calc_hazard_marriage(person):
     "Calculates the hazard of marriage for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return marriage_hazards[hazard_index]
+    if person.get_sex() == 'female':
+        return marriage_hazards_female[hazard_index]
+    elif person.get_sex() == 'male':
+        return marriage_hazards_male[hazard_index]
 
 def calc_hazard_death(person):
     "Calculates the hazard of death for an agent."
