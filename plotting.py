@@ -119,7 +119,9 @@ def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
         events = [births_array, deaths_array, marr_array, migr_array]
         labels = ["Births", "Deaths", "Marriages", "Migrations"]
     elif plot_type=="rates":
-        events = [births_array/num_persons, deaths_array/num_persons, marr_array/num_persons, migr_array/numpersons]
+        events = [births_array/num_persons_array,
+                deaths_array/num_persons_array, marr_array/num_persons_array,
+                migr_array/num_persons_array]
         labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
 
     plt.figure()
