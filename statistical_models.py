@@ -20,6 +20,9 @@ if rcParams['model.use_psyco'] == True:
 
 hazard_time_units = rcParams['hazard.time_units']
 
+class UnitsError(Exception):
+    pass
+
 def convert_hazard_units(hazard):
     """
     Converts hazard so units match timestep used in the model, assuming hazard 
@@ -41,16 +44,13 @@ def convert_hazard_units(hazard):
         raise UnitsError("unhandled hazard_time_units")
     return hazard
 
-#TODO: these hazards should be derived from the region, not directly from RcParams
+#TODO: these hazards should be derived from the region, not directly from rcParams
 birth_hazards = convert_hazard_units(rcParams['hazard.birth'])
 death_hazards_male = convert_hazard_units(rcParams['hazard.death.male'])
 death_hazards_female = convert_hazard_units(rcParams['hazard.death.female'])
 marriage_hazards_male = convert_hazard_units(rcParams['hazard.marriage.male'])
 marriage_hazards_female = convert_hazard_units(rcParams['hazard.marriage.female'])
 migration_hazards = convert_hazard_units(rcParams['hazard.migration'])
-
-class UnitsError(Exception):
-    pass
 
 def __hazard_index__(t):
     """
