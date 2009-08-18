@@ -115,11 +115,20 @@ def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
     for results in results_list:
         assert results.get_timesteps() == time, "timesteps must be identical for all results"
 
-    num_persons_array = np.array([result.get_num_persons() for result in results_list])
-    births_array = np.array([result.get_num_births() for result in results_list])
-    deaths_array = np.array([result.get_num_deaths() for result in results_list])
-    marr_array = np.array([result.get_num_marriages() for result in results_list])
-    migr_array = np.array([result.get_num_migrations() for result in results_list])
+    num_persons_array = [np.array(result.get_num_persons(), dtype='float') for result in results_list]
+    num_persons_array = np.array(num_persons_array)
+    births_array = [np.array(result.get_num_births(),
+        dtype='float') for result in results_list]
+    births_array = np.array(births_array)
+    deaths_array = [np.array(result.get_num_deaths(),
+        dtype='float') for result in results_list]
+    deaths_array = np.array(deaths_array)
+    marr_array = [np.array(result.get_num_marriages(),
+        dtype='float') for result in results_list]
+    marr_array = np.array(marr_array)
+    migr_array = [np.array(result.get_num_migrations(),
+        dtype='float') for result in results_list]
+    migr_array = np.array(migr_array)
 
     if plot_type=="raw_data":
         #events = [births_array, deaths_array, marr_array, migr_array]
@@ -134,8 +143,8 @@ def shaded_plot_pop_stats(results_list, plot_file, plot_type="raw_data"):
         #labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate", "Crude migration rate"]
         events = [births_array, deaths_array, marr_array]
         # Convert events per month to events per 1000 people per month
-        for outer in xrange(len(events)):
-            for inner in xrange(len(events[outer])):
+        for outer in xrange(np.shape(events)[0]):
+            for inner in xrange(np.shape(events[outer])[0]):
                 events[outer][inner] = events[outer][inner] / (num_persons_array[inner]/1000.)
         labels = ["Crude birth rate", "Crude death rate", "Crude marriage rate"]
         yaxis2label = "Events (per  1000 people / month)"
