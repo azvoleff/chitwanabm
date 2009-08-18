@@ -21,11 +21,47 @@ census.processed$CENGENDR[census.processed$CENGENDR==2] <- "female"
 census.processed <- na.omit(census.processed)
 
 ###############################################################################
+# Now handle DS0012, the individual data, to get desired family size 
+# preferences.
+t1indiv <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0012_REST.xpt")
+columns <- grep('RESPID|F7$', names(t1indiv))
+desnumchild <- t1indiv[columns]
+names(desnumchild)[2] <- "numchild"
+# People who said "it is god's will" were coded as 97, and reasked the 
+# question, in F9.
+godswill <- which(desnumchild$numchild==97)
+desnumchild[godswill,]$numchild <- desnumchild$F9[godswill]
+# 2 people said a range from low to high. Here, arbitrarily, take the high 
+# number, stored in F7B.
+range <- which(desnumchild$numchild==95)
+desnumchild[range,]$numchild <- desnumchild$F7B[range]
+# 28 people said they don't know. This is coded as -3 in the CVFS data. Recode 
+# this as -1.
+desnumchild$numchild[desnumchild$numchild==-3] <- -1
+# Also recode no response given (NA in the dataset) as -1
+desnumchild$numchild[is.na(desnumchild$numchild)] <- -1
+# TODO: Also there are 22 individuals with # kids wanted in the thousands...  
+# ask Dirgha what these are
+desnumchild$numchild[desnumchild$numchild>1000] <- -1
+
+###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
 # with the relationship grid.
 hhrel <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0016_REST.xpt")
 hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
 hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
+
+# Merge the desnumchild data for desired family size. Note that I do not have 
+# data for all individuals, so individuals for whom I do not have desired 
+# family size I will code them as 0.
+hhrel.processed <- cbind(hhrel.processed, 
+        numchild=matrix(-1, nrow(hhrel.processed), 1))
+# Four indiv. in the desnumchild frame are not in the hhrel.processed frame.  
+# First remove these 4 indiv from the desnumchild frame.
+desnumchild <- desnumchild[-which(!(desnumchild$RESPID %in%
+        hhrel.processed$RESPID)),]
+hhrel.processed[match(desnumchild$RESPID,
+        hhrel.processed$RESPID),]$numchild <- desnumchild$numchild
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data

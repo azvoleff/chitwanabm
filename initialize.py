@@ -198,6 +198,7 @@ def assemble_persons(relationshipsFile, model_world):
         person = model_world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
                 CENGENDR, initial_agent=True)
         person._spouse = spouse_RESPID
+        person._desired_num_children = int(relation['numchild'])
 
         personsDict[RESPID] = person
 
