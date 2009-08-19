@@ -200,6 +200,14 @@ def assemble_persons(relationshipsFile, model_world):
         person._spouse = spouse_RESPID
         person._desired_num_children = int(relation['numchild'])
 
+        # If this person had a birth in the Nepali year 2053 in the LHC data, 
+        # set the time of their last birth to 1996 (equivalent to January 1996) 
+        # so that they will not give birth again until after minimum birth 
+        # interval has passed.
+        recent_birth = int(relation['recentbirth'])
+        if recent_birth == 1:
+            person._last_birth_time = 1996
+
         personsDict[RESPID] = person
 
     # Now, for each person in the personsDict, convert the RESPIDs for mother, 

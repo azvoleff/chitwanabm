@@ -45,6 +45,25 @@ desnumchild$numchild[is.na(desnumchild$numchild)] <- -1
 desnumchild$numchild[desnumchild$numchild>1000] <- -1
 
 ###############################################################################
+# Now handle DS0013, the life history calendar data, to get information on what 
+# women had births in the past year (so they can start out ineligible for 
+# pregnancy).
+lhc <- read.xport("/home/azvoleff/Data/CVFS_Public/DS0013/04538-0013-Data.xpt")
+cols.childL2053 <- grep('^C[0-9]*L2053$', names(lhc))
+col.respid <- grep("RESPID", names(lhc))
+lhc.child2053 <- reshape(lhc[c(col.respid, cols.childL2053)], direction="long",
+        varying=names(lhc[cols.childL2053]), idvar="RESPID", timevar="childnum",
+        sep="")
+# Count "born" (coded as 1), "born, died in same year" (coded as 5), and "born, 
+# lived away 6 months in same year" (coded as 6), as recent births. Recode 
+# these three events as 1, code all other events as 0
+lhc.child2053$C[lhc.child2053$C==5] <- 1
+lhc.child2053$C[lhc.child2053$C==6] <- 1
+lhc.child2053$C[lhc.child2053$C!=1] <- 0
+lhc.child2053$C[is.na(lhc.child2053$C)] <- 0
+recentbirths <- lhc.child2053[lhc.child2053$C==1,]
+
+###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
 # with the relationship grid.
 hhrel <- read.xport("/media/Restricted/Data/ICPSR_0538_Restricted/da04538-0016_REST.xpt")
@@ -62,6 +81,12 @@ desnumchild <- desnumchild[-which(!(desnumchild$RESPID %in%
         hhrel.processed$RESPID)),]
 hhrel.processed[match(desnumchild$RESPID,
         hhrel.processed$RESPID),]$numchild <- desnumchild$numchild
+
+# Add the recent birth tags onto hhrel.processed
+hhrel.processed <- cbind(hhrel.processed, 
+        recentbirth=matrix(-1, nrow(hhrel.processed), 1))
+hhrel.processed[match(recentbirths$RESPID,
+        hhrel.processed$RESPID),]$recentbirth <- recentbirths$recentbirth
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
