@@ -166,7 +166,6 @@ def assemble_persons(relationshipsFile, model_world):
                 father_RESPID = SUBJECT_RESPID_map[HHID][father_SUBJECT]
             except KeyError:
                 print "WARNING: father of person %s was excluded from the model. Person %s will have their father field set to None."%(RESPID, RESPID)
-            father_RESPID = None
         else:
             father_RESPID = None
 
@@ -175,7 +174,6 @@ def assemble_persons(relationshipsFile, model_world):
                 mother_RESPID = SUBJECT_RESPID_map[HHID][mother_SUBJECT]
             except KeyError:
                 print "WARNING: mother of person %s was excluded from the model. Person %s will have their mother field set to None."%(RESPID, RESPID)
-            mother_RESPID = None
         else:
             mother_RESPID = None
 
@@ -234,7 +232,16 @@ def assemble_persons(relationshipsFile, model_world):
             persons.append(person)
         except KeyError:
             print "WARNING: person %s skipped due to mother/father/spouse KeyError. This agent will be excluded from the model."%(person.get_ID())
-            
+    
+    # Now run through all the person agents, and store each person agent in 
+    # both of it's parent's child lists, so that the number of children each 
+    # agent has can be accurately calculated.
+    for person in persons:
+        if person._father != None:
+            person._father._children.append(person)
+        if person._mother != None:
+            person._mother._children.append(person)
+
     return persons, RESPID_HHID_map
 
 def assemble_world():
