@@ -51,8 +51,8 @@ CITATIONS:
             Research [distributor], 2009-05-20.  doi:10.3886/ICPSR04538
             Data available online at: http://dx.doi.org/10.3886/ICPSR04538S.
 
-    The parameterizations used in the model are based in large part off of the 
-    published works listed below:
+    The parameterizations used in the model are based off of the works listed 
+    below:
 
     Axinn, W. G. & Ghimire, D. (2007), 'Social Organization, Population, and 
         Land Use'(07-617), Technical report, University of Michigan.
