@@ -20,7 +20,9 @@ DESCRIPTION:
     research at San Diego State University (SDSU) in the Department of 
     Geography. Contact Alex Zvoleff or Prof. Li An at SDSU with any questions.
 
-OBTAINING THE CODE:
+GETTING THE CODE:
+    See the ChitwanABM website at:
+        http://rohan.sdsu.edu/~zvoleff/ChitwanABM.html
     The latest version of the code is available as a zipped snapshot from:
         http://git.coupledsystems.com/ChitwanABM/snapshot
     The source can also be downloaded via git from:
