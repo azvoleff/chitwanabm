@@ -37,7 +37,7 @@
 'model.timestep' : [1 | validate_int]
 # model.RandomState seeds the random number generator (useful for regenerating 
 # results later). If it is set to 'None' no seed is given. Regardless of 
-# whether or not a seed is provided, the seed that is used still be saved
+# whether or not a seed is provided, the seed that is used will be saved
 # in the model output for later reuse.
 'model.RandomState' : [None | validate_RandomState] 
 'model.resultspath' : ["/home/azvoleff/Data/ChitwanABM_runs" | novalidation]
