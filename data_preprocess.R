@@ -135,7 +135,7 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # 	Private buildings - HHRESID1, MILL1, OTRBLD1
 # 	Public buildings - ROAD1, SCHOOL1, TEMPLE1
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
-lu <- read.xport("/media/Local_Secure/ICPSR_SupplementalData/Survey_conv/landuse.xpt")
+lu <- read.xport("/media/Local_Secure/ICPSR_SupplementalData/Survey_converted/landuse.xpt")
 
 land.agveg <- with(lu, rowSums(cbind(BARI1, IKHET1, RKHET1)))
 land.nonagveg <- with(lu, rowSums(cbind(GRASSC1, GRASSP1, PLANTC1, PLANTP1)))
@@ -163,8 +163,8 @@ neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 # folder. Save both Rdata files (to be used for synthetic agent generation) and 
 # csv files (for loading into the model).
 write.csv(hhrel.processed, file="/media/Local_Secure/ChitwanABM_init/hhrel.csv", row.names=FALSE)
-save(hhrel.processed, file="/media/Local_Secure/ChitwanABM_init/hhrel.Rdata", )
+save(hhrel.processed, file="/media/Local_Secure/ChitwanABM_init/hhrel.Rdata")
 write.csv(hhag.processed, file="/media/Local_Secure/ChitwanABM_init/hhag.csv", row.names=FALSE)
-save(hhag.processed, file="/media/Local_Secure/ChitwanABM_init/hhag.Rdata", )
+save(hhag.processed, file="/media/Local_Secure/ChitwanABM_init/hhag.Rdata")
 write.csv(neigh.processed, file="/media/Local_Secure/ChitwanABM_init/neigh.csv", row.names=FALSE)
-save(neigh.processed, file="/media/Local_Secure/ChitwanABM_init/neigh.Rdata", )
+save(neigh.processed, file="/media/Local_Secure/ChitwanABM_init/neigh.Rdata")
