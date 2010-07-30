@@ -9,6 +9,8 @@ library("foreign")
 ###############################################################################
 # First handle DS0004 - the census dataset
 census <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0004_REST.xpt")
+# Exclude neighborhoods 152-172
+census <- census[census$NEIGHID <= 151,]
 # 5 people don't know their age, coded as -3 in dataset. Exclude these 
 # individuals.
 census$CENAGE[census$CENAGE==-3] <- NA
@@ -24,6 +26,8 @@ census.processed <- na.omit(census.processed)
 # Now handle DS0012, the individual data, to get desired family size 
 # preferences.
 t1indiv <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0012_REST.xpt")
+# Exclude neighborhoods 152-172
+t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
 columns <- grep('RESPID|F7$', names(t1indiv))
 desnumchild <- t1indiv[columns]
 names(desnumchild)[2] <- "numchild"
@@ -49,6 +53,9 @@ desnumchild$numchild[desnumchild$numchild>1000] <- -1
 # women had births in the past year (so they can start out ineligible for 
 # pregnancy).
 lhc <- read.xport("/home/azvoleff/Data/CVFS_Public/DS0013/04538-0013-Data.xpt")
+# NOTE: lhc contains no NEIGHID column. Respondents in excluded neighborhoods 
+# (greather than 151) will be dropped when the lhc data is merged later on in 
+# the process.
 cols.childL2053 <- grep('^C[0-9]*L2053$', names(lhc))
 col.respid <- grep("RESPID", names(lhc))
 lhc.child2053 <- reshape(lhc[c(col.respid, cols.childL2053)], direction="long",
@@ -67,6 +74,8 @@ recentbirths <- lhc.child2053[lhc.child2053$C==1,]
 # Now handle DS0016 - the household relationship grid. Merge the census data 
 # with the relationship grid.
 hhrel <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0016_REST.xpt")
+# Exclude neighborhoods 152-172
+hhrel <- hhrel[hhrel$NEIGHID <= 151,]
 hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
 hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
@@ -91,6 +100,8 @@ hhrel.processed[match(recentbirths$RESPID,
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
 hhag <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0002_REST.xpt")
+# Exclude neighborhoods 152-172
+hhag <- hhag[hhag$NEIGHID <= 151,]
 hhag.processed <- with(hhag, data.frame(HHID, NEIGHID, BAA10A, BAA18A, BAA43, BAA44))
 # Need to handle households where questions BAA10A and BAA18A were 
 # innappropriate (where they did no farming on that type of land).
@@ -107,6 +118,8 @@ hhrel.processed <- hhrel.processed[in_hhag,]
 ###############################################################################
 # Now handle DS0014 - the neighborhood history data
 neigh <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0014_REST.xpt")
+# Exclude neighborhoods 152-172
+neigh <- neigh[neigh$NEIGHID <= 151,]
 # Axinn (2007) uses the "average number of years non-family services were 
 # within a 30 minute walk". The data are stored for each service for each year, 
 # using Nepali years. For example, SCHLFT10 for a particular neighborhood 
@@ -136,6 +149,9 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # 	Public buildings - ROAD1, SCHOOL1, TEMPLE1
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
 lu <- read.xport("/media/Local_Secure/ICPSR_SupplementalData/Survey_converted/landuse.xpt")
+# Exclude neighborhoods 152-172
+lu$NEIGHID <- as.ordered(lu$NEIGHID)
+lu <- lu[lu$NEIGHID <= 151,]
 
 land.agveg <- with(lu, rowSums(cbind(BARI1, IKHET1, RKHET1)))
 land.nonagveg <- with(lu, rowSums(cbind(GRASSC1, GRASSP1, PLANTC1, PLANTP1)))
