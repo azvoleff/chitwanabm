@@ -274,8 +274,10 @@ def assemble_world():
     households_file = rcParams['input.households_file']
     neighborhoods_file = rcParams['input.neighborhoods_file']
 
-    persons, RESPID_HHID_map = assemble_persons(relationships_grid_file, model_world)
-    households, HHID_NEIGHID_map = assemble_households(households_file, model_world)
+    persons, RESPID_HHID_map = assemble_persons(relationships_grid_file,
+            model_world)
+    households, HHID_NEIGHID_map = assemble_households(households_file,
+            model_world)
     neighborhoods = assemble_neighborhoods(neighborhoods_file, model_world)
 
     # Populate the Chitwan region (the code could handle multiple regions too, 
