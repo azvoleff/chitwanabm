@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 ###############################################################################
 # Loads deaths and age at death from the ICPSR Restricted dataset DS0010, the 
 # household registry data, and calculates several statistics (birth rates, 
@@ -10,7 +11,8 @@ require(Hmisc)
 require(ggplot2)
 
 load("/media/Local_Secure/CVFS_R_format/hhreg.Rdata")
-hhreg <- [hhreg$NEIGHID < 151,]
+
+# TODO: Need to only consider neighborhoods with neighid < 151
 
 # Function to write out probabilities of events in the format required by the 
 # ChitwanABM model.
@@ -227,7 +229,7 @@ txthazards <- c(txthazards,
 write(txthazards, file="hazards.txt")
 
 theme_update(theme_grey(base_size=18))
-update_geom_defaults("step", aes(size=1.5))
+update_geom_defaults("step", aes(size=1))
 
 qplot(bin, prob*100, geom="step", xlab="Age (years)",
         ylab="Annual probability of giving birth (%)",
