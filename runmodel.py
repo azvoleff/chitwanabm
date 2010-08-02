@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright 2009 Alex Zvoleff
 #
 # This file is part of the ChitwanABM agent-based model.
