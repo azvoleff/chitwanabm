@@ -31,7 +31,7 @@ import os
 import pickle
 
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 def main(argv=None):
     if argv is None:
