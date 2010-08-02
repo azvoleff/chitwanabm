@@ -132,7 +132,7 @@ def main(argv=None):
 # Machine name:\t%s
 # Start time:\t%s
 # End time:\t\t%s
-# Run speed:\t\t%.4f
+# Run speed:\t%.4f
 # Code version:\t%s"""%(run_ID_number, hostname, start_time_string, end_time_string, speed, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
