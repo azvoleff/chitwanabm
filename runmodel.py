@@ -35,6 +35,7 @@ import time
 import pickle
 import tempfile
 import subprocess
+import socket
 import csv
 
 from ChitwanABM import rcParams
@@ -119,16 +120,20 @@ def main(argv=None):
     
     speed = (time.mktime(end_time) - time.mktime(start_time)) / (len(results.get_timesteps()) / rcParams['model.timestep'])
 
+    # Get machine hostname to print it in the results file
+    hostname = socket.gethostname()
+
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
     run_RC_file = os.path.join(results_path, "ChitwanABMrc")
     RC_file_header = """# This file contains the parameters used for a ChitwanABM model run.
 # Model run ID:\t%s
+# Machine name:\t%s
 # Start time:\t%s
 # End time:\t\t%s
 # Run speed:\t\t%.4f
-# Code version:\t%s"""%(run_ID_number, start_time_string, end_time_string, speed, commit_hash)
+# Code version:\t%s"""%(run_ID_number, hostname, start_time_string, end_time_string, speed, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
     print "done."
@@ -136,7 +141,11 @@ def main(argv=None):
 def save_git_diff(code_path, git_diff_file):
     # First get commit hash from git show
     temp_file = tempfile.NamedTemporaryFile()
-    subprocess.check_call(['git', 'show','--pretty=format:%H'], stdout=temp_file, cwd=code_path)
+    try:
+        subprocess.check_call(['git', 'show','--pretty=format:%H'], stdout=temp_file, cwd=code_path)
+    except:
+        print "Error running git. Skipping git-diff patch output."
+        return "ERROR_RUNNING_GIT"
     temp_file = open(temp_file.name, "r")
     commit_hash = temp_file.readline().strip('\n')
     temp_file.close()
