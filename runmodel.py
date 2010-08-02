@@ -98,7 +98,7 @@ def main(argv=None):
     output.close()
 
     # Save a plot of the results.
-    plot_file = os.path.join(results_path, "plot.pdf")
+    plot_file = os.path.join(results_path, "plot.png")
     plot_pop_stats(results, plot_file)
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 

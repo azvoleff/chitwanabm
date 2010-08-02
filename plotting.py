@@ -117,7 +117,7 @@ def plot_pop_stats(results, plot_file, plot_type="raw_data"):
     model_run_ID = results.get_model_run_ID()
     plot_title = "Model run statistics for %s"%(model_run_ID)
     #plt.title(plot_title)
-    plt.annotate(model_run_ID, (.93,-.165), xycoords='axes fraction')
+    plt.annotate("Run ID: " + model_run_ID, (.84, -.08), xycoords='axes fraction')
     plt.legend(loc='upper left')
     plt.xlabel("Year")
     plt.ylabel(yaxis2label, rotation=270)
