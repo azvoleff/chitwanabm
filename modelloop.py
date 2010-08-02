@@ -64,6 +64,9 @@ class TimeSteps():
     def get_cur_month(self):
         return self._month
 
+    def get_cur_year(self):
+        return self._year
+
     def get_cur_date(self):
         return [self._year, self._month]
 
@@ -93,6 +96,8 @@ def main_loop(world):
 
     while model_time.in_bounds():
         saved_data.add_timestep(model_time.get_cur_date_float())
+        saved_data.add_year(model_time.get_cur_year())
+        saved_data.add_month(model_time.get_cur_month())
         
         if model_time.get_cur_month() == 1 and \
                 model_time.get_cur_date() != model_time._starttime:

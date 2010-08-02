@@ -35,6 +35,7 @@ import time
 import pickle
 import tempfile
 import subprocess
+import csv
 
 from ChitwanABM import rcParams
 from ChitwanABM.modelloop import main_loop
@@ -73,19 +74,21 @@ def main(argv=None):
         raise IOError('error loading world data from  %s'%stored_init_data_file)
 
     # Run the model loop
-    start_time = time.strftime("%m/%d/%Y %I:%M:%S %p")
+    start_time = time.localtime()
+    start_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", start_time)
     print """
 *******************************************************************************
 %s: started model run number %s.
 *******************************************************************************
-"""%(start_time, run_ID_number)
+"""%(start_time_string, run_ID_number)
     results = main_loop(world) # This line actually runs the model.
-    end_time = time.strftime("%m/%d/%Y %I:%M:%S %p") 
+    end_time = time.localtime()
+    end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
     print """
 *******************************************************************************
 %s: finished model run number %s.
 *******************************************************************************
-"""%(end_time, run_ID_number)
+"""%(end_time_string, run_ID_number)
     
     # Store the run ID in the results for later tracking purposes
     results.set_model_run_ID(run_ID_number)
@@ -106,6 +109,15 @@ def main(argv=None):
     # the path of the currently running ChitwanABM code.
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
+    results_csv_file = os.path.join(results_path, "results.csv")
+    save_results_csv(results, results_csv_file)
+
+    # Calculate the number of seconds per month the model took to run (to 
+    # simplify choosing what machine to do model runs on). This is equal to the 
+    # length of results.get_timesteps() divided by the timestep size (in 
+    # months).
+    
+    speed = (time.mktime(end_time) - time.mktime(start_time)) / (len(results.get_timesteps()) / rcParams['model.timestep'])
 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
@@ -115,7 +127,8 @@ def main(argv=None):
 # Model run ID:\t%s
 # Start time:\t%s
 # End time:\t\t%s
-# Code version:\t%s"""%(run_ID_number, start_time, end_time, commit_hash)
+# Run speed:\t\t%.4f
+# Code version:\t%s"""%(run_ID_number, start_time_string, end_time_string, speed, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
     print "done."
@@ -135,8 +148,13 @@ def save_git_diff(code_path, git_diff_file):
         raise IOError("error writing to git diff output file: %s"%(git_diff_file))
     subprocess.check_call(['git', 'diff'], stdout=out_file, cwd=code_path)
     out_file.close()
-
     return commit_hash
+
+def save_results_csv(results, results_csv_file):
+    out_file = open(results_csv_file, "w")
+    csv_writer = csv.writer(out_file)
+    csv_writer.writerows(results.get_results_array())
+    out_file.close()
 
 if __name__ == "__main__":
     sys.exit(main())

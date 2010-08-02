@@ -25,9 +25,13 @@ tracking of these events when plotting results.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+import numpy as np
+
 class Results(object):
     def __init__(self):
         self._timesteps = []
+        self._months = []
+        self._years = []
         self._model_run_ID = None
         self._num_persons = []
         self._num_households = []
@@ -47,6 +51,12 @@ class Results(object):
 
     def add_timestep(self, timestep):
         self._timesteps.append(timestep)
+
+    def add_month(self, month):
+        self._months.append(month)
+
+    def add_year(self, year):
+        self._years.append(year)
 
     def add_num_persons(self, persons):
         if len(self._num_persons) == (len(self._timesteps) - 1):
@@ -93,6 +103,12 @@ class Results(object):
     def get_timesteps(self):
         return self._timesteps
 
+    def get_months(self):
+        return self._months
+
+    def get_years(self):
+        return self._years
+
     def get_num_persons(self):
         return self._num_persons
 
@@ -100,7 +116,7 @@ class Results(object):
         return self._num_households
 
     def get_num_neighborhoods(self):
-        return self._neighborhoods
+        return self._num_neighborhoods
 
     def get_num_births(self):
         return self._num_births
@@ -113,3 +129,15 @@ class Results(object):
 
     def get_num_migrations(self):
         return self._num_migrations
+
+    def get_results_array(self):
+        results_array = np.vstack((self.get_timesteps(), self.get_months(),
+            self.get_years(), self.get_num_persons(), self.get_num_households(),
+            self.get_num_neighborhoods(), self.get_num_births(),
+            self.get_num_deaths(), self.get_num_marriages(),
+            self.get_num_migrations()))
+        results_array = results_array.transpose()
+        row_headings = ['timestep', 'month', 'year', 'pop_psn', 'pop_hs',
+                'pop_nbh', 'births', 'deaths', 'marr', 'mig']
+        results_array = np.vstack((row_headings, results_array))
+        return results_array
