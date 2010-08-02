@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript
 ###############################################################################
 # Loads deaths and age at death from the ICPSR Restricted dataset DS0010, the 
 # household registry data, and calculates several statistics (birth rates, 

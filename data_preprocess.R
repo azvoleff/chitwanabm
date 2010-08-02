@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript
 ###############################################################################
 # This file preprocesses the CVFS data in R and cleans it so that it can be 
 # used in initialize.py.
