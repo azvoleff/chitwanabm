@@ -7,7 +7,7 @@
 # can also deploy your own backend outside of matplotlib by referring
 # to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'
-backend      : TkAgg
+#backend      : TkAgg
 
 ### LINES
 # See http://matplotlib.sourceforge.net/matplotlib.lines.html for more
