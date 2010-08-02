@@ -75,7 +75,7 @@ font.stretch        : normal
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-font.size           : 6.0
+font.size           : 10.0
 #font.serif          : Times New Roman, Times, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L,  Palatino, Charter, serif
 font.sans-serif     : Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
@@ -109,8 +109,8 @@ axes.facecolor      : white   # axes background color
 axes.edgecolor      : black   # axes edge color
 axes.linewidth      : 1.0     # edge linewidth
 axes.grid           : False   # display grid or not
-axes.titlesize      : 12      # fontsize of the axes title
-axes.labelsize      : 12      # fontsize of the x any y labels
+axes.titlesize      : 20      # fontsize of the axes title
+axes.labelsize      : 18      # fontsize of the x any y labels
 axes.labelcolor     : black
 axes.axisbelow      : False   # whether axis gridlines and ticks are below
                               # the axes elements (lines, text, etc)
@@ -127,7 +127,7 @@ xtick.minor.size     : 0      # minor tick size in points
 #xtick.major.pad      : 4      # distance to major tick label in points
 #xtick.minor.pad      : 4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
-xtick.labelsize      : 8    # fontsize of the tick labels
+xtick.labelsize      : 12    # fontsize of the tick labels
 #xtick.direction      : in     # direction: in or out
 
 ytick.major.size     : 4      # major tick size in points
@@ -135,7 +135,7 @@ ytick.minor.size     : 2     # minor tick size in points
 #ytick.major.pad      : 4      # distance to major tick label in points
 #ytick.minor.pad      : 4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
-ytick.labelsize      : 8     # fontsize of the tick labels
+ytick.labelsize      : 12     # fontsize of the tick labels
 #ytick.direction      : in     # direction: in or out
 
 
@@ -147,7 +147,7 @@ ytick.labelsize      : 8     # fontsize of the tick labels
 ### Legend
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
-legend.fontsize      : 8
+legend.fontsize      : 14
 #legend.pad           : 0.2    # the fractional whitespace inside the legend border
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
@@ -159,16 +159,16 @@ legend.fontsize      : 8
 
 ### FIGURE
 # See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
-figure.figsize   : 4.3, 2.75    # figure size in inches
+figure.figsize   : 8.33, 5.53    # figure size in inches
 figure.dpi       : 300      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 figure.edgecolor : white   # figure edgecolor
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height
-figure.subplot.left  : 0.135  # the left side of the subplots of the figure
-figure.subplot.right : 0.89   # the right side of the subplots of the figure
-figure.subplot.bottom : 0.14   # the bottom of the subplots of the figure
+figure.subplot.left  : 0.1  # the left side of the subplots of the figure
+figure.subplot.right : 0.925   # the right side of the subplots of the figure
+figure.subplot.bottom : 0.08   # the bottom of the subplots of the figure
 figure.subplot.top : 0.95      # the top of the subplots of the figure
 #figure.subplot.wspace : 0.2   # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots
@@ -188,7 +188,7 @@ figure.subplot.top : 0.95      # the top of the subplots of the figure
 # the default savefig params can be different for the GUI backends.
 # Eg, you may want a higher resolution, or to make the figure
 # background white
-#savefig.dpi       : 100      # figure dots per inch
+savefig.dpi       : 300      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
 
