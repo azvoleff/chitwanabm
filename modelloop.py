@@ -90,15 +90,18 @@ timestep = rcParams['model.timestep']
 
 model_time = TimeSteps(timebounds, timestep)
 
-time_strings = {}
-time_strings['timestep'] = []
-time_strings['time_float'] = []
-time_strings['time_date'] = []
-saved_LULC = {}
+
 def main_loop(world):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
     be used in the model, and the land-use parameters."""
+
+    time_strings = {}
+    time_strings['timestep'] = []
+    time_strings['time_float'] = []
+    time_strings['time_date'] = []
+
+    saved_LULC_results = {}
 
     # saved_data will store the results of each timestep.
     saved_data = Results()
@@ -148,7 +151,7 @@ def main_loop(world):
             saved_data.add_num_neighborhoods(num_neighborhoods)
 
             # Save LULC data in a dictionary keyed by timestep:nbh:variable
-            saved_LULC[model_time.get_cur_int_timestep()] = region.get_neighborhood_landuse()
+            saved_LULC_results[model_time.get_cur_int_timestep()] = region.get_neighborhood_landuse()
 
             region.increment_age()
                 
@@ -169,7 +172,7 @@ def main_loop(world):
 
         model_time.increment()
 
-    return saved_data, saved_LULC, time_strings
+    return saved_data, saved_LULC_results, time_strings
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)
