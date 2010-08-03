@@ -27,6 +27,10 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import numpy as np
 
+# TODO: Instead use a dictionary setup, this would be more versatile and would 
+# eliminate the need to hard code the rownames for each new result to be 
+# tracked.
+
 class Results(object):
     def __init__(self):
         self._timesteps = []
