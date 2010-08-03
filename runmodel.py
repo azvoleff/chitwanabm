@@ -116,7 +116,6 @@ def main(argv=None):
     results_csv_file = os.path.join(results_path, "pop_results.csv")
     save_results_csv(results, results_csv_file)
 
-
     LULC_csv_file = os.path.join(results_path, "LULC_results.csv")
     save_LULC_csv(LULC_results, LULC_csv_file, "neighid")
 
@@ -132,7 +131,7 @@ def main(argv=None):
 
     # Get machine hostname to print it in the results file
     hostname = socket.gethostname()
-
+    
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
