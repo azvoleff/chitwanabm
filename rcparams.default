@@ -40,19 +40,19 @@
 # whether or not a seed is provided, the seed that is used will be saved
 # in the model output for later reuse.
 'model.RandomState' : [None | validate_RandomState] 
-'model.resultspath' : ["/home/azvoleff/Data/ChitwanABM_runs" | novalidation]
+'model.resultspath' : ["/home/azvoleff/Data/ChitwanABM_runs" | validate_writable_dir]
 'model.use_psyco': [True | validate_boolean]
 
 ###############################################################################
 # Location of input data (these are restricted data)
 ###############################################################################
 # This file is the processed output of the "initialize.py" script.
-'input.init_data_file' : ["/media/Local_Secure/ChitwanABM_init/init_data.pickle" | novalidation]
+'input.init_data_file' : ["/media/Local_Secure/ChitwanABM_init/init_data.pickle" | validate_readable_file]
 # The following 3 files are the original restricted CVFS data as received from 
 # the ICPSR.
-'input.relationships_grid_file' : ["/media/Local_Secure/ChitwanABM_init/hhrel.csv" | novalidation]
-'input.households_file' : ["/media/Local_Secure/ChitwanABM_init/hhag.csv" | novalidation]
-'input.neighborhoods_file' : ["/media/Local_Secure/ChitwanABM_init/neigh.csv" | novalidation]
+'input.relationships_grid_file' : ["/media/Local_Secure/ChitwanABM_init/hhrel.csv" | validate_readable_file_warning]
+'input.households_file' : ["/media/Local_Secure/ChitwanABM_init/hhag.csv" | validate_readable_file_warning]
+'input.neighborhoods_file' : ["/media/Local_Secure/ChitwanABM_init/neigh.csv" | validate_readable_file_warning]
 
 ###############################################################################
 # Person agent parameters
