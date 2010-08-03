@@ -98,7 +98,7 @@ def main(argv=None):
     
     # Save the results
     print "Saving results...",
-    results_file = os.path.join(results_path, "results.P")
+    results_file = os.path.join(results_path, "pop_results.P")
     output = open(results_file, 'w')
     pickle.dump(results, output)
     output.close()
@@ -113,11 +113,11 @@ def main(argv=None):
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
 
-    results_csv_file = os.path.join(results_path, "results.csv")
+    results_csv_file = os.path.join(results_path, "pop_results.csv")
     save_results_csv(results, results_csv_file)
 
 
-    LULC_csv_file = os.path.join(results_path, "LULC.csv")
+    LULC_csv_file = os.path.join(results_path, "LULC_results.csv")
     save_LULC_csv(LULC_results, LULC_csv_file, "neighid")
 
     time_csv_file = os.path.join(results_path, "time.csv")

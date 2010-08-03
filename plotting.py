@@ -66,7 +66,7 @@ def make_results_list(root_dir, model_IDs=None):
     results_list = []
     for dir in dirs:
         try:
-            new_results = load_results(os.path.join(root_dir, dir, "results.P"))
+            new_results = load_results(os.path.join(root_dir, dir, "pop_results.P"))
             results_list.append(new_results)
         except IOError:
             print "warning: no results file found in %s"%(dir)
