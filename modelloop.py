@@ -90,7 +90,6 @@ timestep = rcParams['model.timestep']
 
 model_time = TimeSteps(timebounds, timestep)
 
-
 time_strings = {}
 time_strings['timestep'] = []
 time_strings['time_float'] = []
@@ -129,7 +128,6 @@ def main_loop(world):
         for region in world.iter_regions():
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
-            #print "Num marriages:", 
             num_new_births = region.births(model_time.get_cur_date_float())
             num_new_deaths = region.deaths(model_time.get_cur_date_float())
             num_new_marriages = region.marriages(model_time.get_cur_date_float())
