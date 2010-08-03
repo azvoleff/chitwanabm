@@ -87,6 +87,12 @@ timestep = rcParams['model.timestep']
 
 model_time = TimeSteps(timebounds, timestep)
 
+
+time_strings = {}
+time_strings['timestep'] = []
+time_strings['time_float'] = []
+time_strings['time_year'] = []
+time_strings['time_month'] = []
 saved_LULC = {}
 def main_loop(world):
     """This function contains the main model loop. Passed to it is a list of 
@@ -155,9 +161,16 @@ def main_loop(world):
             print "End of model run: population is zero."
             break
 
+        # Save timestep, year and month, and time_float values for use in 
+        # storing results keyed to a particular timestep.
+        time_strings['timestep'].append(model_time.get_cur_int_timestep())
+        time_strings['time_float'].append(model_time.get_cur_date_float())
+        time_strings['time_year'].append(model_time.get_cur_year())
+        time_strings['time_month'].append(model_time.get_cur_month())
+
         model_time.increment()
 
-    return saved_data, saved_LULC
+    return saved_data, saved_LULC, time_strings
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)

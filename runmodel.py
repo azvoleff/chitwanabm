@@ -84,7 +84,7 @@ def main(argv=None):
 %s: started model run number %s.
 *******************************************************************************
 """%(start_time_string, run_ID_number)
-    results, LULC_results = main_loop(world) # This line actually runs the model.
+    results, LULC_results, time_strings = main_loop(world) # This line actually runs the model.
     end_time = time.localtime()
     end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
     print """
@@ -118,7 +118,10 @@ def main(argv=None):
 
 
     LULC_csv_file = os.path.join(results_path, "LULC.csv")
-    save_LULC_csv(LULC_results, LULC_csv_file)
+    save_LULC_csv(LULC_results, LULC_csv_file, "neighid")
+
+    time_csv_file = os.path.join(results_path, "time.csv")
+    save_time_csv(time_strings, time_csv_file)
 
     # Calculate the number of seconds per month the model took to run (to 
     # simplify choosing what machine to do model runs on). This is equal to the 
@@ -173,42 +176,63 @@ def save_results_csv(results, results_csv_file):
     csv_writer.writerows(results.get_results_array())
     out_file.close()
     
-def save_LULC_csv(LULC_data, LULC_csv_file):
-    "Write to CSV the saved LULC data."
-    # The LULC data is stored in a dictionary keyed by timestep, then keyed by 
-    # NBH ID, then keyed by LULC type. Write it to CSV where each row 
-    # represents a single NBH, and each col a single variable (from a single 
-    # timestep).
+def save_time_csv(time_strings, time_csv_file):
+    """
+    Write a CSV file for conversion of timestep number, float, etc. to actual 
+    year and month (for plotting).
+    """
+    out_file = open(time_csv_file, "w")
+    csv_writer = csv.writer(out_file)
+    col_headers = sorted(time_strings.keys())
+    csv_writer.writerow(col_headers)
+    columns = []
+    for col_header in col_headers:
+        # Subtract 1 as Python has zero indexing but the model uses 1 to 
+        # denote the first timestep.
+        if columns == []:
+            columns = np.array((time_strings[col_header]))
+        else:
+            columns = np.vstack((columns, time_strings[col_header]))
+    columns = np.transpose(columns)
+    csv_writer.writerows(columns)
+    out_file.close()
+
+def save_LULC_csv(LULC_data, csv_file, ID_col_name):
+    "Write to CSV the saved model run data."
+    # The data is stored in a dictionary keyed by timestep, then keyed by ID, 
+    # then keyed by cateogry. Write it to CSV where each row represents a 
+    # single agent (neighborhood, person, etc.), and each col a single variable 
+    # (from a single timestep).
     timesteps = sorted(LULC_data.keys())
 
-    # The neighborhood_IDs will uniquely identify each row of the final matrix.
-    neighborhood_IDs = []
+    # The IDs will uniquely identify each row of the final matrix.
+    IDs = []
     for timestep in timesteps:
-        neighborhood_IDs.extend(LULC_data[timestep].keys())
-    neighborhood_IDs = sorted(np.unique(neighborhood_IDs))
+        IDs.extend(LULC_data[timestep].keys())
+    IDs = sorted(np.unique(IDs))
 
     # The below line works because the categories do not (and cannot) change 
     # through time.
-    categories = sorted(LULC_data[timesteps[0]][neighborhood_IDs[0]])
+    categories = sorted(LULC_data[timesteps[0]][IDs[0]])
 
-    # The dataframe will end up (in R) having 1 column for neighborhood ID, and 
-    # timesteps * categories additional columns for the LULC data.
-    out_file = open(LULC_csv_file, "w")
+    # The dataframe will end up (in R) having 1 column for agent ID, and 
+    # timesteps * categories additional columns for the data.
+    out_file = open(csv_file, "w")
     csv_writer = csv.writer(out_file)
-    var_names = ["neighid"]
+    var_names = [ID_col_name]
     for category in categories:
         for timestep in timesteps:
             var_name = category + "." + str(timestep)
             var_names.append(var_name)
     csv_writer.writerow(var_names)
 
-    for neighborhood_ID in neighborhood_IDs:
-        row = [neighborhood_ID]
+    for ID in IDs:
+        row = [ID]
         for category in categories:
             for timestep in timesteps:
-                if LULC_data[timestep].has_key(neighborhood_ID):
-                    if LULC_data[timestep][neighborhood_ID].has_key(category):
-                        row.append(LULC_data[timestep][neighborhood_ID][category])
+                if LULC_data[timestep].has_key(ID):
+                    if LULC_data[timestep][ID].has_key(category):
+                        row.append(LULC_data[timestep][ID][category])
                     else:
                         row.append(np.NaN)
         csv_writer.writerow(row)
