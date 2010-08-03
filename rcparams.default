@@ -85,7 +85,8 @@
 ###############################################################################
 # Landscape parameters
 ###############################################################################
-'initial_proportion_veg' : [.3 | validate_unit_interval]
-'initial_proportion_ag' : [.3 | validate_unit_interval]
-'initial_proportion_private_infrastructure' : [.1 | validate_unit_interval]
-'initial_proportion_public_infrastructure' : [.05 | validate_unit_interval]
+'LULC.hh_area' : [200 | validate_float]
+'initial_proportion_nonagveg' : [.3 | validate_unit_interval]
+'initial_proportion_agveg' : [.3 | validate_unit_interval]
+'initial_proportion_privbldg' : [.1 | validate_unit_interval]
+'initial_proportion_pubbldg' : [.05 | validate_unit_interval]
