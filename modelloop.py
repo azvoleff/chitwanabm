@@ -73,7 +73,7 @@ class TimeSteps():
         return [self._year, self._month]
 
     def get_cur_date_string(self):
-        return "%s,%.2d"%(self._year, self._month)
+        return "%.2d/%s"%(self._month, self._year)
 
     def get_cur_date_float(self):
         return self._year + (self._month-1)/12.
@@ -156,7 +156,7 @@ def main_loop(world):
             region.increment_age()
                 
         stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
-                str(model_time).ljust(7), num_persons, region.get_num_marriages(), num_households,
+                model_time.get_cur_date_string().ljust(7), num_persons, region.get_num_marriages(), num_households,
                 num_new_marriages, num_new_births, num_new_deaths, num_new_migrations)
         print stats_string
 
