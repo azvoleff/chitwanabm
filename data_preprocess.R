@@ -141,7 +141,7 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 
 
 ###############################################################################
-# Now handle the land use data. Import land use data from time 1 for 4 
+# Now handle the land use data. Import land use data from time 1 and make 5 
 # different classes, as is done by Axinn (2007). The classes are:
 # 	Agricultural vegetation - BARI1, IKHET1, RKHET1
 # 	Non-agricultural vegetation - GRASSC1, GRASSP1, PLANTC1, PLANTP1
