@@ -46,6 +46,7 @@ class TimeSteps():
         # Initialize the current month and year
         self._year = self._starttime[0]
         self._month = self._starttime[1]
+        self._int_timestep = 1
 
     def increment(self):
         assert self._month != 0, "Month cannot be 0"
@@ -53,6 +54,7 @@ class TimeSteps():
         dyear = int((self._month - 1) / 12)
         self._year += dyear
         self._month = self._month - dyear*12
+        self._int_timestep += 1
 
     def in_bounds(self):
         if self._year == self._endtime[0] and self._month >= self._endtime[1] \
@@ -73,6 +75,9 @@ class TimeSteps():
     def get_cur_date_float(self):
         return self._year + (self._month-1)/12.
 
+    def get_cur_int_timestep(self):
+        return self._int_timestep
+
     def __str__(self):
         return "%s-%s"%(self._year, self._month)
 
@@ -82,6 +87,7 @@ timestep = rcParams['model.timestep']
 
 model_time = TimeSteps(timebounds, timestep)
 
+saved_LULC = {}
 def main_loop(world):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
@@ -135,6 +141,9 @@ def main_loop(world):
             saved_data.add_num_households(num_households)
             saved_data.add_num_neighborhoods(num_neighborhoods)
 
+            # Save LULC data in a dictionary keyed by timestep:nbh:variable
+            saved_LULC[model_time.get_cur_int_timestep()] = region.get_neighborhood_landuse()
+
             region.increment_age()
                 
         stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
@@ -148,7 +157,7 @@ def main_loop(world):
 
         model_time.increment()
 
-    return saved_data
+    return saved_data, saved_LULC
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)

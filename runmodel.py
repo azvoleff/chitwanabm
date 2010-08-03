@@ -38,6 +38,8 @@ import subprocess
 import socket
 import csv
 
+import numpy as np
+
 from ChitwanABM import rcParams
 from ChitwanABM.modelloop import main_loop
 from ChitwanABM.rcsetup import write_RC_file
@@ -82,7 +84,7 @@ def main(argv=None):
 %s: started model run number %s.
 *******************************************************************************
 """%(start_time_string, run_ID_number)
-    results = main_loop(world) # This line actually runs the model.
+    results, LULC_results = main_loop(world) # This line actually runs the model.
     end_time = time.localtime()
     end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
     print """
@@ -110,8 +112,13 @@ def main(argv=None):
     # the path of the currently running ChitwanABM code.
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
+
     results_csv_file = os.path.join(results_path, "results.csv")
     save_results_csv(results, results_csv_file)
+
+
+    LULC_csv_file = os.path.join(results_path, "LULC.csv")
+    save_LULC_csv(LULC_results, LULC_csv_file)
 
     # Calculate the number of seconds per month the model took to run (to 
     # simplify choosing what machine to do model runs on). This is equal to the 
@@ -160,9 +167,51 @@ def save_git_diff(code_path, git_diff_file):
     return commit_hash
 
 def save_results_csv(results, results_csv_file):
+    "Write to CSV the saved population data."
     out_file = open(results_csv_file, "w")
     csv_writer = csv.writer(out_file)
     csv_writer.writerows(results.get_results_array())
+    out_file.close()
+    
+def save_LULC_csv(LULC_data, LULC_csv_file):
+    "Write to CSV the saved LULC data."
+    # The LULC data is stored in a dictionary keyed by timestep, then keyed by 
+    # NBH ID, then keyed by LULC type. Write it to CSV where each row 
+    # represents a single NBH, and each col a single variable (from a single 
+    # timestep).
+    timesteps = sorted(LULC_data.keys())
+
+    # The neighborhood_IDs will uniquely identify each row of the final matrix.
+    neighborhood_IDs = []
+    for timestep in timesteps:
+        neighborhood_IDs.extend(LULC_data[timestep].keys())
+    neighborhood_IDs = sorted(np.unique(neighborhood_IDs))
+
+    # The below line works because the categories do not (and cannot) change 
+    # through time.
+    categories = sorted(LULC_data[timesteps[0]][neighborhood_IDs[0]])
+
+    # The dataframe will end up (in R) having 1 column for neighborhood ID, and 
+    # timesteps * categories additional columns for the LULC data.
+    out_file = open(LULC_csv_file, "w")
+    csv_writer = csv.writer(out_file)
+    var_names = ["neighid"]
+    for category in categories:
+        for timestep in timesteps:
+            var_name = category + "." + str(timestep)
+            var_names.append(var_name)
+    csv_writer.writerow(var_names)
+
+    for neighborhood_ID in neighborhood_IDs:
+        row = [neighborhood_ID]
+        for category in categories:
+            for timestep in timesteps:
+                if LULC_data[timestep].has_key(neighborhood_ID):
+                    if LULC_data[timestep][neighborhood_ID].has_key(category):
+                        row.append(LULC_data[timestep][neighborhood_ID][category])
+                    else:
+                        row.append(np.NaN)
+        csv_writer.writerow(row)
     out_file.close()
 
 if __name__ == "__main__":
