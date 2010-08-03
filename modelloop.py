@@ -72,6 +72,9 @@ class TimeSteps():
     def get_cur_date(self):
         return [self._year, self._month]
 
+    def get_cur_date_string(self):
+        return "%s,%.2d"%(self._year, self._month)
+
     def get_cur_date_float(self):
         return self._year + (self._month-1)/12.
 
@@ -91,8 +94,7 @@ model_time = TimeSteps(timebounds, timestep)
 time_strings = {}
 time_strings['timestep'] = []
 time_strings['time_float'] = []
-time_strings['time_year'] = []
-time_strings['time_month'] = []
+time_strings['time_date'] = []
 saved_LULC = {}
 def main_loop(world):
     """This function contains the main model loop. Passed to it is a list of 
@@ -157,16 +159,15 @@ def main_loop(world):
                 num_new_marriages, num_new_births, num_new_deaths, num_new_migrations)
         print stats_string
 
-        if num_persons == 0:
-            print "End of model run: population is zero."
-            break
-
         # Save timestep, year and month, and time_float values for use in 
         # storing results keyed to a particular timestep.
         time_strings['timestep'].append(model_time.get_cur_int_timestep())
         time_strings['time_float'].append(model_time.get_cur_date_float())
-        time_strings['time_year'].append(model_time.get_cur_year())
-        time_strings['time_month'].append(model_time.get_cur_month())
+        time_strings['time_date'].append(model_time.get_cur_date_string())
+
+        if num_persons == 0:
+            print "End of model run: population is zero."
+            break
 
         model_time.increment()
 
