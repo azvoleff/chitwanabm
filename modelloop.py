@@ -90,7 +90,6 @@ timestep = rcParams['model.timestep']
 
 model_time = TimeSteps(timebounds, timestep)
 
-
 def main_loop(world):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
@@ -103,65 +102,87 @@ def main_loop(world):
 
     saved_LULC_results = {}
 
-    # saved_data will store the results of each timestep.
-    saved_data = Results()
-    
+    # Keep annual totals to print while the model is running
+    annual_num_marr = 0
+    annual_num_births = 0
+    annual_num_deaths = 0
+    annual_num_in_migr = 0
+    annual_num_out_migr = 0
+
+    # saved_data will store the results of each timestep to be saved later as a 
+    # CSV.
+    saved_data = {}
+
     # Save the starting time of the model to use in printing elapsed time while 
     # it runs.
     modelrun_starttime = time.time()
-
     while model_time.in_bounds():
-        saved_data.add_timestep(model_time.get_cur_date_float())
-        saved_data.add_year(model_time.get_cur_year())
-        saved_data.add_month(model_time.get_cur_month())
         
         if model_time.get_cur_month() == 1 and \
                 model_time.get_cur_date() != model_time._starttime:
-            total_string = "TOTAL | New Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
-                    sum(saved_data._num_marriages[-13:-1]),
-                    sum(saved_data._num_births[-13:-1]),
-                    sum(saved_data._num_deaths[-13:-1]),
-                    sum(saved_data._num_migrations[-13:-1]))
+            total_string = "TOTAL | New Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
+                    annual_num_marr, annual_num_births,
+                    annual_num_deaths, annual_num_in_migr, annual_num_out_migr)
             total_string = total_string.center(len(stats_string))
             print total_string
             msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
             msg = msg.rjust(len(stats_string))
             print msg
+            annual_num_births = 0
+            annual_num_deaths = 0
+            annual_num_marr = 0
+            annual_num_in_migr = 0
+            annual_num_out_migr = 0
 
         for region in world.iter_regions():
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
-            num_new_births = region.births(model_time.get_cur_date_float())
-            num_new_deaths = region.deaths(model_time.get_cur_date_float())
-            num_new_marriages = region.marriages(model_time.get_cur_date_float())
-            num_new_migrations = region.migrations(model_time.get_cur_date_float())
+            new_births = region.births(model_time.get_cur_date_float())
+            new_deaths = region.deaths(model_time.get_cur_date_float())
+            new_marr = region.marriages(model_time.get_cur_date_float())
+            new_out_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
             landuse = region.update_landuse(model_time.get_cur_date_float())
 
             num_persons = region.num_persons()
             num_households = region.num_households()
             num_neighborhoods = region.num_neighborhoods()
 
-            # store results:
-            saved_data.add_num_births(num_new_births)
-            saved_data.add_num_deaths(num_new_deaths)
-            saved_data.add_num_marriages(num_new_marriages)
-            saved_data.add_num_migrations(num_new_migrations)
-            saved_data.add_num_persons(num_persons)
-            saved_data.add_num_households(num_households)
-            saved_data.add_num_neighborhoods(num_neighborhoods)
+            # Store results:
+            num_new_births = sum(new_births.values())
+            num_new_deaths = sum(new_deaths.values())
+            num_new_marr = sum(new_marr.values())
+            num_new_out_migr = sum(new_out_migr.values())
+            num_new_in_migr = sum(new_in_migr.values())
+
+            annual_num_births += num_new_births
+            annual_num_deaths += num_new_deaths
+            annual_num_marr += num_new_marr
+            annual_num_in_migr += num_new_in_migr
+            annual_num_out_migr += num_new_out_migr
 
             # Save LULC data in a dictionary keyed by timestep:nbh:variable
             saved_LULC_results[model_time.get_cur_int_timestep()] = region.get_neighborhood_landuse()
 
+            # Save event and population data for later output to CSV.
+            saved_data[model_time.get_cur_int_timestep()] = {}
+            saved_data[model_time.get_cur_int_timestep()]['births'] = new_births
+            saved_data[model_time.get_cur_int_timestep()]['deaths'] = new_deaths
+            saved_data[model_time.get_cur_int_timestep()]['marr'] = new_marr
+            saved_data[model_time.get_cur_int_timestep()]['in_migr'] = new_in_migr
+            saved_data[model_time.get_cur_int_timestep()]['out_migr'] = new_out_migr
+            saved_data[model_time.get_cur_int_timestep()].update(region.get_neighborhood_pop_stats())
+
             region.increment_age()
                 
-        stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | Mi: %3s"%(
+        # Print an information line to allow keeping tabs on the model while it 
+        # is running.
+        stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, region.get_num_marriages(), num_households,
-                num_new_marriages, num_new_births, num_new_deaths, num_new_migrations)
+                num_new_marr, num_new_births, num_new_deaths, num_new_in_migr, num_new_out_migr)
         print stats_string
 
         # Save timestep, year and month, and time_float values for use in 
-        # storing results keyed to a particular timestep.
+        # storing results (to CSV) keyed to a particular timestep.
         time_strings['timestep'].append(model_time.get_cur_int_timestep())
         time_strings['time_float'].append(model_time.get_cur_date_float())
         time_strings['time_date'].append(model_time.get_cur_date_string())
