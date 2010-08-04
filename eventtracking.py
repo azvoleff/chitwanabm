@@ -142,6 +142,6 @@ class Results(object):
             self.get_num_migrations()))
         results_array = results_array.transpose()
         row_headings = ['timestep', 'month', 'year', 'pop_psn', 'pop_hs',
-                'pop_nbh', 'births', 'deaths', 'marr', 'mig']
+                'pop_nbh', 'births', 'deaths', 'marr', 'migr']
         results_array = np.vstack((row_headings, results_array))
         return results_array
