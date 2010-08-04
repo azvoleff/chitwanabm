@@ -119,9 +119,9 @@ def main(argv=None):
     print "Plotting results..."
     # Make plots of the LULC and population results
     dev_null = open(os.devnull, 'w')
-    subprocess.check_call(['R', '-f', 'plot_LULC.R', '--args', results_path],
+    subprocess.check_call(['Rscript', 'plot_LULC.R', results_path],
             cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-    subprocess.check_call(['R', '-f', 'plot_pop.R', '--args', results_path],
+    subprocess.check_call(['Rscript', 'plot_pop.R', results_path],
             cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
     dev_null.close()
 
