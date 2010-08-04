@@ -40,11 +40,15 @@ events <- data.frame(time.Robj=time.Robj,
 events <- stack(events)
 events <- cbind(time.Robj=rep(time.Robj,5), events)
 names(events)[2:3] <- c("events", "Event_type")
+
+# Plot thinner lines so this busy plot is easier to read.
+update_geom_defaults("line", aes(size=.5))
 qplot(time.Robj, events, geom="line", colour=Event_type, xlab="Year",
         ylab="Number of Events", data=events)
 ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=8.33, height=5.53,
         dpi=300)
 
+update_geom_defaults("line", aes(size=1))
 num.psn <- data.frame(time.Robj=time.Robj,
         num.psn=apply(pop.results[num_psn.cols], 2, sum, na.rm=TRUE))
 qplot(time.Robj, num.psn, geom="line", xlab="Year",
