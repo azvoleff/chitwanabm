@@ -78,10 +78,12 @@
 ###############################################################################
 # Household agent parameters
 ###############################################################################
-'prob_any_non_wood_fuel' : [.5 | validate_unit_interval]
-'prob_own_house_plot' : [.5 | validate_unit_interval]
-'prob_own_any_land' : [.5 | validate_unit_interval]
-'prob_rented_out_land' : [.5 | validate_unit_interval]
+'fw_demand.coef.hh_size' : [.5 | validate_unit_interval]
+'fw_demand.coef.hh_size_sq' : [.5 | validate_unit_interval]
+'fw_demand.coef.ethnic' : [.5 | validate_unit_interval]
+'fw_demand.coef.livestock' : [.5 | validate_unit_interval]
+'fw_demand.coef.elec' : [.5 | validate_unit_interval]
+'fw_demand.coef.non_wood_stove' : [.5 | validate_unit_interval]
 
 ###############################################################################
 # Landscape parameters
