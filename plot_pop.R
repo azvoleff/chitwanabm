@@ -2,9 +2,9 @@
 # Plots the pop data from a model run.
 require(ggplot2)
 
-#MODEL_RUN_ID <- commandArgs(trailingOnly=TRUE)[1]
-#DATA_PATH <- paste("~/Data/ChitwanABM_runs", MODEL_RUN_ID, sep="/")
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+#MODEL_RUN_ID <- '20100804-204228'
+#DATA_PATH <- paste("~/Data/ChitwanABM_runs", MODEL_RUN_ID, sep="/")
 
 theme_update(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
@@ -28,6 +28,7 @@ births.cols <- grep('^births.[0-9]*$', names(pop.results))
 deaths.cols <- grep('^deaths.[0-9]*$', names(pop.results))
 in_migr.cols <- grep('^in_migr.[0-9]*$', names(pop.results))
 out_migr.cols <- grep('^out_migr.[0-9]*$', names(pop.results))
+fw_usage.cols <- grep('^fw_usage.[0-9]*$', names(pop.results))
 
 # Make two separate stacks - one of pop data, and one of event data.
 # Stack them so they can easily be used with ggplot2 faceting.
@@ -65,4 +66,14 @@ names(num.other)[2:3] <- c("num", "Pop_type")
 qplot(time.Robj, num, geom="line", colour=Pop_type, xlab="Year",
         ylab="Population", data=num.other)
 ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=8.33, height=5.53,
+        dpi=300)
+
+fw.usage <- data.frame(time.Robj=time.Robj,
+        fw_usage=apply(pop.results[fw_usage.cols], 2, sum, na.rm=TRUE))
+fw.usage <- stack(fw.usage)
+fw.usage <- cbind(time.Robj=rep(time.Robj,2), fw.usage)
+names(fw.usage)[2:3] <- c("kg_fw", "Pop_type")
+qplot(time.Robj, kg_fw/1000, geom="line", colour=Pop_type, xlab="Year",
+        ylab="Metric Tons of Fuelwood", data=fw.usage)
+ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=8.33, height=5.53,
         dpi=300)
