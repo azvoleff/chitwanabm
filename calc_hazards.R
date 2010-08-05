@@ -11,6 +11,7 @@ require(Hmisc)
 require(ggplot2)
 
 load("/media/Local_Secure/CVFS_R_format/hhreg.Rdata")
+hhreg$gender <- factor(hhreg$gender, labels=c("male", "female"))
 
 # TODO: Need to only consider neighborhoods with neighid < 151
 
@@ -72,19 +73,49 @@ names(maritstatus) <- sub('^marit', 'maritstat', names(maritstatus))
 hhreg <- cbind(hhreg, maritstatus.chg)
 hhreg <- cbind(hhreg, maritstatus)
 
+# Also before the reshape, add a new set of columns coding whether an 
+# individual is at risk of giving birth. Only females are at risk of giving 
+# birth, and they are not at risk of giving birth for the 9 months before and 
+# the 9 months after they give birth. A birth is coded as a 3 (livebirth) or a 
+# 5 (stillbirth).  The atrisk.birth variable does NOT account for age 
+# limitations on births.  This is taken care of by the data itself.
+preg.cols <- grep('^preg[0-9]*$', names(hhreg))
+riskbirth <- hhreg[preg.cols]
+riskbirth[riskbirth != 3] <- 1
+riskbirth[riskbirth == 3 | riskbirth == 5] <- 0
+# Now the month in which a woman gave birth is coded as a 0. Also code as 0 the 
+# 9 months before and the 9 months after she gave birth.
+atrisk.birth <- riskbirth
+for (n in 2:9) {
+    # First do 9 months after birth
+    cols.mask.forward = n:ncol(atrisk.birth)
+    cols.multiplier.forward = 1:(ncol(atrisk.birth) - n +1)
+    atrisk.birth[cols.mask.forward] <- atrisk.birth[cols.mask.forward] *
+            riskbirth[cols.multiplier.forward]
+    # Now do 9 months prior to birth
+    cols.mask.back = 1:(ncol(atrisk.birth)-n+1)
+    cols.multiplier.back = n:ncol(atrisk.birth)
+    atrisk.birth[cols.mask.back] <- atrisk.birth[cols.mask.back] *
+            riskbirth[cols.multiplier.back]
+
+}
+# Code the first 9 months as zeros as we don't know if a woman gave birth or 
+# not (missing the first 9 months of data).
+atrisk.birth[1:9] <- 0
+atrisk.birth[hhreg$gender != "female",] <- 0
+names(atrisk.birth) <- sub('^preg', 'atrisk.birth', names(atrisk.birth))
+hhreg <- cbind(hhreg, atrisk.birth)
+
 ###############################################################################
 # Now do the reshape.
 ###############################################################################
 # Find the column indices of all columns that are repeated measurements
-columns <- grep('^(livng|age|preg|marit|maritchg|maritstat|place|spous|hhid)[0-9]*$', names(hhreg))
-hhreg$gender <- factor(hhreg$gender, labels=c("male", "female"))
+columns <- grep('^(livng|age|preg|marit|maritchg|maritstat|place|atrisk.birth)[0-9]*$', names(hhreg))
 
 # Reshape age and livngs. Include columns 1, 3, and 4 as these are respid, 
 # ethnic, and gender, respectively.
-hhreg.reshaped <- reshape(hhreg[c(1, 3, 4, columns)], direction="long",
+events <- reshape(hhreg[c(1, 3, 4, columns)], direction="long",
         varying=names(hhreg[columns]), idvar="respid", timevar="time", sep="")
-
-events <- hhreg.reshaped
 
 ###############################################################################
 # Process age/livngs/hasspouse/marr to recode and remove NAs, etc.
@@ -183,14 +214,15 @@ for (limindex in 1:(length(preglims)-1)) {
 # (there are only 2 births to unmarried women)
 fecund <- events[events$gender=="female" & !is.na(events$preg),]
 births <- with(fecund[fecund$hasspouse==1,], aggregate(preg==3,
-        by=list(pregbin=pregbin), sum))
-birthpsnmnths <- aggregate(fecund$gender=="female",
-        by=list(pregbin=fecund$pregbin), sum)
+        by=list(pregbin=pregbin), sum, na.rm=T))
+
+birthpsnmnths <- aggregate(fecund$atrisk.birth==1,
+        by=list(pregbin=fecund$pregbin), sum, na.rm=T)
 birthprob <- data.frame(bin=births$pregbin, prob=(births$x/birthpsnmnths$x)*12)
 
 # Calculate the number of births per month
 monthly.livebirths <- with(events[events$preg==3,],
-        aggregate(preg==3, by=list(time), sum))
+        aggregate(preg==3, by=list(time), sum, na.rm=T))
 monthly <- cbind(monthly, livebirths=monthly.livebirths$x)
 
 # TODO: Also calculate the proportion of female/male births
@@ -252,17 +284,17 @@ update_geom_defaults("line", aes(size=1))
 update_geom_defaults("step", aes(size=1))
 
 qplot(bin, prob*100, geom="step", xlab="Age (years)",
-        ylab="Annual probability of giving birth (%)",
+        ylab="Annual Probability of Live Birth (%)",
         data=birthprob)
-ggsave("birth_prob.png", width=8.33, height=5.53, dpi=300)
+ggsave("prob_birth.png", width=8.33, height=5.53, dpi=300)
 
 qplot(bin, prob*100, geom="step", colour=gender, xlab="Age (years)",
-        ylab="Annual probability of dying (%)", data=deathprob)
-ggsave("death_prob.png", width=8.33, height=5.53, dpi=300)
+        ylab="Annual Probability of Dying (%)", data=deathprob)
+ggsave("prob_death.png", width=8.33, height=5.53, dpi=300)
 
 qplot(bin, prob*100, geom="step", colour=gender, xlab="Age (years)",
-        ylab="Annual probability of marrying (%)", data=marrprob)
-ggsave("marriage_prob.png", width=8.33, height=5.53, dpi=300)
+        ylab="Annual Probability of Marrying (%)", data=marrprob)
+ggsave("prob_marriage.png", width=8.33, height=5.53, dpi=300)
 
 # Output plots and csv files of number of events per month for the actual CVFS 
 # data (for comparison to model results).
