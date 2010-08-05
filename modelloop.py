@@ -140,7 +140,6 @@ def main_loop(world):
             new_deaths = region.deaths(model_time.get_cur_date_float())
             new_marr = region.marriages(model_time.get_cur_date_float())
             new_out_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
-            landuse = region.update_landuse(model_time.get_cur_date_float())
 
             num_persons = region.num_persons()
             num_households = region.num_households()
