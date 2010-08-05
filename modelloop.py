@@ -169,6 +169,7 @@ def main_loop(world):
             saved_data[model_time.get_cur_int_timestep()]['in_migr'] = new_in_migr
             saved_data[model_time.get_cur_int_timestep()]['out_migr'] = new_out_migr
             saved_data[model_time.get_cur_int_timestep()].update(region.get_neighborhood_pop_stats())
+            saved_data[model_time.get_cur_int_timestep()].update(region.get_neighborhood_fw_usage())
 
             region.increment_age()
                 
