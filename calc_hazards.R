@@ -178,20 +178,6 @@ deathspsnmnths <- aggregate(events$livng==2, by=list(gender=events$gender,
 deathprob <- data.frame(gender=deaths$gender, bin=deaths$deathbin,
         prob=(deaths$x/deathspsnmnths$x)*12)
 
-# The 'monthly' dataframe will store the number of each event (marriages, 
-# births, deaths) per month.
-time.Robj = seq(as.Date("1997/02/15", "%Y/%m/%d"), as.Date("2001/07/15",
-        "%Y/%m/%d"), by="months")
-# Calculate the number of deaths per month
-monthly.deaths <- with(events[events$livng==3,],
-        aggregate(livng==3, by=list(time=time), sum))
-# For simplicity of plotting - assume the mean number of deaths ocurred from 
-# month prior to start of data collection to the first month of data 
-# collection. That way the deaths timeseries will align with the rest of the 
-# data - otherwise it would be one month shorter than the other series.
-monthly.deaths <- rbind(c(0,floor(mean(monthly.deaths$x))), monthly.deaths)
-monthly <- data.frame(time.Robj=time.Robj, deaths=monthly.deaths$x)
-
 ###############################################################################
 # Process births.
 ###############################################################################
@@ -205,7 +191,7 @@ monthly <- data.frame(time.Robj=time.Robj, deaths=monthly.deaths$x)
 # Preg status is only recorded in the hhreg data for women between the ages of 
 # 18 and 45.
 events <- cbind(events, pregbin=matrix(0,nrow(events),1))
-preglims <- c(0, 14, 15, 16, 18, 20, 23, 26, 30, 35, 40, 45, 199)
+preglims <- c(0, 15, 16, 18, 20, 23, 26, 30, 35, 40, 45, 199)
 for (limindex in 1:(length(preglims)-1)) {
     events[events$age>=preglims[limindex] &
             events$age<preglims[limindex+1],]$pregbin <- preglims[limindex]
@@ -219,11 +205,6 @@ births <- with(fecund[fecund$hasspouse==1,], aggregate(preg==3,
 birthpsnmnths <- aggregate(fecund$atrisk.birth==1,
         by=list(pregbin=fecund$pregbin), sum, na.rm=T)
 birthprob <- data.frame(bin=births$pregbin, prob=(births$x/birthpsnmnths$x)*12)
-
-# Calculate the number of births per month
-monthly.livebirths <- with(events[events$preg==3,],
-        aggregate(preg==3, by=list(time), sum, na.rm=T))
-monthly <- cbind(monthly, livebirths=monthly.livebirths$x)
 
 # TODO: Also calculate the proportion of female/male births
 ###############################################################################
@@ -239,15 +220,6 @@ for (limindex in 1:(length(marrlims)-1)) {
 events$maritchg[is.na(events$maritchg)] <- 0
 marriages <- aggregate(events$maritchg==1, by=list(gender=events$gender,
                 marrbin=events$marrbin), sum)
-# Calculate the number of marriages per month
-monthly.marriages <- with(events[events$maritchg==1,], aggregate(maritchg==1,
-        by=list(time), sum))
-# For simplicity of plotting - assume the mean number of marriages ocurred from 
-# month prior to start of data collection to the first month of data 
-# collection. That way the marriages timeseries will align with the rest of the 
-# data - otherwise it would be one month shorter than the other series.
-monthly.marriages <- rbind(c(1,floor(mean(monthly.marriages$x))), monthly.marriages)
-monthly <- cbind(monthly, marriages=monthly.marriages$x)
 # Remove NAs from maritstat
 events$maritstat[is.na(events$maritstat)] <- 0
 marrpsnmnths <- aggregate(events$maritstat==1, by=list(gender=events$gender,
@@ -295,15 +267,3 @@ ggsave("prob_death.png", width=8.33, height=5.53, dpi=300)
 qplot(bin, prob*100, geom="step", colour=gender, xlab="Age (years)",
         ylab="Annual Probability of Marrying (%)", data=marrprob)
 ggsave("prob_marriage.png", width=8.33, height=5.53, dpi=300)
-
-# Output plots and csv files of number of events per month for the actual CVFS 
-# data (for comparison to model results).
-write.csv(monthly, file="monthly_events_CVFS.csv", row.names=FALSE)
-save(monthly, file="monthly_events_CVFS.Rdata")
-
-monthly.stacked <- stack(monthly)
-monthly.stacked <- cbind(rep(monthly$time.Robj, 3), monthly.stacked)
-names(monthly.stacked)[2:3] <- c("events", "Event_type")
-qplot(time.Robj, events, geom="line", colour=Event_type, xlab="Year",
-        ylab="Number of Events", data=monthly.stacked)
-ggsave("monthly_events_CVFS.png", width=8.33, height=5.53, dpi=300)
