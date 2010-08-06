@@ -31,6 +31,14 @@ make.txthazard <- function(probs, binlims, param.name) {
     return(txthazard)
 }
 
+make.txtprob <- function(probs, binlims, param.name) {
+    # param.name is the name used by the ChitwanABM model for this parameter.
+    binlims <- paste(round(binlims, digits=4), collapse=", ")
+    probs <- paste(round(probs, digits=4), collapse=", ")
+    txtprob <- paste("'", param.name, "' : [((", binlims, "), (", probs,  "))] | validate_prob_dist]", sep="")
+    return(txtprob)
+}
+
 plot.hazard <- function(probs, plottitle, plotfile) {
     qplot(bin, prob, geom="line", xlab="Age (years)",
             ylab="Annual probability", main=plottitle, data=probs)
@@ -263,7 +271,7 @@ marrprob <- data.frame(gender=marriages$gender, bin=marriages$marrbin,
 txthazards <- c()
 txthazards <- c(txthazards, make.txthazard(birthprob$prob, preglims,
         "hazard.birth"))
-txthazards <- c(txthazards, make.txthazard(firstbirthprob$prob,
+txthazards <- c(txthazards, make.txtprob(firstbirthprob$prob,
         c(firstbirthprob$bin, 199), "prob.firstbirth.times"))
 txthazards <- c(txthazards,
         make.txthazard(deathprob[deathprob$gender=="male",]$prob,
