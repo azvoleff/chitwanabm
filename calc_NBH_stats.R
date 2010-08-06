@@ -30,7 +30,7 @@ calc_NBH_LULC <- function(DATA_PATH) {
     return(lulc.sd.mean)
 }
 
-calc_NBH_pop<- function(DATA_PATH) {
+calc_NBH_pop <- function(DATA_PATH) {
     model.results <- read.csv(paste(DATA_PATH, "pop_results.csv", sep="/"))
     # Read in time data to use in plotting. time.Robj will provide the x-axis 
     # values.
@@ -62,4 +62,66 @@ calc_NBH_pop<- function(DATA_PATH) {
             num_psn=apply(model.results[num_psn.cols], 2, sum, na.rm=TRUE),
             fw_usage_kg=apply(model.results[fw_usage.cols], 2, sum, na.rm=TRUE))
     return(model.results)
+}
+
+make_shaded_error_plot <- function(ens_res) {
+    # The first column of ens_res dataframe should be the times
+    # For each variable listed in "variable_names", there should be two columns,
+    # one of means, named "variable_name.mean" and one of standard deviations,
+    # named "variable_name.sd"
+    theme_update(theme_grey(base_size=18))
+    update_geom_defaults("line", aes(size=1))
+
+    # Ignore column one in code in next line since it is only the time
+    var_names <- unique(gsub("(.mean)|(.sd)", "",
+                    names(ens_res)[2:ncol(ens_res)]))
+    num_vars <- length(var_names)
+    time.Robj <- ens_res$time.Robj
+
+    # Stack the data to use in ggplot2
+    mean.cols <- grep(".mean$", names(ens_res))
+    sd.cols <- grep(".sd$", names(ens_res))
+    ens_res.mean <- stack(data.frame(ens_res$time.Robj, ens_res[mean.cols]))
+    # Need the *2 below because each var has two cols, one for sd and one for 
+    # mean
+    ens_res.mean <- cbind(time.Robj=rep(time.Robj,num_vars*2), ens_res.mean)
+    names(ens_res.mean)[2:3] <- c("mean", "Type")
+    ens_res.sd <- stack(data.frame(ens_res$time.Robj, ens_res[sd.cols]))
+    ens_res.sd <- cbind(time.Robj=rep(time.Robj,num_vars*2), ens_res.sd)
+    names(ens_res.sd)[2:3] <- c("sd", "Type")
+
+    # Add lower and upper limits of ribbon to ens_res.sd dataframe
+    ens_res.sd <- cbind(ens_res.sd, lim.up=ens_res.mean$mean + 2*ens_res.sd$sd)
+    ens_res.sd <- cbind(ens_res.sd, lim.low=ens_res.mean$mean - 2*ens_res.sd$sd)
+
+    p <- ggplot()
+    p + geom_line(aes(time.Robj, mean, colour=Type), data=ens_res.mean) +
+        geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up, fill=Type),
+            alpha=.2, data=ens_res.sd) +
+        scale_fill_discrete(legend=F) +
+        labs(x="Years", y="Mean Percentage of Neighborhood", colour="LULC Class")
+    return(p)
+}
+
+calc_ensemble_results <- function(model_results) {
+    # The first column of model_results dataframe should be the times
+    # For each variable listed in "variable_names", there should be two columns,
+    # one of means, named "variable_name.mean" and one of standard deviations,
+    # named "variable_name.sd"
+    var_names <- unique(gsub(".run[0-9]*$", "",
+                    names(model_results)[2:ncol(model_results)]))
+    var_names <- var_names[var_names!="time.Robj"]
+
+    # First calculate the mean and standard deviations for each set of runs
+    ens_res <- data.frame(time.Robj=model_results$time.Robj.run1)
+    for (var_name in var_names) {
+        var_cols <- grep(paste("^", var_name, ".", sep=""), names(model_results))
+        var_mean <- apply(model_results[var_cols], 1, mean)
+        var_sd <- apply(model_results[var_cols], 1, sd)
+        ens_res <- cbind(ens_res, var_mean, var_sd)
+        var_mean.name <- paste(var_name, ".mean", sep="")
+        var_sd.name <- paste(var_name, ".sd", sep="")
+        names(ens_res)[(length(ens_res)-1):length(ens_res)] <- c(var_mean.name, var_sd.name)
+    }
+    return(ens_res)
 }
