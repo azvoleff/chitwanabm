@@ -118,12 +118,38 @@ def calc_hazard_death(person):
         raise IndexError("error calculating death hazard (index %s)"%(hazard_index))
 
 def calc_hazard_migration(person):
-    "Calculates the hazard of death for an agent."
+    "Calculates the hazard of migration for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
     return migration_hazards[hazard_index]
 
-def calc_landuse(region):
-    "Calculates land use based on population parameters and past land use."
-    # TODO: finish coding this function.
-    return landuse
+def calc_first_birth_time():
+    "Calculates the time from marriage until first birth for this person."
+    first_birth_prob_dist = rcParams['prob.firstbirth.times']
+    return int(draw_from_prob_dist(first_birth_prob_dist))
+
+def draw_from_prob_dist(prob_dist):
+    """
+    Draws a random number from a manually specified probability distribution,
+    where the probability distribution is a tuple specified as:
+        ([a, b, c, d], [1, 2, 3])
+    where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
+    assigned to each bin. Notice one more bin limit must be specifed than the 
+    number of probabilities given (to close the interval).
+    """
+    # First randomly choose the bin, with the bins chosen according to their 
+    # probability.
+    binlims, probs = prob_dist
+    num = np.random.rand() * np.sum(probs)
+    n = 0
+    probcumsums = np.cumsum(probs)
+    for upprob in probcumsums[1:]:
+        if num < upprob:
+            break
+        n += 1
+    upbinlim = binlims[n+1]
+    lowbinlim = binlims[n]
+    print "binlims:", upbinlim, lowbinlim
+    # Now we know the bin lims, so draw a random number evenly distributed 
+    # between those two limits.
+    return np.random.uniform(lowbinlim, upbinlim)
