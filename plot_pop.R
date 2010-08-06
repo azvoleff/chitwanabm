@@ -5,8 +5,6 @@ require(ggplot2)
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-#MODEL_RUN_ID <- '20100804-204228'
-#DATA_PATH <- paste("~/Data/ChitwanABM_runs", MODEL_RUN_ID, sep="/")
 
 pop.results <- calc_NBH_pop(DATA_PATH)
 
