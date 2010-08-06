@@ -73,13 +73,39 @@ names(maritstatus) <- sub('^marit', 'maritstat', names(maritstatus))
 hhreg <- cbind(hhreg, maritstatus.chg)
 hhreg <- cbind(hhreg, maritstatus)
 
+###############################################################################
+# First birth timing
+###############################################################################
+# Pull out all rows where there was a marriage, and where the person is female.  
+# These rows are indicated by 
+gotmarried <- (maritstatus.chg==1) & (hhreg$gender=="female")
+# Find the index of the first marriage in each row.
+marriage.month <- apply(gotmarried, 1, function(x) match(1, x))
+
+# Now find the index of the first birth of each row (only in the rows where 
+# there was a marriage)
+preg.cols <- grep('^preg[0-9]*$', names(hhreg))
+births <- hhreg[preg.cols]
+births <- births==3 | births==5
+firstbirth.month <- apply(births, 1, function(x) match(TRUE, x))
+
+gotmarried.rows <- marriage.month > 0
+gotmarried.rows[is.na(gotmarried.rows)] <- FALSE
+firstbirth.times <- firstbirth.month[gotmarried.rows] - marriage.month[gotmarried.rows]
+firstbirth.times <- firstbirth.times[!(firstbirth.times<0)]
+
+# Calculate a probability distribution.
+firstbirth_hist <- hist(firstbirth.times, plot=FALSE)
+firstbirthprob <- data.frame(bin=firstbirth_hist$breaks[1:9],
+        prob=firstbirth_hist$counts[1:9])
+firstbirthprob$prob <- firstbirthprob$prob/sum(firstbirthprob$prob)
+
 # Also before the reshape, add a new set of columns coding whether an 
 # individual is at risk of giving birth. Only females are at risk of giving 
 # birth, and they are not at risk of giving birth for the 9 months before and 
 # the 9 months after they give birth. A birth is coded as a 3 (livebirth) or a 
 # 5 (stillbirth).  The atrisk.birth variable does NOT account for age 
 # limitations on births.  This is taken care of by the data itself.
-preg.cols <- grep('^preg[0-9]*$', names(hhreg))
 riskbirth <- hhreg[preg.cols]
 riskbirth[riskbirth != 3] <- 1
 riskbirth[riskbirth == 3 | riskbirth == 5] <- 0
@@ -237,6 +263,8 @@ marrprob <- data.frame(gender=marriages$gender, bin=marriages$marrbin,
 txthazards <- c()
 txthazards <- c(txthazards, make.txthazard(birthprob$prob, preglims,
         "hazard.birth"))
+txthazards <- c(txthazards, make.txthazard(firstbirthprob$prob,
+        c(firstbirthprob$bin, 199), "prob.firstbirth.times"))
 txthazards <- c(txthazards,
         make.txthazard(deathprob[deathprob$gender=="male",]$prob,
         deathlims, "hazard.death.male"))
@@ -267,3 +295,7 @@ ggsave("prob_death.png", width=8.33, height=5.53, dpi=300)
 qplot(bin, prob*100, geom="step", colour=gender, xlab="Age (years)",
         ylab="Annual Probability of Marrying (%)", data=marrprob)
 ggsave("prob_marriage.png", width=8.33, height=5.53, dpi=300)
+
+qplot(bin, prob*100, geom="step", xlab="Time to First Birth (months)",
+        ylab="Probability (%)", data=firstbirthprob)
+ggsave("prob_first_birth.png", width=8.33, height=5.53, dpi=300)
