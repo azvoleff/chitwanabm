@@ -149,7 +149,6 @@ def draw_from_prob_dist(prob_dist):
         n += 1
     upbinlim = binlims[n+1]
     lowbinlim = binlims[n]
-    print "binlims:", upbinlim, lowbinlim
     # Now we know the bin lims, so draw a random number evenly distributed 
     # between those two limits.
     return np.random.uniform(lowbinlim, upbinlim)
