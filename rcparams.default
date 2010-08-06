@@ -74,17 +74,15 @@
 ###############################################################################
 'migr.in.mean' : [5 | validate_float]
 'migr.in.sd' : [3 | validate_float]
-'prob.firstbirth.times' : [{(0, 5):0.0421, (5, 10):0.2757, (10, 15):0.3925, (15, 20):0.1636, (20, 25):0.0654, (25, 30):0.0327, (30, 35):0.0234, (35, 40):0.0047, (40, 199):0} | validate_prob(0, 199)]
+'prob.firstbirth.times' : [((0, 5, 10, 15, 20, 25, 30, 35, 40, 199), (0.0421, 0.2757, 0.3925, 0.1636, 0.0654, 0.0327, 0.0234, 0.0047, 0))] | validate_prob_dist]
 
 ###############################################################################
 # Household agent parameters
 ###############################################################################
-'fw_demand.coef.hh_size' : [.5 | validate_unit_interval]
-'fw_demand.coef.hh_size_sq' : [.5 | validate_unit_interval]
-'fw_demand.coef.ethnic' : [.5 | validate_unit_interval]
-'fw_demand.coef.livestock' : [.5 | validate_unit_interval]
-'fw_demand.coef.elec' : [.5 | validate_unit_interval]
-'fw_demand.coef.non_wood_stove' : [.5 | validate_unit_interval]
+'fw_demand.coef.intercept' : [2.07 | validate_float]
+'fw_demand.coef.hh_size' : [.219 | validate_float]
+'fw_demand.coef.ethnic' : [.881 | validate_float]
+'fw_demand.coef.own_nw_stove' : [-1.01 | validate_float]
 
 ###############################################################################
 # Landscape parameters
