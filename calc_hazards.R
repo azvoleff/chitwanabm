@@ -7,8 +7,8 @@
 
 # Hmisc is needed as hhreg is a "labelled" dataframe. If Hmisc is nto included, 
 # will get errors saying "cannot coerce class "labelled" into a data.frame"
-require(Hmisc)
-require(ggplot2)
+require(Hmisc, quietly=TRUE)
+require(ggplot2, quietly=TRUE)
 
 load("/media/Local_Secure/CVFS_R_format/hhreg.Rdata")
 hhreg$gender <- factor(hhreg$gender, labels=c("male", "female"))

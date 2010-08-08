@@ -1,3 +1,8 @@
+# Contains functions used to calculate and plot neighborhood-level statistics 
+# from a single model run, or from an ensemble of model runs.
+
+require(ggplot2, quietly=TRUE)
+
 calc_NBH_LULC <- function(DATA_PATH) {
     # Make plots of LULC for a model run.
     lulc <- read.csv(paste(DATA_PATH, "LULC_results.csv", sep="/"))
@@ -100,7 +105,6 @@ make_shaded_error_plot <- function(ens_res) {
             alpha=.2, data=ens_res.sd) +
         scale_fill_discrete(legend=F) +
         labs(x="Years", y="Mean Percentage of Neighborhood", colour="LULC Class")
-    return(p)
 }
 
 calc_ensemble_results <- function(model_results) {

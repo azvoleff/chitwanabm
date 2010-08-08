@@ -1,13 +1,17 @@
 #!/usr/bin/env Rscript
 # Plots the LULC data from a model run.
-require(ggplot2)
+require(ggplot2, quietly=TRUE)
 
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "~/Data/ChitwanABM_runs/batchtest"
 
 directories <- list.files(DATA_PATH)
+# Only match the model results folders - don't match any other folders or files 
+# in the directory, as trying to read results from these other files/folders 
+# would lead to an error.
+directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
+
 lulc <- list()
 n <- 1
 for (directory in directories) {

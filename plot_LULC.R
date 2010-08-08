@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # Plots the LULC data from a model run.
-require(ggplot2)
+require(ggplot2, quietly=TRUE)
 
 source("calc_NBH_stats.R")
 

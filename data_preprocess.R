@@ -4,7 +4,7 @@
 # used in initialize.py.
 ###############################################################################
 
-library("foreign")
+library(foreign, quietly=TRUE)
 
 ###############################################################################
 # First handle DS0004 - the census dataset
