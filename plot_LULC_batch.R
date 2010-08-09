@@ -26,5 +26,5 @@ for (directory in directories) {
 
 ens_results <- calc_ensemble_results(lulc)
 
-make_shaded_error_plot(ens_results)
+make_shaded_error_plot(ens_results, "Mean Percentage of Neighborhood", "LULC Type")
 ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=8.33, height=5.53, dpi=300)

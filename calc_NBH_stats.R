@@ -69,7 +69,7 @@ calc_NBH_pop <- function(DATA_PATH) {
     return(model.results)
 }
 
-make_shaded_error_plot <- function(ens_res) {
+make_shaded_error_plot <- function(ens_res, ylabel, typelabel) {
     # The first column of ens_res dataframe should be the times
     # For each variable listed in "variable_names", there should be two columns,
     # one of means, named "variable_name.mean" and one of standard deviations,
@@ -103,11 +103,22 @@ make_shaded_error_plot <- function(ens_res) {
     ens_res.sd <- cbind(ens_res.sd, lim.low=ens_res.mean$mean - 2*ens_res.sd$sd)
 
     p <- ggplot()
-    p + geom_line(aes(time.Robj, mean, colour=Type), data=ens_res.mean) +
-        geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up, fill=Type),
-            alpha=.2, data=ens_res.sd) +
-        scale_fill_discrete(legend=F) +
-        labs(x="Years", y="Mean Percentage of Neighborhood", colour="LULC Class")
+    if (is.na(typelabel)) {
+        # Don't use types - used for plotting things like fuelwood and total 
+        # populatation, where there is only one class on the plot.
+        p + geom_line(aes(time.Robj, mean), data=ens_res.mean) +
+            geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up),
+                alpha=.2, data=ens_res.sd) +
+            scale_fill_discrete(legend=F) +
+            labs(x="Years", y=ylabel)
+    }
+    else {
+        p + geom_line(aes(time.Robj, mean, colour=Type), data=ens_res.mean) +
+            geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up, fill=Type),
+                alpha=.2, data=ens_res.sd) +
+            scale_fill_discrete(legend=F) +
+            labs(x="Years", y=ylabel, colour=typelabel)
+    }
 }
 
 calc_ensemble_results <- function(model_results) {
