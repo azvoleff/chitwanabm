@@ -8,21 +8,28 @@ DEPENDENCIES
     tested to be working) along with several Python dependencies.
     
     Dependencies:
-        Numpy - Numpy is required.
+        Python:
+            A python installation is required to run the model. I use Python 
+        2.6, but 2.5 should work as well. The model will not run under Python 
+        3.0.
+        Python Dependencies:
+            Numpy - Numpy is required.
 
-        Matplotlib - Matplotlib is required (to enable the automatic plotting of 
-            the results of each model run).
+            Matplotlib - Matplotlib is required (to enable the automatic 
+                plotting of the results of each model run).
 
-        Psyco (optional) - Pysco is optional, but will speed up model runs.
+            Psyco (optional) - Pysco is optional, but will speed up model runs.
 
-        OGR (optional) - OGR is required to output shapefiles of neighborhoods 
-            locations
+            OGR (optional) - OGR is required to output shapefiles of 
+                neighborhoods locations
 
         R and R packages (optional):
                 Several R scripts are used to initialize the model, to 
             generate synthetic populations to be used for running the model 
             (if the ICPSR restricted data from the CVFS survey is unavailable), 
-            and for automated plotting of model results.
+            and for automated plotting of model results. If you do not have R 
+            installed, you will need to set the parameter "make_plots" to 
+            "False" in your ChitwanABMrc file.
 
             R packages used in model initialization and results plotting:
                 foreign
