@@ -115,15 +115,16 @@ def main(argv=None):
 
     time_csv_file = os.path.join(results_path, "time.csv")
     write_time_csv(time_strings, time_csv_file)
-
-    print "Plotting results..."
-    # Make plots of the LULC and population results
-    dev_null = open(os.devnull, 'w')
-    subprocess.check_call(['Rscript', 'plot_LULC.R', results_path],
-            cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-    subprocess.check_call(['Rscript', 'plot_pop.R', results_path],
-            cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-    dev_null.close()
+    
+    if rcParams['model.make_plots']:
+        print "Plotting results..."
+        # Make plots of the LULC and population results
+        dev_null = open(os.devnull, 'w')
+        subprocess.check_call(['Rscript', 'plot_LULC.R', results_path],
+                cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+        subprocess.check_call(['Rscript', 'plot_pop.R', results_path],
+                cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+        dev_null.close()
 
     # Calculate the number of seconds per month the model took to run (to 
     # simplify choosing what machine to do model runs on). This is equal to the 

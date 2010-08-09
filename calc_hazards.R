@@ -257,7 +257,7 @@ marriages <- aggregate(events$maritchg==1, by=list(gender=events$gender,
 # Remove NAs from maritstat
 events$maritstat[is.na(events$maritstat)] <- 0
 marrpsnmnths <- aggregate(events$maritstat==1, by=list(gender=events$gender,
-        deathbin=events$deathbin), sum)
+        marrbin=events$marrbin), sum)
 marrprob <- data.frame(gender=marriages$gender, bin=marriages$marrbin,
         prob=(marriages$x/marrpsnmnths$x)*12)
 ###############################################################################

@@ -91,6 +91,9 @@ make_shaded_error_plot <- function(ens_res) {
     # mean
     ens_res.mean <- cbind(time.Robj=rep(time.Robj,num_vars*2), ens_res.mean)
     names(ens_res.mean)[2:3] <- c("mean", "Type")
+    # Remove the ".mean" appended to the Type values (agveg.mean, 
+    # nonagveg.mean, etc) so that it does not appear in the plot legend.
+    ens_res.mean$Type <- gsub(".mean", "", ens_res.mean$Type)
     ens_res.sd <- stack(data.frame(ens_res$time.Robj, ens_res[sd.cols]))
     ens_res.sd <- cbind(time.Robj=rep(time.Robj,num_vars*2), ens_res.sd)
     names(ens_res.sd)[2:3] <- c("sd", "Type")

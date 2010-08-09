@@ -128,6 +128,11 @@ def calc_first_birth_time():
     first_birth_prob_dist = rcParams['prob.firstbirth.times']
     return int(draw_from_prob_dist(first_birth_prob_dist))
 
+def calc_hh_area():
+    "Calculates the time from marriage until first birth for this person."
+    hh_area_prob_dist = rcParams['lulc.area.hh']
+    return draw_from_prob_dist(hh_area_prob_dist)
+
 def draw_from_prob_dist(prob_dist):
     """
     Draws a random number from a manually specified probability distribution,
