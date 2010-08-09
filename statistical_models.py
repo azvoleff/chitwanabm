@@ -128,6 +128,14 @@ def calc_first_birth_time():
     first_birth_prob_dist = rcParams['prob.firstbirth.times']
     return int(draw_from_prob_dist(first_birth_prob_dist))
 
+def calc_des_num_children():
+    "Calculates the desired number of children for this person."
+    des_num_children_prob_dist = rcParams['prob.num.children.desired']
+    # Use np.floor as the last number in the des_num_children prob dist (10) is 
+    # not actually seen in the Chitwan data. It is included only as the 
+    # right-hand bound of the distribution.
+    return np.floor(draw_from_prob_dist(des_num_children_prob_dist))
+
 def calc_hh_area():
     "Calculates the time from marriage until first birth for this person."
     hh_area_prob_dist = rcParams['lulc.area.hh']

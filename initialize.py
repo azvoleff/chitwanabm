@@ -214,7 +214,7 @@ def assemble_persons(relationshipsFile, model_world):
         person = model_world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
                 CENGENDR, initial_agent=True)
         person._spouse = spouse_RESPID
-        person._desired_num_children = int(relation['numchild'])
+        person._des_num_children = int(relation['numchild'])
 
         # If this person had a birth in the Nepali year 2053 in the LHC data, 
         # set the time of their last birth to 1996 (equivalent to January 1996) 
@@ -222,6 +222,9 @@ def assemble_persons(relationshipsFile, model_world):
         # interval has passed.
         recent_birth = int(relation['recentbirth'])
         if recent_birth == 1:
+            # TODO: double check that setting _last_birth_time this way works 
+            # in the model - it should as the model uses floats to represent 
+            # time.
             person._last_birth_time = 1996
 
         personsDict[RESPID] = person
