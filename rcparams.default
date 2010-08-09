@@ -69,8 +69,8 @@
 'hazard.marriage.male' : [{(0, 10):0, (10, 14):5e-04, (14, 18):0.0078, (18, 22):0.0934, (22, 30):0.3101, (30, 40):0.2391, (40, 60):0.0564, (60, 199):0} | validate_hazard(0, 199)]
 'hazard.marriage.female' : [{(0, 10):0, (10, 14):0.0024, (14, 18):0.0321, (18, 22):0.107, (22, 30):0.1294, (30, 40):0.0663, (40, 60):0, (60, 199):0} | validate_hazard(0, 199)]
 'hazard.migration' : [{(0, 10):0, (10, 14):0.0029, (14, 18):0.0177, (18, 22):0.0296, (22, 30):0.054, (30, 40):0.02, (40, 60):0, (60, 199):0} | validate_hazard(0, 199)]
-'prob.marriage.moveout' : [.25 | validate_float]
-'prob.marry.inmigrant' : [0 | validate_float]
+'prob.marriage.moveout' : [.15 | validate_float]
+'prob.marry.inmigrant' : [.5 | validate_float]
 
 ###############################################################################
 # Person agent parameters
