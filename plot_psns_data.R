@@ -3,7 +3,6 @@
 require(epicalc)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "~/Data/ChitwanABM_runs/20100809-214320"
 
 files <- list.files(DATA_PATH)
 # Only match the model results folders - don't match any other folders or files 
