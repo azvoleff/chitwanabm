@@ -91,7 +91,6 @@ def assemble_neighborhoods(neighborhoodsFile, model_world):
         neighborhood._avg_years_nonfamily_services = float(neigh_data["AVG_YRS_SRVC"])
         neighborhood._elec_available =  bool(neigh_data['ELEC_AVAIL']) # is neighborhood electrified (in 1995/1996)
         # All land areas are given in square meters
-
         neighborhood._land_agveg = float(neigh_data['land.agveg'])
         neighborhood._land_nonagveg= float(neigh_data['land.nonagveg'])
         neighborhood._land_privbldg = float(neigh_data['land.privbldg'])
@@ -298,7 +297,7 @@ def assemble_world():
         NEIGHID = HHID_NEIGHID_map[HHID]
         # Get a reference to this neighborhood, and add the household
         neighborhood = region.get_agent(NEIGHID)
-        neighborhood.add_agent(household)
+        neighborhood.add_agent(household, initializing=True)
 
     # Now populate the households with people. For this we need the RESPID -> 
     # HHID mapping and the HHID -> NEIGHID map.
