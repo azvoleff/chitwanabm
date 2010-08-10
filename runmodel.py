@@ -124,6 +124,9 @@ def main(argv=None):
                 cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         subprocess.check_call(['Rscript', 'plot_pop.R', results_path],
                 cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+        if rcParams['save_psn_data']:
+            subprocess.check_call(['Rscript', 'plot_psns_data.R', results_path],
+                    cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         dev_null.close()
 
     # Calculate the number of seconds per month the model took to run (to 
