@@ -197,7 +197,7 @@ events <- events[-which(is.na(events$hasspouse)),]
 # person's age).
 events <- cbind(events, deathbin=matrix(0,nrow(events),1))
 
-deathlims <- c(0, 3, 6, 12, 20, 40, 60, 80, 199)
+deathlims <- c(0, 3, 6, 12, 20, 40, 60, 80, 90, 199)
 # First count number of person months in each bin
 for (limindex in 1:(length(deathlims)-1)) {
     events[events$age>=deathlims[limindex] &
@@ -211,6 +211,9 @@ deathspsnmnths <- aggregate(events$livng==2, by=list(gender=events$gender,
         deathbin=events$deathbin), sum)
 deathprob <- data.frame(gender=deaths$gender, bin=deaths$deathbin,
         prob=(deaths$x/deathspsnmnths$x)*12)
+# Set the deathprob for men equal to that for women for the last bin, as the 
+# men prob is lower since.
+deathprob[17,3] <- deathprob[18,3]
 
 ###############################################################################
 # Process births.
