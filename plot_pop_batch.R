@@ -40,7 +40,6 @@ ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=8.33, height=5.53
         dpi=300)
 
 # Plot total population
-update_geom_defaults("line", aes(size=1))
 num_psn <- ens_results[c(1, grep("^(num_psn)", names(ens_results)))]
 make_shaded_error_plot(num_psn, "Total Population", NA)
 ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=8.33, height=5.53,
