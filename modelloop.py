@@ -89,7 +89,7 @@ timestep = rcParams['model.timestep']
 
 model_time = TimeSteps(timebounds, timestep)
 
-def main_loop(world):
+def main_loop(world, results_path):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
     be used in the model, and the land-use parameters."""
@@ -132,6 +132,8 @@ def main_loop(world):
             annual_num_marr = 0
             annual_num_in_migr = 0
             annual_num_out_migr = 0
+            if rcParams['save_psn_data']:
+                world.write_persons_to_csv(model_time.get_cur_int_timestep(), results_path)
 
         for region in world.iter_regions():
             # This could easily handle multiple regions, although currently 

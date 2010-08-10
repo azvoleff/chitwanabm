@@ -84,7 +84,7 @@ def main(argv=None):
 %s: started model run number %s.
 *******************************************************************************
 """%(start_time_string, run_ID_number)
-    pop_results, LULC_results, time_strings = main_loop(world) # This line actually runs the model.
+    pop_results, LULC_results, time_strings = main_loop(world, results_path) # This line actually runs the model.
     end_time = time.localtime()
     end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
     print """
@@ -189,7 +189,7 @@ def reformat_pop_results(pop_results):
                     pop_results_fixed[timestep][ID] = {}
                 pop_results_fixed[timestep][ID][variable] = pop_results[timestep][variable][ID]
     return pop_results_fixed
-    
+
 def write_time_csv(time_strings, time_csv_file):
     """
     Write a CSV file for conversion of timestep number, float, etc. to actual 
