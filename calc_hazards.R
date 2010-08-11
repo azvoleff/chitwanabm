@@ -102,10 +102,15 @@ gotmarried.rows[is.na(gotmarried.rows)] <- FALSE
 firstbirth.times <- firstbirth.month[gotmarried.rows] - marriage.month[gotmarried.rows]
 firstbirth.times <- firstbirth.times[!(firstbirth.times<0)]
 
-# Calculate a probability distribution.
-firstbirth_hist <- hist(firstbirth.times, plot=FALSE)
-firstbirthprob <- data.frame(bin=firstbirth_hist$breaks[1:9],
-        prob=firstbirth_hist$counts[1:9])
+firstbirthlims <- c(0, 2, 8, 10, 12, 17, 22, 30, 40, 50)
+firstbirth.count <- c()
+for (limindex in 1:(length(firstbirthlims)-1)) {
+    firstbirth.count <- c(firstbirth.count,
+            sum(firstbirth.times >= firstbirthlims[limindex] &
+            firstbirth.times < firstbirthlims[limindex+1], na.rm=TRUE))
+}
+firstbirthprob <- data.frame(bin=firstbirthlims[1:(length(firstbirthlims)-1)],
+        prob=firstbirth.count)
 firstbirthprob$prob <- firstbirthprob$prob/sum(firstbirthprob$prob)
 
 # Also before the reshape, add a new set of columns coding whether an 
@@ -275,7 +280,7 @@ txthazards <- c()
 txthazards <- c(txthazards, make.txthazard(birthprob$prob, preglims,
         "hazard.birth"))
 txthazards <- c(txthazards, make.txtprob(firstbirthprob$prob,
-        c(firstbirthprob$bin, 199), "prob.firstbirth.times"))
+        c(firstbirthprob$bin, 50), "prob.firstbirth.times"))
 txthazards <- c(txthazards,
         make.txthazard(deathprob[deathprob$gender=="male",]$prob,
         deathlims, "hazard.death.male"))
@@ -310,3 +315,19 @@ ggsave("prob_marriage.png", width=8.33, height=5.53, dpi=300)
 qplot(bin, prob*100, geom="step", xlab="Time to First Birth (months)",
         ylab="Probability (%)", data=firstbirthprob)
 ggsave("prob_first_birth.png", width=8.33, height=5.53, dpi=300)
+
+###############################################################################
+# Setup the altered first birth timing scenario.
+
+firstbirth.count.late <- c(9, 42, 126, 262, 313, 140, 70, 33, 5)
+firstbirthlims.late <- c(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 50)
+firstbirth.count.late <- c(2, 10, 20, 100, 190, 210, 190, 100, 20, 10)
+firstbirthprob.late <- data.frame(bin=firstbirthlims.late[1:(length(firstbirthlims.late)-1)],
+        prob=firstbirth.count.late)
+firstbirthprob.late$prob <- firstbirthprob.late$prob/sum(firstbirthprob.late$prob)
+txthazards.altered <- c(make.txtprob(firstbirthprob.late$prob,
+        c(firstbirthprob.late$bin, 50), "prob.firstbirth.times"))
+write(txthazards.altered, file="hazards_first_birth_delayed.txt")
+qplot(bin, prob*100, geom="step", xlab="Time to First Birth (months)",
+        ylab="Probability (%)", data=firstbirthprob.late)
+ggsave("prob_first_birth_altered.png", width=8.33, height=5.53, dpi=300)
