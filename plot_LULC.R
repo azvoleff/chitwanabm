@@ -2,6 +2,9 @@
 # Plots the LULC data from a model run.
 require(ggplot2, quietly=TRUE)
 
+PLOT_WIDTH = 8.33
+PLOT_HEIGHT = 5.53
+
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
@@ -19,5 +22,5 @@ update_geom_defaults("line", aes(size=1))
 
 qplot(time.Robj, area, geom="line", colour=LULC_type, xlab="Year",
         ylab="Mean Percentage of Neighborhood", data=lulc.sd.mean)
-ggsave(paste(DATA_PATH, "LULC.png", sep="/"), width=8.33, height=5.53,
-        dpi=300)
+ggsave(paste(DATA_PATH, "LULC.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)

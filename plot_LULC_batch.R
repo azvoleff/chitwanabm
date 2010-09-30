@@ -2,6 +2,9 @@
 # Plots the LULC data from a model run.
 require(ggplot2, quietly=TRUE)
 
+PLOT_WIDTH = 8.33
+PLOT_HEIGHT = 5.53
+
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
@@ -27,4 +30,5 @@ for (directory in directories) {
 ens_results <- calc_ensemble_results(lulc)
 
 make_shaded_error_plot(ens_results, "Mean Percentage of Neighborhood", "LULC Type")
-ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=8.33, height=5.53, dpi=300)
+ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)
