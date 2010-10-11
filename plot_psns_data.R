@@ -3,6 +3,9 @@
 require(epicalc)
 require(ggplot2, quietly=TRUE)
 
+PLOT_WIDTH = 8.33
+PLOT_HEIGHT = 5.53
+
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
 files <- list.files(DATA_PATH)
@@ -36,5 +39,5 @@ time.Robj <- time.values$time.Robj[time.values$timestep %in% timesteps]
 
 qplot(time.Robj, hhsize, geom="line", xlab="Year",
         ylab="Mean Household Size (number of persons)")
-ggsave(paste(DATA_PATH, "hhsize.png", sep="/"), width=8.33, height=5.53,
-        dpi=300)
+ggsave(paste(DATA_PATH, "hhsize.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)

@@ -2,6 +2,9 @@
 # Plots the pop data from a model run.
 require(ggplot2, quietly=TRUE)
 
+PLOT_WIDTH = 8.33
+PLOT_HEIGHT = 5.53
+
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
@@ -26,24 +29,24 @@ theme_update(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=.5))
 qplot(pop.results$time.Robj, events, geom="line", colour=Event_type, xlab="Year",
         ylab="Number of Events", data=events)
-ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=8.33, height=5.53,
+ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
         dpi=300)
 
 # Now plot total households and total marriages
 qplot(time.Robj, num, geom="line", colour=Pop_type, xlab="Year",
         ylab="Population", data=num.hs.marr)
-ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=8.33, height=5.53,
-        dpi=300)
+ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)
 
 # Plot total population
 update_geom_defaults("line", aes(size=1))
 qplot(time.Robj, num_psn, geom="line", xlab="Year",
         ylab="Population", data=pop.results)
-ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=8.33, height=5.53,
-        dpi=300)
+ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)
 
 # Plot fw consumption in metric tons
 qplot(time.Robj, fw_usage_kg/1000, geom="line", xlab="Year",
         ylab="Metric Tons of Fuelwood", data=pop.results)
-ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=8.33, height=5.53,
-        dpi=300)
+ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)
