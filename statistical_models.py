@@ -66,7 +66,8 @@ death_hazards_male = convert_hazard_units(rcParams['hazard.death.male'])
 death_hazards_female = convert_hazard_units(rcParams['hazard.death.female'])
 marriage_hazards_male = convert_hazard_units(rcParams['hazard.marriage.male'])
 marriage_hazards_female = convert_hazard_units(rcParams['hazard.marriage.female'])
-migration_hazards = convert_hazard_units(rcParams['hazard.migration'])
+migration_hazards_male = convert_hazard_units(rcParams['hazard.migration.male'])
+migration_hazards_female = convert_hazard_units(rcParams['hazard.migration.female'])
 
 def __hazard_index__(t):
     """
@@ -121,7 +122,10 @@ def calc_hazard_migration(person):
     "Calculates the hazard of migration for an agent."
     age = person.get_age()
     hazard_index = __hazard_index__(age)
-    return migration_hazards[hazard_index]
+    if person.get_sex() == 'female':
+        return migration_hazards_female[hazard_index]
+    elif person.get_sex() == 'male':
+        return migration_hazards_male[hazard_index]
 
 def calc_first_birth_time():
     "Calculates the time from marriage until first birth for this person."
