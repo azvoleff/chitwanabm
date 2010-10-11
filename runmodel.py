@@ -50,7 +50,7 @@ if rcParams['model.use_psyco'] == True:
     psyco.full()
 
 def main(argv=None):
-    if argv==None:
+    if argv is None:
         argv = sys.argv
 
     try:
@@ -62,7 +62,13 @@ def main(argv=None):
     # The run_ID_number provides an ID number (built from the start time) to 
     # uniquely identify this model run.
     run_ID_number = time.strftime("%Y%m%d-%H%M%S")
-    results_path = os.path.join(str(rcParams['model.resultspath']), run_ID_number)
+    scenario_path = os.path.join(str(rcParams['model.resultspath']), rcParams['scenario.name'])
+    results_path = os.path.join(scenario_path, run_ID_number)
+    if not os.path.exists(scenario_path):
+        try:
+            os.mkdir(scenario_path)
+        except OSError:
+            raise OSError("error creating scenario directory %s"%(scenario_path))
     try:
         os.mkdir(results_path)
     except OSError:
