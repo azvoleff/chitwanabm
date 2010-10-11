@@ -30,6 +30,10 @@
 ###############################################################################
 # Model-wide parameters
 ###############################################################################
+# A string naming the scenario - for convenience only. Has no direct impact on 
+# the model parameters
+'scenario.name' : ["None" | validate_string]
+
 # The year and month the model starts and ends. Use 1 for January, and 12 for 
 # December.
 'model.timebounds' : [((1996, 1), (2020,1)) | validate_time_bounds]
