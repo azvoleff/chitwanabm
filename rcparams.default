@@ -55,7 +55,7 @@
 'save_NBH_data': [True | validate_boolean]
 # Whether to save shapefiles of LULC periodically while running the model. This 
 # will slow down the model A LOT.
-'save_LULC_shapefiles': [True | validate_boolean]
+'save_LULC_shapefiles': [FALSE | validate_boolean]
 
 ###############################################################################
 # Location of input data (these are restricted data)
