@@ -32,7 +32,6 @@ import copy
 import numpy as np
 
 from ChitwanABM import file_io
-
 from ChitwanABM import rcParams
 
 if rcParams['model.use_psyco'] == True:
