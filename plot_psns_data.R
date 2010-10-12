@@ -12,15 +12,15 @@ files <- list.files(DATA_PATH)
 # Only match the model results folders - don't match any other folders or files 
 # in the directory, as trying to read results from these other files/folders 
 # would lead to an error.
-files <- files[grep("^psns_time_[0-9]*.txt$", files)]
+files <- files[grep("^psns_time_[0-9]*.csv$", files)]
 # Sort the files by timestep
-files <- files[order(as.numeric(gsub("(^psns_time_)|(.txt$)", "", files)))]
+files <- files[order(as.numeric(gsub("(^psns_time_)|(.csv$)", "", files)))]
 pdf_file_path <- paste(DATA_PATH, "/psns_pop_pyramid.pdf", sep="") 
 pdf(file=pdf_file_path)
 hhsize <- c()
 timesteps <-c()
 for (psns_file in files) {
-    timestep <- gsub("(^psns_time_)|(.txt$)", "",  psns_file)
+    timestep <- gsub("(^psns_time_)|(.csv$)", "",  psns_file)
     timesteps <- c(timesteps, timestep)
     full_file_path <- paste(DATA_PATH, "/", psns_file, sep="") 
     psns_data <- read.csv(full_file_path)
