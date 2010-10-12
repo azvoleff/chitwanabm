@@ -137,8 +137,7 @@ avg_yrs_services <- rowSums(services) / 5
 # Find if electricity is currently available in the neighborhood (as of the 
 # census)
 elec_avail <- as.logical(neigh$ELEC52)
-neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail)
-
+neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY)
 
 ###############################################################################
 # Now handle the land use data. Import land use data from time 1 and make 5 
