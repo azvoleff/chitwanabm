@@ -50,6 +50,9 @@
 # Whether to save psn_data periodically while running the model. This will slow 
 # down the model considerably.
 'save_psn_data': [True | validate_boolean]
+# Whether to save shapefiles of LULC periodically while running the model. This 
+# will slow down the model A LOT.
+'save_LULC_shapefiles': [True | validate_boolean]
 
 ###############################################################################
 # Location of input data (these are restricted data)

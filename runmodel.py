@@ -43,7 +43,6 @@ import numpy as np
 from ChitwanABM import rcParams
 from ChitwanABM.modelloop import main_loop
 from ChitwanABM.rcsetup import write_RC_file
-from ChitwanABM.plotting import plot_pop_stats
 
 if rcParams['model.use_psyco'] == True:
     import psyco

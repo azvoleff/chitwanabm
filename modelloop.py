@@ -25,10 +25,13 @@ parameters read from runModel.py, and passes results of model run back.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+import os
 import time
 import copy
 
 import numpy as np
+
+from ChitwanABM import file_io
 
 from ChitwanABM import rcParams
 
@@ -134,6 +137,13 @@ def main_loop(world, results_path):
             annual_num_out_migr = 0
             if rcParams['save_psn_data']:
                 world.write_persons_to_csv(model_time.get_cur_int_timestep(), results_path)
+            if rcParams['save_LULC_shapefiles']:
+                NBH_shapefile = os.path.join(results_path, "NBHs_time_%s.shp"%model_time.get_cur_int_timestep())
+                neighborhoods = []
+                regions = world.get_regions()
+                for region in regions:
+                    neighborhoods.extend(region.get_agents())
+                file_io.write_NBH_shapefile(neighborhoods, NBH_shapefile)
 
         for region in world.iter_regions():
             # This could easily handle multiple regions, although currently 
