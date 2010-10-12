@@ -137,6 +137,8 @@ def main_loop(world, results_path):
             annual_num_out_migr = 0
             if rcParams['save_psn_data']:
                 world.write_persons_to_csv(model_time.get_cur_int_timestep(), results_path)
+            if rcParams['save_NBH_data']:
+                world.write_NBHs_to_csv(model_time.get_cur_int_timestep(), results_path)
             if rcParams['save_LULC_shapefiles']:
                 NBH_shapefile = os.path.join(results_path, "NBHs_time_%s.shp"%model_time.get_cur_int_timestep())
                 neighborhoods = []
