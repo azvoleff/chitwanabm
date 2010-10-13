@@ -11,7 +11,6 @@ PLOT_HEIGHT = 5.53
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "/home/azvoleff/Data/ChitwanABM_runs/Default/20101013-141457/"
 
 lulc.sd.mean <- calc_NBH_LULC(DATA_PATH)
 # Stack lulc.mean so it can easily be used with ggplot2 faceting
