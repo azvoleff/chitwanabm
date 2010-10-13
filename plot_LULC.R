@@ -11,6 +11,7 @@ PLOT_HEIGHT = 5.53
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "/home/azvoleff/Data/ChitwanABM_runs/Default/20101013-141457/"
 
 lulc.sd.mean <- calc_NBH_LULC(DATA_PATH)
 # Stack lulc.mean so it can easily be used with ggplot2 faceting
@@ -30,7 +31,6 @@ ggsave(paste(DATA_PATH, "LULC.png", sep="/"), width=PLOT_WIDTH,
 
 # Now make a map of kriged LULC
 CRSString = "+proj=utm +zone=44 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-
 NBHs <- read.csv(paste(DATA_PATH, "NBHs_time_276.csv", sep="/"))
 NBHs <- read.csv(paste(DATA_PATH, "NBHs_time_1.csv", sep="/"))
 NBHs.spatial <- SpatialPointsDataFrame(cbind(NBHs$x, NBHs$y), NBHs,
@@ -57,9 +57,29 @@ v.fit <- fit.variogram(v, vgm(1, "Sph", 6000, .05))
 krigged.ord <- krige(perc_veg~1, NBHs.spatial, kriglocations, v.fit)
 
 krigged.ord.pred <- krigged.ord["var1.pred"]
+# Mask out areas outside Chitwan using the study area mask. Set areas outside 
+# study area to -999
+krigged.ord.pred$var1.pred <- krigged.ord.pred$var1.pred * kriglocations$band1
+krigged.ord.pred$var1.pred[krigged.ord.pred$var1.pred==0] <- -1
 proj4string(krigged.ord.pred) <- CRS(CRSString)
-writeGDAL(krigged.ord.pred, fname=paste(DATA_PATH, "LULC_ordinary_krig.tif", sep="/"),
-        driver="GTiff")
+writeGDAL(krigged.ord.pred, fname=paste(DATA_PATH, "LULC_ordinary_krig.tif",
+        sep="/"), driver="GTiff")
+
+classed <- krigged.ord.pred
+classed$var1.pred[classed$var1.pred >= .75] <- 4
+classed$var1.pred[classed$var1.pred >= .5 & classed$var1.pred <.75] <- 3
+classed$var1.pred[classed$var1.pred >= .25 & classed$var1.pred <.5] <- 2
+classed$var1.pred[classed$var1.pred >= 0 & classed$var1.pred <.25] <- 1
+writeGDAL(classed, fname=paste(DATA_PATH,
+        "LULC_ordinary_krig_classed.tif", sep="/"), driver="GTiff")
+
+classed.2 <- krigged.ord.pred
+classed.2$var1.pred[classed.2$var1.pred >= .66 & classed.2$var1.pred < 1] <- 3
+classed.2$var1.pred[classed.2$var1.pred >= .33 & classed.2$var1.pred <.66] <- 2
+classed.2$var1.pred[classed.2$var1.pred >= 0 & classed.2$var1.pred <.33] <- 1
+writeGDAL(classed.2, fname=paste(DATA_PATH,
+        "LULC_ordinary_krig_classed_2.tif", sep="/"), driver="GTiff")
+
 
 # Check results with cross-validation
 krigged.ord.cv5 <- krige.cv(perc_veg~1, NBHs.spatial, v.fit, nfold=5)
@@ -71,8 +91,6 @@ mean.residual <- mean(krigged.ord.cv5$residual)
 # correlation predicted and residual, ideally 0
 cor.pred.resid <- cor(krigged.ord.cv5$observed - krigged.ord.cv5$residual,
         krigged.ord.cv5$residual)
-# Mean square normalized error, ideally close to 1
-mean.sq.norm.error <- mean(krigged.ord.cv5$zscore^2)
 
 # Setup the plot annotation
 xcoord <- 816000
