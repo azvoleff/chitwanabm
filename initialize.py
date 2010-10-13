@@ -75,7 +75,7 @@ def read_CVFS_data(textfile, key_field):
 
     return data
 
-def assemble_neighborhoods(neighborhoodsFile, model_world):
+def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_world):
     """
     Reads in data from the CVFS (from dataset DS0014) on number of years 
     non-family services were available within a 30 min walk of each 
@@ -83,6 +83,10 @@ def assemble_neighborhoods(neighborhoodsFile, model_world):
     neighborhood was electrified (ELEC).
     """
     neigh_datas = read_CVFS_data(neighborhoodsFile, "NEIGHID") 
+    # Can't use the CVFS coordinate data as it is in UTM45N, while all the 
+    # other data is in UTM44N. So use this separate CSV file to read 
+    # coordinates in UTM44N.
+    neigh_coords = read_CVFS_data(neighborhoods_coords_file, "NEIGHID") 
 
     neighborhoods = []
     for neigh_data in neigh_datas.itervalues():
@@ -96,8 +100,8 @@ def assemble_neighborhoods(neighborhoodsFile, model_world):
         neighborhood._land_privbldg = float(neigh_data['land.privbldg'])
         neighborhood._land_pubbldg = float(neigh_data['land.pubbldg'])
         neighborhood._land_other = float(neigh_data['land.other'])
-        neighborhood._x = float(neigh_data['X'])
-        neighborhood._y = float(neigh_data['Y'])
+        neighborhood._x = float(neigh_coords[NEIGHID]['x'])
+        neighborhood._y = float(neigh_coords[NEIGHID]['y'])
         neighborhoods.append(neighborhood)
 
     return neighborhoods
@@ -277,12 +281,14 @@ def assemble_world():
     relationships_grid_file = rcParams['input.relationships_grid_file']
     households_file = rcParams['input.households_file']
     neighborhoods_file = rcParams['input.neighborhoods_file']
+    neighborhoods_coords_file = rcParams['input.neighborhoods_coords_file']
 
     persons, RESPID_HHID_map = assemble_persons(relationships_grid_file,
             model_world)
     households, HHID_NEIGHID_map = assemble_households(households_file,
             model_world)
-    neighborhoods = assemble_neighborhoods(neighborhoods_file, model_world)
+    neighborhoods = assemble_neighborhoods(neighborhoods_file,
+            neighborhoods_coords_file, model_world)
 
     # Populate the Chitwan region (the code could handle multiple regions too, 
     # for instance, subdivide the population into different groups with 

@@ -67,6 +67,7 @@
 'input.relationships_grid_file' : ["/media/Local_Secure/ChitwanABM_init/hhrel.csv" | validate_readable_file_warning]
 'input.households_file' : ["/media/Local_Secure/ChitwanABM_init/hhag.csv" | validate_readable_file_warning]
 'input.neighborhoods_file' : ["/media/Local_Secure/ChitwanABM_init/neigh.csv" | validate_readable_file_warning]
+'input.neighborhoods_coords_file' : ["/media/Local_Secure/ChitwanABM_init/neigh_coords.csv" | validate_readable_file_warning]
 
 ###############################################################################
 # Person agent parameters
