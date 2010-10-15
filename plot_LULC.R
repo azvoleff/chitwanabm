@@ -72,12 +72,12 @@ classed$var1.pred[classed$var1.pred >= 0 & classed$var1.pred <.25] <- 1
 writeGDAL(classed, fname=paste(DATA_PATH,
         "LULC_ordinary_krig_classed.tif", sep="/"), driver="GTiff")
 
-classed.2 <- krigged.ord.pred
-classed.2$var1.pred[classed.2$var1.pred >= .66 & classed.2$var1.pred < 1] <- 3
-classed.2$var1.pred[classed.2$var1.pred >= .33 & classed.2$var1.pred <.66] <- 2
-classed.2$var1.pred[classed.2$var1.pred >= 0 & classed.2$var1.pred <.33] <- 1
-writeGDAL(classed.2, fname=paste(DATA_PATH,
-        "LULC_ordinary_krig_classed_2.tif", sep="/"), driver="GTiff")
+#classed.2 <- krigged.ord.pred
+#classed.2$var1.pred[classed.2$var1.pred >= .66 & classed.2$var1.pred < 1] <- 3
+#classed.2$var1.pred[classed.2$var1.pred >= .33 & classed.2$var1.pred <.66] <- 2
+#classed.2$var1.pred[classed.2$var1.pred >= 0 & classed.2$var1.pred <.33] <- 1
+#writeGDAL(classed.2, fname=paste(DATA_PATH,
+#        "LULC_ordinary_krig_classed_2.tif", sep="/"), driver="GTiff")
 
 
 # Check results with cross-validation
