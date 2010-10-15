@@ -28,6 +28,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import sys
 
+import numpy
 import pickle
 from subprocess import check_call, CalledProcessError
 
@@ -222,16 +223,19 @@ def assemble_persons(relationshipsFile, model_world):
         person._des_num_children = int(relation['numchild'])
 
         # If this person had a birth in the Nepali year 2053 in the LHC data, 
-        # set the time of their last birth to 1996 (equivalent to January 1996) 
-        # so that they will not give birth again until after minimum birth 
-        # interval has passed.
+        # set the time of their last birth to 0 (equivalent to January 1996 in 
+        # the model) so that they will not give birth again until after minimum 
+        # birth interval has passed.
         recent_birth = int(relation['recentbirth'])
         if recent_birth == 1:
             # TODO: double check that setting _last_birth_time this way works 
             # in the model - it should as the model uses floats to represent 
             # time.
-            person._last_birth_time = 1996
-
+            person._last_birth_time = 0
+        else:
+            # Otherwise, randomly set person._last_birth_time anywhere from 3 
+            # years prior to the initial timestep of the model:
+            person._last_birth_time = numpy.random.randint(-36, 0)
         personsDict[RESPID] = person
 
     # Now, for each person in the personsDict, convert the RESPIDs for mother, 
