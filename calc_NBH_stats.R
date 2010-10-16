@@ -3,7 +3,34 @@
 
 require(ggplot2, quietly=TRUE)
 
-calc_NBH_LULC <- function(DATA_PATH) {
+calc_NBH_LULC <- function(DATA_PATH, timestep) {
+    # Make plots of LULC for a model run.
+    # 276.csv
+    lulc <- read.csv(paste(DATA_PATH, "/NBHs_time_", timestep, ".csv", sep=""))
+
+    agveg.col <- grep('^agveg.*$', names(lulc))
+    nonagveg.col <- grep('^nonagveg.*$', names(lulc))
+    pubbldg.col <- grep('^pubbldg.*$', names(lulc))
+    privbldg.col <- grep('^privbldg.*$', names(lulc))
+    other.col <- grep('^other.*$', names(lulc))
+
+    # Calculate the total land area of each neighborhood
+    nbh.area <- apply(cbind(lulc$agveg, lulc$nonagveg, lulc$pubbldg,
+            lulc$privbldg, lulc$other), 1, sum)
+
+    # And convert the LULC measurements from units of square meters to units 
+    # that are a percentage of total neighborhood area.
+    lulc.sd <- lulc/nbh.area
+
+    lulc.nbh <- data.frame(nid=lulc$nid, x=lulc$x, y=lulc$y, agveg=lulc.sd[agveg.col],
+            nonagveg=lulc.sd[nonagveg.col], pubbldg=lulc.sd[pubbldg.col],
+            privbldg=lulc.sd[privbldg.col], other=lulc.sd[other.col])
+
+    return(lulc.nbh)
+}
+
+
+calc_agg_LULC <- function(DATA_PATH) {
     # Make plots of LULC for a model run.
     lulc <- read.csv(paste(DATA_PATH, "LULC_results.csv", sep="/"))
     time.values <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
@@ -132,6 +159,31 @@ calc_ensemble_results <- function(model_results) {
 
     # First calculate the mean and standard deviations for each set of runs
     ens_res <- data.frame(time.Robj=model_results$time.Robj.run1)
+    for (var_name in var_names) {
+        var_cols <- grep(paste("^", var_name, ".", sep=""), names(model_results))
+        var_mean <- apply(model_results[var_cols], 1, mean)
+        var_sd <- apply(model_results[var_cols], 1, sd)
+        ens_res <- cbind(ens_res, var_mean, var_sd)
+        var_mean.name <- paste(var_name, ".mean", sep="")
+        var_sd.name <- paste(var_name, ".sd", sep="")
+        names(ens_res)[(length(ens_res)-1):length(ens_res)] <- c(var_mean.name, var_sd.name)
+    }
+    return(ens_res)
+}
+
+calc_ensemble_results_NBH <- function(model_results) {
+    # This function returns neighborhood level mean and standard deviations 
+    # from an ensemble at a single timestep.
+    # The first column of model_results dataframe should be the times
+    # For each variable listed in "variable_names", there should be two columns,
+    # one of means, named "variable_name.mean" and one of standard deviations,
+    # named "variable_name.sd"
+    var_names <- unique(gsub(".run[0-9]*$", "",
+                    names(model_results)[2:ncol(model_results)]))
+    var_names <- var_names[!(var_names %in% c("nid", "x", "y"))]
+
+    # First calculate the mean and standard deviations for each set of runs
+    ens_res <- data.frame(nid=model_results$nid, x=model_results$x, y=model_results$y)
     for (var_name in var_names) {
         var_cols <- grep(paste("^", var_name, ".", sep=""), names(model_results))
         var_mean <- apply(model_results[var_cols], 1, mean)
