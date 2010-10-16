@@ -100,6 +100,9 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood._land_privbldg = float(neigh_data['land.privbldg'])
         neighborhood._land_pubbldg = float(neigh_data['land.pubbldg'])
         neighborhood._land_other = float(neigh_data['land.other'])
+        neighborhood._land_total = neighborhood._land_agveg + \
+                neighborhood._land_nonagveg + neighborhood._land_privbldg + \
+                neighborhood._land_pubbldg + neighborhood._land_other
         neighborhood._x = float(neigh_coords[NEIGHID]['x'])
         neighborhood._y = float(neigh_coords[NEIGHID]['y'])
         neighborhoods.append(neighborhood)
