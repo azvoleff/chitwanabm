@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 # Plots the LULC data from a model run.
-
 require(ggplot2, quietly=TRUE)
 require(gstat)
 require(rgdal)
@@ -9,8 +8,6 @@ PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
 
 source("calc_NBH_stats.R")
-
-DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
 lulc.sd.mean <- calc_agg_LULC(DATA_PATH)
 # Stack lulc.mean so it can easily be used with ggplot2 faceting

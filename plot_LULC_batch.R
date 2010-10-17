@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 # Plots the LULC data from a model run.
 require(ggplot2, quietly=TRUE)
+require(gstat)
+require(rgdal)
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
@@ -54,9 +56,6 @@ for (directory in directories) {
 } 
 
 NBH_lulc <- calc_ensemble_results_NBH(lulc.nbh)
-
-require(gstat)
-require(rgdal)
 
 CRSString = "+proj=utm +zone=44 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 NBH_lulc.spatial <- SpatialPointsDataFrame(cbind(NBH_lulc$x, NBH_lulc$y), NBH_lulc,
