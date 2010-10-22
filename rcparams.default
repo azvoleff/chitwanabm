@@ -75,9 +75,9 @@
 # hazard.time_units specifies the time period for which precalculated hazards 
 # are specified.
 'hazard.time_units' : ['years' | validate_time_units] 
-'hazard.birth' : [{(0, 15):0, (15, 16):0.0106, (16, 18):0.0855, (18, 20):0.2094, (20, 23):0.3434, (23, 26):0.2551, (26, 30):0.1752, (30, 35):0.0882, (35, 40):0.046, (40, 45):0.0122, (45, 199):0} | validate_hazard(0, 199)]
 # birth.minimum_interval specifies the minimum number of months between births.
 'birth.minimum_interval' : [9 | validate_int] 
+'birth.max_age' : [45 | validate_int] 
 'hazard.death.male' : [{(0, 3):0.0141, (3, 6):0, (6, 12):0, (12, 20):0.0013, (20, 40):0.0035, (40, 60):0.0099, (60, 80):0.0334, (80, 90):0.1277, (90, 199):0.5665} | validate_hazard(0, 199)]
 'hazard.death.female' : [{(0, 3):0.0162, (3, 6):0.0023, (6, 12):0.0012, (12, 20):0.001, (20, 40):0.0019, (40, 60):0.0046, (60, 80):0.032, (80, 90):0.1184, (90, 199):0.5665} | validate_hazard(0, 199)]
 'hazard.marriage.male' : [{(0, 10):0, (10, 14):5e-04, (14, 18):0.0078, (18, 22):0.0934, (22, 30):0.3101, (30, 40):0.2391, (40, 60):0.0564, (60, 199):0} | validate_hazard(0, 199)]

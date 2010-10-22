@@ -61,7 +61,6 @@ def convert_hazard_units(hazard):
     return hazard
 
 #TODO: these hazards should be derived from the region, not directly from rcParams
-birth_hazards = convert_hazard_units(rcParams['hazard.birth'])
 death_hazards_male = convert_hazard_units(rcParams['hazard.death.male'])
 death_hazards_female = convert_hazard_units(rcParams['hazard.death.female'])
 marriage_hazards_male = convert_hazard_units(rcParams['hazard.marriage.male'])
@@ -86,15 +85,6 @@ def __hazard_index__(t):
     else:
         raise UnitsError("unhandled hazard_time_units")
 
-#def hazard_birth(person, neighborhood, landuse):
-def calc_hazard_birth(person):
-    "Calculates the hazard of birth for an agent."
-    age = person.get_age()
-    hazard_index = __hazard_index__(age)
-    hazard_multiplier = 1
-    return hazard_multiplier * birth_hazards[hazard_index]
-
-#def hazard_marriage(person, neighborhood, landuse):
 def calc_hazard_marriage(person):
     "Calculates the hazard of marriage for an agent."
     age = person.get_age()
