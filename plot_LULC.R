@@ -9,6 +9,8 @@ PLOT_HEIGHT = 5.53
 
 source("calc_NBH_stats.R")
 
+DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+
 lulc.sd.mean <- calc_agg_LULC(DATA_PATH)
 # Stack lulc.mean so it can easily be used with ggplot2 faceting
 time.Robj <- lulc.sd.mean$time.Robj
