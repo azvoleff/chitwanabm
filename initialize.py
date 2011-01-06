@@ -166,6 +166,10 @@ def assemble_persons(relationshipsFile, model_world):
     # Loop over all agents in the relationship grid.
     personsDict = {}
     RESPID_HHID_map = {} # Links persons with their HHID
+    # Get model starting time as this will be needed for setting last birth 
+    # times
+    model_start_time = rcParams['model.timebounds'][0]
+    model_start_time = model_start_time[0] + model_start_time[1]/12.
     for relation in relations.itervalues():
         RESPID = int(relation['RESPID'])
         HHID = int(relation['HHID'])
@@ -231,14 +235,11 @@ def assemble_persons(relationshipsFile, model_world):
         # birth interval has passed.
         recent_birth = int(relation['recentbirth'])
         if recent_birth == 1:
-            # TODO: double check that setting _last_birth_time this way works 
-            # in the model - it should as the model uses floats to represent 
-            # time.
-            person._last_birth_time = 0
+            person._last_birth_time = model_start_time
         else:
             # Otherwise, randomly set person._last_birth_time anywhere from 3 
             # years prior to the initial timestep of the model:
-            person._last_birth_time = numpy.random.randint(-36, 0)
+            person._last_birth_time = model_start_time + numpy.random.randint(-36, 0)/12.
         personsDict[RESPID] = person
 
     # Now, for each person in the personsDict, convert the RESPIDs for mother, 
