@@ -5,6 +5,9 @@ require(ggplot2, quietly=TRUE)
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
+# Customize the ggplot2 theme
+theme_update(theme_grey(base_size=18))
+update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
