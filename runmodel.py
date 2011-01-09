@@ -61,6 +61,10 @@ def main(argv=None):
     # The run_ID_number provides an ID number (built from the start time) to 
     # uniquely identify this model run.
     run_ID_number = time.strftime("%Y%m%d-%H%M%S")
+    # First strip any trailing backslash from the model.resultspath value from 
+    # rcparams, so that os.path.join-ing it to the scenario.name does not lead 
+    # to having two backslashes in a row.
+    model_results_path_root = str.strip(rcParams['model.resultspath'], "/\\")
     scenario_path = os.path.join(str(rcParams['model.resultspath']), rcParams['scenario.name'])
     results_path = os.path.join(scenario_path, run_ID_number)
     if not os.path.exists(scenario_path):
