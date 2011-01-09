@@ -95,7 +95,7 @@ hhrel.processed[match(desnumchild$RESPID,
 hhrel.processed <- cbind(hhrel.processed, 
         recentbirth=matrix(-1, nrow(hhrel.processed), 1))
 hhrel.processed[match(recentbirths$RESPID,
-        hhrel.processed$RESPID),]$recentbirth <- recentbirths$recentbirth
+        hhrel.processed$RESPID),]$recentbirth <- recentbirths$C
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
