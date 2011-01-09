@@ -75,8 +75,6 @@
 # hazard.time_units specifies the time period for which precalculated hazards 
 # are specified.
 'hazard.time_units' : ['years' | validate_time_units] 
-# birth.minimum_interval specifies the minimum number of months between births.
-'birth.minimum_interval' : [24 | validate_int] 
 # birth.max_age is the maximum age a woman can give birth in years.
 'birth.max_age' : [45 | validate_int] 
 'prob.birth.intervals' : [((9, 48), 1)] | validate_prob_dist]
