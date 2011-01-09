@@ -130,17 +130,6 @@ def main_loop(world, results_path):
     while model_time.in_bounds():
         
         if model_time.get_cur_month() == 1 or model_time.is_last_iteration():
-            if model_time.get_cur_date() != model_time._starttime:
-                # The above if is necessary as there is no total to print on 
-                # the first timestep, so it wouldn't make sense to print it.
-                total_string = "TOTAL | New Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
-                        annual_num_marr, annual_num_births,
-                        annual_num_deaths, annual_num_in_migr, annual_num_out_migr)
-                total_string = total_string.center(len(stats_string))
-                print total_string
-                msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
-                msg = msg.rjust(len(stats_string))
-                print msg
             annual_num_births = 0
             annual_num_deaths = 0
             annual_num_marr = 0
@@ -210,6 +199,20 @@ def main_loop(world, results_path):
         time_strings['timestep'].append(model_time.get_cur_int_timestep())
         time_strings['time_float'].append(model_time.get_cur_date_float())
         time_strings['time_date'].append(model_time.get_cur_date_string())
+
+        if model_time.get_cur_month() == 12 or model_time.is_last_iteration() \
+                and model_time.get_cur_date() != model_time._starttime:
+            # The last condition in the above if statement is necessary as 
+            # there is no total to print on the first timestep, so it wouldn't 
+            # make sense to print it.
+            total_string = "TOTAL | New Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
+                    annual_num_marr, annual_num_births,
+                    annual_num_deaths, annual_num_in_migr, annual_num_out_migr)
+            total_string = total_string.center(len(stats_string))
+            print total_string
+            msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
+            msg = msg.rjust(len(stats_string))
+            print msg
 
         if num_persons == 0:
             print "End of model run: population is zero."
