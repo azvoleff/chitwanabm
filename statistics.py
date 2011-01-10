@@ -91,11 +91,10 @@ def calc_hazard_marriage(person):
     hazard_index = __hazard_index__(age)
     neighborhood = person.get_parent_agent().get_parent_agent()
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total)*100
-    hazard_adjust_factor = .15 * (percent_agveg-50)
     if person.get_sex() == 'female':
-        return marriage_hazards_female[hazard_index] * (1 + hazard_adjust_factor)
+        return marriage_hazards_female[hazard_index]
     elif person.get_sex() == 'male':
-        return marriage_hazards_male[hazard_index] * (1 + hazard_adjust_factor)
+        return marriage_hazards_male[hazard_index]
 
 def calc_hazard_death(person):
     "Calculates the hazard of death for an agent."
