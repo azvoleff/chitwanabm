@@ -85,15 +85,15 @@ calc_NBH_pop <- function(DATA_PATH) {
     fw_usage.cols <- grep('^fw_usage.[0-9]*$', names(model.results))
 
     model.results <- data.frame(time.Robj=time.Robj,
-            marr=apply(model.results[marr.cols], 2, sum, na.rm=TRUE), 
-            births=apply(model.results[births.cols], 2, sum, na.rm=TRUE), 
-            deaths=apply(model.results[deaths.cols], 2, sum, na.rm=TRUE),
-            in_migr=apply(model.results[in_migr.cols], 2, sum, na.rm=TRUE), 
-            out_migr=apply(model.results[out_migr.cols], 2, sum, na.rm=TRUE),
-            num_hs=apply(model.results[num_hs.cols], 2, sum, na.rm=TRUE), 
-            num_marr=apply(model.results[num_marr.cols], 2, sum, na.rm=TRUE),
-            num_psn=apply(model.results[num_psn.cols], 2, sum, na.rm=TRUE),
-            fw_usage_kg=apply(model.results[fw_usage.cols], 2, sum, na.rm=TRUE))
+            marr=apply(model.results[marr.cols], 2, sum), 
+            births=apply(model.results[births.cols], 2, sum), 
+            deaths=apply(model.results[deaths.cols], 2, sum),
+            in_migr=apply(model.results[in_migr.cols], 2, sum), 
+            out_migr=apply(model.results[out_migr.cols], 2, sum),
+            num_hs=apply(model.results[num_hs.cols], 2, sum), 
+            num_marr=apply(model.results[num_marr.cols], 2, sum),
+            num_psn=apply(model.results[num_psn.cols], 2, sum),
+            fw_usage_kg=apply(model.results[fw_usage.cols], 2, sum))
     return(model.results)
 }
 

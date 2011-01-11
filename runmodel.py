@@ -260,7 +260,7 @@ def write_results_csv(results, csv_file, ID_col_name):
                     if results[timestep][ID].has_key(category):
                         row.append(results[timestep][ID][category])
                     else:
-                        row.append(np.NaN)
+                        row.append(0)
         csv_writer.writerow(row)
     out_file.close()
 

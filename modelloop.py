@@ -188,14 +188,16 @@ def main_loop(world, results_path):
     # saved_data will store event, population, and fuelwood usage data keyed by 
     # timestep:variable:nbh.
     saved_data = {}
-    # TODO: Fix this to work for multiple regions.
-    region = world.get_regions()[0]
     # Save the initialization data for timestep 0 (note that all the event 
     # variables, like new_births, new_deaths, etc., need to be set to None
     # in each neighborhood, for each variable, as they are unknown for timestep 
     # 0 (since the model has not yet begun). Need to construct an empty_events 
     # dictionary to initialize these events for timestep 0.
+    # TODO: Fix this to work for multiple regions.
+    region = world.get_regions()[0]
     empty_events = {}
+    for neighborhood in region.iter_agents():
+        empty_events[neighborhood.get_ID()] = np.NaN
     save_data_dict(saved_data, 0, region, empty_events, empty_events,
             empty_events, empty_events, empty_events)
 
