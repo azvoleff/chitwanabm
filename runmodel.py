@@ -213,8 +213,8 @@ def write_time_csv(time_strings, time_csv_file):
     csv_writer.writerow(col_headers)
     columns = []
     for col_header in col_headers:
-        # Subtract 1 as Python has zero indexing but the model uses 1 to 
-        # denote the first timestep.
+        # Subtract 1 as Python has zero indexing but the model uses 1 to denote 
+        # the first timestep.
         if columns == []:
             columns = np.array((time_strings[col_header]))
         else:
