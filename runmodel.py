@@ -189,7 +189,7 @@ def reformat_pop_results(pop_results):
     value. The write_results_csv function (written to export them in a 
     conveient format for input into R) needs them to be keyed as 
     [timestep][neighborhoodid][variable] = value. This function will reformat 
-    the pop_results to make them comparitble with the write_results_csv 
+    the pop_results to make them compatible with the write_results_csv 
     function.
     """
     pop_results_fixed = {}
