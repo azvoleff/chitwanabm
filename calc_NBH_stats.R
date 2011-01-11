@@ -32,7 +32,8 @@ calc_NBH_LULC <- function(DATA_PATH, timestep) {
 
 calc_agg_LULC <- function(DATA_PATH) {
     # Make plots of LULC for a model run.
-    lulc <- read.csv(paste(DATA_PATH, "LULC_results.csv", sep="/"))
+    lulc <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
+            na.strings=c("NA", "nan"))
     time.values <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
     time.Robj <- as.Date(paste(time.values$time_date, "15", sep=","),
             format="%m/%Y,%d")
@@ -51,7 +52,6 @@ calc_agg_LULC <- function(DATA_PATH) {
     # And convert the LULC measurements from units of square meters to units 
     # that are a percentage of total neighborhood area.
     lulc.sd <- lulc/nbh.area
-
     lulc.sd.mean <- data.frame(time.Robj=time.Robj,
             agveg=apply(lulc.sd[agveg.cols], 2, mean),
             nonagveg=apply(lulc.sd[nonagveg.cols], 2, mean),
@@ -63,7 +63,8 @@ calc_agg_LULC <- function(DATA_PATH) {
 }
 
 calc_NBH_pop <- function(DATA_PATH) {
-    model.results <- read.csv(paste(DATA_PATH, "pop_results.csv", sep="/"))
+    model.results <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
+            na.strings=c("NA", "nan"))
     # Read in time data to use in plotting. time.Robj will provide the x-axis 
     # values.
     time.values <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
