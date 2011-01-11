@@ -226,7 +226,7 @@ def write_time_csv(time_strings, time_csv_file):
 def write_results_csv(results, csv_file, ID_col_name):
     "Write to CSV the saved model run data."
     # The data is stored in a dictionary keyed by timestep, then keyed by ID, 
-    # then keyed by cateogry. Write it to CSV where each row represents a 
+    # then keyed by category. Write it to CSV where each row represents a 
     # single agent (neighborhood, person, etc.), and each col a single variable 
     # (from a single timestep).
     timesteps = sorted(results.keys())
