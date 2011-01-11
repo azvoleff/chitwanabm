@@ -127,25 +127,33 @@ def main_loop(world, results_path):
     # Save the starting time of the model to use in printing elapsed time while 
     # it runs.
     modelrun_starttime = time.time()
+
+    def save_results(world, results_path, timestep):
+        """
+        Function to periodically save model results to CSV (if this option is 
+        selected in the rc file).
+        """
+        if rcParams['save_psn_data']:
+            world.write_persons_to_csv(timestep, results_path)
+        if rcParams['save_NBH_data']:
+            world.write_NBHs_to_csv(timestep, results_path)
+        if rcParams['save_LULC_shapefiles']:
+            NBH_shapefile = os.path.join(results_path, "NBHs_time_%s.shp"%timestep)
+            neighborhoods = []
+            regions = world.get_regions()
+            for region in regions:
+                neighborhoods.extend(region.get_agents())
+            file_io.write_NBH_shapefile(neighborhoods, NBH_shapefile)
+
+    # Save the results for timestep 0
+    save_results(world, results_path, 0)
     while model_time.in_bounds():
-        
-        if model_time.get_cur_month() == 1 or model_time.is_last_iteration():
+        if model_time.get_cur_month() == 1:
             annual_num_births = 0
             annual_num_deaths = 0
             annual_num_marr = 0
             annual_num_in_migr = 0
             annual_num_out_migr = 0
-            if rcParams['save_psn_data']:
-                world.write_persons_to_csv(model_time.get_cur_int_timestep(), results_path)
-            if rcParams['save_NBH_data']:
-                world.write_NBHs_to_csv(model_time.get_cur_int_timestep(), results_path)
-            if rcParams['save_LULC_shapefiles']:
-                NBH_shapefile = os.path.join(results_path, "NBHs_time_%s.shp"%model_time.get_cur_int_timestep())
-                neighborhoods = []
-                regions = world.get_regions()
-                for region in regions:
-                    neighborhoods.extend(region.get_agents())
-                file_io.write_NBH_shapefile(neighborhoods, NBH_shapefile)
 
         for region in world.iter_regions():
             # This could easily handle multiple regions, although currently 
@@ -217,6 +225,9 @@ def main_loop(world, results_path):
         if num_persons == 0:
             print "End of model run: population is zero."
             break
+
+        if model_time.get_cur_month() == 12 or model_time.is_last_iteration():
+            save_results(world, results_path, model_time.get_cur_int_timestep())
 
         model_time.increment()
 
