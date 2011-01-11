@@ -128,7 +128,7 @@ def main_loop(world, results_path):
     # it runs.
     modelrun_starttime = time.time()
 
-    def save_results(world, results_path, timestep):
+    def write_results_CSV(world, results_path, timestep):
         """
         Function to periodically save model results to CSV (if this option is 
         selected in the rc file).
@@ -146,7 +146,7 @@ def main_loop(world, results_path):
             file_io.write_NBH_shapefile(neighborhoods, NBH_shapefile)
 
     # Save the results for timestep 0
-    save_results(world, results_path, 0)
+    write_results_CSV(world, results_path, 0)
     while model_time.in_bounds():
         if model_time.get_cur_month() == 1:
             annual_num_births = 0
@@ -227,7 +227,7 @@ def main_loop(world, results_path):
             break
 
         if model_time.get_cur_month() == 12 or model_time.is_last_iteration():
-            save_results(world, results_path, model_time.get_cur_int_timestep())
+            write_results_CSV(world, results_path, model_time.get_cur_int_timestep())
 
         model_time.increment()
 
