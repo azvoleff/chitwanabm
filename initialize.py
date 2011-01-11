@@ -28,7 +28,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import sys
 
-import numpy
+import numpy as np
 import pickle
 from subprocess import check_call, CalledProcessError
 
@@ -239,7 +239,7 @@ def assemble_persons(relationshipsFile, model_world):
         else:
             # Otherwise, randomly set person._last_birth_time anywhere from 3 
             # years prior to the initial timestep of the model:
-            person._last_birth_time = model_start_time + numpy.random.randint(-36, 0)/12.
+            person._last_birth_time = model_start_time + np.random.randint(-36, 0)/12.
         personsDict[RESPID] = person
 
     # Now, for each person in the personsDict, convert the RESPIDs for mother, 
@@ -259,7 +259,31 @@ def assemble_persons(relationshipsFile, model_world):
                     print "WARNING: agent %s skipped because it is it's own father"%(person.get_ID())
                     continue
             if person._spouse != None:
+                # First assign the person's spouse
                 person._spouse = personsDict[person._spouse]
+                # Set marriage time based on the yougest spouse's age, unless 
+                # marriage time has already been set (if we have already looped 
+                # over their spouse).
+                if person._marriage_time == None:
+                    if person._age < person._spouse._age:
+                        youngests_age_mnths = person._age
+                    else:
+                        youngests_age_mnths = person._spouse._age
+                    # Set marriage time based on the youngest spouse's age, as 
+                    # a random number of years from 0-5 from the point at which 
+                    # the woman was age 23. For women younger than 23, set 
+                    # their marriage_time to the start time of the model.
+                    if youngests_age_mnths/12 < 18:
+                        marriage_time = model_start_time - (youngests_age_mnths / 
+                                12) + 18 + np.random.randint(-24, 0) / 12.
+                    elif youngests_age_mnths/12 < 23:
+                        marriage_time = model_start_time - (youngests_age_mnths / 
+                                12) + 23 + np.random.randint(-60, 0) / 12.
+                    else:
+                        marriage_time = model_start_time - (youngests_age_mnths / 
+                                12) + 30 + np.random.randint(-144, 0) / 12.
+                    person._marriage_time = marriage_time
+                    person._spouse._marriage_time = marriage_time
                 if person._spouse == person:
                     print "WARNING: agent %s skipped because it is married to itself"%(person.get_ID())
                     continue
