@@ -75,8 +75,8 @@
 # hazard.time_units specifies the time period for which precalculated hazards 
 # are specified.
 'hazard.time_units' : ['years' | validate_time_units] 
-# birth.max_age is the maximum age a woman can give birth in years.
-'birth.max_age' : [45 | validate_int] 
+# birth.max_age.years is the maximum age a woman can give birth in years.
+'birth.max_age.years' : [45 | validate_int] 
 'prob.birth.intervals' : [((9, 48), 1)] | validate_prob_dist]
 'hazard.death.male' : [{(0, 3):0.0141, (3, 6):0, (6, 12):0, (12, 20):0.0013, (20, 40):0.0035, (40, 60):0.0099, (60, 80):0.0334, (80, 90):0.1277, (90, 199):0.5665} | validate_hazard(0, 199)]
 'hazard.death.female' : [{(0, 3):0.0162, (3, 6):0.0023, (6, 12):0.0012, (12, 20):0.001, (20, 40):0.0019, (40, 60):0.0046, (60, 80):0.032, (80, 90):0.1184, (90, 199):0.5665} | validate_hazard(0, 199)]
