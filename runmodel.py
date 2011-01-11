@@ -93,7 +93,7 @@ def main(argv=None):
 %s: started model run number %s.
 *******************************************************************************
 """%(start_time_string, run_ID_number)
-    pop_results, LULC_results, time_strings = main_loop(world, results_path) # This line actually runs the model.
+    run_results, time_strings = main_loop(world, results_path) # This line actually runs the model.
     end_time = time.localtime()
     end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
     print """
@@ -104,9 +104,9 @@ def main(argv=None):
     
     # Save the results
     print "Saving results..."
-    pop_data_file = os.path.join(results_path, "pop_results.P")
+    pop_data_file = os.path.join(results_path, "run_results.P")
     output = open(pop_data_file, 'w')
-    pickle.dump(pop_results, output)
+    pickle.dump(run_results, output)
     output.close()
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
@@ -115,12 +115,9 @@ def main(argv=None):
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
 
-    pop_results = reformat_pop_results(pop_results)
-    pop_results_csv_file = os.path.join(results_path, "pop_results.csv")
-    write_results_csv(pop_results, pop_results_csv_file, "neighid")
-
-    LULC_csv_file = os.path.join(results_path, "LULC_results.csv")
-    write_results_csv(LULC_results, LULC_csv_file, "neighid")
+    run_results = reformat_run_results(run_results)
+    run_results_csv_file = os.path.join(results_path, "run_results.csv")
+    write_results_csv(run_results, run_results_csv_file, "neighid")
 
     time_csv_file = os.path.join(results_path, "time.csv")
     write_time_csv(time_strings, time_csv_file)
@@ -182,25 +179,25 @@ def save_git_diff(code_path, git_diff_file):
     out_file.close()
     return commit_hash
 
-def reformat_pop_results(pop_results):
+def reformat_run_results(run_results):
     """
     For convenience and speed while running the model, the population results 
     are stored in a dictionary keyed as [timestep][variable][neighborhoodid] = 
     value. The write_results_csv function (written to export them in a 
     conveient format for input into R) needs them to be keyed as 
     [timestep][neighborhoodid][variable] = value. This function will reformat 
-    the pop_results to make them compatible with the write_results_csv 
+    the run_results to make them compatible with the write_results_csv 
     function.
     """
-    pop_results_fixed = {}
-    for timestep in pop_results.keys():
-        pop_results_fixed[timestep] = {}
-        for variable in pop_results[timestep].keys():
-            for ID in pop_results[timestep][variable]:
-                if not pop_results_fixed[timestep].has_key(ID):
-                    pop_results_fixed[timestep][ID] = {}
-                pop_results_fixed[timestep][ID][variable] = pop_results[timestep][variable][ID]
-    return pop_results_fixed
+    run_results_fixed = {}
+    for timestep in run_results.keys():
+        run_results_fixed[timestep] = {}
+        for variable in run_results[timestep].keys():
+            for ID in run_results[timestep][variable]:
+                if not run_results_fixed[timestep].has_key(ID):
+                    run_results_fixed[timestep][ID] = {}
+                run_results_fixed[timestep][ID][variable] = run_results[timestep][variable][ID]
+    return run_results_fixed
 
 def write_time_csv(time_strings, time_csv_file):
     """

@@ -83,11 +83,34 @@ class TimeSteps():
     def get_cur_date(self):
         return [self._year, self._month]
 
+    def get_T0_date(self):
+        """
+        Returns the time one timestep prior to the starting time of the model 
+        (T0).
+        """
+        T0_month = self._month - self._timestep
+        dyear = int(1 - np.ceil(T0_month / 12.))
+        T0_year = self._year - dyear
+        T0_month = T0_month + dyear*12
+        return [T0_year, T0_month]
+
     def get_cur_date_string(self):
         return "%.2d/%s"%(self._month, self._year)
 
+    def get_T0_date_string(self):
+        T0_year, T0_month = self.get_T0_date()
+        return "%.2d/%s"%(T0_month, T0_year)
+
     def get_cur_date_float(self):
         return self._year + (self._month-1)/12.
+
+    def get_T0_date_float(self):
+        """
+        Returns the time float one timestep prior to the starting time of the 
+        model (T0).
+        """
+        T0_year, T0_month = self.get_T0_date()
+        return T0_year + (T0_month-1)/12.
 
     def get_cur_int_timestep(self):
         return self._int_timestep
@@ -107,22 +130,19 @@ def main_loop(world, results_path):
     be used in the model, and the land-use parameters."""
 
     time_strings = {}
-    time_strings['timestep'] = []
-    time_strings['time_float'] = []
-    time_strings['time_date'] = []
+    # Store the date values (as timestep number (0),  float and date string) 
+    # for time zero (T0) so that the initial values of the model (which are for 
+    # time zero, the zeroth timestep) can be used in plotting model results.
+    time_strings['timestep'] = [0]
+    time_strings['time_float'] = [model_time.get_T0_date_float()]
+    time_strings['time_date'] = [model_time.get_T0_date_string()]
 
-    saved_LULC_results = {}
-
-    # Keep annual totals to print while the model is running
+        # Keep annual totals to print while the model is running
     annual_num_marr = 0
     annual_num_births = 0
     annual_num_deaths = 0
     annual_num_in_migr = 0
     annual_num_out_migr = 0
-
-    # saved_data will store the results of each timestep to be saved later as a 
-    # CSV.
-    saved_data = {}
 
     # Save the starting time of the model to use in printing elapsed time while 
     # it runs.
@@ -145,8 +165,42 @@ def main_loop(world, results_path):
                 neighborhoods.extend(region.get_agents())
             file_io.write_NBH_shapefile(neighborhoods, NBH_shapefile)
 
-    # Save the results for timestep 0
+    # Write the results for timestep 0
     write_results_CSV(world, results_path, 0)
+
+    def save_data_dict(saved_data, timestep, region, new_births, new_deaths,
+            new_marr, new_out_migr, new_in_migr):
+        """
+        Store model results for later plotting. Store each variable in a 
+        dictionary data while the model is runningthe data keyed by: 
+        timestep:variable:nbh.
+        """
+        saved_data[timestep] = {}
+        saved_data[timestep]['births'] = new_births
+        saved_data[timestep]['deaths'] = new_deaths
+        saved_data[timestep]['marr'] = new_marr
+        saved_data[timestep]['in_migr'] = new_in_migr
+        saved_data[timestep]['out_migr'] = new_out_migr
+        saved_data[timestep].update(region.get_neighborhood_pop_stats())
+        saved_data[timestep].update(region.get_neighborhood_fw_usage())
+        saved_data[timestep].update(region.get_neighborhood_landuse())
+
+    # saved_data will store event, population, and fuelwood usage data keyed by 
+    # timestep:variable:nbh.
+    saved_data = {}
+    # TODO: Fix this to work for multiple regions.
+    region = world.get_regions()[0]
+    # Save the initialization data for timestep 0 (note that all the event 
+    # variables, like new_births, new_deaths, etc., need to be set to None
+    # in each neighborhood, for each variable, as they are unknown for timestep 
+    # 0 (since the model has not yet begun). Need to construct an empty_events 
+    # dictionary to initialize these events for timestep 0.
+    empty_events = {}
+    for neighborhood in region.iter_agents():
+        empty_events[neighborhood.get_ID()] = None
+    save_data_dict(saved_data, 0, region, empty_events, empty_events,
+            empty_events, empty_events, empty_events)
+
     while model_time.in_bounds():
         if model_time.get_cur_month() == 1:
             annual_num_births = 0
@@ -163,11 +217,11 @@ def main_loop(world, results_path):
             new_marr = region.marriages(model_time.get_cur_date_float())
             new_out_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
 
-            num_persons = region.num_persons()
-            num_households = region.num_households()
-            num_neighborhoods = region.num_neighborhoods()
+            # Save event, LULC, and population data for later output to CSV.
+            save_data_dict(saved_data, timestep, region, new_births,
+                    new_deaths, new_marr, new_out_migr, new_in_migr)
 
-            # Store results:
+            # Keep running total for printing results:
             num_new_births = sum(new_births.values())
             num_new_deaths = sum(new_deaths.values())
             num_new_marr = sum(new_marr.values())
@@ -180,23 +234,12 @@ def main_loop(world, results_path):
             annual_num_in_migr += num_new_in_migr
             annual_num_out_migr += num_new_out_migr
 
-            # Save LULC data in a dictionary keyed by timestep:nbh:variable
-            saved_LULC_results[model_time.get_cur_int_timestep()] = region.get_neighborhood_landuse()
-
-            # Save event and population data for later output to CSV.
-            saved_data[model_time.get_cur_int_timestep()] = {}
-            saved_data[model_time.get_cur_int_timestep()]['births'] = new_births
-            saved_data[model_time.get_cur_int_timestep()]['deaths'] = new_deaths
-            saved_data[model_time.get_cur_int_timestep()]['marr'] = new_marr
-            saved_data[model_time.get_cur_int_timestep()]['in_migr'] = new_in_migr
-            saved_data[model_time.get_cur_int_timestep()]['out_migr'] = new_out_migr
-            saved_data[model_time.get_cur_int_timestep()].update(region.get_neighborhood_pop_stats())
-            saved_data[model_time.get_cur_int_timestep()].update(region.get_neighborhood_fw_usage())
-
             region.increment_age()
                 
         # Print an information line to allow keeping tabs on the model while it 
         # is running.
+        num_persons = region.num_persons()
+        num_households = region.num_households()
         stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, region.get_num_marriages(), num_households,
                 num_new_marr, num_new_births, num_new_deaths, num_new_in_migr, num_new_out_migr)
@@ -231,7 +274,7 @@ def main_loop(world, results_path):
 
         model_time.increment()
 
-    return saved_data, saved_LULC_results, time_strings
+    return saved_data, time_strings
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)
