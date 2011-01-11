@@ -196,8 +196,6 @@ def main_loop(world, results_path):
     # 0 (since the model has not yet begun). Need to construct an empty_events 
     # dictionary to initialize these events for timestep 0.
     empty_events = {}
-    for neighborhood in region.iter_agents():
-        empty_events[neighborhood.get_ID()] = None
     save_data_dict(saved_data, 0, region, empty_events, empty_events,
             empty_events, empty_events, empty_events)
 
@@ -218,8 +216,9 @@ def main_loop(world, results_path):
             new_out_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
 
             # Save event, LULC, and population data for later output to CSV.
-            save_data_dict(saved_data, timestep, region, new_births,
-                    new_deaths, new_marr, new_out_migr, new_in_migr)
+            save_data_dict(saved_data, model_time.get_cur_int_timestep(),
+                    region, new_births, new_deaths, new_marr, new_out_migr,
+                    new_in_migr)
 
             # Keep running total for printing results:
             num_new_births = sum(new_births.values())
