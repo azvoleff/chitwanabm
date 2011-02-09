@@ -21,9 +21,6 @@
 """
 Contains statistical models to calulate hazards (such as of birth, and of 
 marriage) and run OLS regressions (to calculate land use).
-
-TODO: code the stat models. For now, pre-specified hazard distributions are 
-used.
 """
 
 import numpy as np
