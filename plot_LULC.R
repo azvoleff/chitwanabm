@@ -44,7 +44,7 @@ kriglocations <- readGDAL("CVFS_Study_Area_Raster.tif")
 
 # Use ordinary kriging
 v <- variogram(perc_veg~1, NBHs.spatial)
-v.fit <- fit.variogram(v, vgm(1, "Exp", 6000, .05))
+#v.fit <- fit.variogram(v, vgm(1, "Exp", 6000, .05))
 v.fit <- fit.variogram(v, vgm(1, "Sph", 6000, .05))
 krigged.ord <- krige(perc_veg~1, NBHs.spatial, kriglocations, v.fit)
 
