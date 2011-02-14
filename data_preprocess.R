@@ -35,10 +35,12 @@ names(desnumchild)[2] <- "numchild"
 # question, in F9.
 godswill <- which(desnumchild$numchild==97)
 desnumchild[godswill,]$numchild <- desnumchild$F9[godswill]
-# 2 people said a range from low to high. Here, arbitrarily, take the high 
-# number, stored in F7B.
-range <- which(desnumchild$numchild==95)
-desnumchild[range,]$numchild <- desnumchild$F7B[range]
+# 2 people said a range from low to high. Here, take an average of the low and 
+# high number, stored in F7A and F7B.
+# TODO: Fix this:
+child_range <- which(desnumchild$numchild==95)
+desnumchild[child_range,]$numchild <- desnumchild$F7B[child_range]
+#desnumchild[child_range,]$numchild <- desnumchild$F7A[child_range] / desnumchild$F7B[child_range]
 # 28 people said they don't know. This is coded as -3 in the CVFS data. Recode 
 # this as -1.
 desnumchild$numchild[desnumchild$numchild==-3] <- -1
@@ -172,6 +174,14 @@ lu.processed$NEIGHID <- factor(as.numeric(lu.processed$NEIGHID))
 
 # Join these rows to the neighborhood data processed earlier.
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
+
+# Read in the household registry data to get the ethnicities
+load("/media/Local_Secure/CVFS_R_format/hhreg.Rdata")
+columns <- grep('^(respid|ethnic)$', names(hhreg))
+hhreg <- hhreg[columns]
+names(hhreg)[grep('^(respid)$', names(hhreg))] <- 'RESPID'
+names(hhreg)[grep('^(ethnic)$', names(hhreg))] <- 'ETHNIC'
+hhrel.processed <- merge(hhrel.processed, hhreg)
 
 ###############################################################################
 # Output data. Data is restricted so it has to be stored in an encrypted 
