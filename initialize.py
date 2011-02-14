@@ -179,6 +179,7 @@ def assemble_persons(relationshipsFile, model_world):
         try:
             AGEMNTHS = int(relation['AGEMNTHS']) # Age of agent in months
             CENGENDR = relation['CENGENDR']
+            ETHNICITY = int(relation['ETHNIC'])
         except KeyError:
             print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
             continue
@@ -223,9 +224,22 @@ def assemble_persons(relationshipsFile, model_world):
         elif CENGENDR == '2':
             CENGENDR = "female"
 
+        if ETHNICITY == 1:
+            ETHNICITY = "HighHindu"
+        elif ETHNICITY == 2:
+            ETHNICITY = "HillTibeto"
+        elif ETHNICITY == 3:
+            ETHNICITY = "LowHindu"
+        elif ETHNICITY == 4:
+            ETHNICITY = "Newar"
+        elif ETHNICITY == 5:
+            ETHNICITY = "TeraiTibeto"
+        elif ETHNICITY == 6:
+            ETHNICITY = "Other"
+
         # Finally, make the new person.
         person = model_world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
-                CENGENDR, initial_agent=True)
+                CENGENDR, initial_agent=True, ethnicity=ETHNICITY)
         person._spouse = spouse_RESPID
         person._des_num_children = int(relation['numchild'])
 
