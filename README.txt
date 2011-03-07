@@ -24,9 +24,9 @@ GETTING THE CODE:
     See the ChitwanABM website at:
         http://rohan.sdsu.edu/~zvoleff/ChitwanABM.html
     The latest version of the code is available as a zipped snapshot from:
-        http://git.coupledsystems.com/ChitwanABM/snapshot
+        http://git.azvoleff.com/ChitwanABM/snapshot
     The source can also be downloaded via git from:
-        git://git.coupledsystems.com/ChitwanABM
+        git://git.azvoleff.com/ChitwanABM
 
 AUTHOR CONTACT INFORMATION:
     Alex Zvoleff

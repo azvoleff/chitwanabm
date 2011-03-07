@@ -45,10 +45,10 @@ MODEL INSTALLATION
 
     The development snapshot (latest version of the code, but it may not always 
     be functional) can be downloaded from:
-        http://git.coupledsystems.com/ChitwanABM/snapshot
+        http://git.azvoleff.com/ChitwanABM/snapshot
 
     The development source can also be downloaded via git from:
-        git://git.coupledsystems.com/ChitwanABM
+        git://git.azvoleff.com/ChitwanABM
 
         To install the model, simply unzip the code into a folder on your 
     computer.  After installing Python and the dependencies listed above, you 
