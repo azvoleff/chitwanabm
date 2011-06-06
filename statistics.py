@@ -87,7 +87,12 @@ def calc_hazard_marriage(person):
     #age = person.get_age()
     #hazard_index = __hazard_index__(age)
     neighborhood = person.get_parent_agent().get_parent_agent()
-    log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+    
+    if neighborhood._land_agveg == 0:
+        log_percent_agveg = 0
+
+    else:
+        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
     inner = -rcParams['marrtime.coef.intercept']
     inner -= rcParams['marrtime.coef.logagveg'] * log_percent_agveg
     if person.get_sex() == "female":
