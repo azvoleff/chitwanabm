@@ -84,14 +84,37 @@ def __hazard_index__(t):
 
 def calc_hazard_marriage(person):
     "Calculates the hazard of marriage for an agent."
-    age = person.get_age()
-    hazard_index = __hazard_index__(age)
+    #age = person.get_age()
+    #hazard_index = __hazard_index__(age)
     neighborhood = person.get_parent_agent().get_parent_agent()
-    percent_agveg = (neighborhood._land_agveg / neighborhood._land_total)*100
-    if person.get_sex() == 'female':
-        return marriage_hazards_female[hazard_index]
-    elif person.get_sex() == 'male':
-        return marriage_hazards_male[hazard_index]
+    log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+    inner = -rcParams['marrtime.coef.intercept']
+    inner -= rcParams['marrtime.coef.logagveg'] * log_percent_agveg
+    if person.get_sex() == "female":
+        inner -= rcParams['marrtime.coef.genderfemale']
+    ethnicity = person.get_ethnicity()
+    assert ethnicity!=None, "Ethnicity must be defined"
+    if ethnicity == "HighHindu":
+        # This was the reference level
+        pass
+    elif ethnicity == "HillTibeto":
+        inner -= rcParams['marrtime.coef.ethnicHillTibeto']
+    elif ethnicity == "LowHindu":
+        inner -= rcParams['marrtime.coef.ethnicLowHindu']
+    elif ethnicity == "Newar":
+        inner -= rcParams['marrtime.coef.ethnicNewar']
+    elif ethnicity == "TeraiTibeto":
+        inner -= rcParams['marrtime.coef.ethnicTeraiTibeto']
+    elif ethnicity == "Other":
+        inner -= rcParams['marrtime.coef.ethnicOther']
+    inner -= rcParams['marrtime.coef.Age'] * person.get_age()
+    inner -= rcParams['marrtime.coef.AgeSquare'] * person.get_age()
+    return 1./(1 + np.exp(inner))
+
+#    if person.get_sex() == 'female':
+#        return marriage_hazards_female[hazard_index]
+#    elif person.get_sex() == 'male':
+#        return marriage_hazards_male[hazard_index]
 
 def calc_hazard_death(person):
     "Calculates the hazard of death for an agent."
