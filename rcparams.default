@@ -44,7 +44,7 @@
 # whether or not a seed is provided, the seed that is used will be saved
 # in the model output for later reuse.
 'model.RandomState' : [None | validate_RandomState] 
-'model.resultspath' : ["/home/azvoleff/Data/ChitwanABM_runs" | validate_writable_dir]
+'model.resultspath' : ["/media/Orange_Data/Data/ChitwanABM_runs" | validate_writable_dir]
 'model.use_psyco': [False | validate_boolean] # Not yet supported in Python 2.7
 'model.make_plots': [True | validate_boolean]
 # Whether to save psn data to CSV periodically while running the model. This 
@@ -61,13 +61,13 @@
 # Location of input data (these are restricted data)
 ###############################################################################
 # This file is the processed output of the "initialize.py" script.
-'input.init_data_file' : ["/media/Local_Secure/ChitwanABM_init/init_data.pickle" | validate_readable_file]
+'input.init_data_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/init_data.pickle" | validate_readable_file]
 # The following 3 files are the original restricted CVFS data as received from 
 # the ICPSR.
-'input.relationships_grid_file' : ["/media/Local_Secure/ChitwanABM_init/hhrel.csv" | validate_readable_file_warning]
-'input.households_file' : ["/media/Local_Secure/ChitwanABM_init/hhag.csv" | validate_readable_file_warning]
-'input.neighborhoods_file' : ["/media/Local_Secure/ChitwanABM_init/neigh.csv" | validate_readable_file_warning]
-'input.neighborhoods_coords_file' : ["/media/Local_Secure/ChitwanABM_init/neigh_coords.csv" | validate_readable_file_warning]
+'input.relationships_grid_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/hhrel.csv" | validate_readable_file_warning]
+'input.households_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/hhag.csv" | validate_readable_file_warning]
+'input.neighborhoods_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/neigh.csv" | validate_readable_file_warning]
+'input.neighborhoods_coords_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/neigh_coords.csv" | validate_readable_file_warning]
 
 ###############################################################################
 # Person agent parameters
