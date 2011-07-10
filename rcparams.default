@@ -28,6 +28,16 @@
 ##################################
 ###***START OF RC DEFINITION***###
 ###############################################################################
+# System setup parameters
+###############################################################################
+# Git binary directory (on Windows):
+path.git_binary : ["C:\Program Files (x86)\Git\bin\git.exe" | validate_readable_file]
+
+# Rscript binary directory (on Windows):
+path.Rscript_binary : ["C:\Program Files\R\R-2.13.0\bin\Rscript.exe" | validate_readable_file]
+
+
+###############################################################################
 # Model-wide parameters
 ###############################################################################
 # A string naming the scenario - for convenience only. Has no direct impact on 

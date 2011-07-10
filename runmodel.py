@@ -126,12 +126,13 @@ def main(argv=None):
         print "Plotting results..."
         # Make plots of the LULC and population results
         dev_null = open(os.devnull, 'w')
-        subprocess.check_call(['Rscript', 'plot_LULC.R', results_path],
+        Rscript_binary = rcParams['path.Rscript_binary']
+        subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
                 cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-        subprocess.check_call(['Rscript', 'plot_pop.R', results_path],
+        subprocess.check_call([Rscript_binary, 'plot_pop.R', results_path],
                 cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         if rcParams['save_psn_data']:
-            subprocess.check_call(['Rscript', 'plot_psns_data.R', results_path],
+            subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
                     cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         dev_null.close()
 
@@ -160,22 +161,26 @@ def main(argv=None):
 
 def save_git_diff(code_path, git_diff_file):
     # First get commit hash from git show
-    temp_file = tempfile.NamedTemporaryFile()
+    temp_file_fd, temp_file_path = tempfile.mkstemp()
     try:
-        subprocess.check_call(['git', 'show','--pretty=format:%H'], stdout=temp_file, cwd=code_path)
+        git_binary= rcParams['path.git_binary']
+        subprocess.check_call([git_binary, 'show','--pretty=format:%H'], stdout=temp_file_fd, cwd=code_path)
     except:
         print "Error running git. Skipping git-diff patch output."
         return "ERROR_RUNNING_GIT"
-    temp_file = open(temp_file.name, "r")
+    os.close(temp_file_fd)
+    temp_file = open(temp_file_path, 'r')
     commit_hash = temp_file.readline().strip('\n')
     temp_file.close()
+    os.remove(temp_file_path)
 
     # Now write output of git diff to a file.
     try:
         out_file = open(git_diff_file, "w")
     except IOError:
         raise IOError("error writing to git diff output file: %s"%(git_diff_file))
-    subprocess.check_call(['git', 'diff'], stdout=out_file, cwd=code_path)
+    git_binary = rcParams['path.git_binary']
+    subprocess.check_call([git_binary, 'diff'], stdout=out_file, cwd=code_path)
     out_file.close()
     return commit_hash
 
