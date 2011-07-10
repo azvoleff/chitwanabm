@@ -324,10 +324,11 @@ def assemble_world():
     """
     model_world = World()
 
-    relationships_grid_file = rcParams['input.relationships_grid_file']
-    households_file = rcParams['input.households_file']
-    neighborhoods_file = rcParams['input.neighborhoods_file']
-    neighborhoods_coords_file = rcParams['input.neighborhoods_coords_file']
+    raw_data_path = rcParams['path.raw_data']
+    relationships_grid_file = os.path.join(raw_data_path, 'hhrel.csv')
+    households_file = os.path.join(raw_data_path, 'hhag.csv')
+    neighborhoods_file = os.path.join(raw_data_path,  'neigh.csv')
+    neighborhoods_coords_file = os.path.join(raw_data_path, 'neigh_coords.csv')
 
     persons, RESPID_HHID_map = assemble_persons(relationships_grid_file,
             model_world)
@@ -391,7 +392,7 @@ def generate_world():
         be an encrypted directory that is not publically accessible to conform 
         to ICPSR and IRB requirements.
     """
-    input_init_data_file = rcParams['input.init_data_file']
+    processed_data_file = rcParams['path.processed_data_file']
     try:
         print "Calling R to preprocess CVFS data..."
         check_call(["/usr/bin/Rscript", "data_preprocess.R"])
@@ -400,9 +401,9 @@ def generate_world():
     print "Generating world from preprocessed CVFS data..."
     model_world = assemble_world()
     try:
-        save_world(model_world, input_init_data_file)
+        save_world(model_world, processed_data_file)
     except:
-        print "error saving world file to %s"%(input_init_data_file)
+        print "error saving world file to %s"%(processed_data_file)
 
 if __name__ == "__main__":
     sys.exit(main())

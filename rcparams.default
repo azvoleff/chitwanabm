@@ -60,14 +60,12 @@
 ###############################################################################
 # Location of input data (these are restricted data)
 ###############################################################################
-# This file is the processed output of the "initialize.py" script.
-'input.init_data_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/init_data.pickle" | validate_readable_file]
-# The following 3 files are the original restricted CVFS data as received from 
-# the ICPSR.
-'input.relationships_grid_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/hhrel.csv" | validate_readable_file_warning]
-'input.households_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/hhag.csv" | validate_readable_file_warning]
-'input.neighborhoods_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/neigh.csv" | validate_readable_file_warning]
-'input.neighborhoods_coords_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/neigh_coords.csv" | validate_readable_file_warning]
+# This is the path to the processed data file containing the output of the 
+# "initialize.py" script.
+'path.processed_data_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/init_data.pickle" | validate_readable_file]
+# The following is the path to the original restricted CVFS data as received 
+# from the ICPSR (to be used when running the "initialize.py" script.
+'path.raw_data' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/" | validate_writable_dir]
 
 ###############################################################################
 # Person agent parameters
