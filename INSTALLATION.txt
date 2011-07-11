@@ -3,7 +3,7 @@ ChitwanABM - INSTALLATION.txt
 ChitwanABM INSTALLATION INSTRUCTIONS
 
 DEPENDENCIES
-        ChitwanABM has been tested to be functionatl on Linux, Windows 7, and 
+        ChitwanABM has been tested to be functional on Linux, Windows 7, and 
     Mac OS 10.6.4. The model needs a standard Python installation (2.6 has been 
     tested to be working) along with several Python dependencies.
     
@@ -34,7 +34,9 @@ DEPENDENCIES
             R packages used in model initialization and results plotting:
                 foreign
                 ggplot2
-                Hmisc
+                gstat
+                rgdal
+                epicalc
 
         Git (optional)
 
