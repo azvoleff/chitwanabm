@@ -127,13 +127,22 @@ def main(argv=None):
         # Make plots of the LULC and population results
         dev_null = open(os.devnull, 'w')
         Rscript_binary = rcParams['path.Rscript_binary']
-        subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
-                cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-        subprocess.check_call([Rscript_binary, 'plot_pop.R', results_path],
-                cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-        if rcParams['save_psn_data']:
-            subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
+        try:
+            subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
                     cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+        except:
+            print "WARNING: Error running plot_LULC.R"
+        try:
+            subprocess.check_call([Rscript_binary, 'plot_pop.R', results_path],
+                    cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+        except:
+            print "WARNING: Error running plot_pop.R."
+        if rcParams['save_psn_data']:
+            try:
+                subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
+                        cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+            except:
+                print "WARNING: Error running plot_psns_data.R."
         dev_null.close()
 
     # Calculate the number of seconds per month the model took to run (to 
@@ -166,7 +175,7 @@ def save_git_diff(code_path, git_diff_file):
         git_binary= rcParams['path.git_binary']
         subprocess.check_call([git_binary, 'show','--pretty=format:%H'], stdout=temp_file_fd, cwd=code_path)
     except:
-        print "Error running git. Skipping git-diff patch output."
+        print "WARNING: Error running git. Skipping git-diff patch output."
         return "ERROR_RUNNING_GIT"
     os.close(temp_file_fd)
     temp_file = open(temp_file_path, 'r')
@@ -177,11 +186,11 @@ def save_git_diff(code_path, git_diff_file):
     # Now write output of git diff to a file.
     try:
         out_file = open(git_diff_file, "w")
+        git_binary = rcParams['path.git_binary']
+        subprocess.check_call([git_binary, 'diff'], stdout=out_file, cwd=code_path)
+        out_file.close()
     except IOError:
-        raise IOError("error writing to git diff output file: %s"%(git_diff_file))
-    git_binary = rcParams['path.git_binary']
-    subprocess.check_call([git_binary, 'diff'], stdout=out_file, cwd=code_path)
-    out_file.close()
+        print "WARNING: Error writing to git diff output file: %s"%(git_diff_file)
     return commit_hash
 
 def reformat_run_results(run_results):
