@@ -59,9 +59,13 @@ def main(argv=None):
     except IndexError:
         pass
 
-    # The run_ID_number provides an ID number (built from the start time) to 
-    # uniquely identify this model run.
-    run_ID_number = time.strftime("%Y%m%d-%H%M%S")
+    # Get machine hostname to print it in the results file and use in the 
+    # run_ID_number.
+    hostname = socket.gethostname()
+    
+    # The run_ID_number provides an ID number (built from the start time and 
+    # machine name) to uniquely identify this model run.
+    run_ID_number = time.strftime("%Y%m%d-%H%M%S") + '_' + hostname
     # First strip any trailing backslash from the model.resultspath value from 
     # rcparams, so that os.path.join-ing it to the scenario.name does not lead 
     # to having two backslashes in a row.
@@ -160,20 +164,17 @@ def main(argv=None):
     # length of time_strings divided by the timestep size (in months).
     speed = (time.mktime(end_time) - time.mktime(start_time)) / (len(time_strings['timestep']) / rcParams['model.timestep'])
 
-    # Get machine hostname to print it in the results file
-    hostname = socket.gethostname()
-    
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
     run_RC_file = os.path.join(results_path, "ChitwanABMrc")
     RC_file_header = """# This file contains the parameters used for a ChitwanABM model run.
 # Model run ID:\t%s
-# Machine name:\t%s
 # Start time:\t%s
 # End time:\t\t%s
 # Run speed:\t%.4f
-# Code version:\t%s"""%(run_ID_number, hostname, start_time_string, end_time_string, speed, commit_hash)
+# Code version:\t%s"""%(run_ID_number, start_time_string, end_time_string, 
+        speed, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
     print "\nFinished at", time.strftime("%m/%d/%Y %I:%M:%S %p") + "."
