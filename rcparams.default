@@ -28,19 +28,6 @@
 ##################################
 ###***START OF RC DEFINITION***###
 ###############################################################################
-# System setup parameters
-###############################################################################
-# Git binary directory (on Windows):
-path.git_binary : ["C:\Program Files (x86)\Git\bin\git.exe" | validate_readable_file]
-# Git binary directory (on Linux):
-# path.git_binary : ["/usr/bin/git" | validate_readable_file]
-
-# Rscript binary directory (on Windows):
-path.Rscript_binary : ["C:\Program Files\R\R-2.13.0\bin\Rscript.exe" | validate_readable_file]
-# Rscript binary directory (on Linux):
-# path.Rscript_binary : ["/usr/bin/Rscript" | validate_readable_file]
-
-###############################################################################
 # Model-wide parameters
 ###############################################################################
 # A string naming the scenario - for convenience only. Has no direct impact on 
@@ -72,12 +59,14 @@ path.Rscript_binary : ["C:\Program Files\R\R-2.13.0\bin\Rscript.exe" | validate_
 ###############################################################################
 # Location of input data (these are restricted data)
 ###############################################################################
-# This is the path to the processed data file containing the output of the 
-# "initialize.py" script.
-'path.processed_data_file' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/init_data.pickle" | validate_readable_file]
+# This is the path to the processed data file containing the final output file 
+# from the "initialize.py" script.
+'path.input_data_file' : ["T:/ChitwanABM_Initialization/init_data.pickle" | validate_readable_file]
 # The following is the path to the original restricted CVFS data as received 
-# from the ICPSR (to be used when running the "initialize.py" script.
-'path.raw_data' : ["/home/azvoleff/Secure_Data/ChitwanABM_init/" | validate_writable_dir]
+# from the ICPSR (to be used when running the "initialize.py" script. The
+# data_preprocess.R script will output several new files here when it is
+# run, so this directory must be writeable.
+'path.raw_input_data' : ["T:/ChitwanABM_Initialization" | validate_writable_dir]
 
 ###############################################################################
 # Person agent parameters

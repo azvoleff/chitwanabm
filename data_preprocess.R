@@ -27,9 +27,11 @@
 
 require(foreign, quietly=TRUE)
 
+DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+
 ###############################################################################
 # First handle DS0004 - the census dataset
-census <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0004_REST.xpt")
+census <- read.xport(paste(DATA_PATH, "da04538-0004_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 census <- census[census$NEIGHID <= 151,]
 # 5 people don't know their age, coded as -3 in dataset. Exclude these 
@@ -46,7 +48,7 @@ census.processed <- na.omit(census.processed)
 ###############################################################################
 # Now handle DS0012, the individual data, to get desired family size 
 # preferences.
-t1indiv <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0012_REST.xpt")
+t1indiv <- read.xport(paste(DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
 columns <- grep('RESPID|F7$', names(t1indiv))
@@ -75,7 +77,7 @@ desnumchild$numchild[desnumchild$numchild>1000] <- -1
 # Now handle DS0013, the life history calendar data, to get information on what 
 # women had births in the past year (so they can start out ineligible for 
 # pregnancy).
-lhc <- read.xport("/home/azvoleff/Data/CVFS_Public/DS0013/04538-0013-Data.xpt")
+lhc <- read.xport(paste(DATA_PATH, "04538-0013-Data.xpt", sep="/"))
 # NOTE: lhc contains no NEIGHID column. Respondents in excluded neighborhoods 
 # (greather than 151) will be dropped when the lhc data is merged later on in 
 # the process.
@@ -96,7 +98,7 @@ recentbirths <- lhc.child2053[lhc.child2053$C==1,]
 ###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
 # with the relationship grid.
-hhrel <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0016_REST.xpt")
+hhrel <- read.xport(paste(DATA_PATH, "da04538-0016_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 hhrel <- hhrel[hhrel$NEIGHID <= 151,]
 hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
@@ -122,7 +124,7 @@ hhrel.processed[match(recentbirths$RESPID,
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
-hhag <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0002_REST.xpt")
+hhag <- read.xport(paste(DATA_PATH, "da04538-0002_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 hhag <- hhag[hhag$NEIGHID <= 151,]
 hhag.processed <- with(hhag, data.frame(HHID, NEIGHID, BAA10A, BAA18A, BAA43, BAA44))
@@ -140,7 +142,7 @@ hhrel.processed <- hhrel.processed[in_hhag,]
 
 ###############################################################################
 # Now handle DS0014 - the neighborhood history data
-neigh <- read.xport("/media/Local_Secure/ICPSR_0538_Restricted/da04538-0014_REST.xpt")
+neigh <- read.xport(paste(DATA_PATH, "da04538-0014_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 neigh <- neigh[neigh$NEIGHID <= 151,]
 # Axinn (2007) uses the "average number of years non-family services were 
@@ -170,7 +172,7 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # 	Private buildings - HHRESID1, MILL1, OTRBLD1
 # 	Public buildings - ROAD1, SCHOOL1, TEMPLE1
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
-lu <- read.xport("/media/Local_Secure/ICPSR_SupplementalData/Survey_converted/landuse.xpt")
+lu <- read.xport(paste(DATA_PATH, "landuse.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 lu$NEIGHID <- as.ordered(lu$NEIGHID)
 lu <- lu[lu$NEIGHID <= 151,]
@@ -197,7 +199,7 @@ lu.processed$NEIGHID <- factor(as.numeric(lu.processed$NEIGHID))
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 
 # Read in the household registry data to get the ethnicities
-load("/media/Local_Secure/CVFS_R_format/hhreg.Rdata")
+load(paste(DATA_PATH, "hhreg.Rdata", sep="/"))
 columns <- grep('^(respid|ethnic)$', names(hhreg))
 hhreg <- hhreg[columns]
 names(hhreg)[grep('^(respid)$', names(hhreg))] <- 'RESPID'
@@ -208,9 +210,9 @@ hhrel.processed <- merge(hhrel.processed, hhreg)
 # Output data. Data is restricted so it has to be stored in an encrypted 
 # folder. Save both Rdata files (to be used for synthetic agent generation) and 
 # csv files (for loading into the model).
-write.csv(hhrel.processed, file="/media/Local_Secure/ChitwanABM_init/hhrel.csv", row.names=FALSE)
-save(hhrel.processed, file="/media/Local_Secure/ChitwanABM_init/hhrel.Rdata")
-write.csv(hhag.processed, file="/media/Local_Secure/ChitwanABM_init/hhag.csv", row.names=FALSE)
-save(hhag.processed, file="/media/Local_Secure/ChitwanABM_init/hhag.Rdata")
-write.csv(neigh.processed, file="/media/Local_Secure/ChitwanABM_init/neigh.csv", row.names=FALSE)
-save(neigh.processed, file="/media/Local_Secure/ChitwanABM_init/neigh.Rdata")
+write.csv(hhrel.processed, file=paste(DATA_PATH, "hhrel.csv", sep="/"), row.names=FALSE)
+save(hhrel.processed, file=paste(DATA_PATH, "hhrel.Rdata", sep="/"))
+write.csv(hhag.processed, file=paste(DATA_PATH, "hhag.csv", sep="/"), row.names=FALSE)
+save(hhag.processed, file=paste(DATA_PATH, "hhag.Rdata", sep="/"))
+write.csv(neigh.processed, file=paste(DATA_PATH, "neigh.csv", sep="/"), row.names=FALSE)
+save(neigh.processed, file=paste(DATA_PATH, "neigh.Rdata", sep="/"))

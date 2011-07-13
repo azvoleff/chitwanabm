@@ -26,6 +26,7 @@ and land use using the original CVFS data.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+import os
 import sys
 
 import numpy as np
@@ -324,7 +325,7 @@ def assemble_world():
     """
     model_world = World()
 
-    raw_data_path = rcParams['path.raw_data']
+    raw_data_path = rcParams['path.raw_input_data']
     relationships_grid_file = os.path.join(raw_data_path, 'hhrel.csv')
     households_file = os.path.join(raw_data_path, 'hhag.csv')
     neighborhoods_file = os.path.join(raw_data_path,  'neigh.csv')
@@ -388,22 +389,24 @@ def generate_world():
         2) Calls the assemble_world function to prepare an instance of the 
         World class to be used in the model.
 
-        3) Saves this world instange in the standard location. NOTE: This must 
+        3) Saves this world instance in the standard location. NOTE: This must 
         be an encrypted directory that is not publically accessible to conform 
         to ICPSR and IRB requirements.
     """
-    processed_data_file = rcParams['path.processed_data_file']
     try:
         print "Calling R to preprocess CVFS data..."
-        check_call(["/usr/bin/Rscript", "data_preprocess.R"])
+        raw_data_path = rcParams['path.raw_input_data']
+        Rscript_binary = rcParams['path.Rscript_binary']
+        check_call([Rscript_binary, "data_preprocess.R", raw_data_path])
     except CalledProcessError:
-        print "error running data_preprocess.R R script"
+        print "ERROR: while running data_preprocess.R R script"
     print "Generating world from preprocessed CVFS data..."
     model_world = assemble_world()
+    processed_data_file = rcParams['path.input_data_file']
     try:
         save_world(model_world, processed_data_file)
     except:
-        print "error saving world file to %s"%(processed_data_file)
+        print "ERROR: while saving world file to %s"%(processed_data_file)
 
 if __name__ == "__main__":
     sys.exit(main())
