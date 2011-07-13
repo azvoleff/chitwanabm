@@ -104,7 +104,7 @@ def main(argv=None):
 """%(end_time_string, run_ID_number)
     
     # Save the results
-    print "Saving results..."
+    print "Saving result files..."
     pop_data_file = os.path.join(results_path, "run_results.P")
     output = open(pop_data_file, 'w')
     pickle.dump(run_results, output)
@@ -124,27 +124,36 @@ def main(argv=None):
     write_time_csv(time_strings, time_csv_file)
     
     if rcParams['model.make_plots']:
-        print "Plotting results..."
-        # Make plots of the LULC and population results
-        dev_null = open(os.devnull, 'w')
+        print "Plotting population results..."
         Rscript_binary = rcParams['path.Rscript_binary']
-        try:
-            subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
-                    cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-        except:
-            print "WARNING: Error running plot_LULC.R"
+        dev_null = open(os.devnull, 'w')
         try:
             subprocess.check_call([Rscript_binary, 'plot_pop.R', results_path],
                     cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         except:
             print "WARNING: Error running plot_pop.R."
+        dev_null.close()
+
+        if rcParams['save_NBH_data']:
+            print "Plotting LULC results..."
+            # Make plots of the LULC and population results
+            dev_null = open(os.devnull, 'w')
+            try:
+                subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
+                        cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+            except:
+                print "WARNING: Error running plot_LULC.R"
+            dev_null.close()
+
         if rcParams['save_psn_data']:
+            print "Plotting population results..."
+            dev_null = open(os.devnull, 'w')
             try:
                 subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
                         cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
             except:
                 print "WARNING: Error running plot_psns_data.R."
-        dev_null.close()
+            dev_null.close()
 
     # Calculate the number of seconds per month the model took to run (to 
     # simplify choosing what machine to do model runs on). This is equal to the 
@@ -168,6 +177,8 @@ def main(argv=None):
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
     print "\nFinished at", time.strftime("%m/%d/%Y %I:%M:%S %p") + "."
+
+    return 0
 
 def save_git_diff(code_path, git_diff_file):
     # First get commit hash from git show
