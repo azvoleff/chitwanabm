@@ -40,9 +40,10 @@ import csv
 
 import numpy as np
 
+from PyABM.rcsetup import write_RC_file
+
 from ChitwanABM import rcParams
 from ChitwanABM.modelloop import main_loop
-from ChitwanABM.rcsetup import write_RC_file
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -78,12 +79,12 @@ def main(argv=None):
         raise OSError("error creating results directory %s"%(results_path))
     
     # Load a pickled World for use in the model.
-    processed_data_file = rcParams['path.processed_data_file']
-    file = open(processed_data_file, "r")
+    input_data_file = rcParams['path.input_data_file']
+    file = open(input_data_file, "r")
     try:
         world = pickle.load(file)
     except IOError:
-        raise IOError('error loading world data from  %s'%processed_data_file)
+        raise IOError('error loading world data from  %s'%input_data_file)
 
     # Run the model loop
     start_time = time.localtime()
