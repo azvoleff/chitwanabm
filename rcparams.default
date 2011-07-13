@@ -43,7 +43,7 @@
 # whether or not a seed is provided, the seed that is used will be saved
 # in the model output for later reuse.
 'model.RandomState' : [None | validate_RandomState] 
-'model.resultspath' : ["/media/Orange_Data/Data/ChitwanABM_runs" | validate_writable_dir]
+'model.resultspath' : ["G:/Data/ChitwanABM_runs" | validate_writable_dir]
 'model.use_psyco': [False | validate_boolean] # Not yet supported in Python 2.7
 'model.make_plots': [True | validate_boolean]
 # Whether to save psn data to CSV periodically while running the model. This 
