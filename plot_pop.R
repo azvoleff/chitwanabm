@@ -21,7 +21,8 @@
 # contact information.
 
 ###############################################################################
-# Plots the pop data from a model run.
+# Plots the aggregate pop data from a model run (births, events, deaths, 
+# marriages, migration, total population, etc.).
 ###############################################################################
 
 require(ggplot2, quietly=TRUE)
