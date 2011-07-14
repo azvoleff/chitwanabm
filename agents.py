@@ -32,6 +32,7 @@ import csv
 import numpy as np
 
 from PyABM import IDGenerator, boolean_choice
+from PyABM.agents import Agent, Agent_set, Agent_Store
 
 from ChitwanABM import rcParams, random_state
 from ChitwanABM.statistics import calc_hazard_death, \
@@ -42,77 +43,6 @@ from ChitwanABM.statistics import calc_hazard_death, \
 if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
-
-class Agent(object):
-    "Superclass for agent objects."
-    def __init__(self, world, ID, initial_agent=False):
-        # Keep a reference to the agent's world so that ID generators and other 
-        # world properties can be easily referenced
-        self._world = world
-
-        # self._ID is unique ID number used to track each person agent.
-        self._ID = ID
-
-        # self._initial_agent is set to "True" for agents that were used to 
-        # initialize the model.
-        self._initial_agent = initial_agent
-
-        # _parent_agent stores the parent agent if this agent is a member of an 
-        # Agent_set class instance. For example, for a person agent that is a 
-        # member of a household, the _parent_agent for that person agent would 
-        # be that household.
-        self._parent_agent = None
-
-    def get_ID(self):
-        return self._ID
-
-    def set_parent_agent(self, agent):
-        self._parent_agent = agent
-
-    def get_parent_agent(self):
-        return self._parent_agent
-
-class Agent_set(Agent):
-    """Superclass for agents that contain a "set" of agents from a lower 
-    hierarchical  level."""
-    def __init__(self, world, ID, initial_agent):
-        Agent.__init__(self, world, ID, initial_agent)
-
-        # _members stores agent set members in a dictionary keyed by ID
-        self._members = {}
-
-    def get_agents(self):
-        return self._members.values()
-
-    def get_agent(self, ID):
-        "Returns an agent given the agent's ID"
-        return self._members[ID]
-
-    def add_agent(self, agent):
-        "Adds a new agent to the set."
-        if self._members.has_key(agent.get_ID()):
-            raise KeyError("agent %s is already a member of agent set %s"%(agent.get_ID(), self._ID))
-        self._members[agent.get_ID()] = agent
-        # Set the agent's _parent_agent to reflect the parent of this Agent_set 
-        # instance (self)
-        agent.set_parent_agent(self)
-
-    def remove_agent(self, agent):
-        "Removes agent from agent set."
-        try:
-            self._members.pop(agent.get_ID())
-        except KeyError:
-            raise KeyError("agent %s is not a member of agent set %s"%(agent.get_ID(), self.get_ID()))
-        # Reset the agent's _parent_agent
-        assert agent.get_parent_agent().get_ID() == self.get_ID(), "Removing agent from an Agent_set it does not appear to be assigned to."
-        agent.set_parent_agent(None)
-
-    def iter_agents(self):
-        for agent in self.get_agents():
-            yield agent
-
-    def num_members(self):
-        return len(self._members)
 
 class Person(Agent):
     "Represents a single person agent"
@@ -402,43 +332,6 @@ class Neighborhood(Agent_set):
 
     def __str__(self):
         return "Neighborhood(NID: %s. %s household(s))" %(self.get_ID(), self.num_members())
-
-class Agent_Store(object):
-    """
-    Agent_Store is a class used to store agents who have either left 
-    Chitwan to return later (migration) or are in school. It allows triggering 
-    their return or graduation during a later timestep of the model.
-    """
-    def __init__(self):
-        # self._releases is a dictionary, keyed by timestep, that stores the 
-        # time at which each agent will be released back to their original 
-        # parent agent (when they return from school, or from their temporary 
-        # migration, for example.
-        self._releases = {}
-        self._parents = {}
-
-    def add_agent(self, agent, release_time):
-        """
-        Adds a new agent to the agent store. Also remove the agent from it's 
-        parent Agent_set instance.
-        """
-        if self._releases.has_key(release_time):
-            self._releases[release_time].append(agent)
-        else:
-            self._releases[release_time] = [agent]
-        self._parents[agent] = agent.get_parent_agent()
-        agent.get_parent_agent().remove_agent(agent)
-
-    def release_agents(self, time):
-        if not self._releases.has_key(time):
-            return 
-        for agent in self._releases[time]:
-            # TODO: If parent_agent (a household when Agent_Store is used to 
-            # store people) is no longer part of the model, then don't release 
-            # the agent (currently agent_store is designed to handle person 
-            # agents only, though it should be fairly flexible).
-            parent_agent = self._parents[agent]
-            parent_agent.add_agent(agent)
 
 class Region(Agent_set):
     """Represents a set of neighborhoods sharing a spatial area (and therefore 
