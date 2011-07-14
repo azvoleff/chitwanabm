@@ -45,6 +45,10 @@
 'model.RandomState' : [None | validate_RandomState] 
 'model.resultspath' : ["G:/Data/ChitwanABM_runs" | validate_writable_dir]
 'model.use_psyco': [False | validate_boolean] # Not yet supported in Python 2.7
+# Whether to produce summary plots for the model run after the run is 
+# completed. Requires a working R installation, and some of the plots require 
+# the psn and NBH CSV files to be produced for every timestep (see these rc 
+# params below).
 'model.make_plots': [True | validate_boolean]
 # Whether to save psn data to CSV periodically while running the model. This 
 # will slow down the model considerably.
