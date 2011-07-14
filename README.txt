@@ -22,7 +22,7 @@ DESCRIPTION:
 
 GETTING THE CODE:
     See the ChitwanABM website at:
-        http://rohan.sdsu.edu/~zvoleff/ChitwanABM.html
+        http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
     The latest version of the code is available as a zipped snapshot from:
         http://git.azvoleff.com/ChitwanABM/snapshot
     The source can also be downloaded via git from:
@@ -30,7 +30,7 @@ GETTING THE CODE:
 
 AUTHOR CONTACT INFORMATION:
     Alex Zvoleff
-    SDSU/UCSB Joint Doctoral Student
+    SDSU/UCSB Joint Doctoral Candidate
     Department of Geography
     San Diego State University
     5500 Campanile Dr.

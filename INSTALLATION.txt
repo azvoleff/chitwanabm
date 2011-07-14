@@ -4,14 +4,15 @@ ChitwanABM INSTALLATION INSTRUCTIONS
 
 DEPENDENCIES
         ChitwanABM has been tested to be functional on Linux, Windows 7, and 
-    Mac OS 10.6.4. The model needs a standard Python installation (2.6 has been 
+    Mac OS 10.6.4. The model needs a standard Python installation (2.7 has been 
     tested to be working) along with several Python dependencies.
     
     Dependencies:
         Python:
             A python installation is required to run the model. I use Python 
-        2.6, but 2.5 should work as well. The model will not run under Python 
-        3.0.
+        2.7, but 2.6 and 2.5 should work as well. The model will not run under 
+        Python 3.0.
+
         Python Dependencies:
             Numpy - Numpy is required.
 
@@ -43,7 +44,7 @@ DEPENDENCIES
 MODEL INSTALLATION
         To get the model, simply download the latest stable version of the 
     code from:
-        http://rohan.sdsu.edu/~zvoleff/ChitwanABM.html
+        http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
 
     The development snapshot (latest version of the code, but it may not always 
     be functional) can be downloaded from:
