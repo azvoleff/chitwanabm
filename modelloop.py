@@ -31,7 +31,7 @@ import copy
 
 import numpy as np
 
-from ChitwanABM import file_io
+from PyABM import file_io
 from ChitwanABM import rcParams
 
 if rcParams['model.use_psyco'] == True:
@@ -257,8 +257,8 @@ def main_loop(world, results_path):
             # The last condition in the above if statement is necessary as 
             # there is no total to print on the first timestep, so it wouldn't 
             # make sense to print it.
-            total_string = "TOTAL | New Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
-                    annual_num_marr, annual_num_births,
+            total_string = "%s TOTAL | New Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
+                    model_time.get_cur_year(), annual_num_marr, annual_num_births,
                     annual_num_deaths, annual_num_in_migr, annual_num_out_migr)
             total_string = total_string.center(len(stats_string))
             print total_string
