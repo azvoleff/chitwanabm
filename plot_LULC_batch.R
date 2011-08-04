@@ -87,7 +87,8 @@ NBH_lulc.spatial <- SpatialPointsDataFrame(cbind(NBH_lulc$x, NBH_lulc$y), NBH_lu
 
 # Load the grid on which to Krige. This GeoTIFF also will be used to mask the 
 # final kriging results.
-kriglocations <- readGDAL("CVFS_Study_Area_Raster.tif")
+world_mask <- paste(DATA_PATH, "ChitwanABM_world_mask.tif", sep="/")
+kriglocations <- readGDAL(world_mask)
 
 # Use ordinary kriging
 v <- variogram(agveg.mean~1, NBH_lulc.spatial)

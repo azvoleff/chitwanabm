@@ -64,7 +64,10 @@ NBHs.spatial <- SpatialPointsDataFrame(cbind(NBHs$x, NBHs$y), NBHs,
 
 # Load the grid on which to Krige. This GeoTIFF also will be used to mask the 
 # final kriging results.
-kriglocations <- readGDAL("CVFS_Study_Area_Raster.tif")
+world_mask <- paste(DATA_PATH, "ChitwanABM_world_mask.tif", sep="/")
+kriglocations <- readGDAL(world_mask)
+kriglocations$band1[kriglocations$band1==min(kriglocations$band1)] <- 0
+kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
 
 # Use ordinary kriging
 v <- variogram(perc_veg~1, NBHs.spatial)
