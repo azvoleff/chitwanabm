@@ -35,10 +35,9 @@ from PyABM import IDGenerator, boolean_choice
 from PyABM.agents import Agent, Agent_set, Agent_Store
 
 from ChitwanABM import rcParams, random_state
-from ChitwanABM.statistics import calc_hazard_death, \
-        calc_hazard_migration, calc_hazard_marriage, \
-        calc_first_birth_time, calc_birth_interval, calc_hh_area, \
-        calc_des_num_children
+from ChitwanABM.statistics import calc_hazard_death, calc_hazard_migration, \
+        calc_hazard_marriage, calc_first_birth_time, calc_birth_interval, \
+        calc_hh_area, calc_des_num_children
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -619,6 +618,30 @@ class World():
         self._HIDGen = IDGenerator()
         self._NIDGen = IDGenerator()
         self._RIDGen = IDGenerator()
+
+    def set_DEM_data(world_mask, prj, gt):
+        self._DEM_array = DEM
+        self._DEM_prj = prj
+        self._DEM_gt = gt
+        return 0
+
+    def get_DEM(self):
+        return self._DEM_array
+
+    def get_DEM_data(self):
+        return self._DEM_array, self._DEM_prj, self._DEM_gt
+
+    def set_world_mask_data(world_mask, prj, gt):
+        self._world_mask_array = world_mask
+        self._world_mask_prj = prj
+        self._world_mask_gt = gt
+        return 0
+
+    def get_world_mask(self):
+        return self._world_mask_array
+
+    def get_world_mask_data(self):
+        return self._world_mask_array, self._world_mask_prj, self._world_mask_gt
 
     def new_person(self, birthdate, PID=None, mother=None, father=None, age=0,
             sex=None, initial_agent=False, ethnicity=None):

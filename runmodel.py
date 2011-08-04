@@ -41,6 +41,7 @@ import csv
 import numpy as np
 
 from PyABM.rcsetup import write_RC_file
+from PyABM.file_io import write_single_band_raster
 
 from ChitwanABM import rcParams
 from ChitwanABM.modelloop import main_loop
@@ -113,6 +114,17 @@ def main(argv=None):
     output = open(pop_data_file, 'w')
     pickle.dump(run_results, output)
     output.close()
+
+    # Write out the world file and mask used to run the model. Update the 
+    # rcparams to point to these files so they will be reused if this run is 
+    # rerun.
+    DEM_data_file = os.path.join(results_path, "ChitwanABM_DEM.tif")
+    array, prj, gt = world.get_DEM_data()
+    write_single_band_raster(array, prj, gt, DEM_data_file)
+    world_mask_data_file = os.path.join(results_path, "ChitwanABM_world_mask.tif")
+    array, prj, gt = world.get_world_mask_data()
+    write_single_band_raster(array, prj, gt, world_mask_data_file)
+
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
     # from the commit (the output of the git diff command). sys.path[0] gives 

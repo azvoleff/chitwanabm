@@ -33,6 +33,8 @@ import numpy as np
 import pickle
 from subprocess import check_call, CalledProcessError
 
+from PyABM.file_io import read_single_band_raster
+
 from ChitwanABM import rcParams
 from ChitwanABM.agents import World
 
@@ -337,6 +339,13 @@ def assemble_world():
             model_world)
     neighborhoods = assemble_neighborhoods(neighborhoods_file,
             neighborhoods_coords_file, model_world)
+
+    # Add the DEM and CVFS Study Area mask to the model_world instance.
+    DEM_file = os.path.join(raw_data_path, rcParams['path.DEM_file'])
+    model_world._DEM_array, model_world._DEM_gt, model_world._DEM_prj = read_single_band_raster(DEM_file)
+
+    world_mask_file = os.path.join(raw_data_path, rcParams['path.world_mask'])
+    model_world._world_mask_array, model_world._world_mask_gt, model_world._world_mask_prj = read_single_band_raster(world_mask_file)
 
     # Populate the Chitwan region (the code could handle multiple regions too, 
     # for instance, subdivide the population into different groups with 
