@@ -151,7 +151,6 @@ class Person(Agent):
             female=self
         else:
             female=spouse
-        female._first_birth_timing = calc_first_birth_time(self)
         if female._des_num_children == None:
             female._des_num_children = calc_des_num_children(self)
         self._marriage_time = time
@@ -443,6 +442,7 @@ class Region(Agent_set):
         for male, female in zip(eligible_males, eligible_females):
              # First marry the agents.
             male.marry(female, time)
+            female._first_birth_timing = calc_first_birth_time(self)
             moveout_prob = rcParams['prob.marriage.moveout']
             # Create a new household according to the moveout probability
             if boolean_choice(moveout_prob) or male.get_parent_agent()==None:
@@ -506,6 +506,15 @@ class Region(Agent_set):
                     num_marr += 1
                     spouses.append(person)
         return num_marr
+
+    def education(self, time):
+        """
+        Runs through the population and makes agents probabilistically attend 
+        schooling based on their age and the education function for this 
+        population.
+        """
+        pass
+        return 0
 
     def migrations(self, time):
         """
