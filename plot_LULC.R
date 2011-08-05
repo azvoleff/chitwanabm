@@ -120,5 +120,6 @@ ycoord <- ycoord + deltay
 bubble_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_", last_timestep, "_bubble.png", sep="")
 png(filename=bubble_imagefile, width=8.33, height=5.33, units="in", res=300)
 bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
-        maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3))
+        maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3),
+        key.entries=c(-.5, -.25, -.1, .1, .25, .5))
 dev.off()
