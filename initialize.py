@@ -245,6 +245,7 @@ def assemble_persons(relationshipsFile, model_world):
                 CENGENDR, initial_agent=True, ethnicity=ETHNICITY)
         person._spouse = spouse_RESPID
         person._des_num_children = int(relation['numchild'])
+        person._schooling = int(relation['schooling'])
 
         # If this person had a birth in the Nepali year 2053 in the LHC data, 
         # set the time of their last birth to 0 (equivalent to January 1996 in 

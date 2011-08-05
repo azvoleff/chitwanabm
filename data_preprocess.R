@@ -47,7 +47,7 @@ census.processed <- na.omit(census.processed)
 
 ###############################################################################
 # Now handle DS0012, the individual data, to get desired family size 
-# preferences.
+# preferences and educational histories.
 t1indiv <- read.xport(paste(DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
@@ -72,6 +72,17 @@ desnumchild$numchild[is.na(desnumchild$numchild)] <- -1
 # TODO: Also there are 22 individuals with # kids wanted in the thousands...  
 # ask Dirgha what these are
 desnumchild$numchild[desnumchild$numchild>1000] <- -1
+
+columns <- grep('RESPID|A1$', names(t1indiv))
+
+yearsschooling <- t1indiv[columns]
+# Recode education as in Ghimire and Axinn, 2010 AJS paper
+yearsschooling$A1[is.na(yearsschooling$A1)] <- 0
+yearsschooling$A1[yearsschooling$A1 < 0 ] <- 0
+yearsschooling$A1[yearsschooling$A1 < 3] <- 0
+yearsschooling$A1[yearsschooling$A1 < 7] <- 1
+yearsschooling$A1[yearsschooling$A1 < 11] <- 2
+yearsschooling$A1[yearsschooling$A1 > 12 ] <- 3
 
 ###############################################################################
 # Now handle DS0013, the life history calendar data, to get information on what 
@@ -106,7 +117,7 @@ hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
 # Merge the desnumchild data for desired family size. Note that I do not have 
 # data for all individuals, so individuals for whom I do not have desired 
-# family size I will code them as 0.
+# family size I will code as 0.
 hhrel.processed <- cbind(hhrel.processed, 
         numchild=matrix(-1, nrow(hhrel.processed), 1))
 # Four indiv. in the desnumchild frame are not in the hhrel.processed frame.  
@@ -121,6 +132,14 @@ hhrel.processed <- cbind(hhrel.processed,
         recentbirth=matrix(-1, nrow(hhrel.processed), 1))
 hhrel.processed[match(recentbirths$RESPID,
         hhrel.processed$RESPID),]$recentbirth <- recentbirths$C
+
+# Merge the education data
+hhrel.processed <- cbind(hhrel.processed, 
+        schooling=matrix(0, nrow(hhrel.processed), 1))
+yearsschooling <- yearsschooling[-which(!(yearsschooling$RESPID %in%
+        hhrel.processed$RESPID)),]
+hhrel.processed[match(yearsschooling$RESPID,
+        hhrel.processed$RESPID),]$schooling <- yearsschooling$A1
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
