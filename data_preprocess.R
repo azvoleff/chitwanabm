@@ -29,6 +29,13 @@ require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
+# Define a funciton to replace NAs with resampling:
+replace_nas <- function(input_vector) {
+    na_loc <- is.na(input_vector)
+    input_vector[na_loc] <- sample(input_vector[!na_loc], sum(na_loc), replace=TRUE)
+    return(input_vector)
+}
+
 ###############################################################################
 # First handle DS0004 - the census dataset
 census <- read.xport(paste(DATA_PATH, "da04538-0004_REST.xpt", sep="/"))
@@ -51,7 +58,7 @@ census.processed <- na.omit(census.processed)
 t1indiv <- read.xport(paste(DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
-columns <- grep('RESPID|F7$', names(t1indiv))
+columns <- grep('^(RESPID|F7)$', names(t1indiv))
 desnumchild <- t1indiv[columns]
 names(desnumchild)[2] <- "numchild"
 # People who said "it is god's will" were coded as 97, and reasked the 
@@ -73,8 +80,8 @@ desnumchild$numchild[is.na(desnumchild$numchild)] <- -1
 # ask Dirgha what these are
 desnumchild$numchild[desnumchild$numchild>1000] <- -1
 
-columns <- grep('RESPID|A1$', names(t1indiv))
-
+# Now get years schooling data
+columns <- grep('^(RESPID|A1)$', names(t1indiv))
 yearsschooling <- t1indiv[columns]
 # Recode education as in Ghimire and Axinn, 2010 AJS paper
 yearsschooling$A1[is.na(yearsschooling$A1)] <- 0
@@ -83,6 +90,21 @@ yearsschooling$A1[yearsschooling$A1 < 3] <- 0
 yearsschooling$A1[yearsschooling$A1 < 7] <- 1
 yearsschooling$A1[yearsschooling$A1 < 11] <- 2
 yearsschooling$A1[yearsschooling$A1 > 12 ] <- 3
+
+# Now get childhood community context data. Below are the variables for 
+# non-family services w/in a 1 hour walk at age 12.
+# 	school D2
+# 	health D8
+# 	bus D12
+# 	employer D16
+# 	markey D22
+columns <- grep('^(RESPID|D2|D8|D12|D16|D22)$', names(t1indiv))
+ccchild <- t1indiv[columns]
+names(ccchild)[grep('^D2$', names(ccchild))] <- "child_school_1hr"
+names(ccchild)[grep('^D8$', names(ccchild))] <- "child_health_1hr"
+names(ccchild)[grep('^D12$', names(ccchild))] <- "child_bus_1hr"
+names(ccchild)[grep('^D16$', names(ccchild))] <- "child_emp_1hr"
+names(ccchild)[grep('^D22$', names(ccchild))] <- "child_market_1hr"
 
 ###############################################################################
 # Now handle DS0013, the life history calendar data, to get information on what 
@@ -93,7 +115,7 @@ lhc <- read.xport(paste(DATA_PATH, "04538-0013-Data.xpt", sep="/"))
 # (greather than 151) will be dropped when the lhc data is merged later on in 
 # the process.
 cols.childL2053 <- grep('^C[0-9]*L2053$', names(lhc))
-col.respid <- grep("RESPID", names(lhc))
+col.respid <- grep("^RESPID$", names(lhc))
 lhc.child2053 <- reshape(lhc[c(col.respid, cols.childL2053)], direction="long",
         varying=names(lhc[cols.childL2053]), idvar="RESPID", timevar="childnum",
         sep="")
@@ -141,6 +163,11 @@ yearsschooling <- yearsschooling[-which(!(yearsschooling$RESPID %in%
 hhrel.processed[match(yearsschooling$RESPID,
         hhrel.processed$RESPID),]$schooling <- yearsschooling$A1
 
+# Merge the childhood non-family services data
+hhrel.processed <- merge(hhrel.processed, ccchild, all.x=TRUE)
+child_cols <- grep("child_", names(hhrel.processed))
+hhrel.processed[child_cols] <- apply(hhrel.processed[child_cols], 2, replace_nas)
+
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
 hhag <- read.xport(paste(DATA_PATH, "da04538-0002_REST.xpt", sep="/"))
@@ -182,6 +209,24 @@ avg_yrs_services <- rowSums(services) / 5
 # census)
 elec_avail <- as.logical(neigh$ELEC52)
 neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY)
+
+# Calculate the distance of each neighborhood from Narayanghat (using the 
+# coordinates of the center of the road in the middle of the downtown area of 
+# Narayanghat).
+dist_narayanghat <- sqrt((neigh$NX - 245848)**2 + (neigh$NX - 3066013)**2)
+
+neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY, dist_nara=dist_narayanghat)
+
+# Merge the 1996 non-family services data.  Below are the variables for 
+# non-family services w/in a 1 hour walk at age 12.
+# 	school SCHLFT52
+# 	health HLTHFT52
+# 	bus BUSFT52
+# 	employer EMPFT52
+# 	market MARFT52
+columns <- grep('^(RESPID|SCHLFT52|HLTHFT52|BUSFT52|EMPFT52|MARFT52)$', names(neigh))
+ccadult <- neigh[columns]
+neigh.processed <- merge(neigh.processed, ccadult)
 
 ###############################################################################
 # Now handle the land use data. Import land use data from time 1 and make 5 

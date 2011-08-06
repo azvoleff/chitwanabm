@@ -107,8 +107,16 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood._land_total = neighborhood._land_agveg + \
                 neighborhood._land_nonagveg + neighborhood._land_privbldg + \
                 neighborhood._land_pubbldg + neighborhood._land_other
+
+        neighborhood._nfo_schl_minft_1996 = float(neigh_data['SCHLFT52'])
+        neighborhood._nfo_hlth_minft_1996 = float(neigh_data['HLTHFT52'])
+        neighborhood._nfo_bus_minft_1996 = float(neigh_data['BUSFT52'])
+        neighborhood._nfo_mar_minft_1996 = float(neigh_data['MARFT52'])
+        neighborhood._nfo_emp_minft_1996 = float(neigh_data['EMPFT52'])
+
         neighborhood._x = float(neigh_coords[NEIGHID]['x'])
         neighborhood._y = float(neigh_coords[NEIGHID]['y'])
+        neighborhood._dist_nara =  float(neigh_data['dist_nara']) # distance from Narayanghat
         neighborhoods.append(neighborhood)
 
     return neighborhoods
