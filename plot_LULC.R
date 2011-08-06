@@ -53,21 +53,16 @@ ggsave(paste(DATA_PATH, "LULC.png", sep="/"), width=PLOT_WIDTH,
 
 ###############################################################################
 # Now make a map of kriged LULC
-CRSString = "+proj=utm +zone=44 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-# First figure out the last timestep of the model, as it is needed to determine 
-# the filname of the last landuse CSV file
-time.modelrun <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
-last_timestep <- max(time.modelrun$timestep)
-NBHs <- read.csv(paste(DATA_PATH, "/NBHs_time_", last_timestep, ".csv", sep=""))
-NBHs.spatial <- SpatialPointsDataFrame(cbind(NBHs$x, NBHs$y), NBHs,
-        coords.nrs=c(3,4), proj4string=CRS(CRSString))
-
 # Load the grid on which to Krige. This GeoTIFF also will be used to mask the 
 # final kriging results.
 world_mask <- paste(DATA_PATH, "ChitwanABM_world_mask.tif", sep="/")
 kriglocations <- readGDAL(world_mask)
 kriglocations$band1[kriglocations$band1==min(kriglocations$band1)] <- 0
 kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
+
+NBHs <- read.csv(paste(DATA_PATH, "/NBHs_time_END.csv", sep=""))
+NBHs.spatial <- SpatialPointsDataFrame(cbind(NBHs$x, NBHs$y), NBHs,
+        coords.nrs=c(3,4), proj4string=CRS(proj4string(kriglocations)))
 
 # Use ordinary kriging
 v <- variogram(perc_veg~1, NBHs.spatial)
@@ -80,8 +75,8 @@ krigged.ord.pred <- krigged.ord["var1.pred"]
 # study area to -999
 krigged.ord.pred$var1.pred <- krigged.ord.pred$var1.pred * kriglocations$band1
 krigged.ord.pred$var1.pred[krigged.ord.pred$var1.pred==0] <- -1
-proj4string(krigged.ord.pred) <- CRS(CRSString)
-krigged_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_", last_timestep, ".tif", sep="")
+proj4string(krigged.ord.pred) <- CRS(proj4string(kriglocations))
+krigged_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_END.tif", sep="")
 writeGDAL(krigged.ord.pred, fname=krigged_imagefile, driver="GTiff")
 
 classed <- krigged.ord.pred
@@ -89,7 +84,7 @@ classed$var1.pred[classed$var1.pred >= .75] <- 4
 classed$var1.pred[classed$var1.pred >= .5 & classed$var1.pred <.75] <- 3
 classed$var1.pred[classed$var1.pred >= .25 & classed$var1.pred <.5] <- 2
 classed$var1.pred[classed$var1.pred >= 0 & classed$var1.pred <.25] <- 1
-krigged_classed_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_", last_timestep, "_classed.tif", sep="")
+krigged_classed_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_END_classed.tif", sep="")
 writeGDAL(classed, fname=krigged_classed_imagefile, driver="GTiff")
         
 ###############################################################################
@@ -117,7 +112,7 @@ ycoord <- ycoord + deltay
 i3 <- list("sp.text", c(xcoord, ycoord),
                 format(paste("Cor. Pred. Resid.:",  round(cor.pred.resid, 4)), width=30))
 ycoord <- ycoord + deltay
-bubble_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_", last_timestep, "_bubble.png", sep="")
+bubble_imagefile <- paste(DATA_PATH, "/LULC_ordinary_krig_END_bubble.png", sep="")
 png(filename=bubble_imagefile, width=8.33, height=5.33, units="in", res=300)
 bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
         maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3),

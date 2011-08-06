@@ -115,6 +115,10 @@ def main(argv=None):
     pickle.dump(run_results, output)
     output.close()
 
+    # Write neighborhood LULC, pop, x, y coordinates, etc. for the last 
+    # timestep.
+    world.write_NBHs_to_csv("END", results_path)
+
     # Write out the world file and mask used to run the model. Update the 
     # rcparams to point to these files so they will be reused if this run is 
     # rerun.

@@ -1,4 +1,4 @@
-#!/usr/bin/env Rscript
+
 #
 # Copyright 2011 Alex Zvoleff
 #
@@ -40,6 +40,8 @@ directories <- list.files(DATA_PATH)
 # in the directory, as trying to read results from these other files/folders 
 # would lead to an error.
 directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
+if (length(directories)<1) stop(paste("can't run plot_LULC_batch with", length(directories), "model runs."))
+if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
 
 n <- 1
 for (directory in directories) {
@@ -61,10 +63,21 @@ ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
 
 ###############################################################################
 # Now make a map of kriged LULC
+
+# First load the grid on which to Krige. This GeoTIFF also will be used to mask 
+# the final kriging results. The world mask can be loaded from any of the 
+# ChitwanABM model output folders (they all should match since they all should 
+# represent the same scenario).
+world_mask_file <- paste(DATA_PATH, directories[1], "ChitwanABM_world_mask.tif", sep="/") 
+kriglocations <- readGDAL(world_mask_file)
+if (length(unique(kriglocations$band1)) != 2) stop("ERROR: ChitwanABM_world_mask.tif is not a binary raster")
+kriglocations$band1[kriglocations$band1==min(kriglocations$band1)] <- 0
+kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
+
 n <- 1
 for (directory in directories) {
     full_directory_path <- paste(DATA_PATH, directory, sep="/") 
-    lulc.new <- calc_NBH_LULC(full_directory_path, 276)
+    lulc.new <- calc_NBH_LULC(full_directory_path, "END")
     vars <- !grepl('^(nid|x|y)$', names(lulc.new))
     runname <- paste("run", n, sep="")
     names(lulc.new)[vars]<- paste(names(lulc.new)[vars], runname, sep=".")
@@ -81,14 +94,8 @@ for (directory in directories) {
 
 NBH_lulc <- calc_ensemble_results_NBH(lulc.nbh)
 
-CRSString = "+proj=utm +zone=44 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 NBH_lulc.spatial <- SpatialPointsDataFrame(cbind(NBH_lulc$x, NBH_lulc$y), NBH_lulc,
-        coords.nrs=c(3,4), proj4string=CRS(CRSString))
-
-# Load the grid on which to Krige. This GeoTIFF also will be used to mask the 
-# final kriging results.
-world_mask <- paste(DATA_PATH, "ChitwanABM_world_mask.tif", sep="/")
-kriglocations <- readGDAL(world_mask)
+        coords.nrs=c(3,4), proj4string=CRS(proj4string(kriglocations)))
 
 # Use ordinary kriging
 v <- variogram(agveg.mean~1, NBH_lulc.spatial)
@@ -101,8 +108,8 @@ krigged.ord.pred <- krigged.ord["var1.pred"]
 # study area to -999
 krigged.ord.pred$var1.pred <- krigged.ord.pred$var1.pred * kriglocations$band1
 krigged.ord.pred$var1.pred[krigged.ord.pred$var1.pred==0] <- -1
-proj4string(krigged.ord.pred) <- CRS(CRSString)
-writeGDAL(krigged.ord.pred, fname=paste(DATA_PATH, "LULC_ordinary_krig_276.tif",
+proj4string(krigged.ord.pred) <- CRS(proj4string(kriglocations))
+writeGDAL(krigged.ord.pred, fname=paste(DATA_PATH, "batch_LULC_ordinary_krig_endofrun.tif",
         sep="/"), driver="GTiff")
 
 classed <- krigged.ord.pred
@@ -111,7 +118,7 @@ classed$var1.pred[classed$var1.pred >= .5 & classed$var1.pred <.75] <- 3
 classed$var1.pred[classed$var1.pred >= .25 & classed$var1.pred <.5] <- 2
 classed$var1.pred[classed$var1.pred >= 0 & classed$var1.pred <.25] <- 1
 writeGDAL(classed, fname=paste(DATA_PATH,
-        "LULC_ordinary_krig_276_classed.tif", sep="/"), driver="GTiff")
+        "batch_LULC_ordinary_krig_endofrun_classed.tif", sep="/"), driver="GTiff")
 
 ###############################################################################
 # Check the kriging results with cross-validation
@@ -138,7 +145,8 @@ ycoord <- ycoord + deltay
 i3 <- list("sp.text", c(xcoord, ycoord),
                 format(paste("Cor. Pred. Resid.:",  round(cor.pred.resid, 4)), width=30))
 ycoord <- ycoord + deltay
-png(filename=paste(DATA_PATH, "LULC_ordinary_krig_276_bubble.png", sep="/"),
+dev.off()
+png(filename=paste(DATA_PATH, "batch_LULC_ordinary_krig_endofrun_bubble.png", sep="/"),
         width=8.33, height=5.33, units="in", res=300)
 bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
         maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3),
