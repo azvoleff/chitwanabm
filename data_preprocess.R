@@ -117,13 +117,15 @@ ccchild <- cbind(RESPID=t1indiv$RESPID, ccchild)
 # I15 mother's work
 # I7 mother school (ever)
 # I19 mother's number of children
-parents_char_cols <- grep('^(I17|I11|I15|I7|I19)$', names(t1indiv))
+# I21 parents birth control ever
+parents_char_cols <- grep('^(I17|I11|I15|I7|I19|I21)$', names(t1indiv))
 parents_char <- t1indiv[parents_char_cols]
 names(parents_char)[grep('^I17$', names(parents_char))] <- "father_work"
 names(parents_char)[grep('^I11$', names(parents_char))] <- "father_school"
 names(parents_char)[grep('^I15$', names(parents_char))] <- "mother_work"
 names(parents_char)[grep('^I7$', names(parents_char))] <- "mother_school"
 names(parents_char)[grep('^I19$', names(parents_char))] <- "mother_num_children"
+names(parents_char)[grep('^I21$', names(parents_char))] <- "parents_contracep_ever"
 parents_char[parents_char < 0] <- NA # will be replaced with resampling
 parents_char <- cbind(RESPID=t1indiv$RESPID, parents_char)
 
