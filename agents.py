@@ -35,9 +35,9 @@ from PyABM import IDGenerator, boolean_choice
 from PyABM.agents import Agent, Agent_set, Agent_Store
 
 from ChitwanABM import rcParams, random_state
-from ChitwanABM.statistics import calc_hazard_death, calc_hazard_migration, \
-        calc_hazard_marriage, calc_first_birth_time, calc_birth_interval, \
-        calc_hh_area, calc_des_num_children
+from ChitwanABM.statistics import calc_probability_death, calc_probability_migration, \
+        calc_probability_marriage, calc_first_birth_time, calc_birth_interval, \
+        calc_hh_area, calc_des_num_children, calc_firstbirth_prob
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -119,6 +119,17 @@ class Person(Agent):
             self._first_birth_timing = None
 
         self._marriage_time = None
+
+        self._child_school_1hr = None
+        self._child_health_1hr = None
+        self._child_bus_1hr = None
+        self._child_emp_1hr = None
+        self._parents_contracep_ever = None
+        self._father_work = None
+        self._father_school = None
+        self._mother_work = None
+        self._mother_school = None
+        self._mother_num_children = None
 
     def get_sex(self):
         return self._sex
@@ -208,7 +219,7 @@ class Person(Agent):
             return True
 
     def __str__(self):
-        return "Person(PID: %s. %s household(s))" %(self.get_ID(), self.num_members())
+        return "Person(PID: %s. Household: %s. Neighborhood: %s)" %(self.get_ID(), self.get_parent_agent().get_ID(), self.get_parent_agent().get_parent_agent().get_ID())
 
 class Household(Agent_set):
     "Represents a single household agent"
@@ -262,6 +273,7 @@ class Neighborhood(Agent_set):
         self._land_privbldg = None
         self._land_pubbldg = None
         self._land_other = None
+        self._distnara = None
         self._x = None # x coordinate in UTM45N
         self._y = None # y coordinate in UTM45N
         self._elev = None # Elevation of neighborhood from SRTM DEM
@@ -392,11 +404,11 @@ class Region(Agent_set):
                         
     def deaths(self, time):
         """Runs through the population and kills agents probabilistically based 
-        on their age and the hazard.death for this population"""
+        on their age and the probability.death for this population"""
         deaths = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if random_state.rand() < calc_hazard_death(person):
+                if random_state.rand() < calc_probability_death(person):
                     # Agent dies.
                     household = person.kill(time)
                     neighborhood = household.get_parent_agent()
@@ -407,13 +419,13 @@ class Region(Agent_set):
                         
     def marriages(self, time):
         """Runs through the population and marries agents probabilistically 
-        based on their age and the hazard_marriage for this population"""
+        based on their age and the probability_marriage for this population"""
         # First find the eligible agents
         eligible_males = []
         eligible_females = []
         for household in self.iter_households():
             for person in household.iter_agents():
-                if (not person.is_married()) and (random_state.rand() < calc_hazard_marriage(person)):
+                if (not person.is_married()) and (random_state.rand() < calc_probability_marriage(person)):
                     # Agent is eligible to marry.
                     if person.get_sex() == "male":
                         eligible_males.append(person)
@@ -519,13 +531,13 @@ class Region(Agent_set):
     def migrations(self, time):
         """
         Runs through the population and makes agents probabilistically migrate
-        based on their age and the hazard_marriage for this population.
+        based on their age and the probability_marriage for this population.
         """
         # First handle out-migrations
         out_migr = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if random_state.rand() < calc_hazard_migration(person):
+                if random_state.rand() < calc_probability_migration(person):
                     # Agent migrates. Choose how long the agent is migrating 
                     # for from a probability distribution.
                     # TODO: Consider a migration of longer than years as 

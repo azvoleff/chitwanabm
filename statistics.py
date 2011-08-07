@@ -19,7 +19,7 @@
 # contact information.
 
 """
-Contains statistical models to calulate hazards (such as of birth, and of 
+Contains statistical models to calulate probabilities (such as of birth, and of 
 marriage) and run OLS regressions (to calculate land use).
 """
 
@@ -31,56 +31,56 @@ if rcParams['model.use_psyco'] == True:
     import psyco
     psyco.full()
 
-hazard_time_units = rcParams['hazard.time_units']
+probability_time_units = rcParams['probability.time_units']
 
 class UnitsError(Exception):
     pass
 
-def convert_hazard_units(hazard):
+def convert_probability_units(probability):
     """
-    Converts hazard so units match timestep used in the model, assuming hazard 
+    Converts probability so units match timestep used in the model, assuming probability 
     function is uniform across the interval.
 
     Conversions are made accordingly using conditional probability.
     """
-    # If the hazard time units don't match the model timestep units, then the 
-    # hazards need to be converted.
-    if hazard_time_units == 'months':
+    # If the probability time units don't match the model timestep units, then the 
+    # probabilities need to be converted.
+    if probability_time_units == 'months':
         pass
-    elif hazard_time_units == 'years':
-        for key, value in hazard.iteritems():
-            hazard[key] = 1 - (1 - value)**(1/12.)
-    elif hazard_time_units == 'decades':
-        for key, value in hazard.iteritems():
-            hazard[key] = 1 - (1 - value)**(1/120.)
+    elif probability_time_units == 'years':
+        for key, value in probability.iteritems():
+            probability[key] = 1 - (1 - value)**(1/12.)
+    elif probability_time_units == 'decades':
+        for key, value in probability.iteritems():
+            probability[key] = 1 - (1 - value)**(1/120.)
     else:
-        raise UnitsError("unhandled hazard_time_units")
-    return hazard
+        raise UnitsError("unhandled probability_time_units")
+    return probability
 
-#TODO: these hazards should be derived from the region, not directly from rcParams
-death_hazards_male = convert_hazard_units(rcParams['hazard.death.male'])
-death_hazards_female = convert_hazard_units(rcParams['hazard.death.female'])
-marriage_hazards_male = convert_hazard_units(rcParams['hazard.marriage.male'])
-marriage_hazards_female = convert_hazard_units(rcParams['hazard.marriage.female'])
-migration_hazards_male = convert_hazard_units(rcParams['hazard.migration.male'])
-migration_hazards_female = convert_hazard_units(rcParams['hazard.migration.female'])
+#TODO: these probabilities should be derived from the region, not directly from rcParams
+death_probabilities_male = convert_probability_units(rcParams['probability.death.male'])
+death_probabilities_female = convert_probability_units(rcParams['probability.death.female'])
+marriage_probabilities_male = convert_probability_units(rcParams['probability.marriage.male'])
+marriage_probabilities_female = convert_probability_units(rcParams['probability.marriage.female'])
+migration_probabilities_male = convert_probability_units(rcParams['probability.migration.male'])
+migration_probabilities_female = convert_probability_units(rcParams['probability.migration.female'])
 
-def __hazard_index__(t):
+def __probability_index__(t):
     """
-    Matches units of time in model to those the hazard is expressed in. For 
-    instance: if hazards are specified for decades, whereas the model runs in 
-    months, __hazard_index__, when provided with an age in months, will convert 
-    it to decades, rounding down. NOTE: all hazards must be expressed with the 
+    Matches units of time in model to those the probability is expressed in. For 
+    instance: if probabilities are specified for decades, whereas the model runs in 
+    months, __probability_index__, when provided with an age in months, will convert 
+    it to decades, rounding down. NOTE: all probabilities must be expressed with the 
     same time units.
     """
-    if hazard_time_units == 'months':
+    if probability_time_units == 'months':
         return t
-    elif hazard_time_units == 'years':
+    elif probability_time_units == 'years':
         return int(round(t / 12.))
-    elif hazard_time_units == 'decades':
+    elif probability_time_units == 'decades':
         return int(round(t / 120.))
     else:
-        raise UnitsError("unhandled hazard_time_units")
+        raise UnitsError("unhandled probability_time_units")
 
 def calc_firstbirth_prob(person, time):
     "Calculates the probability of a first birth in a given month for an agent."
@@ -162,8 +162,8 @@ def calc_firstbirth_prob(person, time):
     #print "First birth probability: prob: %s (marriage_time: %s)"%(prob, mariage_time)
     #return 1./(1 + np.exp(inner))
 
-def calc_hazard_marriage(person):
-    "Calculates the hazard of marriage for an agent."
+def calc_probability_marriage(person):
+    "Calculates the probability of marriage for an agent."
     neighborhood = person.get_parent_agent().get_parent_agent()
 
     inner = rcParams['marrtime.coef.intercept']
@@ -208,32 +208,32 @@ def calc_hazard_marriage(person):
 
 # OLD CODE:
 #    age = person.get_age()
-#    hazard_index = __hazard_index__(age)
+#    probability_index = __probability_index__(age)
 #    if person.get_sex() == 'female':
-#        return marriage_hazards_female[hazard_index]
+#        return marriage_probabilities_female[probability_index]
 #    elif person.get_sex() == 'male':
-#        return marriage_hazards_male[hazard_index]
+#        return marriage_probabilities_male[probability_index]
 
-def calc_hazard_death(person):
-    "Calculates the hazard of death for an agent."
+def calc_probability_death(person):
+    "Calculates the probability of death for an agent."
     age = person.get_age()
-    hazard_index = __hazard_index__(age)
+    probability_index = __probability_index__(age)
     try:
         if person.get_sex() == 'female':
-            return death_hazards_female[hazard_index]
+            return death_probabilities_female[probability_index]
         elif person.get_sex() == 'male':
-            return death_hazards_male[hazard_index]
+            return death_probabilities_male[probability_index]
     except IndexError:
-        raise IndexError("error calculating death hazard (index %s)"%(hazard_index))
+        raise IndexError("error calculating death probability (index %s)"%(probability_index))
 
-def calc_hazard_migration(person):
-    "Calculates the hazard of migration for an agent."
+def calc_probability_migration(person):
+    "Calculates the probability of migration for an agent."
     age = person.get_age()
-    hazard_index = __hazard_index__(age)
+    probability_index = __probability_index__(age)
     if person.get_sex() == 'female':
-        return migration_hazards_female[hazard_index]
+        return migration_probabilities_female[probability_index]
     elif person.get_sex() == 'male':
-        return migration_hazards_male[hazard_index]
+        return migration_probabilities_male[probability_index]
 
 def calc_first_birth_time(person):
     "Calculates the time from marriage until first birth for this person."

@@ -371,7 +371,8 @@ def assemble_world():
 
     # Populate the Chitwan region (the code could handle multiple regions too, 
     # for instance, subdivide the population into different groups with 
-    # different hazards of migration. Currently just one region is used.
+    # different probabilites of migration, death, mortality, etc. Currently 
+    # just one region is used.
     region = model_world.new_region()
 
     for neighborhood in neighborhoods:
