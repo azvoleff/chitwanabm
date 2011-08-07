@@ -29,7 +29,7 @@ require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
-# Define a funciton to replace NAs with resampling:
+# Define a function to replace NAs with resampling:
 replace_nas <- function(input_vector) {
     na_loc <- is.na(input_vector)
     input_vector[na_loc] <- sample(input_vector[!na_loc], sum(na_loc), replace=TRUE)
@@ -60,36 +60,38 @@ t1indiv <- read.xport(paste(DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
 t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
 columns <- grep('^(RESPID|F7)$', names(t1indiv))
 desnumchild <- t1indiv[columns]
-names(desnumchild)[2] <- "numchild"
+names(desnumchild)[2] <- "desnumchild"
 # People who said "it is god's will" were coded as 97, and reasked the 
 # question, in F9.
-godswill <- which(desnumchild$numchild==97)
-desnumchild[godswill,]$numchild <- desnumchild$F9[godswill]
+godswill <- which(desnumchild$desnumchild==97)
+desnumchild[godswill,]$desnumchild <- desnumchild$F9[godswill]
 # 2 people said a range from low to high. Here, take an average of the low and 
 # high number, stored in F7A and F7B.
 # TODO: Fix this:
-child_range <- which(desnumchild$numchild==95)
-desnumchild[child_range,]$numchild <- desnumchild$F7B[child_range]
-#desnumchild[child_range,]$numchild <- desnumchild$F7A[child_range] / desnumchild$F7B[child_range]
+child_range <- which(desnumchild$desnumchild==95)
+desnumchild[child_range,]$desnumchild <- desnumchild$F7B[child_range]
+#desnumchild[child_range,]$desnumchild <- desnumchild$F7A[child_range] / desnumchild$F7B[child_range]
 # 28 people said they don't know. This is coded as -3 in the CVFS data. Recode 
 # this as -1.
-desnumchild$numchild[desnumchild$numchild==-3] <- -1
+desnumchild$desnumchild[desnumchild$desnumchild==-3] <- -1
 # Also recode no response given (NA in the dataset) as -1
-desnumchild$numchild[is.na(desnumchild$numchild)] <- -1
+desnumchild$desnumchild[is.na(desnumchild$desnumchild)] <- -1
 # TODO: Also there are 22 individuals with # kids wanted in the thousands...  
 # ask Dirgha what these are
-desnumchild$numchild[desnumchild$numchild>1000] <- -1
+desnumchild$desnumchild[desnumchild$desnumchild>1000] <- -1
 
 # Now get years schooling data
-columns <- grep('^(RESPID|A1)$', names(t1indiv))
-yearsschooling <- t1indiv[columns]
+schooling_col <- grep('^A1$', names(t1indiv))
+schooling <- t1indiv[schooling_col]
+names(schooling) <- "schooling"
 # Recode education as in Ghimire and Axinn, 2010 AJS paper
-yearsschooling$A1[is.na(yearsschooling$A1)] <- 0
-yearsschooling$A1[yearsschooling$A1 < 0 ] <- 0
-yearsschooling$A1[yearsschooling$A1 < 3] <- 0
-yearsschooling$A1[yearsschooling$A1 < 7] <- 1
-yearsschooling$A1[yearsschooling$A1 < 11] <- 2
-yearsschooling$A1[yearsschooling$A1 > 12 ] <- 3
+schooling$schooling[is.na(schooling$schooling)] <- 0
+schooling$schooling[schooling$schooling < 0 ] <- 0
+schooling$schooling[schooling$schooling < 3] <- 0
+schooling$schooling[schooling$schooling < 7] <- 1
+schooling$schooling[schooling$schooling < 11] <- 2
+schooling$schooling[schooling$schooling > 12 ] <- 3
+schooling <- cbind(RESPID=t1indiv$RESPID, schooling)
 
 # Now get childhood community context data. Below are the variables for 
 # non-family services w/in a 1 hour walk at age 12.
@@ -98,13 +100,32 @@ yearsschooling$A1[yearsschooling$A1 > 12 ] <- 3
 # 	bus D12
 # 	employer D16
 # 	markey D22
-columns <- grep('^(RESPID|D2|D8|D12|D16|D22)$', names(t1indiv))
-ccchild <- t1indiv[columns]
+cc_cols <- grep('^(D2|D8|D12|D16|D22)$', names(t1indiv))
+ccchild <- t1indiv[cc_cols]
 names(ccchild)[grep('^D2$', names(ccchild))] <- "child_school_1hr"
 names(ccchild)[grep('^D8$', names(ccchild))] <- "child_health_1hr"
 names(ccchild)[grep('^D12$', names(ccchild))] <- "child_bus_1hr"
 names(ccchild)[grep('^D16$', names(ccchild))] <- "child_emp_1hr"
 names(ccchild)[grep('^D22$', names(ccchild))] <- "child_market_1hr"
+ccchild[ccchild < 0] <- NA # these will be replaced later by resampling
+ccchild <- cbind(RESPID=t1indiv$RESPID, ccchild)
+
+# Now get parent's characteristics data:
+# parent's contraceptive use
+# I17 father's work
+# I11 father school (ever)
+# I15 mother's work
+# I7 mother school (ever)
+# I19 mother's number of children
+parents_char_cols <- grep('^(I17|I11|I15|I7|I19)$', names(t1indiv))
+parents_char <- t1indiv[parents_char_cols]
+names(parents_char)[grep('^I17$', names(parents_char))] <- "father_work"
+names(parents_char)[grep('^I11$', names(parents_char))] <- "father_school"
+names(parents_char)[grep('^I15$', names(parents_char))] <- "mother_work"
+names(parents_char)[grep('^I7$', names(parents_char))] <- "mother_school"
+names(parents_char)[grep('^I19$', names(parents_char))] <- "mother_num_children"
+parents_char[parents_char < 0] <- NA # will be replaced with resampling
+parents_char <- cbind(RESPID=t1indiv$RESPID, parents_char)
 
 ###############################################################################
 # Now handle DS0013, the life history calendar data, to get information on what 
@@ -126,7 +147,9 @@ lhc.child2053$C[lhc.child2053$C==5] <- 1
 lhc.child2053$C[lhc.child2053$C==6] <- 1
 lhc.child2053$C[lhc.child2053$C!=1] <- 0
 lhc.child2053$C[is.na(lhc.child2053$C)] <- 0
-recentbirths <- lhc.child2053[lhc.child2053$C==1,]
+recentbirth <- rep(0, nrow(lhc.child2053))
+recentbirth[recentbirth[lhc.child2053$C==1]] <- 1
+recentbirths <- data.frame(RESPID=lhc.child2053$RESPID, recentbirth)
 
 ###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
@@ -139,34 +162,27 @@ hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
 # Merge the desnumchild data for desired family size. Note that I do not have 
 # data for all individuals, so individuals for whom I do not have desired 
-# family size I will code as 0.
-hhrel.processed <- cbind(hhrel.processed, 
-        numchild=matrix(-1, nrow(hhrel.processed), 1))
-# Four indiv. in the desnumchild frame are not in the hhrel.processed frame.  
-# First remove these 4 indiv from the desnumchild frame.
-desnumchild <- desnumchild[-which(!(desnumchild$RESPID %in%
-        hhrel.processed$RESPID)),]
-hhrel.processed[match(desnumchild$RESPID,
-        hhrel.processed$RESPID),]$numchild <- desnumchild$numchild
+# family size I will use resampling to assign values.
+hhrel.processed <- merge(hhrel.processed, desnumchild, all.x=TRUE)
+hhrel.processed$desnumchild <- replace_nas(hhrel.processed$desnumchild)
 
-# Add the recent birth tags onto hhrel.processed
-hhrel.processed <- cbind(hhrel.processed, 
-        recentbirth=matrix(-1, nrow(hhrel.processed), 1))
-hhrel.processed[match(recentbirths$RESPID,
-        hhrel.processed$RESPID),]$recentbirth <- recentbirths$C
+# Add the recent birth tags onto hhrel.procbessed
+hhrel.processed <- merge(hhrel.processed, recentbirths, all.x=TRUE)
+hhrel.processed$recentbirth <- replace_nas(hhrel.processed$recentbirth)
 
 # Merge the education data
-hhrel.processed <- cbind(hhrel.processed, 
-        schooling=matrix(0, nrow(hhrel.processed), 1))
-yearsschooling <- yearsschooling[-which(!(yearsschooling$RESPID %in%
-        hhrel.processed$RESPID)),]
-hhrel.processed[match(yearsschooling$RESPID,
-        hhrel.processed$RESPID),]$schooling <- yearsschooling$A1
+hhrel.processed <- merge(hhrel.processed, schooling, all.x=TRUE)
+hhrel.processed$schooling <- replace_nas(hhrel.processed$schooling)
 
 # Merge the childhood non-family services data
 hhrel.processed <- merge(hhrel.processed, ccchild, all.x=TRUE)
 child_cols <- grep("child_", names(hhrel.processed))
 hhrel.processed[child_cols] <- apply(hhrel.processed[child_cols], 2, replace_nas)
+
+# Merge the parent's characteristics data
+hhrel.processed <- merge(hhrel.processed, parents_char, all.x=TRUE)
+parents_char_cols <- grep("^(father_work|father_school|mother_work|mother_school|mother_num_children)$", names(hhrel.processed))
+hhrel.processed[parents_char_cols] <- apply(hhrel.processed[parents_char_cols], 2, replace_nas)
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
@@ -224,8 +240,8 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # 	bus BUSFT52
 # 	employer EMPFT52
 # 	market MARFT52
-columns <- grep('^(RESPID|SCHLFT52|HLTHFT52|BUSFT52|EMPFT52|MARFT52)$', names(neigh))
-ccadult <- neigh[columns]
+nonfam1996_cols<- grep('^(RESPID|SCHLFT52|HLTHFT52|BUSFT52|EMPFT52|MARFT52)$', names(neigh))
+ccadult <- neigh[nonfam1996_cols]
 neigh.processed <- merge(neigh.processed, ccadult)
 
 ###############################################################################

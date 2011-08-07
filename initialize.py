@@ -252,7 +252,7 @@ def assemble_persons(relationshipsFile, model_world):
         person = model_world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
                 CENGENDR, initial_agent=True, ethnicity=ETHNICITY)
         person._spouse = spouse_RESPID
-        person._des_num_children = int(relation['numchild'])
+        person._des_num_children = int(relation['desnumchild'])
         person._schooling = int(relation['schooling'])
 
         # If this person had a birth in the Nepali year 2053 in the LHC data, 
