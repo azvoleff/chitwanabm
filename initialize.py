@@ -116,7 +116,7 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
 
         neighborhood._x = float(neigh_coords[NEIGHID]['x'])
         neighborhood._y = float(neigh_coords[NEIGHID]['y'])
-        neighborhood._dist_nara =  float(neigh_data['dist_nara']) # distance from Narayanghat
+        neighborhood._distnara =  float(neigh_data['dist_nara']) # distance from Narayanghat
         neighborhoods.append(neighborhood)
 
     return neighborhoods
@@ -255,11 +255,24 @@ def assemble_persons(relationshipsFile, model_world):
         person._des_num_children = int(relation['desnumchild'])
         person._schooling = int(relation['schooling'])
 
+        person._child_school_1hr = int(relation['child_school_1hr'])
+        person._child_health_1hr = int(relation['child_health_1hr'])
+        person._child_bus_1hr = int(relation['child_bus_1hr'])
+        person._child_emp_1hr = int(relation['child_emp_1hr'])
+        person._parents_contracep_ever = int(relation['parents_contracep_ever'])
+        person._father_work = int(relation['father_work'])
+        person._father_school = int(relation['father_school'])
+        person._mother_work = int(relation['mother_work'])
+        person._mother_school = int(relation['mother_school'])
+        person._mother_num_children = int(relation['mother_num_children'])
+
+        person._mother_num_children = int(relation['desnumchild'])
+
         # If this person had a birth in the Nepali year 2053 in the LHC data, 
         # set the time of their last birth to 0 (equivalent to January 1996 in 
         # the model) so that they will not give birth again until after minimum 
         # birth interval has passed.
-        recent_birth = int(relation['recentbirth'])
+        recent_birth = int(relation['recent_birth'])
         if recent_birth == 1:
             person._last_birth_time = model_start_time
         else:

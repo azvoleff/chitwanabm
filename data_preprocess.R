@@ -138,20 +138,19 @@ lhc <- read.xport(paste(DATA_PATH, "04538-0013-Data.xpt", sep="/"))
 # (greather than 151) will be dropped when the lhc data is merged later on in 
 # the process.
 cols.childL2053 <- grep('^C[0-9]*L2053$', names(lhc))
-col.respid <- grep("^RESPID$", names(lhc))
-lhc.child2053 <- reshape(lhc[c(col.respid, cols.childL2053)], direction="long",
-        varying=names(lhc[cols.childL2053]), idvar="RESPID", timevar="childnum",
-        sep="")
+recent_birth <- lhc[cols.childL2053]
 # Count "born" (coded as 1), "born, died in same year" (coded as 5), and "born, 
 # lived away 6 months in same year" (coded as 6), as recent births. Recode 
-# these three events as 1, code all other events as 0
-lhc.child2053$C[lhc.child2053$C==5] <- 1
-lhc.child2053$C[lhc.child2053$C==6] <- 1
-lhc.child2053$C[lhc.child2053$C!=1] <- 0
-lhc.child2053$C[is.na(lhc.child2053$C)] <- 0
-recentbirth <- rep(0, nrow(lhc.child2053))
-recentbirth[recentbirth[lhc.child2053$C==1]] <- 1
-recentbirths <- data.frame(RESPID=lhc.child2053$RESPID, recentbirth)
+# these three events as 1, code all other events as 0.
+recent_birth[recent_birth == 5] <- 1
+recent_birth[recent_birth == 6] <- 1
+recent_birth[recent_birth != 1] <- 0
+recent_birth[is.na(recent_birth)] <- 0
+# Now add up across the rows - anything greather than or equal to 1 means there 
+# was (at least) one birth in year 2053.
+recent_birth <- apply(recent_birth, 1, sum, na.rm=TRUE)
+recent_birth[recent_birth > 1] <- 1
+recent_births <- data.frame(RESPID=lhc$RESPID, recent_birth)
 
 ###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
@@ -169,8 +168,8 @@ hhrel.processed <- merge(hhrel.processed, desnumchild, all.x=TRUE)
 hhrel.processed$desnumchild <- replace_nas(hhrel.processed$desnumchild)
 
 # Add the recent birth tags onto hhrel.procbessed
-hhrel.processed <- merge(hhrel.processed, recentbirths, all.x=TRUE)
-hhrel.processed$recentbirth <- replace_nas(hhrel.processed$recentbirth)
+hhrel.processed <- merge(hhrel.processed, recent_births, all.x=TRUE)
+hhrel.processed$recent_birth <- replace_nas(hhrel.processed$recent_birth)
 
 # Merge the education data
 hhrel.processed <- merge(hhrel.processed, schooling, all.x=TRUE)
@@ -183,7 +182,7 @@ hhrel.processed[child_cols] <- apply(hhrel.processed[child_cols], 2, replace_nas
 
 # Merge the parent's characteristics data
 hhrel.processed <- merge(hhrel.processed, parents_char, all.x=TRUE)
-parents_char_cols <- grep("^(father_work|father_school|mother_work|mother_school|mother_num_children)$", names(hhrel.processed))
+parents_char_cols <- grep("^(father_work|father_school|mother_work|mother_school|mother_num_children|parents_contracep_ever)$", names(hhrel.processed))
 hhrel.processed[parents_char_cols] <- apply(hhrel.processed[parents_char_cols], 2, replace_nas)
 
 ###############################################################################
@@ -225,13 +224,15 @@ services[services>30] <- 0
 avg_yrs_services <- rowSums(services) / 5
 # Find if electricity is currently available in the neighborhood (as of the 
 # census)
-elec_avail <- as.logical(neigh$ELEC52)
+elec_avail <- neigh$ELEC52
 neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY)
 
 # Calculate the distance of each neighborhood from Narayanghat (using the 
 # coordinates of the center of the road in the middle of the downtown area of 
 # Narayanghat).
-dist_narayanghat <- sqrt((neigh$NX - 245848)**2 + (neigh$NX - 3066013)**2)
+dist_narayanghat <- sqrt((neigh$NX - 245848)**2 + (neigh$NY - 3066013)**2)
+# Now convert from meters to kilomers and then to miles
+dist_narayanghat <- (dist_narayanghat / 1000) * 0.621371192
 
 neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY, dist_nara=dist_narayanghat)
 
@@ -242,7 +243,7 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # 	bus BUSFT52
 # 	employer EMPFT52
 # 	market MARFT52
-nonfam1996_cols<- grep('^(RESPID|SCHLFT52|HLTHFT52|BUSFT52|EMPFT52|MARFT52)$', names(neigh))
+nonfam1996_cols<- grep('^(NEIGHID|SCHLFT52|HLTHFT52|BUSFT52|EMPFT52|MARFT52)$', names(neigh))
 ccadult <- neigh[nonfam1996_cols]
 neigh.processed <- merge(neigh.processed, ccadult)
 
@@ -284,9 +285,11 @@ neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 load(paste(DATA_PATH, "hhreg.Rdata", sep="/"))
 columns <- grep('^(respid|ethnic)$', names(hhreg))
 hhreg <- hhreg[columns]
-names(hhreg)[grep('^(respid)$', names(hhreg))] <- 'RESPID'
-names(hhreg)[grep('^(ethnic)$', names(hhreg))] <- 'ETHNIC'
+names(hhreg)[grep('^respid$', names(hhreg))] <- 'RESPID'
+names(hhreg)[grep('^ethnic$', names(hhreg))] <- 'ETHNIC'
 hhrel.processed <- merge(hhrel.processed, hhreg)
+# One individual has an ethnicity of NA, fix this.
+hhrel.processed$ETHNIC <- replace_nas(hhrel.processed$ETHNIC)
 
 ###############################################################################
 # Output data. Data is restricted so it has to be stored in an encrypted 
