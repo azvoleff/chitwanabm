@@ -82,40 +82,133 @@ def __hazard_index__(t):
     else:
         raise UnitsError("unhandled hazard_time_units")
 
-def calc_hazard_marriage(person):
-    "Calculates the hazard of marriage for an agent."
-    #age = person.get_age()
-    #hazard_index = __hazard_index__(age)
-    neighborhood = person.get_parent_agent().get_parent_agent()
-    
-    if neighborhood._land_agveg == 0:
-        log_percent_agveg = 0
+def calc_firstbirth_prob(person, time):
+    "Calculates the probability of a first birth in a given month for an agent."
+    # Intercept
+    inner = rcParams['firstbirth.coef.intercept']
 
-    else:
-        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
-    inner = -rcParams['marrtime.coef.intercept']
-    inner -= rcParams['marrtime.coef.logagveg'] * log_percent_agveg
-    if person.get_sex() == "female":
-        inner -= rcParams['marrtime.coef.genderfemale']
+    # Adult community context
+    neighborhood = person.get_parent_agent().get_parent_agent()
+    percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
+    inner += rcParams['firstbirth.coef.percagveg'] * percent_agveg
+    inner += rcParams['firstbirth.coef.avgyrsnonfam'] * neighborhood._avg_years_nonfamily_services
+    inner += rcParams['firstbirth.coef.distnara'] * neighborhood._distnara
+    inner += rcParams['firstbirth.coef.elec_avail'] * neighborhood._elec_available
+    #inner += rcParams['firstbirth.coef.NBH_wealth_index'] * neighborhood._wealth_index
+
+    # Childhood community context
+    inner += rcParams['firstbirth.coef.child_school_1hr'] * person._child_school_1hr
+    inner += rcParams['firstbirth.coef.child_health_1hr'] * person._child_health_1hr
+    inner += rcParams['firstbirth.coef.child_bus_1hr'] * person._child_bus_1hr
+    inner += rcParams['firstbirth.coef.child_emp_1hr'] * person._child_emp_1hr
+
+    #inner += rcParams['firstbirth.coef.age_1st_marr']
+    #inner += rcParams['firstbirth.coef.marr_dur_pre_1997']
+
+    # Ethnicity (high caste hindu as reference case)
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
     if ethnicity == "HighHindu":
         # This was the reference level
         pass
     elif ethnicity == "HillTibeto":
-        inner -= rcParams['marrtime.coef.ethnicHillTibeto']
+        inner += rcParams['firstbirth.coef.ethnicHillTibeto']
     elif ethnicity == "LowHindu":
-        inner -= rcParams['marrtime.coef.ethnicLowHindu']
+        inner += rcParams['firstbirth.coef.ethnicLowHindu']
     elif ethnicity == "Newar":
-        inner -= rcParams['marrtime.coef.ethnicNewar']
+        inner += rcParams['firstbirth.coef.ethnicNewar']
     elif ethnicity == "TeraiTibeto":
-        inner -= rcParams['marrtime.coef.ethnicTeraiTibeto']
-    elif ethnicity == "Other":
-        inner -= rcParams['marrtime.coef.ethnicOther']
-    inner -= rcParams['marrtime.coef.Age'] * person.get_age()
-    inner -= rcParams['marrtime.coef.AgeSquare'] * person.get_age()
-    return 1./(1 + np.exp(inner))
+        inner += rcParams['firstbirth.coef.ethnicTeraiTibeto']
+ 
+    # Education level of individual
+    assert person._schooling !=None, "schoolinging must be defined"
+    if person._schooling < 4:
+        # This was the reference level
+        pass
+    elif person._schooling < 8:
+        inner += rcParams['firstbirth.coef.schooling4']
+    elif person._schooling < 11:
+        inner += rcParams['firstbirth.coef.schooling8']
+    elif person._schooling >= 11:
+        inner += rcParams['firstbirth.coef.schooling11']
 
+    # Parents characteristics
+    inner += rcParams['firstbirth.coef.parents_contracep_ever'] * person._parents_contracep_ever
+    inner += rcParams['firstbirth.coef.father_work'] * person._father_work
+    inner += rcParams['firstbirth.coef.father_school'] * person._father_school
+    inner += rcParams['firstbirth.coef.mother_work'] * person._mother_work
+    inner += rcParams['firstbirth.coef.mother_school'] * person._mother_school
+    inner += rcParams['firstbirth.coef.mother_num_children'] * person._mother_num_children
+
+    # Hazard duration
+    marriage_time = time - person._marriage_time
+    if marriage_time <= 6:
+        inner += rcParams['firstbirth.coef.hazdur_6']
+    elif marriage_time <= 12:
+        inner += rcParams['firstbirth.coef.hazdur_12']
+    elif marriage_time <= 18:
+        inner += rcParams['firstbirth.coef.hazdur_18']
+    elif marriage_time <= 24:
+        inner += rcParams['firstbirth.coef.hazdur_24']
+    elif marriage_time <= 30:
+        inner += rcParams['firstbirth.coef.hazdur_30']
+    elif marriage_time <= 36:
+        inner += rcParams['firstbirth.coef.hazdur_36']
+    elif marriage_time > 36:
+        inner += rcParams['firstbirth.coef.hazdur_42']
+
+    # Testing code:
+    #prob = np.round(1./(1 + np.exp(-inner)), 4)
+    #print "First birth probability: prob: %s (marriage_time: %s)"%(prob, mariage_time)
+    #return 1./(1 + np.exp(inner))
+
+def calc_hazard_marriage(person):
+    "Calculates the hazard of marriage for an agent."
+    neighborhood = person.get_parent_agent().get_parent_agent()
+
+    inner = rcParams['marrtime.coef.intercept']
+
+    # Neighborhood characteristics
+    if neighborhood._land_agveg == 0:
+        log_percent_agveg = 0
+    else:
+        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+    inner += rcParams['marrtime.coef.logpercagveg'] * log_percent_agveg
+    inner += rcParams['marrtime.coef.school_minft_1996'] * neighborhood._nfo_schl_minft_1996
+    inner += rcParams['marrtime.coef.health_minft_1996'] * neighborhood._nfo_hlth_minft_1996
+    inner += rcParams['marrtime.coef.bus_minft_1996'] * neighborhood._nfo_bus_minft_1996
+    inner += rcParams['marrtime.coef.market_minft_1996'] * neighborhood._nfo_mar_minft_1996
+    inner += rcParams['marrtime.coef.emp_minft_1996'] * neighborhood._nfo_emp_minft_1996
+
+    if person.get_sex() == "female":
+        inner += rcParams['marrtime.coef.female']
+
+    ethnicity = person.get_ethnicity()
+    assert ethnicity!=None, "Ethnicity must be defined"
+    if ethnicity == "HighHindu":
+        # This was the reference level
+        pass
+    elif ethnicity == "HillTibeto":
+        inner += rcParams['marrtime.coef.ethnicHillTibeto']
+    elif ethnicity == "LowHindu":
+        inner += rcParams['marrtime.coef.ethnicLowHindu']
+    elif ethnicity == "Newar":
+        inner += rcParams['marrtime.coef.ethnicNewar']
+    elif ethnicity == "TeraiTibeto":
+        inner += rcParams['marrtime.coef.ethnicTeraiTibeto']
+
+    # Convert person's age from months to years:
+    age = person.get_age() / 12.
+    inner += rcParams['marrtime.coef.age'] * age
+    inner += rcParams['marrtime.coef.age_squared'] * (age**2)
+    # Testing code:
+    #prob = np.round(1./(1 + np.exp(-inner)), 4)
+    #print "age: %s,  prob: %s"%(age, prob)
+    return 1./(1 + np.exp(-inner))
+
+# OLD CODE:
+#    age = person.get_age()
+#    hazard_index = __hazard_index__(age)
 #    if person.get_sex() == 'female':
 #        return marriage_hazards_female[hazard_index]
 #    elif person.get_sex() == 'male':
@@ -146,6 +239,9 @@ def calc_first_birth_time(person):
     "Calculates the time from marriage until first birth for this person."
     first_birth_prob_dist = rcParams['prob.firstbirth.times']
     return int(draw_from_prob_dist(first_birth_prob_dist))
+#def calc_first_birth_time(person):
+#    "Calculates the time from marriage until first birth for this person."
+#    return int(draw_from_prob_dist(first_birth_prob_dist))
 
 def calc_des_num_children(person):
     "Calculates the desired number of children for this person."
