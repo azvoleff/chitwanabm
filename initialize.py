@@ -276,9 +276,9 @@ def assemble_persons(relationshipsFile, model_world):
         if recent_birth == 1:
             person._last_birth_time = model_start_time
         else:
-            # Otherwise, randomly set person._last_birth_time anywhere from 3 
-            # years prior to the initial timestep of the model:
-            person._last_birth_time = model_start_time + np.random.randint(-36, 0)/12.
+            # Otherwise, randomly set person._last_birth_time anywhere from 18
+            # months prior to the initial timestep of the model:
+            person._last_birth_time = model_start_time + np.random.randint(-16, 0)/12.
         personsDict[RESPID] = person
 
     # Now, for each person in the personsDict, convert the RESPIDs for mother, 
