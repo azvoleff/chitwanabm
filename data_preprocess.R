@@ -72,13 +72,12 @@ child_range <- which(desnumchild$desnumchild==95)
 desnumchild[child_range,]$desnumchild <- desnumchild$F7B[child_range]
 #desnumchild[child_range,]$desnumchild <- desnumchild$F7A[child_range] / desnumchild$F7B[child_range]
 # 28 people said they don't know. This is coded as -3 in the CVFS data. Recode 
-# this as -1.
-desnumchild$desnumchild[desnumchild$desnumchild==-3] <- -1
-# Also recode no response given (NA in the dataset) as -1
-desnumchild$desnumchild[is.na(desnumchild$desnumchild)] <- -1
+# this as NA so it will get replaced when it is resampled.
+desnumchild$desnumchild[desnumchild$desnumchild==-3] <- NA
 # TODO: Also there are 22 individuals with # kids wanted in the thousands...  
 # ask Dirgha what these are
-desnumchild$desnumchild[desnumchild$desnumchild>1000] <- -1
+desnumchild$desnumchild[desnumchild$desnumchild > 1000] <- NA
+desnumchild$desnumchild[desnumchild$desnumchild < 0] <- NA
 
 # Now get years schooling data
 schooling_col <- grep('^A1$', names(t1indiv))
