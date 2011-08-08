@@ -39,7 +39,12 @@ from ChitwanABM import rcParams
 from ChitwanABM.agents import World
 
 def main():
-    generate_world()
+    world = generate_world()
+
+    try:
+        save_world(model_world, processed_data_file)
+    except:
+        print "ERROR: while saving world file to %s"%(processed_data_file)
 
 def read_CVFS_data(textfile, key_field):
     """
@@ -435,10 +440,8 @@ def generate_world():
     print "Generating world from preprocessed CVFS data..."
     model_world = assemble_world()
     processed_data_file = rcParams['path.input_data_file']
-    try:
-        save_world(model_world, processed_data_file)
-    except:
-        print "ERROR: while saving world file to %s"%(processed_data_file)
+
+    return model_world
 
 if __name__ == "__main__":
     sys.exit(main())

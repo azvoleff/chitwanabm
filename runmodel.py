@@ -44,6 +44,7 @@ from PyABM.rcsetup import write_RC_file
 from PyABM.file_io import write_single_band_raster
 
 from ChitwanABM import rcParams
+from ChitwanABM.initialize import generate_world
 from ChitwanABM.modelloop import main_loop
 
 if rcParams['model.use_psyco'] == True:
@@ -83,13 +84,18 @@ def main(argv=None):
     except OSError:
         raise OSError("error creating results directory %s"%(results_path))
     
-    # Load a pickled World for use in the model.
-    input_data_file = rcParams['path.input_data_file']
-    file = open(input_data_file, "r")
-    try:
-        world = pickle.load(file)
-    except IOError:
-        raise IOError('error loading world data from  %s'%input_data_file)
+
+    if rcParams['model.reinitialize']:
+        # Generate a new world (with new resampling, etc.)
+        world = generate_world()
+    else:
+        # Load a pickled World for use in the model.
+        input_data_file = rcParams['path.input_data_file']
+        file = open(input_data_file, "r")
+        try:
+            world = pickle.load(file)
+        except IOError:
+            raise IOError('error loading world data from  %s'%input_data_file)
 
     # Run the model loop
     start_time = time.localtime()
