@@ -58,7 +58,10 @@
 'save_NBH_data': [True | validate_boolean]
 # Whether to save shapefiles of LULC periodically while running the model. This 
 # will slow down the model A LOT.
-'save_LULC_shapefiles': [FALSE | validate_boolean]
+'save_LULC_shapefiles': [False | validate_boolean]
+
+'model.parameterization.marriage': ["yabiku2006"| novalidation]
+'model.parameterization.firstbirthtiming': ["ghimireaxinn2010"| novalidation]
 
 ###############################################################################
 # Location of input data (these are restricted data)
@@ -101,7 +104,7 @@
 'prob.num.children.desired' : [((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))] | validate_prob_dist]
 'use.num.children.desired' : [True | validate_boolean]
 
-'marrtime.coef.intercept' : [-14 | validate_float]
+'marrtime.coef.intercept' : [-15.6 | validate_float]
 'marrtime.coef.logpercagveg' : [0.10346 | validate_float]
 'marrtime.coef.school_minft_1996' : [0.003 | validate_float]
 'marrtime.coef.health_minft_1996' : [-0.00401 | validate_float]

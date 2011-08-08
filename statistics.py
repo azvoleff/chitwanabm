@@ -82,11 +82,16 @@ def __probability_index__(t):
     else:
         raise UnitsError("unhandled probability_time_units")
 
-def calc_firstbirth_prob(person, time):
-    "Calculates the probability of a first birth in a given month for an agent."
+def calc_firstbirth_prob_ghimireaxinn2010(person, time):
+    """
+    Calculates the probability of a first birth in a given month for an agent, 
+    using the results of Ghimire and Axinn, 2010.
+    """
+    #########################################################################
     # Intercept
     inner = rcParams['firstbirth.coef.intercept']
 
+    #########################################################################
     # Adult community context
     neighborhood = person.get_parent_agent().get_parent_agent()
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
@@ -96,6 +101,7 @@ def calc_firstbirth_prob(person, time):
     inner += rcParams['firstbirth.coef.elec_avail'] * neighborhood._elec_available
     #inner += rcParams['firstbirth.coef.NBH_wealth_index'] * neighborhood._wealth_index
 
+    #########################################################################
     # Childhood community context
     inner += rcParams['firstbirth.coef.child_school_1hr'] * person._child_school_1hr
     inner += rcParams['firstbirth.coef.child_health_1hr'] * person._child_health_1hr
@@ -105,6 +111,7 @@ def calc_firstbirth_prob(person, time):
     #inner += rcParams['firstbirth.coef.age_1st_marr']
     #inner += rcParams['firstbirth.coef.marr_dur_pre_1997']
 
+    #########################################################################
     # Ethnicity (high caste hindu as reference case)
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
@@ -120,6 +127,7 @@ def calc_firstbirth_prob(person, time):
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['firstbirth.coef.ethnicTeraiTibeto']
  
+    #########################################################################
     # Education level of individual
     assert person._schooling !=None, "schoolinging must be defined"
     if person._schooling < 4:
@@ -132,14 +140,38 @@ def calc_firstbirth_prob(person, time):
     elif person._schooling >= 11:
         inner += rcParams['firstbirth.coef.schooling11']
 
+    #########################################################################
     # Parents characteristics
     inner += rcParams['firstbirth.coef.parents_contracep_ever'] * person._parents_contracep_ever
-    inner += rcParams['firstbirth.coef.father_work'] * person._father_work
-    inner += rcParams['firstbirth.coef.father_school'] * person._father_school
-    inner += rcParams['firstbirth.coef.mother_work'] * person._mother_work
-    inner += rcParams['firstbirth.coef.mother_school'] * person._mother_school
-    inner += rcParams['firstbirth.coef.mother_num_children'] * person._mother_num_children
 
+
+    if person.is_initial_agent():
+        # For initial agents, use the data from the CVFS.
+        father_work = person._father_work
+        father_school = person._father_school
+        mother_work = person._mother_work
+        mother_school = person._mother_school
+        mother_num_children = person._mother_num_children
+    else:
+        # For others (agents dynamically generated in the model - not from the 
+        # CVFS data), use the most current simulated data.
+        if person.get_father()._work > 0: father_work = 1
+        else: father_work = 0
+        if person.get_father()._schooling > 0: father_school = 1
+        else: father_school = 0
+        if person.get_mother()._work > 0: mother_work = 1
+        else: mother_work = 0
+        if person.get_mother()._schooling > 0: mother_school = 1
+        else: mother_school = 0
+        mother_num_children = person.get_mother().get_num_children()
+    inner += rcParams['firstbirth.coef.father_work'] * father_work
+    inner += rcParams['firstbirth.coef.father_school'] * father_school
+    inner += rcParams['firstbirth.coef.mother_work'] * mother_work
+    inner += rcParams['firstbirth.coef.mother_school'] * mother_school
+
+    inner += rcParams['firstbirth.coef.mother_num_children'] * mother_num_children
+
+    #########################################################################
     # Hazard duration
     marriage_time = time - person._marriage_time
     if marriage_time <= 6:
@@ -160,10 +192,13 @@ def calc_firstbirth_prob(person, time):
     # Testing code:
     #prob = np.round(1./(1 + np.exp(-inner)), 4)
     #print "First birth probability: prob: %s (marriage_time: %s)"%(prob, mariage_time)
-    #return 1./(1 + np.exp(inner))
+    return 1./(1 + np.exp(inner))
 
-def calc_probability_marriage(person):
-    "Calculates the probability of marriage for an agent."
+def calc_probability_marriage_yabiku2006(person):
+    """
+    Calculates the probability of marriage for an agent, using the results of 
+    Yabiku, 2006.
+    """
     neighborhood = person.get_parent_agent().get_parent_agent()
 
     inner = rcParams['marrtime.coef.intercept']
@@ -206,13 +241,17 @@ def calc_probability_marriage(person):
     #print "age: %s,  prob: %s"%(age, prob)
     return 1./(1 + np.exp(-inner))
 
-# OLD CODE:
-#    age = person.get_age()
-#    probability_index = __probability_index__(age)
-#    if person.get_sex() == 'female':
-#        return marriage_probabilities_female[probability_index]
-#    elif person.get_sex() == 'male':
-#        return marriage_probabilities_male[probability_index]
+def calc_probability_marriage_simple(person):
+    """
+    Calculate the probability of marriage using a simple sex and age dependent 
+    probability distribution.
+    """
+    age = person.get_age()
+    probability_index = __probability_index__(age)
+    if person.get_sex() == 'female':
+        return marriage_probabilities_female[probability_index]
+    elif person.get_sex() == 'male':
+        return marriage_probabilities_male[probability_index]
 
 def calc_probability_death(person):
     "Calculates the probability of death for an agent."
@@ -236,12 +275,12 @@ def calc_probability_migration(person):
         return migration_probabilities_male[probability_index]
 
 def calc_first_birth_time(person):
-    "Calculates the time from marriage until first birth for this person."
+    """
+    Calculates the time from marriage until first birth for this person (not 
+    used if the Ghimire and Axinn 2010 model is selected in rcparams.
+    """
     first_birth_prob_dist = rcParams['prob.firstbirth.times']
     return int(draw_from_prob_dist(first_birth_prob_dist))
-#def calc_first_birth_time(person):
-#    "Calculates the time from marriage until first birth for this person."
-#    return int(draw_from_prob_dist(first_birth_prob_dist))
 
 def calc_des_num_children(person):
     "Calculates the desired number of children for this person."
@@ -251,7 +290,7 @@ def calc_des_num_children(person):
     # right-hand bound of the distribution.
     return np.floor(draw_from_prob_dist(des_num_children_prob_dist))
 
-def calc_birth_interval(person):
+def calc_birth_interval():
     "Calculates the birth interval for this person."
     birth_interval_prob_dist = rcParams['prob.birth.intervals']
     return np.floor(draw_from_prob_dist(birth_interval_prob_dist ))

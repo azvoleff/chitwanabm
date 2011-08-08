@@ -35,9 +35,17 @@ from PyABM import IDGenerator, boolean_choice
 from PyABM.agents import Agent, Agent_set, Agent_Store
 
 from ChitwanABM import rcParams, random_state
-from ChitwanABM.statistics import calc_probability_death, calc_probability_migration, \
-        calc_probability_marriage, calc_first_birth_time, calc_birth_interval, \
-        calc_hh_area, calc_des_num_children, calc_firstbirth_prob
+from ChitwanABM.statistics import calc_probability_death, \
+        calc_probability_migration, calc_first_birth_time, \
+        calc_birth_interval, calc_hh_area, calc_des_num_children, \
+        calc_firstbirth_prob_ghimireaxinn2010
+
+if rcParams['model.parameterization.marriage'] == 'simple':
+    from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
+elif rcParams['model.parameterization.marriage'] == 'yabiku2006':
+    from ChitwanABM.statistics import calc_probability_marriage_yabiku2006 as calc_probability_marriage
+else:
+    raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['model.parameterization.marriage'])
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -114,22 +122,28 @@ class Person(Agent):
 
         if self._sex == "female":
             self._first_birth_timing = calc_first_birth_time(self)
-            self._birth_interval = calc_birth_interval(self)
         else:
             self._first_birth_timing = None
 
         self._marriage_time = None
 
+        self._schooling = 0
+        self._work = boolean_choice(.1)
+        self._parents_contracep_ever = boolean_choice()
+
         self._child_school_1hr = None
         self._child_health_1hr = None
         self._child_bus_1hr = None
         self._child_emp_1hr = None
-        self._parents_contracep_ever = None
-        self._father_work = None
-        self._father_school = None
-        self._mother_work = None
-        self._mother_school = None
-        self._mother_num_children = None
+
+    def get_mother(self):
+        return self._mother
+
+    def get_num_children(self):
+        return len(self._children)
+
+    def get_father(self):
+        return self._father
 
     def get_sex(self):
         return self._sex
@@ -142,6 +156,9 @@ class Person(Agent):
 
     def get_spouse(self):
         return self._spouse
+
+    def is_initial_agent(self):
+        return self._initial_agent
 
     def kill(self, time):
         self._alive = False
@@ -173,29 +190,47 @@ class Person(Agent):
         self._spouse = None
 
     def is_eligible_for_birth(self, time):
+        """
+        Check birth timing using Ghimire and Axinn, 2010 first birth timing 
+        results or simple probability distribution for first birth timing, 
+        depending on the choice of rcparams.
+        """
         # Check that the woman has been married long_enough, didn't already 
         # give birth more recently than the minimum birth interval, and does 
         # not already have greater than their desired family size.  Note that 
         # des_num_children=-1 means no preference ("god's will").
-        is_married_female = (self.get_sex() == 'female') and self.is_married()
-        if not is_married_female:
+        if not (self.get_sex() == 'female') or not self.is_married():
             return False
 
-        max_age = rcParams['birth.max_age.years']
-        is_young_enough = self._age <= max_age*12
+        if not self._age <= rcParams['birth.max_age.years'] * 12:
+            return False
 
-        is_below_des_num_children = (len(self._children) < \
-                self._des_num_children) or self._des_num_children==-1
-
-        is_married_long_enough = (time - self._marriage_time) >= \
-                self._first_birth_timing/12.
-
-        most_recent_poss_birth_time = time - self._birth_interval/12.
+        most_recent_poss_birth_time = time - calc_birth_interval()/12.
         is_able_to_birth = (self._last_birth_time == None) or \
                 self._last_birth_time <= most_recent_poss_birth_time
+        if not is_able_to_birth:
+            return False
 
-        if is_young_enough and is_below_des_num_children \
-                and is_married_long_enough and is_able_to_birth:
+        # Handle first births using the appropriate first birth timing 
+        # parameterization:
+        num_children = len(self._children)
+        if (num_children) == 0:
+            if rcParams['model.parameterization.firstbirthtiming'] == 'simple':
+                if (time - self._marriage_time) >= self._first_birth_timing/12.:
+                    return True
+                else:
+                    return False
+            elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
+                if (random_state.rand() < calc_firstbirth_prob_ghimireaxinn2010(self, time)):
+                    return True
+                else:
+                    return False
+            else:
+                raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
+
+        # Handle births to mothers who have already given birth in the past:
+        if (num_children < self._des_num_children) or (self._des_num_children==-1):
+            # self._des_num_children = -1 means no preference
             return True
         else:
             return False
@@ -206,6 +241,36 @@ class Person(Agent):
         assert self.get_spouse().get_ID() == father.get_ID(), "All births must be in marriages"
         assert self.get_ID() != father.get_ID(), "No immaculate conception (agent: %s)"%(self.get_ID())
         baby = self._world.new_person(birthdate=time, mother=self, father=father, ethnicity=self.get_ethnicity())
+
+        neighborhood = self.get_parent_agent().get_parent_agent()
+        ###########################################
+        # Set childhood community context for baby:
+        # School within 1 hour walk as child:
+        if neighborhood._nfo_schl_minft_1996 < 60:
+            baby._child_school_1hr = 1
+        else:
+            baby._child_school_1hr = 0
+        # Health center within 1 hour walk as child:
+        if neighborhood._nfo_hlth_minft_1996 < 60:
+            baby._child_health_1hr = 1
+        else:
+            baby._child_health_1hr = 0
+        # Bus within 1 hour walk as child:
+        if neighborhood._nfo_bus_minft_1996 < 60:
+            baby._child_bus_1hr = 1
+        else:
+            baby._child_bus_1hr = 0
+        # Market within 1 hour walk as child:
+        if neighborhood._nfo_mar_minft_1996 < 60:
+            baby._child_mar_1hr = 1
+        else:
+            baby._child_mar_1hr = 0
+        # Employer within 1 hour walk as child:
+        if neighborhood._nfo_emp_minft_1996 < 60:
+            baby._child_emp_1hr = 1
+        else:
+            baby._child_emp_1hr = 0
+
         self._last_birth_time = time
         for parent in [self, father]:
             parent._children.append(baby)
@@ -245,6 +310,9 @@ class Household(Agent_set):
     def rented_out_land(self):
         "Boolean for whether household rented out any of its land"
         return self._rented_out_land
+
+    def is_initial_agent(self):
+        return self._initial_agent
 
     def fw_usage(self):
         # Load coefficients from rcParams
@@ -305,6 +373,9 @@ class Neighborhood(Agent_set):
             # Should never get to this line:
             return False
 
+    def is_initial_agent(self):
+        return self._initial_agent
+
     def avg_years_nonfamily_services(self):
         "Average number of years non-family services have been available."
         return self._avg_years_nonfamily_services
@@ -363,6 +434,9 @@ class Region(Agent_set):
     def __str__(self):
         return "Region(RID: %s, %s neighborhood(s), %s household(s), %s person(s))"%(self.get_ID(), \
                 len(self._members), self.num_households(), self.num_persons())
+
+    def is_initial_agent(self):
+        return self._initial_agent
 
     def iter_households(self):
         "Returns an iterator over all the households in the region"
@@ -461,8 +535,6 @@ class Region(Agent_set):
                 # Create a new household. male.get_parent_agent() is equal to 
                 # None for in-migrants, as they are not a member of a 
                 # household.
-                # TODO: need to figure out how the new household has 
-                # characteristics assigned to it.
                 new_home = self._world.new_household()
                 neighborhoods = [] # Possible neighborhoods for the new_home
                 for person in [male, female]:
@@ -540,7 +612,7 @@ class Region(Agent_set):
                 if random_state.rand() < calc_probability_migration(person):
                     # Agent migrates. Choose how long the agent is migrating 
                     # for from a probability distribution.
-                    # TODO: Consider a migration of longer than years as 
+                    # TODO: Consider a migration of longer than <> years as 
                     # permanent.
                     # The add_agent function of the agent_store class handles 
                     # removing the agent from its parent (the household).
