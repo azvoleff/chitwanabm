@@ -52,6 +52,8 @@ for (directory in directories) {
 }
 
 ens_results <- calc_ensemble_results(pop.results)
+save(ens_results, file=paste(DATA_PATH, "ens_results_pop.Rdata", sep="/"))
+write.csv(ens_results, file=paste(DATA_PATH, "ens_results_pop.csv", sep="/"))
 
 # First plot monthly event data
 # Column 1 is times, so that column is always needed

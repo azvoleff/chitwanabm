@@ -114,7 +114,7 @@ class Person(Agent):
         self._des_num_children = None
 
         if self._sex=="female":
-            self._last_birth_time = None
+            self._birth_interval = calc_birth_interval()
 
         self._spouse = None
 
@@ -131,10 +131,16 @@ class Person(Agent):
         self._work = boolean_choice(.1)
         self._parents_contracep_ever = boolean_choice()
 
-        self._child_school_1hr = None
-        self._child_health_1hr = None
-        self._child_bus_1hr = None
-        self._child_emp_1hr = None
+        self._child_school_1hr = boolean_choice()
+        self._child_health_1hr = boolean_choice()
+        self._child_bus_1hr = boolean_choice()
+        self._child_emp_1hr = boolean_choice()
+
+        self._father_work = boolean_choice()
+        self._father_school = boolean_choice()
+        self._mother_work = boolean_choice()
+        self._mother_school = boolean_choice()
+        self._mother_num_children = boolean_choice()
 
     def get_mother(self):
         return self._mother
@@ -195,26 +201,24 @@ class Person(Agent):
         results or simple probability distribution for first birth timing, 
         depending on the choice of rcparams.
         """
-        # Check that the woman has been married long_enough, didn't already 
-        # give birth more recently than the minimum birth interval, and does 
-        # not already have greater than their desired family size.  Note that 
-        # des_num_children=-1 means no preference ("god's will").
-        if not (self.get_sex() == 'female') or not self.is_married():
+        # Check that the woman has been married long_enough (first birth time), 
+        # didn't already give birth more recently than the minimum birth 
+        # interval and does not already have greater than their desired family 
+        # size.  Note that des_num_children=-1 means no preference ("god's 
+        # will").
+        if (not (self.get_sex() == 'female')) or (not self.is_married()):
             return False
 
-        if not self._age <= rcParams['birth.max_age.years'] * 12:
-            return False
-
-        most_recent_poss_birth_time = time - calc_birth_interval()/12.
-        is_able_to_birth = (self._last_birth_time == None) or \
-                self._last_birth_time <= most_recent_poss_birth_time
-        if not is_able_to_birth:
+        if self._age > (rcParams['birth.max_age.years'] * 12):
             return False
 
         # Handle first births using the appropriate first birth timing 
         # parameterization:
         num_children = len(self._children)
         if (num_children) == 0:
+            if self._marriage_time < 1995 and random_state.rand() < .8:
+                # Prevent excessive first births at beginning of the model.
+                return False
             if rcParams['model.parameterization.firstbirthtiming'] == 'simple':
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
                     return True
@@ -227,13 +231,16 @@ class Person(Agent):
                     return False
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
-
-        # Handle births to mothers who have already given birth in the past:
-        if (num_children < self._des_num_children) or (self._des_num_children==-1):
-            # self._des_num_children = -1 means no preference
-            return True
         else:
-            return False
+            # Handle births to mothers who have already given birth in the 
+            # past:
+            if self._last_birth_time >= (time - self._birth_interval/12.):
+                return False
+            elif (num_children < self._des_num_children) or (self._des_num_children==-1):
+                # self._des_num_children = -1 means no preference
+                return True
+            else:
+                return False
 
     def give_birth(self, time, father):
         "Agent gives birth. New agent inherits characterists of parents."
@@ -272,6 +279,8 @@ class Person(Agent):
             baby._child_emp_1hr = 0
 
         self._last_birth_time = time
+        # Assign a new birth interval for the next child
+        self._birth_interval = calc_birth_interval()
         for parent in [self, father]:
             parent._children.append(baby)
         return baby

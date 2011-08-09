@@ -145,25 +145,25 @@ def calc_firstbirth_prob_ghimireaxinn2010(person, time):
     inner += rcParams['firstbirth.coef.parents_contracep_ever'] * person._parents_contracep_ever
 
 
-    if person.is_initial_agent():
-        # For initial agents, use the data from the CVFS.
-        father_work = person._father_work
-        father_school = person._father_school
-        mother_work = person._mother_work
-        mother_school = person._mother_school
-        mother_num_children = person._mother_num_children
-    else:
+    #if person.is_initial_agent():
+    # For initial agents, use the data from the CVFS.
+    father_work = person._father_work
+    father_school = person._father_school
+    mother_work = person._mother_work
+    mother_school = person._mother_school
+    mother_num_children = person._mother_num_children
+    #else:
         # For others (agents dynamically generated in the model - not from the 
         # CVFS data), use the most current simulated data.
-        if person.get_father()._work > 0: father_work = 1
-        else: father_work = 0
-        if person.get_father()._schooling > 0: father_school = 1
-        else: father_school = 0
-        if person.get_mother()._work > 0: mother_work = 1
-        else: mother_work = 0
-        if person.get_mother()._schooling > 0: mother_school = 1
-        else: mother_school = 0
-        mother_num_children = person.get_mother().get_num_children()
+        #if person.get_father()._work > 0: father_work = 1
+        #else: father_work = 0
+        #if person.get_father()._schooling > 0: father_school = 1
+        #else: father_school = 0
+        #if person.get_mother()._work > 0: mother_work = 1
+        #else: mother_work = 0
+        #if person.get_mother()._schooling > 0: mother_school = 1
+        #else: mother_school = 0
+        #mother_num_children = person.get_mother().get_num_children()
     inner += rcParams['firstbirth.coef.father_work'] * father_work
     inner += rcParams['firstbirth.coef.father_school'] * father_school
     inner += rcParams['firstbirth.coef.mother_work'] * mother_work

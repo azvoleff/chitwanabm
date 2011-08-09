@@ -55,7 +55,8 @@ for (directory in directories) {
 }
 
 ens_results <- calc_ensemble_results(lulc.agg)
-
+save(ens_results, file=paste(DATA_PATH, "ens_results_LULC.Rdata", sep="/"))
+write.csv(ens_results, file=paste(DATA_PATH, "ens_results_LULC.csv", sep="/"))
 
 make_shaded_error_plot(ens_results, "Mean Percentage of Neighborhood", "LULC Type")
 ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
@@ -92,16 +93,18 @@ for (directory in directories) {
     n <- n + 1
 } 
 
-NBH_lulc <- calc_ensemble_results_NBH(lulc.nbh)
+NBH_LULC <- calc_ensemble_results_NBH(lulc.nbh)
+save(NBH_LULC, file=paste(DATA_PATH, "NBH_LULC.Rdata", sep="/"))
+write.csv(NBH_LULC, file=paste(DATA_PATH, "NBH_LULC_LULC.csv", sep="/"))
 
-NBH_lulc.spatial <- SpatialPointsDataFrame(cbind(NBH_lulc$x, NBH_lulc$y), NBH_lulc,
+NBH_LULC.spatial <- SpatialPointsDataFrame(cbind(NBH_LULC$x, NBH_LULC$y), NBH_LULC,
         coords.nrs=c(3,4), proj4string=CRS(proj4string(kriglocations)))
 
 # Use ordinary kriging
-v <- variogram(agveg.mean~1, NBH_lulc.spatial)
+v <- variogram(agveg.mean~1, NBH_LULC.spatial)
 v.fit <- fit.variogram(v, vgm(1, "Exp", 6000, .05))
 v.fit <- fit.variogram(v, vgm(1, "Sph", 6000, .05))
-krigged.ord <- krige(agveg.mean~1, NBH_lulc.spatial, kriglocations, v.fit)
+krigged.ord <- krige(agveg.mean~1, NBH_LULC.spatial, kriglocations, v.fit)
 
 krigged.ord.pred <- krigged.ord["var1.pred"]
 # Mask out areas outside Chitwan using the study area mask. Set areas outside 
@@ -122,7 +125,7 @@ writeGDAL(classed, fname=paste(DATA_PATH,
 
 ###############################################################################
 # Check the kriging results with cross-validation
-krigged.ord.cv5 <- krige.cv(agveg.mean~1, NBH_lulc.spatial, v.fit, nfold=5)
+krigged.ord.cv5 <- krige.cv(agveg.mean~1, NBH_LULC.spatial, v.fit, nfold=5)
 # correlation observed and predicted, ideally 1
 cor.obs.pred <- cor(krigged.ord.cv5$observed,
         krigged.ord.cv5$observed - krigged.ord.cv5$residual)
