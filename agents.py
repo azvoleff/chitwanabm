@@ -721,29 +721,29 @@ class World():
         self._NIDGen = IDGenerator()
         self._RIDGen = IDGenerator()
 
-    def set_DEM_data(world_mask, prj, gt):
+    def set_DEM_data(world_mask, gt, prj):
         self._DEM_array = DEM
-        self._DEM_prj = prj
         self._DEM_gt = gt
+        self._DEM_prj = prj
         return 0
 
     def get_DEM(self):
         return self._DEM_array
 
     def get_DEM_data(self):
-        return self._DEM_array, self._DEM_prj, self._DEM_gt
+        return self._DEM_array, self._DEM_gt, self._DEM_prj
 
-    def set_world_mask_data(world_mask, prj, gt):
+    def set_world_mask_data(world_mask, gt, prj):
         self._world_mask_array = world_mask
-        self._world_mask_prj = prj
         self._world_mask_gt = gt
+        self._world_mask_prj = prj
         return 0
 
     def get_world_mask(self):
         return self._world_mask_array
 
     def get_world_mask_data(self):
-        return self._world_mask_array, self._world_mask_prj, self._world_mask_gt
+        return self._world_mask_array, self._world_mask_gt, self._world_mask_prj
 
     def new_person(self, birthdate, PID=None, mother=None, father=None, age=0,
             sex=None, initial_agent=False, ethnicity=None):

@@ -129,11 +129,11 @@ def main(argv=None):
     # rcparams to point to these files so they will be reused if this run is 
     # rerun.
     DEM_data_file = os.path.join(results_path, "ChitwanABM_DEM.tif")
-    array, prj, gt = world.get_DEM_data()
-    write_single_band_raster(array, prj, gt, DEM_data_file)
+    array, gt, prj = world.get_DEM_data()
+    write_single_band_raster(array, gt, prj, DEM_data_file)
     world_mask_data_file = os.path.join(results_path, "ChitwanABM_world_mask.tif")
-    array, prj, gt = world.get_world_mask_data()
-    write_single_band_raster(array, prj, gt, world_mask_data_file)
+    array, gt, prj = world.get_world_mask_data()
+    write_single_band_raster(array, gt, prj, world_mask_data_file)
 
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
