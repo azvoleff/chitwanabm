@@ -369,10 +369,12 @@ def assemble_world():
 
     # Add the DEM and CVFS Study Area mask to the model_world instance.
     DEM_file = os.path.join(raw_data_path, rcParams['path.DEM_file'])
-    model_world.set_DEM_data(read_single_band_raster(DEM_file))
+    DEM, gt, prj = read_single_band_raster(DEM_file)
+    model_world.set_DEM_data(DEM, gt, prj)
 
     world_mask_file = os.path.join(raw_data_path, rcParams['path.world_mask'])
-    model_world.set_world_mask_data(read_single_band_raster(world_mask_file))
+    world_mask, gt, prj = read_single_band_raster(world_mask_file)
+    model_world.set_world_mask_data(world_mask_file, gt, prj)
 
     # Populate the Chitwan region (the code could handle multiple regions too, 
     # for instance, subdivide the population into different groups with 
