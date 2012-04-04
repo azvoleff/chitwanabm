@@ -721,7 +721,7 @@ class World():
         self._NIDGen = IDGenerator()
         self._RIDGen = IDGenerator()
 
-    def set_DEM_data(self, world_mask, gt, prj):
+    def set_DEM_data(self, DEM, gt, prj):
         self._DEM_array = DEM
         self._DEM_gt = gt
         self._DEM_prj = prj

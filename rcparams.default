@@ -70,7 +70,7 @@
 ###############################################################################
 # This is the path to the processed data file containing the final output file 
 # from the "initialize.py" script.
-'path.input_data_file' : ["T:/ChitwanABM_Initialization/init_data.pickle" | validate_readable_file_warning]
+'path.input_data_file' : ["T:/ChitwanABM_Initialization/init_data.pickle" | validate_readable_file]
 # The following is the path to the original restricted CVFS data as received 
 # from the ICPSR (to be used when running the "initialize.py" script. The
 # data_preprocess.R script will output several new files here when it is

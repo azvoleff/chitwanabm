@@ -374,7 +374,7 @@ def assemble_world():
 
     world_mask_file = os.path.join(raw_data_path, rcParams['path.world_mask'])
     world_mask, gt, prj = read_single_band_raster(world_mask_file)
-    model_world.set_world_mask_data(world_mask_file, gt, prj)
+    model_world.set_world_mask_data(world_mask, gt, prj)
 
     # Populate the Chitwan region (the code could handle multiple regions too, 
     # for instance, subdivide the population into different groups with 
