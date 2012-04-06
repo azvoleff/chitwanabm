@@ -26,6 +26,7 @@
 ###############################################################################
 
 require(ggplot2, quietly=TRUE)
+require(scales, quietly=TRUE) # Used for formatting time on the x axis
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
@@ -51,27 +52,45 @@ names(num.hs.marr)[2:3] <- c("num", "Pop_type")
 # First plot monthly event data
 theme_update(theme_grey(base_size=18))
 # Plot thinner lines so this busy plot is easier to read.
-update_geom_defaults("line", aes(size=.5))
-qplot(pop.results$time.Robj, events, geom="line", colour=Event_type, xlab="Year",
-        ylab="Number of Events", data=events)
-ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
+update_geom_defaults("line", aes(size=.75))
+
+p <- qplot(pop.results$time.Robj, events, geom="line", linetype=Event_type, 
+           xlab="Year", ylab="Number of Events", data=events)
+p + scale_linetype_discrete(name="Legend",
+                            breaks=c("births", "deaths", "marr"),
+                            labels=c("Births", "Deaths",
+                                     "Marriages")) + 
+    scale_x_date(breaks=date_breaks("1 year"),
+                 labels=date_format("%Y"))
+ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT,
         dpi=300)
 
 # Now plot total households and total marriages
-qplot(time.Robj, num, geom="line", colour=Pop_type, xlab="Year",
-        ylab="Population", data=num.hs.marr)
+p <- ggplot(aes(x=time.Robj, y=num), data=num.hs.marr)
+p + geom_line(aes(linetype=Pop_type)) +
+    labs(x="Year", y="Population") + 
+    scale_linetype_discrete(name="Legend",
+                            breaks=c("num_hs", "num_marr"),
+                            labels=c("Total Households",
+                                     "Total Marriages")) + 
+    scale_x_date(breaks=date_breaks("1 year"),
+                 labels=date_format("%Y"))
 ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 
 # Plot total population
-update_geom_defaults("line", aes(size=1))
-qplot(time.Robj, num_psn, geom="line", xlab="Year",
+p <- qplot(time.Robj, num_psn, geom="line", xlab="Year",
         ylab="Population", data=pop.results)
+p + scale_x_date(breaks=date_breaks("1 year"),
+                 labels=date_format("%Y"))
 ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 
 # Plot fw consumption in metric tons
-qplot(time.Robj, fw_usage_kg/1000, geom="line", xlab="Year",
+p <- qplot(time.Robj, fw_usage_kg/1000, geom="line", xlab="Year",
         ylab="Metric Tons of Fuelwood", data=pop.results)
+p + scale_x_date(breaks=date_breaks("1 year"),
+                 labels=date_format("%Y"))
 ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
