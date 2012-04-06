@@ -32,6 +32,7 @@ PLOT_HEIGHT = 5.53
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "R:/Data/Nepal/ChitwanABM_runs/Yabiku/20120404-154357_azvoleff-THINK"
 
 directories <- list.files(DATA_PATH)
 # Only match the model results folders - don't match any other folders or files 

@@ -38,7 +38,7 @@ from ChitwanABM import rcParams, random_state
 from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_migration, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
-        calc_firstbirth_prob_ghimireaxinn2010
+        calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -307,6 +307,16 @@ class Household(Agent_set):
     def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
         return self._any_non_wood_fuel
+    
+    def get_hh_head(self):
+        max_age = None
+        if self.num_members() == 0:
+            raise AgentError("No household head for household %s. Household has no members"%self.get_ID())
+        for person in self.get_agents():
+            if person.get_age() > max_age:
+                max_age = person.get_age()
+                hh_head = person
+        return hh_head
 
     def own_house_plot(self):
         "Boolean for whether household owns the plot of land on which it resides"
@@ -324,20 +334,13 @@ class Household(Agent_set):
         return self._initial_agent
 
     def fw_usage(self):
-        # Load coefficients from rcParams
-        intercept = rcParams['fw_demand.coef.intercept']
-        coef_hh_size = rcParams['fw_demand.coef.hh_size']
-        coef_ethnic = rcParams['fw_demand.coef.ethnic']
-        coef_own_nw_stove = rcParams['fw_demand.coef.own_nw_stove']
-
-        hh_size = self.num_members()
-        fw_usage = intercept + hh_size * coef_hh_size
         # Convert daily fw_usage to monthly
+        fw_usage = calc_fuelwood_usage(self)
         fw_usage = fw_usage * 30
         return fw_usage
 
     def __str__(self):
-        return "Household(HID: %s. %s household(s))" %(self.get_ID(), self.num_members())
+        return "Household(HID: %s. %s household(s))"%(self.get_ID(), self.num_members())
 
 class Neighborhood(Agent_set):
     "Represents a single neighborhood agent"

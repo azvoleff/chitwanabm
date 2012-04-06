@@ -156,14 +156,15 @@
 'firstbirth.coef.hazdur_36' : [0.22314 | validate_float]
 'firstbirth.coef.hazdur_42' : [-0.44629 | validate_float]
 
-
 ###############################################################################
 # Household agent parameters
 ###############################################################################
-'fw_demand.coef.intercept' : [2.07 | validate_float]
-'fw_demand.coef.hh_size' : [.219 | validate_float]
-'fw_demand.coef.ethnic' : [.881 | validate_float]
-'fw_demand.coef.own_nw_stove' : [-1.01 | validate_float]
+'fw_demand.coef.intercept' : [1.816 | validate_float]
+'fw_demand.coef.hhsize' : [-.408 | validate_float]
+'fw_demand.coef.hhsize_squared' : [.034 | validate_float]
+'fw_demand.coef.upper_caste_hindu' : [-.051 | validate_float]
+'fw_demand.coef.own_non_wood_stove' : [-.0255 | validate_float]
+'fw_demand.residvariance' : [.0842 | validate_float]
 
 ###############################################################################
 # Landscape parameters
@@ -174,13 +175,5 @@
 # Landscape parameters
 ###############################################################################
 # Feedback parameters are named so that, for example: 
-# 'feedback.agveg.birthrate' means: "feedback of agveg ON birthrate"
-'feedback.agveg.birthrate': [True | validate_boolean]
-'feedback.nonagveg.birthrate': [True | validate_boolean]
-'feedback.NFO.birthrate': [True | validate_boolean]
-'feedback.NFO.fwconsump': [True | validate_boolean]
-'feedback.birth.agveg': [True | validate_boolean]
 'feedback.birth.nonagveg': [True | validate_boolean]
 'feedback.birth.nonagveg.area': [10 | validate_float]
-'feedback.foddconsump.birthrate': [True | validate_boolean]
-'feedback.fwconsump.birthrate': [True | validate_boolean]

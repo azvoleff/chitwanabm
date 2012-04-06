@@ -324,3 +324,25 @@ def draw_from_prob_dist(prob_dist):
     # Now we know the bin lims, so draw a random number evenly distributed 
     # between those two limits.
     return np.random.uniform(lowbinlim, upbinlim)
+
+def calc_fuelwood_usage(household):
+    """
+    Calculates household-level fuelwood usage, using the results of a 2009 
+    survey of fuelwood usage in the valley.
+    """
+    if household.num_members() == 0:
+        return 0
+    wood_usage = rcParams['fw_demand.coef.intercept']
+    wood_usage += rcParams['fw_demand.coef.hhsize'] * household.num_members()
+    wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * household.num_members()
+    if household.get_hh_head().get_ethnicity() == 1:
+        # Upper caste Hindu is coded as 1
+        wood_usage += rcParams['fw_demand.coef.ethnic']
+    wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.coef.own_non_wood_stove']
+    wood_usage += np.random.randn() + rcParams['fw_demand.residvariance']
+    if wood_usage < 0:
+        # Account for less than zero wood usage (could occur due to the random 
+        # number added above to account for the low percent variance explained 
+        # by the model).
+        wood_usage = 0
+    return wood_usage
