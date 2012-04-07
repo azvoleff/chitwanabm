@@ -85,7 +85,7 @@ def __probability_index__(t):
 def calc_firstbirth_prob_ghimireaxinn2010(person, time):
     """
     Calculates the probability of a first birth in a given month for an agent, 
-    using the results of Ghimire and Axinn, 2010.
+    using the results of Ghimire and Axinn (2010).
     """
     #########################################################################
     # Intercept
@@ -191,7 +191,7 @@ def calc_firstbirth_prob_ghimireaxinn2010(person, time):
 
     # Testing code:
     #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "First birth probability: prob: %s (marriage_time: %s)"%(prob, mariage_time)
+    #print "First birth: prob: %s (marriage_time: %s)"%(prob, mariage_time)
     return 1./(1 + np.exp(inner))
 
 def calc_probability_marriage_yabiku2006(person):
@@ -236,9 +236,10 @@ def calc_probability_marriage_yabiku2006(person):
     age = person.get_age() / 12.
     inner += rcParams['marrtime.coef.age'] * age
     inner += rcParams['marrtime.coef.age_squared'] * (age**2)
+    
     # Testing code:
     #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "age: %s,  prob: %s"%(age, prob)
+    #print "Marriage: age: %s,  prob: %s"%(age, prob)
     return 1./(1 + np.exp(-inner))
 
 def calc_probability_marriage_simple(person):
@@ -265,7 +266,7 @@ def calc_probability_death(person):
     except IndexError:
         raise IndexError("error calculating death probability (index %s)"%(probability_index))
 
-def calc_probability_migration(person):
+def calc_probability_migration_simple(person):
     "Calculates the probability of migration for an agent."
     age = person.get_age()
     probability_index = __probability_index__(age)
@@ -273,6 +274,49 @@ def calc_probability_migration(person):
         return migration_probabilities_female[probability_index]
     elif person.get_sex() == 'male':
         return migration_probabilities_male[probability_index]
+
+def calc_probability_migration_masseyetal_2010(person):
+    """
+    Calculates the probability of long-distance migration in a given month for 
+    an agent, using the results of Massey, Axinn, and Ghimire (2010) Pop. and 
+    Environment paper.
+    """
+    #########################################################################
+    # Intercept
+    inner = rcParams['migration.coef.intercept']
+
+    if person.get_sex() == "female":
+        inner += rcParams['marrtime.coef.female']
+
+    #########################################################################
+    # Ethnicity (high caste hindu as reference case)
+    ethnicity = person.get_ethnicity()
+    assert ethnicity!=None, "Ethnicity must be defined"
+    if ethnicity == "HighHindu":
+        # This was the reference level
+        pass
+    elif ethnicity == "HillTibeto":
+        inner += rcParams['migration.coef.ethnicHillTibeto']
+    elif ethnicity == "LowHindu":
+        inner += rcParams['migration.coef.ethnicLowHindu']
+    elif ethnicity == "Newar":
+        inner += rcParams['migration.coef.ethnicNewar']
+    elif ethnicity == "TeraiTibeto":
+        inner += rcParams['migration.coef.ethnicTeraiTibeto']
+
+    # Convert person's age from months to years:
+    age = person.get_age() / 12.
+    if (age >= 15) & (age <= 24):
+        inner += rcParams['migration.coef.age15-24']
+    elif (age > 24) & (age <= 34):
+        inner += rcParams['migration.coef.age24-34']
+    elif (age > 34) & (age <= 44):
+        inner += rcParams['migration.coef.age34-44']
+
+    # Testing code:
+    prob = np.round(1./(1 + np.exp(-inner)), 4)
+    print "Migration prob: age: %s,  prob: %s"%(age, prob)
+    return 1./(1 + np.exp(-inner))
 
 def calc_first_birth_time(person):
     """
@@ -335,9 +379,8 @@ def calc_fuelwood_usage(household):
     wood_usage = rcParams['fw_demand.coef.intercept']
     wood_usage += rcParams['fw_demand.coef.hhsize'] * household.num_members()
     wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * household.num_members()
-    if household.get_hh_head().get_ethnicity() == 1:
-        # Upper caste Hindu is coded as 1
-        wood_usage += rcParams['fw_demand.coef.ethnic']
+    if household.get_hh_head().get_ethnicity() == "HighHindu":
+        wood_usage += rcParams['fw_demand.coef.upper_caste_hindu']
     wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.coef.own_non_wood_stove']
     wood_usage += np.random.randn() + rcParams['fw_demand.residvariance']
     if wood_usage < 0:

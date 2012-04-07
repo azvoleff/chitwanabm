@@ -62,8 +62,9 @@
 # will slow down the model A LOT.
 'save_LULC_shapefiles': [False | validate_boolean]
 
-'model.parameterization.marriage': ["yabiku2006"| novalidation]
-'model.parameterization.firstbirthtiming': ["ghimireaxinn2010"| novalidation]
+'model.parameterization.marriage': ["yabiku2006" | validate_string]
+'model.parameterization.firstbirthtiming': ["ghimireaxinn2010" | validate_string]
+'model.parameterization.migration' : ["massey2010" | validate_string]
 
 ###############################################################################
 # Location of input data (these are restricted data)
@@ -106,6 +107,7 @@
 'prob.num.children.desired' : [((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))] | validate_prob_dist]
 'use.num.children.desired' : [True | validate_boolean]
 
+# Coefficients for marriage timing are from Yabiku (2006).
 'marrtime.coef.intercept' : [-15.6 | validate_float]
 'marrtime.coef.logpercagveg' : [0.10346 | validate_float]
 'marrtime.coef.school_minft_1996' : [0.003 | validate_float]
@@ -123,6 +125,7 @@
 'marrtime.coef.age' : [0.85058 | validate_float]
 'marrtime.coef.age_squared' : [-0.01613 | validate_float]
 
+# Coefficients for marriage timing are from Ghimire and Axinn (2010).
 'firstbirth.coef.intercept' : [3 | validate_float]
 'firstbirth.coef.percagveg' : [0.00995 | validate_float]
 'firstbirth.coef.avgyrsnonfam' : [-0.0202 | validate_float]
@@ -155,6 +158,17 @@
 'firstbirth.coef.hazdur_30' : [-0.31471 | validate_float]
 'firstbirth.coef.hazdur_36' : [0.22314 | validate_float]
 'firstbirth.coef.hazdur_42' : [-0.44629 | validate_float]
+
+# Migration coefficents are from Massey, Axinn, and Ghimire (2010).
+'migration.coef.intercept' : [-2 | validate_float]
+'migration.coef.female' : [-0.46204 | validate_float]
+'migration.coef.ethnicLowHindu' : [0.12222 | validate_float]
+'migration.coef.ethnicNewar' : [0.05827 | validate_float]
+'migration.coef.ethnicHillTibeto' : [2.37862 | validate_float]
+'migration.coef.ethnicTeraiTibeto' : [0.36464 | validate_float]
+'migration.coef.age15-24' : [1.80665 | validate_float]
+'migration.coef.age24-34' : [1.36864 | validate_float]
+'migration.coef.age34-44' : [0.75142 | validate_float]
 
 ###############################################################################
 # Household agent parameters

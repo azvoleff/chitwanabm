@@ -21,8 +21,8 @@
 # contact information.
 
 ###############################################################################
-# Plots the aggregate pop data from a model run (births, events, deaths, 
-# marriages, migration, total population, etc.).
+# Plots the aggregate pop data from a model run (births, deaths, marriages, 
+# migration, total population, etc.).
 ###############################################################################
 
 require(ggplot2, quietly=TRUE)
@@ -34,15 +34,22 @@ PLOT_HEIGHT = 5.53
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "R:/Data/Nepal/ChitwanABM_runs/Yabiku/20120406-175944_azvoleff-THINK"
 
 pop.results <- calc_NBH_pop(DATA_PATH)
 
-# Make two separate stacks - one of monthly event data and one of total hs and 
-# total marriages. Stack them so they can easily be color-coded with ggplot2.
-events <- with(pop.results, data.frame(time.Robj=time.Robj, marr, births, deaths))
-events <- stack(events)
-events <- cbind(time.Robj=rep(pop.results$time.Robj, 3), events)
-names(events)[2:3] <- c("events", "Event_type")
+# Make several separate stacks - one of monthly vital event data, one of 
+# monthly migration data, and one of total hs and total marriages. Stack them 
+# so they can easily be color-coded with ggplot2.
+vital_events <- with(pop.results, data.frame(time.Robj=time.Robj, marr, births, deaths))
+vital_events <- stack(vital_events)
+vital_events <- cbind(time.Robj=rep(pop.results$time.Robj, 3), vital_events)
+names(vital_events)[2:3] <- c("events", "Event_type")
+
+migrations <- with(pop.results, data.frame(time.Robj=time.Robj, in_migr, out_migr))
+migrations <- stack(migrations)
+migrations <- cbind(time.Robj=rep(pop.results$time.Robj, 2), migrations)
+names(migrations)[2:3] <- c("events", "Event_type")
 
 num.hs.marr <- with(pop.results, data.frame(time.Robj=time.Robj, num_hs, num_marr))
 num.hs.marr <- stack(num.hs.marr)
@@ -53,9 +60,9 @@ names(num.hs.marr)[2:3] <- c("num", "Pop_type")
 theme_update(theme_grey(base_size=18))
 # Plot thinner lines so this busy plot is easier to read.
 update_geom_defaults("line", aes(size=.75))
-
+# Plot vital events
 p <- qplot(pop.results$time.Robj, events, geom="line", linetype=Event_type, 
-           xlab="Year", ylab="Number of Events", data=events)
+           xlab="Year", ylab="Number of Events", data=vital_events)
 p + scale_linetype_discrete(name="Legend",
                             breaks=c("births", "deaths", "marr"),
                             labels=c("Births", "Deaths",
@@ -63,6 +70,18 @@ p + scale_linetype_discrete(name="Legend",
     scale_x_date(breaks=date_breaks("1 year"),
                  labels=date_format("%Y"))
 ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT,
+        dpi=300)
+
+# Plot migration
+p <- qplot(pop.results$time.Robj, events, geom="line", linetype=Event_type, 
+           xlab="Year", ylab="Number of Migrants", data=migrations)
+p + scale_linetype_discrete(name="Legend",
+                            breaks=c("in_migr", "out_migr"),
+                            labels=c("In-migrants", "Out-migrants")) +
+    scale_x_date(breaks=date_breaks("1 year"),
+                 labels=date_format("%Y"))
+ggsave(paste(DATA_PATH, "migrations.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT,
         dpi=300)
 
