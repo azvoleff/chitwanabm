@@ -36,9 +36,10 @@ from PyABM.agents import Agent, Agent_set, Agent_Store
 
 from ChitwanABM import rcParams, random_state
 from ChitwanABM.statistics import calc_probability_death, \
-        calc_probability_migration, calc_first_birth_time, \
+        calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
-        calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage
+        calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage, \
+        calc_probability_migration_masseyetal_2010
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -46,6 +47,13 @@ elif rcParams['model.parameterization.marriage'] == 'yabiku2006':
     from ChitwanABM.statistics import calc_probability_marriage_yabiku2006 as calc_probability_marriage
 else:
     raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['model.parameterization.marriage'])
+
+if rcParams['model.parameterization.migration'] == 'simple':
+    from ChitwanABM.statistics import calc_probability_migration_simple as calc_probability_migration
+elif rcParams['model.parameterization.migration'] == 'massey2010':
+    from ChitwanABM.statistics import calc_probability_migration_masseyetal_2010 as calc_probability_migration
+else:
+    raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['model.parameterization.migration'])
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -808,7 +816,7 @@ class World():
         psn_csv_file = os.path.join(results_path, "psns_time_%s.csv"%timestep)
         out_file = open(psn_csv_file, "w")
         csv_writer = csv.writer(out_file)
-        csv_writer.writerow(["pid", "hid", "nid", "rid", "gender", "age", "spouseid", "father_id", "mother_id", "des_num_children", "first_birth_timing"])
+        csv_writer.writerow(["pid", "hid", "nid", "rid", "gender", "ethnicity", "age", "spouseid", "father_id", "mother_id", "des_num_children", "first_birth_timing"])
         for region in self.iter_regions():
             for person in region.iter_persons():
                 new_row = []
@@ -817,6 +825,7 @@ class World():
                 new_row.append(person.get_parent_agent().get_parent_agent().get_ID())
                 new_row.append(person.get_parent_agent().get_parent_agent().get_parent_agent().get_ID())
                 new_row.append(person.get_sex())
+                new_row.append(person.get_ethnicity())
                 new_row.append(person.get_age())
                 spouse = person.get_spouse()
                 if spouse != None:
