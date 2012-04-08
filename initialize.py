@@ -134,6 +134,9 @@ def assemble_households(householdsFile, model_world):
     """
     household_datas = read_CVFS_data(householdsFile, "HHID")
     
+    model_start_time = rcParams['model.timebounds'][0]
+    model_start_time = model_start_time[0] + model_start_time[1]/12.
+
     households = []
     HHID_NEIGHID_map = {} # Links persons with their HHID
     for household_data in household_datas.itervalues():
@@ -144,6 +147,14 @@ def assemble_households(householdsFile, model_world):
         household = model_world.new_household(HHID, initial_agent=True)
         household._own_house_plot = bool(household_data['BAA43']) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
+
+
+        # Roughly a third of households will have had a person make an LD 
+        # migration within the last year:
+        if np.random.rand() < .4:
+            household._lastmigrant_time = model_start_time + np.random.randint(-12, 0)/12.
+        else:
+            household._lastmigrant_time = -9999
 
         own_any_bari = bool(household_data['BAA10A']) # does the household own any bari land
         own_any_khet = bool(household_data['BAA18A']) # does the household own any khet land
