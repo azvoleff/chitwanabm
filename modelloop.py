@@ -88,8 +88,8 @@ def main_loop(world, results_path):
     # Write the results for timestep 0
     write_results_CSV(world, results_path, 0)
 
-    def save_data_dict(saved_data, timestep, region, new_births, new_deaths,
-            new_marr, new_out_migr, new_in_migr):
+    def save_data_dict(saved_data, timestep, date_float, region, new_births, 
+            new_deaths, new_marr, new_out_migr, new_in_migr):
         """
         Store model results for later plotting. Store each variable in a 
         dictionary data while the model is runningthe data keyed by: 
@@ -102,7 +102,7 @@ def main_loop(world, results_path):
         saved_data[timestep]['in_migr'] = new_in_migr
         saved_data[timestep]['out_migr'] = new_out_migr
         saved_data[timestep].update(region.get_neighborhood_pop_stats())
-        saved_data[timestep].update(region.get_neighborhood_fw_usage())
+        saved_data[timestep].update(region.get_neighborhood_fw_usage(date_float))
         saved_data[timestep].update(region.get_neighborhood_landuse())
 
     # saved_data will store event, population, and fuelwood usage data keyed by 
@@ -118,7 +118,7 @@ def main_loop(world, results_path):
     empty_events = {}
     for neighborhood in region.iter_agents():
         empty_events[neighborhood.get_ID()] = np.NaN
-    save_data_dict(saved_data, 0, region, empty_events, empty_events,
+    save_data_dict(saved_data, 0, 0, region, empty_events, empty_events,
             empty_events, empty_events, empty_events)
 
     while model_time.in_bounds():
@@ -138,8 +138,9 @@ def main_loop(world, results_path):
             new_out_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
 
             # Save event, LULC, and population data for later output to CSV.
-            save_data_dict(saved_data, model_time.get_cur_int_timestep(),
-                    region, new_births, new_deaths, new_marr, new_out_migr,
+            save_data_dict(saved_data, model_time.get_cur_int_timestep(), 
+                    model_time.get_cur_date_float(), region, new_births, 
+                    new_deaths, new_marr, new_out_migr,
                     new_in_migr)
 
             # Keep running total for printing results:

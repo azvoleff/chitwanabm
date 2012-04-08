@@ -65,6 +65,7 @@
 'model.parameterization.marriage': ["yabiku2006" | validate_string]
 'model.parameterization.firstbirthtiming': ["ghimireaxinn2010" | validate_string]
 'model.parameterization.migration' : ["massey2010" | validate_string]
+'model.parameterization.fuelwood_usage' : ["migrationfeedback" | validate_string]
 
 ###############################################################################
 # Location of input data (these are restricted data)
@@ -99,7 +100,7 @@
 'probability.migration.male' : [{(0, 10):0, (10, 14):0.0029, (14, 18):0.0177, (18, 22):0.0296, (22, 30):0.054, (30, 40):0.02, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
 'probability.migration.female' : [{(0, 10):0, (10, 14):0.0019, (14, 18):0.0087, (18, 22):0.0136, (22, 30):0.020, (30, 40):0.01, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
 'prob.marriage.moveout' : [.30 | validate_float]
-'prob.marry.inmigrant' : [.75 | validate_float]
+'prob.marry.inmigrant' : [.90 | validate_float]
 'prob.firstbirth.times' : [((0, 5, 10, 15, 20, 25, 30, 35, 40), (0.0421, 0.2757, 0.3925, 0.1636, 0.0654, 0.0327, 0.0234, 0.0047))] | validate_prob_dist]
 'use.firstbirth.times' : [True | validate_boolean]
 'prob.num.children.desired' : [((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))] | validate_prob_dist]
@@ -173,12 +174,22 @@
 ###############################################################################
 # Household agent parameters
 ###############################################################################
-'fw_demand.coef.intercept' : [1.816 | validate_float]
-'fw_demand.coef.hhsize' : [-.408 | validate_float]
-'fw_demand.coef.hhsize_squared' : [.034 | validate_float]
-'fw_demand.coef.upper_caste_hindu' : [-.051 | validate_float]
-'fw_demand.coef.own_non_wood_stove' : [-.0255 | validate_float]
-'fw_demand.residvariance' : [.0842 | validate_float]
+'fw_demand.simple.coef.intercept' : [1.816 | validate_float]
+'fw_demand.simple.coef.hhsize' : [-.408 | validate_float]
+'fw_demand.simple.coef.hhsize_squared' : [.034 | validate_float]
+'fw_demand.simple.coef.upper_caste_hindu' : [-.051 | validate_float]
+'fw_demand.simple.coef.own_non_wood_stove' : [-.0255 | validate_float]
+'fw_demand.simple.residvariance' : [.0842 | validate_float]
+
+'fw_demand.migfeedback.coef.intercept' : [1.816 | validate_float]
+'fw_demand.migfeedback.coef.hhsize' : [-.408 | validate_float]
+'fw_demand.migfeedback.coef.hhsize_squared' : [.034 | validate_float]
+'fw_demand.migfeedback.coef.upper_caste_hindu' : [-.051 | validate_float]
+'fw_demand.migfeedback.coef.own_non_wood_stove' : [-.0255 | validate_float]
+'fw_demand.migfeedback.coef.anyLDmigr' : [-.943 | validate_float]
+#'fw_demand.migfeedback.coef.anyLDmigr' : [-.25 | validate_float]
+#'fw_demand.migfeedback.coef.anyLDmigr' : [-1.636 | validate_float]
+'fw_demand.migfeedback.residvariance' : [.0842 | validate_float]
 
 ###############################################################################
 # Landscape parameters

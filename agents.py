@@ -38,8 +38,9 @@ from ChitwanABM import rcParams, random_state
 from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
-        calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage, \
-        calc_probability_migration_masseyetal_2010, calc_migration_length
+        calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage_simple, \
+        calc_probability_migration_masseyetal_2010, calc_migration_length, \
+        calc_fuelwood_usage_migration_feedback
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -54,6 +55,13 @@ elif rcParams['model.parameterization.migration'] == 'massey2010':
     from ChitwanABM.statistics import calc_probability_migration_masseyetal_2010 as calc_probability_migration
 else:
     raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['model.parameterization.migration'])
+
+if rcParams['model.parameterization.fuelwood_usage'] == 'simple':
+    from ChitwanABM.statistics import calc_fuelwood_usage_simple as calc_fuelwood_usage
+elif rcParams['model.parameterization.fuelwood_usage'] == 'migrationfeedback':
+    from ChitwanABM.statistics import calc_fuelwood_usage_migration_feedback as calc_fuelwood_usage
+else:
+    raise Exception("Unknown option for fuelwood usage: '%s'"%rcParams['model.parameterization.fuelwood_usage'])
 
 if rcParams['model.use_psyco'] == True:
     import psyco
@@ -311,6 +319,7 @@ class Household(Agent_set):
         self._own_house_plot = boolean_choice(.829)  # From DS0002$BAA43
         self._own_land = boolean_choice(.61) # From Axinn, Ghimire (2007)
         self._rented_out_land = boolean_choice(.11) # From Axinn, Ghimire (2007)
+        self._lastmigrant_time = None
 
     def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
@@ -341,8 +350,8 @@ class Household(Agent_set):
     def is_initial_agent(self):
         return self._initial_agent
 
-    def fw_usage(self):
-        fw_usage = calc_fuelwood_usage(self)
+    def fw_usage(self, time):
+        fw_usage = calc_fuelwood_usage(self, time)
         # Convert daily fw_usage to monthly
         fw_usage = fw_usage * 30
         return fw_usage
@@ -630,6 +639,7 @@ class Region(Agent_set):
         for household in self.iter_households():
             for person in household.iter_agents():
                 if random_state.rand() < calc_probability_migration(person):
+                    household._lastmigrant_time = time
                     # Agent migrates. Choose how long the agent is migrating 
                     # for from a probability distribution.
                     months_away = calc_migration_length(person)
@@ -655,12 +665,12 @@ class Region(Agent_set):
             timestep = rcParams['model.timestep']
             person._age += timestep
 
-    def get_neighborhood_fw_usage(self):
+    def get_neighborhood_fw_usage(self, time):
         fw_usage = {}
         for neighborhood in self.iter_agents():
             fw_usage[neighborhood.get_ID()] = 0
             for household in neighborhood.iter_agents():
-                fw_usage[neighborhood.get_ID()] += household.fw_usage()
+                fw_usage[neighborhood.get_ID()] += household.fw_usage(time)
         return {'fw_usage': fw_usage}
 
     def get_neighborhood_landuse(self):

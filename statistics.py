@@ -380,7 +380,7 @@ def draw_from_prob_dist(prob_dist):
     # between those two limits.
     return np.random.uniform(lowbinlim, upbinlim)
 
-def calc_fuelwood_usage(household):
+def calc_fuelwood_usage_simple(household, time):
     """
     Calculates household-level fuelwood usage, using the results of a 2009 
     survey of fuelwood usage in the valley.
@@ -388,6 +388,14 @@ def calc_fuelwood_usage(household):
     hhsize = household.num_members()
     if hhsize == 0:
         return 0
+    if hhsize >= 6:
+        # Hold household size constant after 6 persons hhsize since model is 
+        # unstable after 6
+        wood_usage += rcParams['fw_demand.coef.hhsize'] * 6
+        wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * 6
+    else:
+        wood_usage += rcParams['fw_demand.coef.hhsize'] * hhsize
+        wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * hhsize
     wood_usage = rcParams['fw_demand.coef.intercept']
     wood_usage += rcParams['fw_demand.coef.hhsize'] * hhsize
     wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * hhsize
@@ -395,6 +403,39 @@ def calc_fuelwood_usage(household):
         wood_usage += rcParams['fw_demand.coef.upper_caste_hindu']
     wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.coef.own_non_wood_stove']
     wood_usage += np.random.randn()*rcParams['fw_demand.residvariance']
+    if wood_usage < 0:
+        # Account for less than zero wood usage (could occur due to the random 
+        # number added above to account for the low percent variance explained 
+        # by the model).
+        wood_usage = 0
+    # The prediction is per person - multiply it by hhsize to get total 
+    # household fuelwood consumption:
+    wood_usage = wood_usage * hhsize
+    return wood_usage
+
+def calc_fuelwood_usage_migration_feedback(household, time):
+    """
+    Calculates household-level fuelwood usage, using the results of a 2009 
+    survey of fuelwood usage in the valley.
+    """
+    hhsize = household.num_members()
+    if hhsize == 0:
+        return 0
+    wood_usage = rcParams['fw_demand.migfeedback.coef.intercept']
+    if hhsize >= 6:
+        # Hold household size constant after 6 persons hhsize since model is 
+        # unstable after 6
+        wood_usage += rcParams['fw_demand.migfeedback.coef.hhsize'] * 6
+        wood_usage += rcParams['fw_demand.migfeedback.coef.hhsize_squared'] * 6
+    else:
+        wood_usage += rcParams['fw_demand.migfeedback.coef.hhsize'] * hhsize
+        wood_usage += rcParams['fw_demand.migfeedback.coef.hhsize_squared'] * hhsize
+    if household.get_hh_head().get_ethnicity() == "HighHindu":
+        wood_usage += rcParams['fw_demand.migfeedback.coef.upper_caste_hindu']
+    wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.migfeedback.coef.own_non_wood_stove']
+    wood_usage += np.random.randn()*rcParams['fw_demand.migfeedback.residvariance']
+    if household._lastmigrant_time > (time - 1):
+        wood_usage += rcParams['fw_demand.migfeedback.coef.anyLDmigr']
     if wood_usage < 0:
         # Account for less than zero wood usage (could occur due to the random 
         # number added above to account for the low percent variance explained 
