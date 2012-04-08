@@ -25,14 +25,15 @@
 ###############################################################################
 
 require(ggplot2, quietly=TRUE)
-
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
+DPI = 300
+theme_update(theme_grey(base_size=18))
 
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "R:/Data/Nepal/ChitwanABM_runs/Yabiku/20120404-154357_azvoleff-THINK"
+DATA_PATH <- "R:/Data/Nepal/ChitwanABM_runs/USIALE2012_nofeedback"
 
 directories <- list.files(DATA_PATH)
 # Only match the model results folders - don't match any other folders or files 
@@ -61,13 +62,13 @@ write.csv(ens_results, file=paste(DATA_PATH, "ens_results_pop.csv", sep="/"))
 events <- ens_results[c(1, grep("^(marr|births|deaths)", names(ens_results)))]
 make_shaded_error_plot(events, "Number of Events", "Event Type")
 ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
-        dpi=300)
+        dpi=DPI)
 
 # Now plot total households and total marriages
 num.hs.marr <- ens_results[c(1, grep("^(num_marr|num_hs)", names(ens_results)))]
 make_shaded_error_plot(num.hs.marr, "Number", "Type")
 ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
-        dpi=300)
+        dpi=DPI)
 
 # Plot total population
 num_psn <- ens_results[c(1, grep("^(num_psn)", names(ens_results)))]
@@ -77,8 +78,10 @@ ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=PLOT_WIDTH,
 
 # Plot fw consumption in metric tons
 fw_usage <- ens_results[c(1, grep("^(fw_usage)", names(ens_results)))]
-fw_usage$fw_usage_kg.mean <- fw_usage$fw_usage_kg.mean/1000
-fw_usage$fw_usage_kg.sd <- fw_usage$fw_usage_kg.sd/1000
+fw_usage$fw_usage_metrictons.mean <- fw_usage$fw_usage_kg.mean/1000
+fw_usage$fw_usage_metrictons.sd <- fw_usage$fw_usage_kg.sd/1000
+fw_usage <- fw_usage[!("kg" %in% names(fw_usage))]
 make_shaded_error_plot(fw_usage, "Metric Tons of Fuelwood", NA)
 ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
+write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"))
