@@ -98,7 +98,7 @@
 'probability.marriage.female' : [{(0, 10):0, (10, 14):0.0024, (14, 18):0.0321, (18, 22):0.107, (22, 30):0.1294, (30, 40):0.0663, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
 'probability.migration.male' : [{(0, 10):0, (10, 14):0.0029, (14, 18):0.0177, (18, 22):0.0296, (22, 30):0.054, (30, 40):0.02, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
 'probability.migration.female' : [{(0, 10):0, (10, 14):0.0019, (14, 18):0.0087, (18, 22):0.0136, (22, 30):0.020, (30, 40):0.01, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
-'prob.marriage.moveout' : [.15 | validate_float]
+'prob.marriage.moveout' : [.30 | validate_float]
 'prob.marry.inmigrant' : [.5 | validate_float]
 'migr.in.mean' : [5 | validate_float]
 'migr.in.sd' : [3 | validate_float]
@@ -106,6 +106,8 @@
 'use.firstbirth.times' : [True | validate_boolean]
 'prob.num.children.desired' : [((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))] | validate_prob_dist]
 'use.num.children.desired' : [True | validate_boolean]
+'prob.migration.lengths' : [((0, 1, 2, 4, 8, 12, 18, 24, 30, 36), (.4361, .2369, .1505, .0769, .0545, .0238, .0154, .0056, .0056))] | validate_prob_dist]
+'prob.migration.length.permanent' : [.0790 | validate_float]
 
 # Coefficients for marriage timing are from Yabiku (2006).
 'marrtime.coef.intercept' : [-15.6 | validate_float]
@@ -160,7 +162,7 @@
 'firstbirth.coef.hazdur_42' : [-0.44629 | validate_float]
 
 # Migration coefficents are from Massey, Axinn, and Ghimire (2010).
-'migration.coef.intercept' : [-2 | validate_float]
+'migration.coef.intercept' : [-7.3658 | validate_float]
 'migration.coef.female' : [-0.46204 | validate_float]
 'migration.coef.ethnicLowHindu' : [0.12222 | validate_float]
 'migration.coef.ethnicNewar' : [0.05827 | validate_float]

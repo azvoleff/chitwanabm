@@ -39,7 +39,7 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
         calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage, \
-        calc_probability_migration_masseyetal_2010
+        calc_probability_migration_masseyetal_2010, calc_migration_length
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -342,8 +342,8 @@ class Household(Agent_set):
         return self._initial_agent
 
     def fw_usage(self):
-        # Convert daily fw_usage to monthly
         fw_usage = calc_fuelwood_usage(self)
+        # Convert daily fw_usage to monthly
         fw_usage = fw_usage * 30
         return fw_usage
 
@@ -525,7 +525,7 @@ class Region(Agent_set):
                         eligible_males.append(person)
                     else:
                         eligible_females.append(person)
-        # As a VERY crude model of in-migration, append to the list additional 
+        # As a crude model of in-migration, append to the list additional 
         # agents, according to a parameter specifying the proportion of persons 
         # who marry in-migrants.
         num_new_females = int(np.floor(rcParams['prob.marry.inmigrant'] * len(eligible_females)))
@@ -632,11 +632,11 @@ class Region(Agent_set):
                 if random_state.rand() < calc_probability_migration(person):
                     # Agent migrates. Choose how long the agent is migrating 
                     # for from a probability distribution.
-                    # TODO: Consider a migration of longer than <> years as 
-                    # permanent.
-                    # The add_agent function of the agent_store class handles 
-                    # removing the agent from its parent (the household).
-                    self.agent_store.add_agent(person, time+1)
+                    months_away = calc_migration_length(person)
+                    # The add_agent function of the agent_store class also 
+                    # handles removing the agent from its parent (the 
+                    # household).
+                    self.agent_store.add_agent(person, time+(months_away/12))
                     neighborhood = household.get_parent_agent()
                     if not out_migr.has_key(neighborhood.get_ID()):
                         out_migr[neighborhood.get_ID()] = 0

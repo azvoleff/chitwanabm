@@ -314,9 +314,20 @@ def calc_probability_migration_masseyetal_2010(person):
         inner += rcParams['migration.coef.age34-44']
 
     # Testing code:
-    prob = np.round(1./(1 + np.exp(-inner)), 4)
-    print "Migration prob: age: %s,  prob: %s"%(age, prob)
+    #prob = np.round(1./(1 + np.exp(-inner)), 4)
+    #print "Migration prob: age: %s,  prob: %s"%(age, prob)
     return 1./(1 + np.exp(-inner))
+
+def calc_migration_length(agent):
+    """
+    Calculated the length of a migration from a probability distribution.
+    """
+    # First decide if it is permanent, according to the 
+    # "prob.migration.length.permanent" parameter:
+    if np.random.rand() < rcParams['prob.migration.length.permanent']:
+        return 99999999
+    mig_length_prob_dist = rcParams['prob.migration.lengths']
+    return int(draw_from_prob_dist(mig_length_prob_dist))
 
 def calc_first_birth_time(person):
     """
@@ -374,18 +385,22 @@ def calc_fuelwood_usage(household):
     Calculates household-level fuelwood usage, using the results of a 2009 
     survey of fuelwood usage in the valley.
     """
-    if household.num_members() == 0:
+    hhsize = household.num_members()
+    if hhsize == 0:
         return 0
     wood_usage = rcParams['fw_demand.coef.intercept']
-    wood_usage += rcParams['fw_demand.coef.hhsize'] * household.num_members()
-    wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * household.num_members()
+    wood_usage += rcParams['fw_demand.coef.hhsize'] * hhsize
+    wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * hhsize
     if household.get_hh_head().get_ethnicity() == "HighHindu":
         wood_usage += rcParams['fw_demand.coef.upper_caste_hindu']
     wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.coef.own_non_wood_stove']
-    wood_usage += np.random.randn() + rcParams['fw_demand.residvariance']
+    wood_usage += np.random.randn()*rcParams['fw_demand.residvariance']
     if wood_usage < 0:
         # Account for less than zero wood usage (could occur due to the random 
         # number added above to account for the low percent variance explained 
         # by the model).
         wood_usage = 0
+    # The prediction is per person - multiply it by hhsize to get total 
+    # household fuelwood consumption:
+    wood_usage = wood_usage * hhsize
     return wood_usage
