@@ -42,6 +42,7 @@ def main():
     world = generate_world()
 
     try:
+        processed_data_file = rcParams['path.input_data_file']
         save_world(model_world, processed_data_file)
     except:
         print "ERROR: while saving world file to %s"%(processed_data_file)
@@ -441,7 +442,6 @@ def generate_world():
         print "ERROR: while running data_preprocess.R R script"
     print "Generating world from preprocessed CVFS data..."
     model_world = assemble_world()
-    processed_data_file = rcParams['path.input_data_file']
 
     return model_world
 
