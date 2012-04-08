@@ -645,18 +645,7 @@ class Region(Agent_set):
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially outmigrated)
         self.agent_store.release_agents(time)
-
         in_migr = {}
-        # Now handle in-migrations
-        num_in_migr = int(np.random.normal(rcParams['migr.in.mean'],
-            rcParams['migr.in.sd']))
-        if num_in_migr < 0: num_in_migr = 0
-        # TODO: Fix this in-migration code, or eliminate it in favor of 
-        # in-migration through marriage.
-        in_migr[1] = num_in_migr
-        #if not in_migr.has_key(neighborhood.get_ID()):
-        #    in_migr[neighborhood.get_ID()] = 0
-        #in_migr[neighborhood.get_ID()] += 1
         return out_migr, in_migr
 
     def increment_age(self):
