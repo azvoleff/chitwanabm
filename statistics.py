@@ -388,21 +388,21 @@ def calc_fuelwood_usage_simple(household, time):
     hhsize = household.num_members()
     if hhsize == 0:
         return 0
+    wood_usage = rcParams['fw_demand.simple.coef.intercept']
     if hhsize >= 6:
         # Hold household size constant after 6 persons hhsize since model is 
         # unstable after 6
-        wood_usage += rcParams['fw_demand.coef.hhsize'] * 6
-        wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * 6
+        wood_usage += rcParams['fw_demand.simple.coef.hhsize'] * 6
+        wood_usage += rcParams['fw_demand.simple.coef.hhsize_squared'] * 6
     else:
-        wood_usage += rcParams['fw_demand.coef.hhsize'] * hhsize
-        wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * hhsize
-    wood_usage = rcParams['fw_demand.coef.intercept']
-    wood_usage += rcParams['fw_demand.coef.hhsize'] * hhsize
-    wood_usage += rcParams['fw_demand.coef.hhsize_squared'] * hhsize
+        wood_usage += rcParams['fw_demand.simple.coef.hhsize'] * hhsize
+        wood_usage += rcParams['fw_demand.simple.coef.hhsize_squared'] * hhsize
+    wood_usage += rcParams['fw_demand.simple.coef.hhsize'] * hhsize
+    wood_usage += rcParams['fw_demand.simple.coef.hhsize_squared'] * hhsize
     if household.get_hh_head().get_ethnicity() == "HighHindu":
-        wood_usage += rcParams['fw_demand.coef.upper_caste_hindu']
-    wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.coef.own_non_wood_stove']
-    wood_usage += np.random.randn()*rcParams['fw_demand.residvariance']
+        wood_usage += rcParams['fw_demand.simple.coef.upper_caste_hindu']
+    wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.simple.coef.own_non_wood_stove']
+    wood_usage += np.random.randn()*rcParams['fw_demand.simple.residvariance']
     if wood_usage < 0:
         # Account for less than zero wood usage (could occur due to the random 
         # number added above to account for the low percent variance explained 
