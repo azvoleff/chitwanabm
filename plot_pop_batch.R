@@ -33,7 +33,6 @@ theme_update(theme_grey(base_size=18))
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "R:/Data/Nepal/ChitwanABM_runs/USIALE2012_nofeedback"
 
 directories <- list.files(DATA_PATH)
 # Only match the model results folders - don't match any other folders or files 
@@ -78,10 +77,11 @@ ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=PLOT_WIDTH,
 
 # Plot fw consumption in metric tons
 fw_usage <- ens_results[c(1, grep("^(fw_usage)", names(ens_results)))]
+# fw consumption is in tons per person per month
 fw_usage$fw_usage_metrictons.mean <- fw_usage$fw_usage_kg.mean/1000
 fw_usage$fw_usage_metrictons.sd <- fw_usage$fw_usage_kg.sd/1000
-fw_usage <- fw_usage[!("kg" %in% names(fw_usage))]
+fw_usage <- fw_usage[!grepl("kg", names(fw_usage))]
 make_shaded_error_plot(fw_usage, "Metric Tons of Fuelwood", NA)
 ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
-write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"))
+write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"), row.names=F)
