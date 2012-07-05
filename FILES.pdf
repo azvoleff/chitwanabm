@@ -110,7 +110,7 @@ endobj
 % 'R10': class PDFInfo 
 10 0 obj
 << /Author (Alex Zvoleff)
- /CreationDate (D:20120705095033+08'00')
+ /CreationDate (D:20120705095221+08'00')
  /Creator (\(unspecified\))
  /Keywords ()
  /Producer (ReportLab PDF Library - www.reportlab.com)
@@ -193,7 +193,7 @@ endobj
 % 'R18': class PDFStream 
 18 0 obj
 % page stream
-<< /Length 8731 >>
+<< /Length 8330 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -571,30 +571,7 @@ q
 1 0 0 1 62.69291 126.0236 cm
 Q
 q
-1 0 0 1 62.69291 114.0236 cm
-0 0 0 rg
-BT /F1 10 Tf 12 TL ET
-q
-1 0 0 1 6 -3 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
-Q
-Q
-q
-1 0 0 1 23 -3 cm
-q
-BT 1 0 0 1 0 2 Tm 12 TL /F4 10 Tf 0 0 0 rg (plot_fw_results.R ) Tj /F1 10 Tf (- Plots the fuelwood usage results from a single model run.) Tj T* ET
-Q
-Q
-q
-Q
-Q
-q
-1 0 0 1 62.69291 108.0236 cm
-Q
-q
-1 0 0 1 62.69291 84.02362 cm
+1 0 0 1 62.69291 102.0236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -614,7 +591,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 78.02362 cm
+1 0 0 1 62.69291 96.02362 cm
 Q
  
 endstream
@@ -622,7 +599,7 @@ endobj
 % 'R19': class PDFStream 
 19 0 obj
 % page stream
-<< /Length 6829 >>
+<< /Length 6512 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -973,7 +950,7 @@ q
 1 0 0 1 23 -3 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 2 Tm /F4 10 Tf 12 TL (setup.py) Tj T* ET
+BT 1 0 0 1 0 2 Tm /F4 10 Tf 12 TL (test.py) Tj T* ET
 Q
 Q
 q
@@ -997,30 +974,6 @@ q
 1 0 0 1 23 -3 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 2 Tm /F4 10 Tf 12 TL (test.py) Tj T* ET
-Q
-Q
-q
-Q
-Q
-q
-1 0 0 1 62.69291 357.0236 cm
-Q
-q
-1 0 0 1 62.69291 345.0236 cm
-0 0 0 rg
-BT /F1 10 Tf 12 TL ET
-q
-1 0 0 1 6 -3 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
-Q
-Q
-q
-1 0 0 1 23 -3 cm
-q
-0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F4 10 Tf 12 TL (test.R) Tj T* ET
 Q
 Q
@@ -1028,7 +981,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 345.0236 cm
+1 0 0 1 62.69291 363.0236 cm
 Q
  
 endstream
@@ -1074,18 +1027,18 @@ xref
 0000003137 00000 n
 0000003297 00000 n
 0000003412 00000 n
-0000012242 00000 n
-0000019174 00000 n
-0000019280 00000 n
-0000019357 00000 n
+0000011841 00000 n
+0000018456 00000 n
+0000018562 00000 n
+0000018639 00000 n
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com) 
- [(V>\014S8\341\360\235\212\211\262\347l\362}B) (V>\014S8\341\360\235\212\211\262\347l\362}B)] 
+ [(Y\227\266A\303\316\011\335y\211\214\274\315!\025m) (Y\227\266A\303\316\011\335y\211\214\274\315!\025m)] 
 
  /Info 10 0 R
  /Root 9 0 R
  /Size 23 >>
 startxref
-19404
+18686
 %%EOF

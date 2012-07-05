@@ -50,8 +50,6 @@ Main model code:
 Plotting files (to process model run results)
 ===============================================================================
 
-- `plot_fw_results.R` - Plots the fuelwood usage results from a single model 
-  run.
 - `plot_LULC.R` - Plots the land-use and land-cover results at the neighborhood 
   level from a single model run.
 - `plot_LULC_batch.R`- Plots aggregate statistics on land-use and land-cover 
@@ -84,7 +82,6 @@ these files will be added after they are complete.
 - `generate_agents.R`
 - `install.py`
 - `install.R`
-- `setup.py`
 - `test.py`
 - `test.R`
 
