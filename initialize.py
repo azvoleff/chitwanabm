@@ -434,13 +434,13 @@ def generate_world():
     """
     Performs the complete process necessary for initializing the model from    
     CVFS restricted data.
-        1) Calls the necessary R script for preparing the necessary CSV 
-        initialization files from the CVFS data. 
+        1) Calls the necessary R script  (data_preprocess.R) for preparing the 
+        necessary CSV initialization files from the CVFS data. 
 
         2) Calls the assemble_world function to prepare an instance of the 
         World class to be used in the model.
 
-        3) Saves this world instance in the standard location. NOTE: This must 
+        3) Saves this World instance in the specified location. NOTE: This must 
         be an encrypted directory that is not publically accessible to conform 
         to ICPSR and IRB requirements.
     """
