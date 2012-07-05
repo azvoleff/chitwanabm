@@ -45,7 +45,7 @@
 'model.RandomState' : [None | validate_RandomState] 
 # Reinitialize a new world from scratch, or use existing pickled world.
 'model.reinitialize' : [True | validate_boolean] 
-'model.resultspath' : ["R:/Data/Nepal/ChitwanABM_runs" | validate_writable_dir]
+'model.resultspath' : ["M:/Data/Nepal/ChitwanABM_runs" | validate_writable_dir]
 'model.use_psyco': [False | validate_boolean] # Not yet supported in Python 2.7
 # Whether to produce summary plots for the model run after the run is 
 # completed. Requires a working R installation, and some of the plots require 
@@ -72,17 +72,17 @@
 ###############################################################################
 # This is the path to the processed data file containing the final output file 
 # from the "initialize.py" script.
-'path.input_data_file' : ["U:/ChitwanABM_Initialization/init_data.pickle" | validate_readable_file_warning]
+'path.input_data_file' : ["V:/Nepal/ChitwanABM_Initialization/init_data.pickle" | validate_readable_file_warning]
 # The following is the path to the original restricted CVFS data as received 
 # from the ICPSR (to be used when running the "initialize.py" script. The
 # data_preprocess.R script will output several new files here when it is
 # run, so this directory must be writeable.
-'path.raw_input_data' : ["U:/ChitwanABM_Initialization" | validate_writable_dir]
+'path.raw_input_data' : ["V:/Nepal/ChitwanABM_Initialization" | validate_writable_dir]
 # The world_mask is a binary GeoTIFF (zeros and ones), indicating the land area 
 # represented within the model.
-'path.world_mask' : ["U:/ChitwanABM_Initialization/CVFS_Study_Area_Raster_30m.tif" | validate_readable_file]
+'path.world_mask' : ["V:/Nepal/ChitwanABM_Initialization/CVFS_Study_Area_Raster_30m.tif" | validate_readable_file]
 # The DEM_file is a GeoTIFF digital elevation model of the study area.
-'path.DEM_file' : ["U:/ChitwanABM_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif" | validate_readable_file]
+'path.DEM_file' : ["V:/Nepal/ChitwanABM_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif" | validate_readable_file]
 
 ###############################################################################
 # Person agent parameters
