@@ -57,7 +57,7 @@ def main_loop(world, results_path):
     time_strings['time_float'] = [model_time.get_T0_date_float()]
     time_strings['time_date'] = [model_time.get_T0_date_string()]
 
-        # Keep annual totals to print while the model is running
+    # Keep annual totals to print while the model is running
     annual_num_marr = 0
     annual_num_births = 0
     annual_num_deaths = 0
