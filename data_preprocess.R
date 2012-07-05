@@ -256,7 +256,6 @@ neigh.processed <- merge(neigh.processed, ccadult)
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
 lu <- read.xport(paste(DATA_PATH, "landuse.xpt", sep="/"))
 # Exclude neighborhoods 152-172
-lu$NEIGHID <- as.ordered(lu$NEIGHID)
 lu <- lu[lu$NEIGHID <= 151,]
 
 land.agveg <- with(lu, rowSums(cbind(BARI1, IKHET1, RKHET1)))
