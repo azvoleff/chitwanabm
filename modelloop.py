@@ -136,6 +136,7 @@ def main_loop(world, results_path):
             new_deaths = region.deaths(model_time.get_cur_date_float())
             new_marr = region.marriages(model_time.get_cur_date_float())
             new_out_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
+            schooling = region.education(model_time.get_cur_date_float())
 
             # Save event, LULC, and population data for later output to CSV.
             save_data_dict(saved_data, model_time.get_cur_int_timestep(), 
