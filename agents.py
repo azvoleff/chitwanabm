@@ -643,7 +643,6 @@ class Region(Agent_set):
                     person._school_status = "outofschool"
                 else:
                     person._schooling += timestep / 12
-                    continue
             neighborhood = person.get_parent_agent().get_parent_agent()
             #if not schooling.has_key(neighborhood.get_ID()):
             #    schooling[neighborhood.get_ID()] = person._schooling
