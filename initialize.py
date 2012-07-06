@@ -379,6 +379,17 @@ def assemble_world():
     neighborhoods = assemble_neighborhoods(neighborhoods_file,
             neighborhoods_coords_file, model_world)
 
+    for neighborhood in neighborhoods:
+        # To each neighborhood, add a list of IDs of the other neighborhoods, 
+        # sorted by their distance to this neighborhood:
+        this_x = neighborhood._x
+        this_y = neighborhood._y
+        neighborhood._neighborhoods_by_distance = sorted(neighborhoods, key=lambda neighborhood: \
+                np.sqrt((neighborhood._x - this_x)**2 + (neighborhood._y - this_y)**2))
+        # Now remove this neighborhood (in the first position) from the list.  
+        # We already know that the closest neighborhood is itself.
+        neighborhood._neighborhoods_by_distance.pop(0)
+
     # Add the DEM and CVFS Study Area mask to the model_world instance.
     DEM_file = os.path.join(raw_data_path, rcParams['path.DEM_file'])
     DEM, gt, prj = read_single_band_raster(DEM_file)

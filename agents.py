@@ -579,24 +579,24 @@ class Region(Agent_set):
                     old_household.remove_agent(person)
                     new_home.add_agent(person)
                     neighborhoods.append(old_household.get_parent_agent()) # this persons old neighborhood
-                # For now, randomly assign the new household to the male or 
-                # females neighborhood. Or randomly pick new neighborhood if 
-                # both members of the couple are in-migrants.
+                # Assign the new household to the male or females neighborhood. 
+                # Or randomly pick new neighborhood if both members of the 
+                # couple are in-migrants.
                 if len(neighborhoods)>0:
                     neighborhood = neighborhoods[np.random.randint(len(neighborhoods))]
                 else:
                     poss_neighborhoods = self.get_agents()
                     neighborhood = poss_neighborhoods[np.random.randint( \
                         len(poss_neighborhoods))]
-                # Try to add the household to the chosen neighborhood. If it 
+                # Try to add the household to the chosen neighborhood. If
                 # the add_agent function returns false it means there is no 
-                # available land in the chosen neighborhood, so randomly pick 
-                # another neighborhood.
+                # available land in the chosen neighborhood, so pick another 
+                # neighborhood, iterating through the closest neighborhoods 
+                # until one is found with adequate land:
+                n = 0
                 while neighborhood.add_agent(new_home) == False:
-                    poss_neighborhoods = self.get_agents()
-                    neighborhood = poss_neighborhoods[np.random.randint( \
-                        len(poss_neighborhoods))]
-
+                    neighborhood = neighborhood._neighborhoods_by_distance[n]
+                    n += 1
             else:
                 # Otherwise they stay in the male's household. So have the 
                 # female move in.
