@@ -93,6 +93,7 @@
 # birth.max_age.years is the maximum age a woman can give birth in years.
 'birth.max_age.years' : [45 | validate_int] 
 'prob.birth.intervals' : [((9, 48), 1)] | validate_prob_dist]
+# TODO: Fix male death probabiliy for male.
 'probability.death.male' : [{(0, 3):0.0141, (3, 6):0, (6, 12):0, (12, 20):0.0013, (20, 40):0.0035, (40, 60):0.0099, (60, 80):0.0334, (80, 90):0.1277, (90, 199):0.5665} | validate_probability(0, 199)]
 'probability.death.female' : [{(0, 3):0.0162, (3, 6):0.0023, (6, 12):0.0012, (12, 20):0.001, (20, 40):0.0019, (40, 60):0.0046, (60, 80):0.032, (80, 90):0.1184, (90, 199):0.5665} | validate_probability(0, 199)]
 'probability.marriage.male' : [{(0, 10):0, (10, 14):5e-04, (14, 18):0.0078, (18, 22):0.0934, (22, 30):0.3101, (30, 40):0.2391, (40, 60):0.0564, (60, 199):0} | validate_probability(0, 199)]
@@ -190,6 +191,18 @@
 #'fw_demand.migfeedback.coef.anyLDmigr' : [-.25 | validate_float]
 #'fw_demand.migfeedback.coef.anyLDmigr' : [-1.636 | validate_float]
 'fw_demand.migfeedback.residvariance' : [.0842 | validate_float]
+
+# Education OLR results
+'education.start_school_age_years' : [6 | validate_int]
+'education.depvar_levels' : [(0, 4, 8, 11, 15) | validate_nseq_int(5)]
+'education.coef.intercepts' : [(3.4648, 2.7602, 1.4743, -0.1277) | validate_nseq_float(4)]
+'education.coef.gender' : [-2.0017| validate_float]
+'education.coef.ethnicLowHindu' : [-1.8808 | validate_float]
+'education.coef.ethnicNewar' : [0.0485| validate_float]
+'education.coef.ethnicHillTibeto' : [-1.3045 | validate_float]
+'education.coef.ethnicTeraiTibeto' : [-2.4963| validate_float]
+'education.coef.ethnicOther' : [-2.2129 | validate_float]
+'education.coef.log_percagveg' : [-0.1732 | validate_float]
 
 ###############################################################################
 # Landscape parameters

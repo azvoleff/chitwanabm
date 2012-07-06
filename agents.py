@@ -40,7 +40,7 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
         calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage_simple, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
-        calc_fuelwood_usage_migration_feedback
+        calc_fuelwood_usage_migration_feedback, calc_education_level
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -144,6 +144,9 @@ class Person(Agent):
         self._marriage_time = None
 
         self._schooling = 0
+        self._final_schooling_level = None
+        self._school_status = "undetermined"
+
         self._work = boolean_choice(.1)
         self._parents_contracep_ever = boolean_choice()
 
@@ -189,7 +192,6 @@ class Person(Agent):
             self.divorce()
         household = self.get_parent_agent()
         household.remove_agent(self)
-        return household
 
     def marry(self, spouse, time):
         "Marries this agent to another Person instance."
@@ -495,7 +497,7 @@ class Region(Agent_set):
                         father=father))
                     if rcParams['feedback.birth.nonagveg']:
                         neighborhood = household.get_parent_agent()
-                        if neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area'] >= 0:
+                        if (neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area']) >= 0:
                             neighborhood._land_nonagveg -= rcParams['feedback.birth.nonagveg.area']
                             neighborhood._land_other += rcParams['feedback.birth.nonagveg.area']
                     # Track the total number of births for each 
@@ -507,13 +509,13 @@ class Region(Agent_set):
                         
     def deaths(self, time):
         """Runs through the population and kills agents probabilistically based 
-        on their age and the probability.death for this population"""
+        on their age and sex and the probability.death for this population"""
         deaths = {}
         for household in self.iter_households():
             for person in household.iter_agents():
                 if random_state.rand() < calc_probability_death(person):
                     # Agent dies.
-                    household = person.kill(time)
+                    person.kill(time)
                     neighborhood = household.get_parent_agent()
                     if not deaths.has_key(neighborhood.get_ID()):
                         deaths[neighborhood.get_ID()] = 0
@@ -626,8 +628,27 @@ class Region(Agent_set):
         schooling based on their age and the education function for this 
         population.
         """
-        pass
-        return 0
+        timestep = rcParams['model.timestep']
+        start_school_age = rcParams['education.start_school_age_years']
+        schooling = {}
+        for person in self.iter_persons():
+            if person._school_status == "outofschool":
+                pass
+            elif (person._school_status == "undetermined") & (person.get_age()/12 >= start_school_age):
+                person._school_status = "inschool"
+                person._final_schooling_level = calc_education_level(person)
+                person._schooling = timestep / 12
+            elif person._school_status == "inschool":
+                if person._schooling >= person._final_schooling_level:
+                    person._school_status = "outofschool"
+                else:
+                    person._schooling += timestep / 12
+                    continue
+            neighborhood = person.get_parent_agent().get_parent_agent()
+            #if not schooling.has_key(neighborhood.get_ID()):
+            #    schooling[neighborhood.get_ID()] = person._schooling
+            #schooling[neighborhood.get_ID()] += 1
+        return schooling
 
     def migrations(self, time):
         """

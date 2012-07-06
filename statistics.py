@@ -36,6 +36,9 @@ probability_time_units = rcParams['probability.time_units']
 class UnitsError(Exception):
     pass
 
+class StatisticsError(Exception):
+    pass
+
 def convert_probability_units(probability):
     """
     Converts probability so units match timestep used in the model, assuming probability 
@@ -402,7 +405,7 @@ def calc_fuelwood_usage_simple(household, time):
     if household.get_hh_head().get_ethnicity() == "HighHindu":
         wood_usage += rcParams['fw_demand.simple.coef.upper_caste_hindu']
     wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.simple.coef.own_non_wood_stove']
-    wood_usage += np.random.randn()*rcParams['fw_demand.simple.residvariance']
+    wood_usage += np.random.randn()*np.sqrt(rcParams['fw_demand.simple.residvariance'])
     if wood_usage < 0:
         # Account for less than zero wood usage (could occur due to the random 
         # number added above to account for the low percent variance explained 
@@ -433,7 +436,7 @@ def calc_fuelwood_usage_migration_feedback(household, time):
     if household.get_hh_head().get_ethnicity() == "HighHindu":
         wood_usage += rcParams['fw_demand.migfeedback.coef.upper_caste_hindu']
     wood_usage += household.any_non_wood_fuel() * rcParams['fw_demand.migfeedback.coef.own_non_wood_stove']
-    wood_usage += np.random.randn()*rcParams['fw_demand.migfeedback.residvariance']
+    wood_usage += np.random.randn()*np.sqrt(rcParams['fw_demand.migfeedback.residvariance'])
     if household._lastmigrant_time > (time - 1):
         wood_usage += rcParams['fw_demand.migfeedback.coef.anyLDmigr']
     if wood_usage < 0:
@@ -445,3 +448,62 @@ def calc_fuelwood_usage_migration_feedback(household, time):
     # household fuelwood consumption:
     wood_usage = wood_usage * hhsize
     return wood_usage
+
+def calc_education_level(person):
+    """
+    Calculate education level for person, based on results of empirical analysis of CVFS panel data.
+    """
+    levels = rcParams['education.depvar_levels']
+
+    prob_y_gte_j = np.zeros(len(levels) - 1) # probability y >= j
+    for n in np.arange(len(prob_y_gte_j)):
+        intercept = rcParams['education.coef.intercepts'][n]
+        xb_sum = 0
+
+        # Individual-level characteristics
+        if person.get_sex() == "female":
+            xb_sum += rcParams['education.coef.gender']
+
+        if person.get_ethnicity() == "HighHindu":
+            # This was the reference class
+            pass
+        elif person.get_ethnicity() == "LowHindu":
+            xb_sum += rcParams['education.coef.ethnicLowHindu']
+        elif person.get_ethnicity() == "Newar":
+            xb_sum += rcParams['education.coef.ethnicNewar']
+        elif person.get_ethnicity() == "HillTibeto":
+            xb_sum += rcParams['education.coef.ethnicHillTibeto']
+        elif person.get_ethnicity() == "TeraiTibeto":
+            xb_sum += rcParams['education.coef.ethnicTeraiTibeto']
+        elif person.get_ethnicity() == "Other":
+            xb_sum += rcParams['education.coef.ethnicOther']
+        else:
+            raise StatisticsError("No coefficient was specified for ethnicity '%s'"%person.get_ethnicity())
+
+        # Neighborhood-level characteristics
+        neighborhood = person.get_parent_agent().get_parent_agent()
+        if neighborhood._land_agveg == 0:
+            log_percent_agveg = 0
+        else:
+            log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+        xb_sum += rcParams['education.coef.log_percagveg'] * log_percent_agveg
+
+        prob_y_gte_j[n] = 1. / (1 + np.exp(-(intercept + xb_sum)))
+
+    prob_y_eq_j = np.zeros(4) # probability y == j
+    prob_y_eq_j[0] = 1 - prob_y_gte_j[0]
+    # Loop over all but the first cell of prob_y_eq_j
+    for j in np.arange(1, len(prob_y_gte_j)):
+        prob_y_lt_j = np.sum(prob_y_eq_j[0:j])
+        prob_y_eq_j[j] = 1 - prob_y_gte_j[j] - prob_y_lt_j
+    prob_cutoffs = np.cumsum(prob_y_eq_j)
+    prob_cutoffs[-1]  = 1
+
+    # Code for testing only:
+    #print prob_cutoffs
+    
+    rand = np.random.rand()
+    for n in np.arange(len(prob_cutoffs)):
+        if rand <= prob_cutoffs[n]:
+            return levels[n]
+    raise StatisticsError("Check level calculation - no class predicted")
