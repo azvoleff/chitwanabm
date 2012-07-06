@@ -43,7 +43,7 @@ def main():
 
     try:
         processed_data_file = rcParams['path.input_data_file']
-        save_world(model_world, processed_data_file)
+        save_world(world, processed_data_file)
     except:
         print "ERROR: while saving world file to %s"%(processed_data_file)
 
@@ -317,7 +317,7 @@ def assemble_persons(relationshipsFile, model_world):
             if person._spouse != None:
                 # First assign the person's spouse
                 person._spouse = personsDict[person._spouse]
-                # Set marriage time based on the yougest spouse's age, unless 
+                # Set marriage time based on the youngest spouse's age, unless 
                 # marriage time has already been set (if we have already looped 
                 # over their spouse).
                 if person._marriage_time == None:
