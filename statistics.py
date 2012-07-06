@@ -281,8 +281,8 @@ def calc_probability_migration_simple(person):
 def calc_probability_migration_masseyetal_2010(person):
     """
     Calculates the probability of long-distance migration in a given month for 
-    an agent, using the results of Massey, Axinn, and Ghimire (2010) Pop. and 
-    Environment paper.
+    an agent, using the results of my empirical analysis drawing on the results 
+    of Massey, Axinn, and Ghimire (2010) Pop. and Environment paper.
     """
     #########################################################################
     # Intercept
