@@ -557,7 +557,9 @@ class Region(Agent_set):
         # marry this timestep.
         marriages = {}
         for male, female in zip(eligible_males, eligible_females):
-             # First marry the agents.
+            #TODO: Add check on age/etc of spouse characteristics. Choose spouse 
+            #TODO: dependent on spouses attributes (using histogram of probability within different bins).
+            # First marry the agents.
             male.marry(female, time)
             female._first_birth_timing = calc_first_birth_time(self)
             moveout_prob = rcParams['prob.marriage.moveout']
@@ -583,7 +585,10 @@ class Region(Agent_set):
                 # Or randomly pick new neighborhood if both members of the 
                 # couple are in-migrants.
                 if len(neighborhoods)>0:
-                    neighborhood = neighborhoods[np.random.randint(len(neighborhoods))]
+                    # len(neighborhoods) is greater than zero if at least one 
+                    # is NOT an in-migrant. Choose male's neighborhood by 
+                    # default.
+                    neighborhood = neighborhoods[0]
                 else:
                     poss_neighborhoods = self.get_agents()
                     neighborhood = poss_neighborhoods[np.random.randint( \
