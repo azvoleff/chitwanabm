@@ -83,13 +83,7 @@ desnumchild$desnumchild[desnumchild$desnumchild < 0] <- NA
 schooling_col <- grep('^A1$', names(t1indiv))
 schooling <- t1indiv[schooling_col]
 names(schooling) <- "schooling"
-# Recode education as in Ghimire and Axinn, 2010 AJS paper
-schooling$schooling[is.na(schooling$schooling)] <- 0
-schooling$schooling[schooling$schooling < 0 ] <- 0
-schooling$schooling[schooling$schooling < 3] <- 0
-schooling$schooling[schooling$schooling < 7] <- 1
-schooling$schooling[schooling$schooling < 11] <- 2
-schooling$schooling[schooling$schooling > 12 ] <- 3
+# Leave schooling coded as years of schooling
 schooling <- cbind(RESPID=t1indiv$RESPID, schooling)
 
 # Now get childhood community context data. Below are the variables for 
