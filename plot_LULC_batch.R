@@ -1,6 +1,6 @@
 
 #
-# Copyright 2011 Alex Zvoleff
+# Copyright 2008-2012 Alex Zvoleff
 #
 # This file is part of the ChitwanABM agent-based model.
 # 
