@@ -195,14 +195,13 @@
 # Education OLR results
 'education.start_school_age_years' : [6 | validate_int]
 'education.depvar_levels' : [(0, 4, 8, 11, 15) | validate_nseq_int(5)]
-'education.coef.intercepts' : [(3.4648, 2.7602, 1.4743, -0.1277) | validate_nseq_float(4)]
-'education.coef.gender' : [-2.0017| validate_float]
-'education.coef.ethnicLowHindu' : [-1.8808 | validate_float]
-'education.coef.ethnicNewar' : [0.0485| validate_float]
-'education.coef.ethnicHillTibeto' : [-1.3045 | validate_float]
-'education.coef.ethnicTeraiTibeto' : [-2.4963| validate_float]
-'education.coef.ethnicOther' : [-2.2129 | validate_float]
-'education.coef.log_percagveg' : [-0.1732 | validate_float]
+'education.coef.intercepts' : [(3.6027, 2.8999, 1.5719, -0.0345) | validate_nseq_float(4)]
+'education.coef.female' : [-2.0501| validate_float]
+'education.coef.ethnicLowHindu' : [-1.9192 | validate_float]
+'education.coef.ethnicNewar' : [0.0835 | validate_float]
+'education.coef.ethnicHillTibeto' : [-1.4424 | validate_float]
+'education.coef.ethnicTeraiTibeto' : [-2.5374 | validate_float]
+'education.coef.log_percagveg' : [-0.1878 | validate_float]
 
 ###############################################################################
 # Landscape parameters

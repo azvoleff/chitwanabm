@@ -462,7 +462,7 @@ def calc_education_level(person):
 
         # Individual-level characteristics
         if person.get_sex() == "female":
-            xb_sum += rcParams['education.coef.gender']
+            xb_sum += rcParams['education.coef.female']
 
         if person.get_ethnicity() == "HighHindu":
             # This was the reference class
@@ -475,8 +475,6 @@ def calc_education_level(person):
             xb_sum += rcParams['education.coef.ethnicHillTibeto']
         elif person.get_ethnicity() == "TeraiTibeto":
             xb_sum += rcParams['education.coef.ethnicTeraiTibeto']
-        elif person.get_ethnicity() == "Other":
-            xb_sum += rcParams['education.coef.ethnicOther']
         else:
             raise StatisticsError("No coefficient was specified for ethnicity '%s'"%person.get_ethnicity())
 
@@ -501,9 +499,9 @@ def calc_education_level(person):
 
     # Code for testing only:
     #print prob_cutoffs
-    
     rand = np.random.rand()
     for n in np.arange(len(prob_cutoffs)):
         if rand <= prob_cutoffs[n]:
             return levels[n]
+    # Should never reach the next line.
     raise StatisticsError("Check level calculation - no class predicted")
