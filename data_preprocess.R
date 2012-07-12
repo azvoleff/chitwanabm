@@ -280,6 +280,8 @@ columns <- grep('^(respid|ethnic)$', names(hhreg))
 hhreg <- hhreg[columns]
 names(hhreg)[grep('^respid$', names(hhreg))] <- 'RESPID'
 names(hhreg)[grep('^ethnic$', names(hhreg))] <- 'ETHNIC'
+# Drop "other" ethnicity for consistency with Massey et al. (2010)
+hhreg <- hhreg[!(hhreg$ETHNIC==6),]
 hhrel.processed <- merge(hhrel.processed, hhreg)
 # One individual has an ethnicity of NA, fix this.
 hhrel.processed$ETHNIC <- replace_nas(hhrel.processed$ETHNIC)

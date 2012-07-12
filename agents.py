@@ -121,8 +121,9 @@ class Person(Agent):
 
         # The agent's ethnicity in the CVFS data as 1: High Caste Hindu, 2: 
         # Hill Tibetoburmese, 3: Low Caste Hindu, 4: Newar, 5: Terai 
-        # Tibetoburmese, 6: Other. Here it is converted to a textual 
-        # representation for clarity (see the preprocessing code).
+        # Tibetoburmese, 6: Other. Other is dropped from the model for 
+        # consistency of published works. Here ethnicity is converted to a 
+        # textual representation for clarity (see the preprocessing code).
         self._ethnicity = ethnicity
 
         # If not defined at birth, self._des_num_children will be defined (for 
@@ -322,6 +323,7 @@ class Household(Agent_set):
         self._own_land = boolean_choice(.61) # From Axinn, Ghimire (2007)
         self._rented_out_land = boolean_choice(.11) # From Axinn, Ghimire (2007)
         self._lastmigrant_time = None
+        self._hh_area = 0 # Area of house plot in square meters
 
     def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
@@ -358,8 +360,24 @@ class Household(Agent_set):
         fw_usage = fw_usage * 30
         return fw_usage
 
+    def remove_agent(self, person):
+        """
+        Remove a person from this household. Override the default method for an 
+        Agent_set so that we can check if the removal of this agent would leave 
+        this household empty. It it would leave it empty, they destroy this 
+        household after removing the agent. Otherwise, run the normal method 
+        for agent removal from a household Agent_set.
+        """
+        Agent_set.remove_agent(self, person)
+        if self.num_members() == 0:
+            print "%s left empty - household removed from model"%self
+            neighborhood = self.get_parent_agent()
+            neighborhood._land_agveg += self._hh_area
+            neighborhood._land_privbldg -= self._hh_area
+            neighborhood.remove_agent(neighborhood)
+
     def __str__(self):
-        return "Household(HID: %s. %s household(s))"%(self.get_ID(), self.num_members())
+        return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())
 
 class Neighborhood(Agent_set):
     "Represents a single neighborhood agent"

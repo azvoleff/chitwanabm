@@ -262,8 +262,7 @@ def assemble_persons(relationshipsFile, model_world):
             ETHNICITY = "Newar"
         elif ETHNICITY == 5:
             ETHNICITY = "TeraiTibeto"
-        elif ETHNICITY == 6:
-            ETHNICITY = "Other"
+        assert ETHNICITY!=6, "'Other' ethnicity should be dropped from the model"
 
         # Finally, make the new person.
         person = model_world.new_person(None, RESPID, mother_RESPID, father_RESPID, AGEMNTHS, 
