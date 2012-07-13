@@ -41,45 +41,38 @@ pop.results <- calc_NBH_pop(DATA_PATH)
 # monthly migration data, and one of total hs and total marriages. Stack them 
 # so they can easily be color-coded with ggplot2.
 vital_events <- with(pop.results, data.frame(time.Robj=time.Robj, marr, births, deaths))
-vital_events <- stack(vital_events)
-vital_events <- cbind(time.Robj=rep(pop.results$time.Robj, 3), vital_events)
-names(vital_events)[2:3] <- c("events", "Event_type")
+vital_events <- melt(vital_events, id.vars="time.Robj")
+names(vital_events)[2:3] <- c("Event_type", "events")
 
 migrations <- with(pop.results, data.frame(time.Robj=time.Robj, in_migr, out_migr))
-migrations <- stack(migrations)
-migrations <- cbind(time.Robj=rep(pop.results$time.Robj, 2), migrations)
-names(migrations)[2:3] <- c("events", "Event_type")
+migrations <- melt(migrations, id.vars="time.Robj")
+names(migrations)[2:3] <- c("Event_type", "events")
 
 num.hs.marr <- with(pop.results, data.frame(time.Robj=time.Robj, num_hs, num_marr))
-num.hs.marr <- stack(num.hs.marr)
-num.hs.marr <- cbind(time.Robj=rep(pop.results$time.Robj,2), num.hs.marr)
-names(num.hs.marr)[2:3] <- c("num", "Pop_type")
+num.hs.marr <- melt(num.hs.marr, id.vars="time.Robj")
+names(num.hs.marr)[2:3] <- c("Pop_type", "num")
 
 # First plot monthly event data
 theme_update(theme_grey(base_size=18))
 # Plot thinner lines so this busy plot is easier to read.
 update_geom_defaults("line", aes(size=.75))
 # Plot vital events
-p <- qplot(pop.results$time.Robj, events, geom="line", linetype=Event_type, 
+p <- qplot(time.Robj, events, geom="line", linetype=Event_type, 
            xlab="Year", ylab="Number of Events", data=vital_events)
 p + scale_linetype_discrete(name="Legend",
                             breaks=c("births", "deaths", "marr"),
                             labels=c("Births", "Deaths",
-                                     "Marriages")) + 
-    scale_x_date(breaks=date_breaks("1 year"),
-                 labels=date_format("%Y"))
+                                     "Marriages"))
 ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT,
         dpi=300)
 
 # Plot migration
-p <- qplot(pop.results$time.Robj, events, geom="line", linetype=Event_type, 
+p <- qplot(time.Robj, events, geom="line", linetype=Event_type, 
            xlab="Year", ylab="Number of Migrants", data=migrations)
 p + scale_linetype_discrete(name="Legend",
                             breaks=c("in_migr", "out_migr"),
-                            labels=c("In-migrants", "Out-migrants")) +
-    scale_x_date(breaks=date_breaks("1 year"),
-                 labels=date_format("%Y"))
+                            labels=c("In-migrants", "Out-migrants"))
 ggsave(paste(DATA_PATH, "migrations.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT,
         dpi=300)
@@ -91,24 +84,18 @@ p + geom_line(aes(linetype=Pop_type)) +
     scale_linetype_discrete(name="Legend",
                             breaks=c("num_hs", "num_marr"),
                             labels=c("Total Households",
-                                     "Total Marriages")) + 
-    scale_x_date(breaks=date_breaks("1 year"),
-                 labels=date_format("%Y"))
+                                     "Total Marriages"))
 ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 
 # Plot total population
 p <- qplot(time.Robj, num_psn, geom="line", xlab="Year",
         ylab="Population", data=pop.results)
-p + scale_x_date(breaks=date_breaks("1 year"),
-                 labels=date_format("%Y"))
 ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 
 # Plot fw consumption in metric tons
 p <- qplot(time.Robj, fw_usage_kg/1000, geom="line", xlab="Year",
         ylab="Metric Tons of Fuelwood", data=pop.results)
-p + scale_x_date(breaks=date_breaks("1 year"),
-                 labels=date_format("%Y"))
 ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
