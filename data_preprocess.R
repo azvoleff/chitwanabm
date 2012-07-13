@@ -224,8 +224,8 @@ neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, E
 # coordinates of the center of the road in the middle of the downtown area of 
 # Narayanghat).
 dist_narayanghat <- sqrt((neigh$NX - 245848)**2 + (neigh$NY - 3066013)**2)
-# Now convert from meters to kilomers and then to miles
-dist_narayanghat <- (dist_narayanghat / 1000) * 0.621371192
+# Now convert from meters to kilometers
+dist_narayanghat <- (dist_narayanghat / 1000)
 
 neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY, dist_nara=dist_narayanghat)
 
