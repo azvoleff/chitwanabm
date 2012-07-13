@@ -361,6 +361,22 @@ class Household(Agent_set):
         fw_usage = fw_usage * 30
         return fw_usage
 
+    def remove_agent(self, person):
+        """
+        Remove a person from this household. Override the default method for an 
+        Agent_set so that we can check if the removal of this agent would leave 
+        this household empty. It it would leave it empty, they destroy this 
+        household after removing the agent. Otherwise, run the normal method 
+        for agent removal from a household Agent_set.
+        """
+        Agent_set.remove_agent(self, person)
+        #if self.num_members() == 0:
+        #    print "%s left empty - household removed from model"%self
+        #    neighborhood = self.get_parent_agent()
+        #    neighborhood._land_agveg += self._hh_area
+        #    neighborhood._land_privbldg -= self._hh_area
+        #    neighborhood.remove_agent(neighborhood)
+
     def __str__(self):
         return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())
 
