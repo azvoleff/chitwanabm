@@ -172,7 +172,7 @@ def main(argv=None):
             dev_null.close()
 
         if rcParams['save_psn_data']:
-            print "Plotting population results..."
+            print "Plotting persons results..."
             dev_null = open(os.devnull, 'w')
             try:
                 subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
