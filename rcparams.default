@@ -102,6 +102,7 @@
 'probability.migration.female' : [{(0, 10):0, (10, 14):0.0019, (14, 18):0.0087, (18, 22):0.0136, (22, 30):0.020, (30, 40):0.01, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
 'prob.marriage.moveout' : [.30 | validate_float]
 'prob.marry.inmigrant' : [.90 | validate_float]
+'marriage.minimum_age_years' : [15 | validate_int]
 'prob.firstbirth.times' : [((0, 5, 10, 15, 20, 25, 30, 35, 40), (0.0421, 0.2757, 0.3925, 0.1636, 0.0654, 0.0327, 0.0234, 0.0047))] | validate_prob_dist]
 'use.firstbirth.times' : [True | validate_boolean]
 'prob.num.children.desired' : [((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))] | validate_prob_dist]
@@ -202,6 +203,9 @@
 'education.coef.ethnicHillTibeto' : [-1.4424 | validate_float]
 'education.coef.ethnicTeraiTibeto' : [-2.5374 | validate_float]
 'education.coef.log_percagveg' : [-0.1878 | validate_float]
+
+# Spouse choice (dependent on age) parameters
+'spousechoice.male.agediff' : [((-999, -15, -10, -5, -2, -1, 0, 1, 2, 5, 10, 15, 999), (.0005411, .0032468, .0075758, .0205628, .0178571, .0524892, .0703463, .1049784, .3019481, .2732684, .0963203, .0508658)) | validate_prob_dist]
 
 ###############################################################################
 # Landscape parameters

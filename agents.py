@@ -40,7 +40,8 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
         calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage_simple, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
-        calc_fuelwood_usage_migration_feedback, calc_education_level
+        calc_fuelwood_usage_migration_feedback, calc_education_level, \
+        choose_spouse
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -360,22 +361,6 @@ class Household(Agent_set):
         fw_usage = fw_usage * 30
         return fw_usage
 
-    def remove_agent(self, person):
-        """
-        Remove a person from this household. Override the default method for an 
-        Agent_set so that we can check if the removal of this agent would leave 
-        this household empty. It it would leave it empty, they destroy this 
-        household after removing the agent. Otherwise, run the normal method 
-        for agent removal from a household Agent_set.
-        """
-        Agent_set.remove_agent(self, person)
-        if self.num_members() == 0:
-            print "%s left empty - household removed from model"%self
-            neighborhood = self.get_parent_agent()
-            neighborhood._land_agveg += self._hh_area
-            neighborhood._land_privbldg -= self._hh_area
-            neighborhood.remove_agent(neighborhood)
-
     def __str__(self):
         return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())
 
@@ -544,11 +529,14 @@ class Region(Agent_set):
         """Runs through the population and marries agents probabilistically 
         based on their age and the probability_marriage for this population"""
         # First find the eligible agents
+        minimum_age = rcParams['marriage.minimum_age_years']
         eligible_males = []
         eligible_females = []
         for household in self.iter_households():
             for person in household.iter_agents():
-                if (not person.is_married()) and (random_state.rand() < calc_probability_marriage(person)):
+                if (not person.is_married()) and \
+                        (person.get_age()/12 >= minimum_age) and \
+                        (random_state.rand() < calc_probability_marriage(person)):
                     # Agent is eligible to marry.
                     if person.get_sex() == "male":
                         eligible_males.append(person)
@@ -574,9 +562,14 @@ class Region(Agent_set):
         # Now pair up the eligible agents. Any extra males/females will not 
         # marry this timestep.
         marriages = {}
-        for male, female in zip(eligible_males, eligible_females):
-            #TODO: Add check on age/etc of spouse characteristics. Choose spouse 
-            #TODO: dependent on spouses attributes (using histogram of probability within different bins).
+        for male in eligible_males:
+            # The 'choose_spouse' function in statistics.py chooses a spouse 
+            # based on the probability of the man marrying each woman in the 
+            # eligible_females list (with the probability dependent on the age 
+            # difference between the man and each woman in the list.
+            if len(eligible_females) == 0: break
+            female = choose_spouse(male, eligible_females)
+            eligible_females.remove(female)
             # First marry the agents.
             male.marry(female, time)
             female._first_birth_timing = calc_first_birth_time(self)

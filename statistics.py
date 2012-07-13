@@ -257,6 +257,28 @@ def calc_probability_marriage_simple(person):
     elif person.get_sex() == 'male':
         return marriage_probabilities_male[probability_index]
 
+def choose_spouse(male, eligible_females):
+    """
+    Once lists of marrying men and women are created with the 
+    calc_probability_marriage_simple or calc_probability_marriage_yabiku2006 
+    functions, this function chooses a wife for a particular male based on the 
+    age differential between the man and each woman, based on observed data.
+    """
+    sp_probs = []
+    for female in eligible_females:
+        agediff = male.get_age()/12 - female.get_age()/12
+        sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
+        #print "f", female.get_age()/12,
+        #print "m", male.get_age()/12, "|",
+    num = np.random.rand() * np.sum(sp_probs)
+    sp_probs = np.cumsum(sp_probs)
+    n = 0
+    for upprob in sp_probs[0:-1]:
+        if num <= upprob:
+            break
+        n += 1
+    return eligible_females[n]
+
 def calc_probability_death(person):
     "Calculates the probability of death for an agent."
     age = person.get_age()
@@ -364,7 +386,7 @@ def draw_from_prob_dist(prob_dist):
     where the probability distribution is a tuple specified as:
         ([a, b, c, d], [1, 2, 3])
     where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
-    assigned to each bin. Notice one more bin limit must be specifed than the 
+    assigned to each bin. Notice one more bin limit must be specified than the 
     number of probabilities given (to close the interval).
     """
     # First randomly choose the bin, with the bins chosen according to their 
@@ -382,6 +404,34 @@ def draw_from_prob_dist(prob_dist):
     # Now we know the bin lims, so draw a random number evenly distributed 
     # between those two limits.
     return np.random.uniform(lowbinlim, upbinlim)
+
+def calc_prob_from_prob_dist(prob_dist, attribute):
+    """
+    Calculated the probability of something based on a manually specified 
+    probability distribution, where the probability distribution is a tuple 
+    specified as:
+        ([a, b, c, d], [1, 2, 3])
+    where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
+    assigned to each bin. Notice one more bin limit must be specified than the 
+    number of probabilities given (to close the interval). The bin limits are 
+    closed on the right, open on the left.
+
+    The correct probability to draw is based on the bin that the 'attribute' 
+    parameter falls into. For example, to draw the probability of marrying a 
+    spouse based on the difference in age between the spouse and a particular 
+    agent, 'attribute' should be the age difference. This function will then 
+    return the probability of marrying that spouse based on the bin that the 
+    spouse age difference falls into.
+    """
+    binlims, probs = prob_dist
+    n = 0
+    for uplim in binlims[1:]:
+        if attribute <= uplim:
+            break
+        n += 1
+    # Now we know the bin lims, so draw a random number evenly distributed 
+    # between those two limits.
+    return probs[n]
 
 def calc_fuelwood_usage_simple(household, time):
     """
