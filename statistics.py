@@ -267,7 +267,10 @@ def choose_spouse(male, eligible_females):
     sp_probs = []
     for female in eligible_females:
         agediff = male.get_age()/12 - female.get_age()/12
-        sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
+        if male.get_ethnicity() != female.get_ethnicity():
+            sp_probs.append(0)
+        else:
+            sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
         #print "f", female.get_age()/12,
         #print "m", male.get_age()/12, "|",
     num = np.random.rand() * np.sum(sp_probs)
