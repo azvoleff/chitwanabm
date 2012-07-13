@@ -424,13 +424,28 @@ def assemble_world():
         try:
             NEIGHID = HHID_NEIGHID_map[HHID]
         except KeyError:
-            print "WARNING: household %s is not in DS0002. This agent will be excluded from the model."%(HHID)
+            print "WARNING: household %s is not in DS0002. This household will be excluded from the model."%(HHID)
             continue
         # Get a reference to this neighborhood
         neighborhood = region.get_agent(NEIGHID)
         # Then get a reference to the proper household, and add the person
         household = neighborhood.get_agent(HHID)
         household.add_agent(person)
+
+    # Now check that there are no empty households and no empty neighborhoods.  
+    # Empty households or neighborhoods could occur due to people excluded due 
+    # to missing data, or due to people excluded because of their ethnicity.
+    for region in model_world.iter_regions():
+        for neighborhood in region.iter_agents():
+            for household in neighborhood.iter_agents():
+                if household.num_members() == 0:
+                    print "WARNING: household %s has no members. This household will be excluded from the model."%(household.get_ID())
+                    neighborhood.remove_agent(household)
+    for region in model_world.iter_regions():
+        for neighborhood in region.iter_agents():
+            if neighborhood.num_members() == 0:
+                print "WARNING: neighborhood %s has no members. This neighborhood will be excluded from the model."%(neighborhood.get_ID())
+                continue
 
     print "\nPersons: %s, Households: %s, Neighborhoods: %s"%(region.num_persons(), region.num_households(), region.num_neighborhoods())
     return model_world
