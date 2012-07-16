@@ -248,7 +248,8 @@ def calc_probability_marriage_yabiku2006(person):
 def calc_probability_marriage_zvoleff(person):
     """
     Calculates the probability of marriage for an agent, using the results of 
-    Alex Zvoleff's empirical analysis of the CVFS data.
+    Alex Zvoleff's empirical analysis of the CVFS data, following the results 
+    of the analysis conducted by Yabiku (2006).
     """
     neighborhood = person.get_parent_agent().get_parent_agent()
 
@@ -279,14 +280,14 @@ def calc_probability_marriage_zvoleff(person):
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['marrtime.zv.coef.ethnicTeraiTibeto']
 
-    # Convert person's age from months to years:
-    age = person.get_age() / 12.
-    inner += rcParams['marrtime.zv.coef.age'] * age
-    inner += rcParams['marrtime.zv.coef.age_squared'] * (age**2)
+    # Convert person's age from months to decades:
+    agedecades = (person.get_age() / 12.) / 10
+    inner += rcParams['marrtime.zv.coef.agedecades'] * agedecades
+    inner += rcParams['marrtime.zv.coef.agedecades_squared'] * (agedecades**2)
     
     # Testing code:
     #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "Marriage: age: %s,  prob: %s"%(age, prob)
+    #print "Marriage: age: %s,  prob: %s"%(agedecades*10, prob)
     return 1./(1 + np.exp(-inner))
 
 def calc_probability_marriage_simple(person):
@@ -385,6 +386,17 @@ def calc_probability_migration_masseyetal_2010(person):
     elif (age > 34) & (age <= 44):
         inner += rcParams['migration.coef.age34-44']
 
+    # Testing code:
+    #prob = np.round(1./(1 + np.exp(-inner)), 4)
+    #print "Migration prob: age: %s,  prob: %s"%(age, prob)
+    return 1./(1 + np.exp(-inner))
+
+def calc_probability_migration_zvoleff(person):
+    """
+    Calculates the probability of local-distant migration for an agent, using 
+    the results of Alex Zvoleff's empirical analysis of the CVFS data, 
+    following the results of the analysis conducted by Massey et al. (2010).
+    """
     # Testing code:
     #prob = np.round(1./(1 + np.exp(-inner)), 4)
     #print "Migration prob: age: %s,  prob: %s"%(age, prob)

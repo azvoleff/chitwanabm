@@ -62,10 +62,10 @@
 # will slow down the model A LOT.
 'save_LULC_shapefiles': [False | validate_boolean]
 
-'model.parameterization.marriage': ["yabiku2006" | validate_string]
+'model.parameterization.marriage': ["zvoleff" | validate_string]
 'model.parameterization.firstbirthtiming': ["ghimireaxinn2010" | validate_string]
 'model.parameterization.migration' : ["massey2010" | validate_string]
-'model.parameterization.fuelwood_usage' : ["migrationfeedback" | validate_string]
+'model.parameterization.fuelwood_usage' : ["simple" | validate_string]
 
 ###############################################################################
 # Location of input data (these are restricted data)
@@ -103,7 +103,7 @@
 'prob.marriage.moveout' : [.30 | validate_float]
 'prob.marry.inmigrant' : [0 | validate_float]
 'marriage.minimum_age_years' : [15 | validate_int]
-'marriage.maximum_age_years' : [30 | validate_int]
+'marriage.maximum_age_years' : [35 | validate_int]
 'prob.firstbirth.times' : [((0, 5, 10, 15, 20, 25, 30, 35, 40), (0.0421, 0.2757, 0.3925, 0.1636, 0.0654, 0.0327, 0.0234, 0.0047))] | validate_prob_dist]
 'use.firstbirth.times' : [True | validate_boolean]
 'prob.num.children.desired' : [((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))] | validate_prob_dist]
@@ -131,16 +131,16 @@
 
 # Coefficients for marriage timing are from Zvoleff's analysis of CVFS 
 # household registry, following Yabiku (2006) findings.
-'marrtime.zv.coef.intercept' : [-21.3772 | validate_float]
+'marrtime.zv.coef.intercept' : [-15.32 | validate_float]
 'marrtime.zv.coef.logpercagveg' : [0.1961 | validate_float]
 'marrtime.zv.coef.schooling_yrs' : [-0.1041 | validate_float]
-'marrtime.zv.coef.female' : [1.2474 | validate_float]
-'marrtime.zv.coef.ethnicLowHindu' : [0.0467 | validate_float]
-'marrtime.zv.coef.ethnicNewar' : [-0.5120 | validate_float]
-'marrtime.zv.coef.ethnicHillTibeto' : [0.2504 | validate_float]
-'marrtime.zv.coef.ethnicTeraiTibeto' : [0.0585 | validate_float]
-'marrtime.zv.coef.agedecades' : [11.7189 | validate_float]
-'marrtime.zv.coef.agedecades_squared' : [-2.0609 | validate_float]
+'marrtime.zv.coef.female' : [.8518 | validate_float]
+'marrtime.zv.coef.ethnicLowHindu' : [0.1027 | validate_float]
+'marrtime.zv.coef.ethnicNewar' : [-0.2956 | validate_float]
+'marrtime.zv.coef.ethnicHillTibeto' : [0.2114 | validate_float]
+'marrtime.zv.coef.ethnicTeraiTibeto' : [0.0176 | validate_float]
+'marrtime.zv.coef.agedecades' : [7.3315 | validate_float]
+'marrtime.zv.coef.agedecades_squared' : [-1.3498 | validate_float]
 
 
 # Coefficients for marriage timing are from Ghimire and Axinn (2010).
