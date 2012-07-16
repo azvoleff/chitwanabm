@@ -581,7 +581,7 @@ class Region(Agent_set):
 
         # Now pair up the eligible agents. Any extra males/females will not 
         # marry this timestep.
-        marriages = {}
+        couples = []
         for male in eligible_males:
             # The 'choose_spouse' function in statistics.py chooses a spouse 
             # based on the probability of the man marrying each woman in the 
@@ -590,6 +590,11 @@ class Region(Agent_set):
             if len(eligible_females) == 0: break
             female = choose_spouse(male, eligible_females)
             eligible_females.remove(female)
+            couples.append((male, female))
+
+        marriages = {}
+        # Now marry the agents
+        for male, female in couples:
             # First marry the agents.
             male.marry(female, time)
             female._first_birth_timing = calc_first_birth_time(self)
