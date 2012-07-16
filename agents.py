@@ -47,6 +47,8 @@ if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
 elif rcParams['model.parameterization.marriage'] == 'yabiku2006':
     from ChitwanABM.statistics import calc_probability_marriage_yabiku2006 as calc_probability_marriage
+elif rcParams['model.parameterization.marriage'] == 'zvoleff':
+    from ChitwanABM.statistics import calc_probability_marriage_zvoleff as calc_probability_marriage
 else:
     raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['model.parameterization.marriage'])
 
@@ -546,12 +548,14 @@ class Region(Agent_set):
         based on their age and the probability_marriage for this population"""
         # First find the eligible agents
         minimum_age = rcParams['marriage.minimum_age_years']
+        maximum_age = rcParams['marriage.maximum_age_years']
         eligible_males = []
         eligible_females = []
         for household in self.iter_households():
             for person in household.iter_agents():
                 if (not person.is_married()) and \
                         (person.get_age()/12 >= minimum_age) and \
+                        (person.get_age()/12 <= maximum_age) and \
                         (random_state.rand() < calc_probability_marriage(person)):
                     # Agent is eligible to marry.
                     if person.get_sex() == "male":
@@ -706,9 +710,9 @@ class Region(Agent_set):
 
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially outmigrated)
-        self.agent_store.release_agents(time)
-        in_migr = {}
-        return out_migr, in_migr
+        return_migr = self.agent_store.release_agents(time)
+        new_in_migr = {}
+        return out_migr, return_migr, new_in_migr
 
     def increment_age(self):
         """Adds one to the age of each agent. The units of age are dependent on 

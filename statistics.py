@@ -19,8 +19,8 @@
 # contact information.
 
 """
-Contains statistical models to calulate probabilities (such as of birth, and of 
-marriage) and run OLS regressions (to calculate land use).
+Contains statistical models to calculate probabilities (such as of birth, and of 
+marriage).
 """
 
 import numpy as np
@@ -239,6 +239,50 @@ def calc_probability_marriage_yabiku2006(person):
     age = person.get_age() / 12.
     inner += rcParams['marrtime.coef.age'] * age
     inner += rcParams['marrtime.coef.age_squared'] * (age**2)
+    
+    # Testing code:
+    #prob = np.round(1./(1 + np.exp(-inner)), 4)
+    #print "Marriage: age: %s,  prob: %s"%(age, prob)
+    return 1./(1 + np.exp(-inner))
+
+def calc_probability_marriage_zvoleff(person):
+    """
+    Calculates the probability of marriage for an agent, using the results of 
+    Alex Zvoleff's empirical analysis of the CVFS data.
+    """
+    neighborhood = person.get_parent_agent().get_parent_agent()
+
+    inner = rcParams['marrtime.zv.coef.intercept']
+
+    # Neighborhood characteristics
+    if neighborhood._land_agveg == 0:
+        log_percent_agveg = 0
+    else:
+        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+    inner += rcParams['marrtime.zv.coef.logpercagveg'] * log_percent_agveg
+    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._nfo_schl_minft_1996
+
+    if person.get_sex() == "female":
+        inner += rcParams['marrtime.zv.coef.female']
+
+    ethnicity = person.get_ethnicity()
+    assert ethnicity!=None, "Ethnicity must be defined"
+    if ethnicity == "HighHindu":
+        # This was the reference level
+        pass
+    elif ethnicity == "HillTibeto":
+        inner += rcParams['marrtime.zv.coef.ethnicHillTibeto']
+    elif ethnicity == "LowHindu":
+        inner += rcParams['marrtime.zv.coef.ethnicLowHindu']
+    elif ethnicity == "Newar":
+        inner += rcParams['marrtime.zv.coef.ethnicNewar']
+    elif ethnicity == "TeraiTibeto":
+        inner += rcParams['marrtime.zv.coef.ethnicTeraiTibeto']
+
+    # Convert person's age from months to years:
+    age = person.get_age() / 12.
+    inner += rcParams['marrtime.zv.coef.age'] * age
+    inner += rcParams['marrtime.zv.coef.age_squared'] * (age**2)
     
     # Testing code:
     #prob = np.round(1./(1 + np.exp(-inner)), 4)
