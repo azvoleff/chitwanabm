@@ -25,6 +25,7 @@
 # migration, total population, etc.).
 ###############################################################################
 
+require(reshape)
 require(ggplot2, quietly=TRUE)
 require(scales, quietly=TRUE) # Used for formatting time on the x axis
 
