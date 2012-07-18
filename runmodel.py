@@ -58,7 +58,7 @@ root_logger.addHandler(fh)
 # Add a console logger as well - the level will be updated from the command 
 # line parameters later as necessary.
 ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
+ch.setLevel(logging.INFO)
 log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S%p')
 ch.setFormatter(log_console_formatter)
@@ -80,7 +80,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
     parser.add_argument('--rc', metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
-    parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run to the console')
+    parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="info", help='The logging level to use as a threshold for logging information about the model run to the console')
     parser.add_argument('--log_file', metavar="LOG_FILE_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run to the log file')
     args = parser.parse_args()
 
