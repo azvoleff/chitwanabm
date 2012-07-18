@@ -314,7 +314,7 @@ def choose_spouse(male, eligible_females):
             sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
         #print "f", female.get_age()/12,
         #print "m", male.get_age()/12, "|",
-    if sum(sp_probs==0):
+    if sum(sp_probs) == 0:
         # In this case NONE of the females are eligible (all of different 
         # ethnicities than the male).
         return None

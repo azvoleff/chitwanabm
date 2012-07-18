@@ -181,12 +181,11 @@ def main_loop(world, results_path):
             # The last condition in the above if statement is necessary as 
             # there is no total to print on the first timestep, so it wouldn't 
             # make sense to print it.
-            total_string = "%s TOTAL | New Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
+            total_string = "%s totals: New Ma: %3s, B: %3s, D: %3s, InMi: %3s, OutMi: %3s"%(
                     model_time.get_cur_year(), annual_num_marr, annual_num_births,
                     annual_num_deaths, annual_num_in_migr, annual_num_out_migr)
-            total_string = total_string.center(len(stats_string))
-            logger.info('%s'%total_string)
-            logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
+            logger.debug('%s'%total_string)
+            logger.debug("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
 
         if num_persons == 0:
             logger.info("End of model run: population is zero")
