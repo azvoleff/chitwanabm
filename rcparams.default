@@ -82,6 +82,11 @@
 'path.world_mask' : ["V:/Nepal/ChitwanABM_Initialization/CVFS_Study_Area_Raster_30m.tif" | validate_readable_file]
 # The DEM_file is a GeoTIFF digital elevation model of the study area.
 'path.DEM_file' : ["V:/Nepal/ChitwanABM_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif" | validate_readable_file]
+# Set the level of verbosity for console output while the model is running:
+'loglevel.console' : ["info" | validate_string]
+# Set the level of verbosity for logging messages to a file while the model is 
+# running (note this does not affect results output):
+'loglevel.file' : ["warning" | validate_string]
 
 ###############################################################################
 # Person agent parameters

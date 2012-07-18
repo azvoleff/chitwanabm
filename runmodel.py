@@ -50,7 +50,7 @@ root_logger.setLevel(logging.DEBUG)
 # constructed using the results path given in rcParams:
 temp_log_fd, temp_log_path = tempfile.mkstemp()
 fh = logging.FileHandler(temp_log_path, mode='w')
-fh.setLevel(logging.DEBUG)
+fh.setLevel(logging.WARNING)
 log_file_formatter = logging.Formatter('%(asctime)s %(name)s:%(lineno)d %(levelname)s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
 fh.setFormatter(log_file_formatter)
@@ -80,14 +80,19 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
     parser.add_argument('--rc', metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
-    parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run')
+    parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run to the console')
+    parser.add_argument('--log_file', metavar="LOG_FILE_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run to the log file')
     args = parser.parse_args()
 
-    # Setup logging to the console according to the desired level
-    numeric_level = getattr(logging, args.log.upper(), None)
-    if not isinstance(numeric_level, int):
+    # Setup logging according to the desired levels
+    ch_level = getattr(logging, args.log.upper(), None)
+    if not isinstance(ch_level, int):
         logger.critical('Invalid log level: %s' %args.log)
-    root_logger.handlers[1].setLevel(numeric_level)
+    root_logger.handlers[1].setLevel(ch_level)
+    fh_level = getattr(logging, args.log_file.upper(), None)
+    if not isinstance(fh_level, int):
+        logger.critical('Invalid log level: %s' %args.log_file)
+    root_logger.handlers[0].setLevel(fh_level)
 
     if not(args.rc == None):
         logger.critical("An rc file path was passed as a command line parameter, but custom rc file use is not yet implemented.")
@@ -123,7 +128,7 @@ def main(argv=None):
     log_file_path = os.path.join(results_path, "ChitwanABM.log")
     shutil.copyfile(temp_log_path, log_file_path)
     fh = logging.FileHandler(log_file_path, mode='a')
-    fh.setLevel(logging.DEBUG)
+    fh.setLevel(fh_level)
     fh.setFormatter(log_file_formatter)
     root_logger.addHandler(fh)
     # Remove the temporary file handler and add the new one:
