@@ -28,16 +28,16 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 import os
 import time
 import copy
+import logging
 
 import numpy as np
 
-from PyABM import file_io
+from PyABM.file_io import write_NBH_shapefile
 from PyABM.utility import TimeSteps
+
 from ChitwanABM import rcParams
 
-if rcParams['model.use_psyco'] == True:
-    import psyco
-    psyco.full()
+logger = logging.getLogger(__name__)
 
 timebounds = rcParams['model.timebounds']
 timestep = rcParams['model.timestep']
@@ -122,6 +122,7 @@ def main_loop(world, results_path):
             empty_events, empty_events, empty_events)
 
     while model_time.in_bounds():
+        logger.debug('beginning timestep %s (%s)'%(model_time.get_cur_int_timestep(), model_time.get_cur_date_string()))
         if model_time.get_cur_month() == 1:
             annual_num_births = 0
             annual_num_deaths = 0
@@ -130,6 +131,7 @@ def main_loop(world, results_path):
             annual_num_out_migr = 0
 
         for region in world.iter_regions():
+            logger.debug('processing region %s'%region.get_ID())
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
             new_births = region.births(model_time.get_cur_date_float())
@@ -166,7 +168,7 @@ def main_loop(world, results_path):
         stats_string = "%s | P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | InMi: %3s | OutMi: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, region.get_num_marriages(), num_households,
                 num_new_marr, num_new_births, num_new_deaths, num_new_in_migr, num_new_out_migr)
-        print stats_string
+        logger.info('%s'%stats_string)
 
         # Save timestep, year and month, and time_float values for use in 
         # storing results (to CSV) keyed to a particular timestep.
@@ -183,13 +185,11 @@ def main_loop(world, results_path):
                     model_time.get_cur_year(), annual_num_marr, annual_num_births,
                     annual_num_deaths, annual_num_in_migr, annual_num_out_migr)
             total_string = total_string.center(len(stats_string))
-            print total_string
-            msg = "Elapsed time: %11s"%elapsed_time(modelrun_starttime)
-            msg = msg.rjust(len(stats_string))
-            print msg
+            logger.info('%s'%total_string)
+            logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
 
         if num_persons == 0:
-            print "End of model run: population is zero."
+            logger.info("End of model run: population is zero")
             break
 
         if model_time.get_cur_month() == 12 or model_time.is_last_iteration():

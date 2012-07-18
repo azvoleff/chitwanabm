@@ -1,4 +1,4 @@
-# Copyright 2008-2012 Alex Zvoleff
+# Copyright 2008-2012 Alex Zvoleff)
 #
 # This file is part of the ChitwanABM agent-based model.
 #
@@ -43,10 +43,9 @@
 # whether or not a seed is provided, the seed that is used will be saved
 # in the model output for later reuse.
 'model.RandomState' : [None | validate_RandomState] 
-# Reinitialize a new world from scratch, or use existing pickled world.
+# Whether to reinitialize a new world from scratch for each model run
 'model.reinitialize' : [True | validate_boolean] 
 'model.resultspath' : ["M:/Data/Nepal/ChitwanABM_runs" | validate_writable_dir]
-'model.use_psyco': [False | validate_boolean] # Not yet supported in Python 2.7
 # Whether to produce summary plots for the model run after the run is 
 # completed. Requires a working R installation, and some of the plots require 
 # the psn and NBH CSV files to be produced for every timestep (see these rc 

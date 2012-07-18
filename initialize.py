@@ -28,6 +28,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import os
 import sys
+import logging
 
 import numpy as np
 import pickle
@@ -38,14 +39,20 @@ from PyABM.file_io import read_single_band_raster
 from ChitwanABM import rcParams
 from ChitwanABM.agents import World
 
+logger = logging.getLogger(__name__)
+
 def main():
     world = generate_world()
+    if world == 1:
+        log.critical("Problem generating world")
+        return 1
 
     try:
         processed_data_file = rcParams['path.input_data_file']
         save_world(world, processed_data_file)
     except:
-        print "ERROR: while saving world file to %s"%(processed_data_file)
+        logger.critical("Problem saving world file to %s"%processed_data_file)
+        return 1
 
 def read_CVFS_data(textfile, key_field):
     """
@@ -61,7 +68,8 @@ def read_CVFS_data(textfile, key_field):
         lines = file.readlines()
         file.close()
     except:
-        raise IOError("error reading %s"%(textfile))
+        logger.critical("Error reading %s"%textfile)
+        return 1
     
     # The first line of the data file gives the column names
     col_names = lines[0].split(',')
@@ -80,7 +88,8 @@ def read_CVFS_data(textfile, key_field):
 
         data_key = int(new_data[key_field])
         if new_data.has_key(data_key):
-            raise KeyError('key %s is already in use'%(data_key))
+            logger.critical("Error reading %s: key %s is already in use"%(textfile, data_key))
+            return 1
         data[data_key] = new_data
 
     return data
@@ -208,11 +217,8 @@ def assemble_persons(relationshipsFile, model_world):
             AGEMNTHS = int(relation['AGEMNTHS']) # Age of agent in months
             CENGENDR = relation['CENGENDR']
             ETHNICITY = int(relation['ETHNIC'])
-        except KeyError:
-            print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
-            continue
-        except ValueError:
-            print "WARNING: no census data on person %s. This agent will be excluded from the model."%(RESPID)
+        except KeyError, ValueError:
+            logger.warning("Person %s skipped because they are not in the census"%RESPID)
             continue
         
         # Read in SUBJECT IDs of parents/spouse/children
@@ -225,7 +231,7 @@ def assemble_persons(relationshipsFile, model_world):
             try:
                 father_RESPID = SUBJECT_RESPID_map[HHID][father_SUBJECT]
             except KeyError:
-                print "WARNING: father of person %s was excluded from the model. Person %s will have their father field set to None."%(RESPID, RESPID)
+                logger.warning("Father of person %s was excluded from the model - father field set to None"%RESPID)
         else:
             father_RESPID = None
 
@@ -233,7 +239,7 @@ def assemble_persons(relationshipsFile, model_world):
             try:
                 mother_RESPID = SUBJECT_RESPID_map[HHID][mother_SUBJECT]
             except KeyError:
-                print "WARNING: mother of person %s was excluded from the model. Person %s will have their mother field set to None."%(RESPID, RESPID)
+                logger.warning("Mother of person %s was excluded from the model - mother field set to None"%RESPID)
         else:
             mother_RESPID = None
 
@@ -241,7 +247,7 @@ def assemble_persons(relationshipsFile, model_world):
             try:
                 spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_SUBJECT]
             except KeyError:
-                print "WARNING: spouse of person %s was excluded from the model. Person %s will have their spouse field set to None."%(RESPID, RESPID)
+                logger.warning("Spouse of person %s was excluded from the model - spouse field set to None"%RESPID)
                 spouse_RESPID = None
         else:
             spouse_RESPID = None
@@ -306,12 +312,12 @@ def assemble_persons(relationshipsFile, model_world):
             if person._mother != None:
                 person._mother = personsDict[person._mother]
                 if person._mother == person:
-                    print "WARNING: agent %s skipped because it is it's own mother"%(person.get_ID())
+                    logger.warning("Person %s skipped because it is it's own mother"%(person.get_ID()))
                     continue
             if person._father != None:
                 person._father = personsDict[person._father]
                 if person._father == person:
-                    print "WARNING: agent %s skipped because it is it's own father"%(person.get_ID())
+                    logger.warning("Person %s skipped because it is it's own father"%(person.get_ID()))
                     continue
             if person._spouse != None:
                 # First assign the person's spouse
@@ -340,11 +346,11 @@ def assemble_persons(relationshipsFile, model_world):
                     person._marriage_time = marriage_time
                     person._spouse._marriage_time = marriage_time
                 if person._spouse == person:
-                    print "WARNING: agent %s skipped because it is married to itself"%(person.get_ID())
+                    logger.warning("Person %s skipped because it is married to itself"%(person.get_ID()))
                     continue
             persons.append(person)
         except KeyError:
-            print "WARNING: person %s skipped due to mother/father/spouse KeyError. This agent will be excluded from the model."%(person.get_ID())
+            logger.warning("Person %s skipped due to mother/father/spouse KeyError"%(person.get_ID()))
     
     # Now run through all the person agents, and store each person agent in 
     # both of it's parent's child lists, so that the number of children each 
@@ -424,7 +430,7 @@ def assemble_world():
         try:
             NEIGHID = HHID_NEIGHID_map[HHID]
         except KeyError:
-            print "WARNING: household %s is not in DS0002. This household will be excluded from the model."%(HHID)
+            logger.warning("Household %s skipped because it is not in DS0002"%(HHID))
             continue
         # Get a reference to this neighborhood
         neighborhood = region.get_agent(NEIGHID)
@@ -439,15 +445,15 @@ def assemble_world():
         for neighborhood in region.iter_agents():
             for household in neighborhood.iter_agents():
                 if household.num_members() == 0:
-                    print "WARNING: household %s has no members. This household will be excluded from the model."%(household.get_ID())
+                    logger.warning("Household %s skipped because it has no members"%(household.get_ID()))
                     neighborhood.remove_agent(household)
     for region in model_world.iter_regions():
         for neighborhood in region.iter_agents():
             if neighborhood.num_members() == 0:
-                print "WARNING: neighborhood %s has no members. This neighborhood will be excluded from the model."%(neighborhood.get_ID())
+                logger.warning("Neighborhood %s skipped because it has no members"%(neighborhood.get_ID()))
                 continue
 
-    print "\nPersons: %s, Households: %s, Neighborhoods: %s"%(region.num_persons(), region.num_households(), region.num_neighborhoods())
+    logger.info("World generated with %s persons, %s households, and %s neighborhoods"%(region.num_persons(), region.num_households(), region.num_neighborhoods()))
     return model_world
 
 def save_world(world, filename):
@@ -470,13 +476,14 @@ def generate_world():
         to ICPSR and IRB requirements.
     """
     try:
-        print "Calling R to preprocess CVFS data..."
+        logger.info("Calling R to preprocess CVFS data")
         raw_data_path = rcParams['path.raw_input_data']
         Rscript_binary = rcParams['path.Rscript_binary']
         check_call([Rscript_binary, "data_preprocess.R", raw_data_path])
     except CalledProcessError:
-        print "ERROR: while running data_preprocess.R R script"
-    print "Generating world from preprocessed CVFS data..."
+        logger.critical("Problem while running data_preprocess.R R script")
+        return 1
+    logger.info("Generating world from preprocessed CVFS data")
     model_world = assemble_world()
 
     return model_world

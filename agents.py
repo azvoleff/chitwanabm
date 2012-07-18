@@ -44,6 +44,8 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_fuelwood_usage_migration_feedback, calc_education_level, \
         choose_spouse
 
+logger = logging.getLogger(__name__)
+
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
 elif rcParams['model.parameterization.marriage'] == 'yabiku2006':
@@ -370,7 +372,7 @@ class Household(Agent_set):
         """
         Agent_set.remove_agent(self, person)
         #if self.num_members() == 0:
-        #    print "%s left empty - household removed from model"%self
+        #    logger.debug("%s left empty - household removed from model"%self)
         #    neighborhood = self.get_parent_agent()
         #    neighborhood._land_agveg += self._hh_area
         #    neighborhood._land_privbldg -= self._hh_area
@@ -575,6 +577,7 @@ class Region(Agent_set):
             agent_age = eligible_males[np.random.randint(len(eligible_males))].get_age()
             agent_ethnicity = eligible_males[np.random.randint(len(eligible_males))].get_ethnicity()
             eligible_males.append(self._world.new_person(time, sex="male", age=agent_age, ethnicity=agent_ethnicity))
+        marriage_tracking_info = "Eligible males: ", len(eligible_males), "| Eligible females: ", len(eligible_females), 
 
         # Now pair up the eligible agents. Any extra males/females will not 
         # marry this timestep.
@@ -593,6 +596,8 @@ class Region(Agent_set):
                 continue
             eligible_females.remove(female)
             couples.append((male, female))
+        marriage_tracking_info += "| Number of couples: ", len(couples)
+        logger.debug(marriage_tracking_info)
 
         marriages = {}
         # Now marry the agents

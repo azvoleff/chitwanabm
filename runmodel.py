@@ -37,34 +37,60 @@ import tempfile
 import subprocess
 import socket
 import csv
-
 import numpy as np
+import argparse # Requires Python 2.7 or above
+import logging
 
-from PyABM.rcsetup import write_RC_file
-from PyABM.file_io import write_single_band_raster
-
-from ChitwanABM import rcParams
-from ChitwanABM.initialize import generate_world
-from ChitwanABM.modelloop import main_loop
-
-if rcParams['model.use_psyco'] == True:
-    import psyco
-    psyco.full()
+logger = logging.getLogger(__name__)
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv
+    parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
+    parser.add_argument('--rc', metavar="RC_FILE", type=str, default=None,
+            help='Path to a rc file to initialize a model run with custom parameters')
+    parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run')
+    args = parser.parse_args()
 
-    try:
-        rc_file = sys.argv[1]
-        print "\nWARNING: using default rc params. Custom rc_file use is not yet implemented.\n"
-    except IndexError:
-        pass
+    # Setup logging, including logging to the console if desired
+    numeric_level = getattr(logging, args.log.upper(), None)
+    if not isinstance(numeric_level, int):
+        logger.critical('Invalid log level: %s' %args.log)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(numeric_level)
+    ch_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', 
+            datefmt='%m/%d/%Y %I:%M:%S%p')
+    ch.setFormatter(ch_formatter)
+
+    fh = logging.FileHandler('ChitwanABM.log', mode='w')
+    fh.setLevel(logging.DEBUG)
+    fh_formatter = logging.Formatter('%(asctime)s %(name)s:%(lineno)d %(levelname)s %(message)s', 
+            datefmt='%m/%d/%Y %I:%M:%S %p')
+    fh.setFormatter(fh_formatter)
+
+    root_logger = logging.getLogger()
+    root_logger.addHandler(ch)
+    root_logger.addHandler(fh)
+    root_logger.setLevel(logging.DEBUG)
+
+    if not(args.rc == None):
+        logger.critical("An rc file path was passed as a command line parameter, but custom rc file use is not yet implemented.")
+        return 1
+
+    # Now import the main packages in this module. Don't do this earlier 
+    # because if it is done earlier than the above code any logging statements 
+    # won't be logged according the chosen logging level.
+    from ChitwanABM import rcParams
+    from ChitwanABM.initialize import generate_world
+    from ChitwanABM.modelloop import main_loop
+
+    from PyABM.rcsetup import write_RC_file
+    from PyABM.file_io import write_single_band_raster
 
     # Get machine hostname to print it in the results file and use in the 
     # run_ID_number.
     hostname = socket.gethostname()
-    
     # The run_ID_number provides an ID number (built from the start time and 
     # machine name) to uniquely identify this model run.
     run_ID_number = time.strftime("%Y%m%d-%H%M%S") + '_' + hostname
@@ -84,7 +110,6 @@ def main(argv=None):
     except OSError:
         raise OSError("error creating results directory %s"%(results_path))
     
-
     if rcParams['model.reinitialize']:
         # Generate a new world (with new resampling, etc.)
         world = generate_world()
@@ -97,25 +122,16 @@ def main(argv=None):
         except IOError:
             raise IOError('error loading world data from  %s'%input_data_file)
 
+    logger.info('Beginning model run %s'%run_ID_number)
     # Run the model loop
     start_time = time.localtime()
-    start_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", start_time)
-    print """
-************************************************************************************************
-%s: started model run number %s.
-************************************************************************************************
-"""%(start_time_string, run_ID_number)
+    logger.info('Started model run number %s'%run_ID_number)
     run_results, time_strings = main_loop(world, results_path) # This line actually runs the model.
     end_time = time.localtime()
-    end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
-    print """
-************************************************************************************************
-%s: finished model run number %s.
-************************************************************************************************
-"""%(end_time_string, run_ID_number)
+    logger.info('Finished model run number %s'%run_ID_number)
     
     # Save the results
-    print "Saving result files..."
+    logger.info("Saving result files")
     pop_data_file = os.path.join(results_path, "run_results.P")
     output = open(pop_data_file, 'w')
     pickle.dump(run_results, output)
@@ -150,35 +166,35 @@ def main(argv=None):
     write_time_csv(time_strings, time_csv_file)
     
     if rcParams['model.make_plots']:
-        print "Plotting population results..."
+        logger.info("Plotting population results")
         Rscript_binary = rcParams['path.Rscript_binary']
         dev_null = open(os.devnull, 'w')
         try:
             subprocess.check_call([Rscript_binary, 'plot_pop.R', results_path],
                     cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         except:
-            print "WARNING: Error running plot_pop.R."
+            logger.error("error running plot_pop.R.")
         dev_null.close()
 
         if rcParams['save_NBH_data']:
-            print "Plotting LULC results..."
+            logger.info("Plotting LULC results")
             # Make plots of the LULC and population results
             dev_null = open(os.devnull, 'w')
             try:
                 subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
                         cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
             except:
-                print "WARNING: Error running plot_LULC.R"
+                logger.error("problem running plot_LULC.R.")
             dev_null.close()
 
         if rcParams['save_psn_data']:
-            print "Plotting persons results..."
+            logger.info("Plotting persons results")
             dev_null = open(os.devnull, 'w')
             try:
                 subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
                         cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
             except:
-                print "WARNING: Error running plot_psns_data.R."
+                logger.error("error running plot_psns_data.R.")
             dev_null.close()
 
     # Calculate the number of seconds per month the model took to run (to 
@@ -186,6 +202,8 @@ def main(argv=None):
     # length of time_strings divided by the timestep size (in months).
     speed = (time.mktime(end_time) - time.mktime(start_time)) / (len(time_strings['timestep']) / rcParams['model.timestep'])
 
+    start_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", start_time)
+    end_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", end_time) 
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
@@ -199,7 +217,7 @@ def main(argv=None):
         speed, commit_hash)
     write_RC_file(run_RC_file, RC_file_header, rcParams)
 
-    print "\nFinished at", time.strftime("%m/%d/%Y %I:%M:%S %p") + "."
+    logger.info("Finished writing output for model run %s"%run_ID_number)
 
     return 0
 
@@ -210,8 +228,8 @@ def save_git_diff(code_path, git_diff_file):
         git_binary= rcParams['path.git_binary']
         subprocess.check_call([git_binary, 'show','--pretty=format:%H'], stdout=temp_file_fd, cwd=code_path)
     except:
-        print "WARNING: Error running git. Skipping git-diff patch output."
-        return "ERROR_RUNNING_GIT"
+        logger.error("Problem running git. Skipping git-diff patch output.")
+        return 1
     os.close(temp_file_fd)
     temp_file = open(temp_file_path, 'r')
     commit_hash = temp_file.readline().strip('\n')
@@ -225,7 +243,7 @@ def save_git_diff(code_path, git_diff_file):
         subprocess.check_call([git_binary, 'diff'], stdout=out_file, cwd=code_path)
         out_file.close()
     except IOError:
-        print "WARNING: Error writing to git diff output file: %s"%(git_diff_file)
+        logger.error("problem writing to git diff output file %s"%git_diff_file)
     return commit_hash
 
 def reformat_run_results(run_results):
