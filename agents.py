@@ -28,6 +28,7 @@ Alex Zvoleff, azvoleff@mail.sdsu.edu
 
 import os
 import csv
+import logging
 
 import numpy as np
 
@@ -65,10 +66,6 @@ elif rcParams['model.parameterization.fuelwood_usage'] == 'migrationfeedback':
     from ChitwanABM.statistics import calc_fuelwood_usage_migration_feedback as calc_fuelwood_usage
 else:
     raise Exception("Unknown option for fuelwood usage: '%s'"%rcParams['model.parameterization.fuelwood_usage'])
-
-if rcParams['model.use_psyco'] == True:
-    import psyco
-    psyco.full()
 
 class Person(Agent):
     "Represents a single person agent"
@@ -589,6 +586,11 @@ class Region(Agent_set):
             # difference between the man and each woman in the list.
             if len(eligible_females) == 0: break
             female = choose_spouse(male, eligible_females)
+            if female == None:
+                # In this case there are no eligible females for this man 
+                # (because all the females are of a different ethnicity than 
+                # the man).
+                continue
             eligible_females.remove(female)
             couples.append((male, female))
 

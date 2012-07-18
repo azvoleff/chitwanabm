@@ -27,10 +27,6 @@ import numpy as np
 
 from ChitwanABM import rcParams
 
-if rcParams['model.use_psyco'] == True:
-    import psyco
-    psyco.full()
-
 probability_time_units = rcParams['probability.time_units']
 
 class UnitsError(Exception):
@@ -318,6 +314,11 @@ def choose_spouse(male, eligible_females):
             sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
         #print "f", female.get_age()/12,
         #print "m", male.get_age()/12, "|",
+    if sum(sp_probs==0):
+        # In this case NONE of the females are eligible (all of different 
+        # ethnicities than the male).
+        return None
+
     num = np.random.rand() * np.sum(sp_probs)
     sp_probs = np.cumsum(sp_probs)
     n = 0
