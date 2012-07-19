@@ -42,7 +42,7 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage_simple, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
         calc_fuelwood_usage_migration_feedback, calc_education_level, \
-        choose_spouse
+        choose_spouse, calc_num_inmigrant_households
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +242,7 @@ class Person(Agent):
                 return False
             if rcParams['model.parameterization.firstbirthtiming'] == 'simple':
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
+                    logger.debug("First birth to agent %s"%self.get_ID())
                     return True
                 else:
                     return False
@@ -371,8 +372,8 @@ class Household(Agent_set):
         for agent removal from a household Agent_set.
         """
         Agent_set.remove_agent(self, person)
-        #if self.num_members() == 0:
-        #    logger.debug("%s left empty - household removed from model"%self)
+        if self.num_members() == 0:
+            logger.debug("Household %s left empty - household removed from model"%self.get_ID())
         #    neighborhood = self.get_parent_agent()
         #    neighborhood._land_agveg += self._hh_area
         #    neighborhood._land_privbldg -= self._hh_area
@@ -504,6 +505,7 @@ class Region(Agent_set):
     def births(self, time):
         """Runs through the population and agents give birth probabilistically 
         based on their birth interval and desired family size."""
+        logger.debug("Processing births")
         births = {}
         for household in self.iter_households():
             for person in household.iter_agents():
@@ -530,6 +532,7 @@ class Region(Agent_set):
     def deaths(self, time):
         """Runs through the population and kills agents probabilistically based 
         on their age and sex and the probability.death for this population"""
+        logger.debug("Processing deaths")
         deaths = {}
         for household in self.iter_households():
             for person in household.iter_agents():
@@ -545,6 +548,7 @@ class Region(Agent_set):
     def marriages(self, time):
         """Runs through the population and marries agents probabilistically 
         based on their age and the probability_marriage for this population"""
+        logger.debug("Processing marriages")
         # First find the eligible agents
         minimum_age = rcParams['marriage.minimum_age_years']
         maximum_age = rcParams['marriage.maximum_age_years']
@@ -561,7 +565,7 @@ class Region(Agent_set):
                         eligible_males.append(person)
                     else:
                         eligible_females.append(person)
-        # As a crude model of in-migration, append to the list additional 
+        # To model in-migration through marriage, append to the list additional 
         # agents, according to a parameter specifying the proportion of persons 
         # who marry in-migrants.
         num_new_females = int(np.floor(rcParams['prob.marry.inmigrant'] * len(eligible_females)))
@@ -577,7 +581,7 @@ class Region(Agent_set):
             agent_age = eligible_males[np.random.randint(len(eligible_males))].get_age()
             agent_ethnicity = eligible_males[np.random.randint(len(eligible_males))].get_ethnicity()
             eligible_males.append(self._world.new_person(time, sex="male", age=agent_age, ethnicity=agent_ethnicity))
-        marriage_tracking_info = "Eligible males: ", len(eligible_males), "| Eligible females: ", len(eligible_females), 
+        logger.debug('%s males and %s females eligible for marriage'%(len(eligible_males), len(eligible_females)))
 
         # Now pair up the eligible agents. Any extra males/females will not 
         # marry this timestep.
@@ -596,8 +600,7 @@ class Region(Agent_set):
                 continue
             eligible_females.remove(female)
             couples.append((male, female))
-        marriage_tracking_info += "| Number of couples: ", len(couples)
-        logger.debug(marriage_tracking_info)
+        logger.debug("%s couple(s) formed"%len(couples))
 
         marriages = {}
         # Now marry the agents
@@ -676,6 +679,7 @@ class Region(Agent_set):
         schooling based on their age and the education function for this 
         population.
         """
+        logger.debug("Processing education")
         timestep = rcParams['model.timestep']
         start_school_age = rcParams['education.start_school_age_years']
         schooling = {}
@@ -703,6 +707,7 @@ class Region(Agent_set):
         based on their age and the probability_marriage for this population.
         """
         # First handle out-migrations
+        logger.debug("Processing migrations")
         out_migr = {}
         for household in self.iter_households():
             for person in household.iter_agents():
@@ -723,15 +728,39 @@ class Region(Agent_set):
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially outmigrated)
         return_migr = self.agent_store.release_agents(time)
+
+        # Now handle inmigrations:
         new_in_migr = {}
+        num_in_migr_households = calc_num_inmigrant_households()
+        logger.debug("%s in-migrant households"%num_in_migr_households)
+
+        timestep = rcParams['inmigrant.prob.ethnicity']
+        timestep = rcParams['inmigrant.prob.hh_size']
+        timestep = rcParams['inmigrant.prob.hh_head_age']
+        
         return out_migr, return_migr, new_in_migr
 
     def increment_age(self):
+        logger.debug("Incrementing ages")
         """Adds one to the age of each agent. The units of age are dependent on 
         the units of the input rc parameters."""
+        unmarr_females = 0
+        unmarr_males = 0
+        max_age_male = 0
+        max_age_female = 0
         for person in self.iter_persons():
             timestep = rcParams['model.timestep']
             person._age += timestep
+            # Track some extra information for logging
+            if person.get_sex() == 'female' and person.get_age() > max_age_female:
+                max_age_female = person.get_age()
+            if person.get_age() > max_age_male:
+                max_age_male = person.get_age()
+            if (person._spouse != None):
+                if person.get_sex() == 'female': unmarr_females += 1
+                else: unmarr_males += 1
+        logger.debug('%s unmarried females, %s unmarried males'%(unmarr_males, unmarr_females))
+        logger.debug('Oldest female is %s, oldest male is %s (in years)'%(max_age_female/12., max_age_male/12.))
 
     def get_neighborhood_fw_usage(self, time):
         fw_usage = {}

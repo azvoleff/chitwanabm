@@ -410,9 +410,19 @@ def calc_migration_length(agent):
     # First decide if it is permanent, according to the 
     # "prob.migration.length.permanent" parameter:
     if np.random.rand() < rcParams['prob.migration.length.permanent']:
+        # TODO: Instead of very long term in agent-store, just remove them from 
+        # the model.
         return 99999999
     mig_length_prob_dist = rcParams['prob.migration.lengths']
     return int(draw_from_prob_dist(mig_length_prob_dist))
+
+def calc_num_inmigrant_households():
+    """
+    Draws the number of in migrating households in a given month based on an 
+    empirical probability distribution.
+    """
+    n_inmig_HH_prob_dist = rcParams['inmigrant.prob.num_HHs']
+    return int(draw_from_prob_dist(n_inmig_HH_prob_dist))
 
 def calc_first_birth_time(person):
     """

@@ -51,7 +51,7 @@ def main():
         processed_data_file = rcParams['path.input_data_file']
         save_world(world, processed_data_file)
     except:
-        logger.critical("Problem saving world file to %s"%processed_data_file)
+        logger.exception("Problem saving world file to %s"%processed_data_file)
         return 1
 
 def read_CVFS_data(textfile, key_field):
@@ -68,7 +68,7 @@ def read_CVFS_data(textfile, key_field):
         lines = file.readlines()
         file.close()
     except:
-        logger.critical("Error reading %s"%textfile)
+        logger.exception("Error reading %s"%textfile)
         return 1
     
     # The first line of the data file gives the column names
@@ -481,7 +481,7 @@ def generate_world():
         Rscript_binary = rcParams['path.Rscript_binary']
         check_call([Rscript_binary, "data_preprocess.R", raw_data_path])
     except CalledProcessError:
-        logger.critical("Problem while running data_preprocess.R R script")
+        logger.exception("Problem while running data_preprocess.R R script")
         return 1
     logger.info("Generating world from preprocessed CVFS data")
     model_world = assemble_world()

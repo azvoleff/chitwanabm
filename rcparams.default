@@ -114,9 +114,11 @@
 'use.num.children.desired' : [True | validate_boolean]
 'prob.migration.lengths' : [((0, 1, 2, 4, 8, 12, 18, 24, 30, 36), (.4361, .2369, .1505, .0769, .0545, .0238, .0154, .0056, .0056))] | validate_prob_dist]
 'prob.migration.length.permanent' : [.0790 | validate_float]
+'inmigrant.prob.numHHs' : [((1, 2, 3, 4, 5, 6), (.43881, .23222, .14226, .06224, .12448)) | validate_prob_dist]
 'inmigrant.prob.ethnicity' : [((1, 2, 3, 4, 5, 6), (.43881, .23222, .14226, .06224, .12448)) | validate_prob_dist]
 'inmigrant.prob.hh_size' : [((1, 2, 3, 4, 5, 6, 7), (.09559, .22108, .28627, .22108, .12059, .05539)) | validate_prob_dist]
 'inmigrant.prob.hh_head_age' : [((15, 25, 35, 45, 55), (.2997, .4274, .1720, .1008)) | validate_prob_dist]
+'inmigrant.prob.num_HHs' : [((0, 5, 10, 15, 20, 25, 30), (.1016949, .2372881, .2203390, .1684407, .1525424, .1016949)) | validate_prob_dist]
 
 # Coefficients for marriage timing are from Yabiku (2006).
 'marrtime.coef.intercept' : [-15.6 | validate_float]
@@ -148,7 +150,6 @@
 'marrtime.zv.coef.ethnicTeraiTibeto' : [0.0176 | validate_float]
 'marrtime.zv.coef.agedecades' : [7.3315 | validate_float]
 'marrtime.zv.coef.agedecades_squared' : [-1.3498 | validate_float]
-
 
 # Coefficients for marriage timing are from Ghimire and Axinn (2010).
 'firstbirth.coef.intercept' : [3 | validate_float]
