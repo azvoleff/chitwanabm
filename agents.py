@@ -248,6 +248,7 @@ class Person(Agent):
                     return False
             elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
                 if (random_state.rand() < calc_firstbirth_prob_ghimireaxinn2010(self, time)):
+                    logger.debug("First birth to agent %s"%self.get_ID())
                     return True
                 else:
                     return False
@@ -746,21 +747,30 @@ class Region(Agent_set):
         the units of the input rc parameters."""
         unmarr_females = 0
         unmarr_males = 0
-        max_age_male = 0
-        max_age_female = 0
+        max_age_male = 0.
+        max_age_female = 0.
+        age_sum_female = 0.
+        age_sum_male = 0.
+        n_female = 0.
+        n_male = 0.
         for person in self.iter_persons():
             timestep = rcParams['model.timestep']
             person._age += timestep
             # Track some extra information for logging
-            if person.get_sex() == 'female' and person.get_age() > max_age_female:
-                max_age_female = person.get_age()
-            if person.get_age() > max_age_male:
-                max_age_male = person.get_age()
+            if person.get_sex() == 'female':
+                n_female += 1
+                age_sum_female += person.get_age()
+                if person.get_age() > max_age_female: max_age_female = person.get_age()
+            else:
+                n_male += 1
+                age_sum_male += person.get_age()
+                if person.get_age() > max_age_male: max_age_male = person.get_age()
             if (person._spouse != None):
                 if person.get_sex() == 'female': unmarr_females += 1
                 else: unmarr_males += 1
         logger.debug('%s unmarried females, %s unmarried males'%(unmarr_males, unmarr_females))
-        logger.debug('Oldest female is %s, oldest male is %s (in years)'%(max_age_female/12., max_age_male/12.))
+        logger.debug('Oldest female is %.2f, oldest male is %.2f'%(max_age_female/12., max_age_male/12.))
+        logger.debug('Mean age of women is %.2f, mean age of men is %.2f'%((age_sum_male/n_male)/12., (age_sum_female/n_female)/12.))
 
     def get_neighborhood_fw_usage(self, time):
         fw_usage = {}

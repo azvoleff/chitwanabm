@@ -50,7 +50,7 @@ root_logger.setLevel(logging.DEBUG)
 # constructed using the results path given in rcParams:
 temp_log_fd, temp_log_path = tempfile.mkstemp()
 fh = logging.FileHandler(temp_log_path, mode='w')
-fh.setLevel(logging.WARNING)
+fh.setLevel(logging.DEBUG)
 log_file_formatter = logging.Formatter('%(asctime)s %(name)s:%(lineno)d %(levelname)s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
 fh.setFormatter(log_file_formatter)
@@ -60,19 +60,9 @@ root_logger.addHandler(fh)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S%p')
+        datefmt='%I:%M:%S%p')
 ch.setFormatter(log_console_formatter)
 root_logger.addHandler(ch)
-
-# Now import the main packages in this module. Don't do this earlier because if 
-# it is done earlier than the above code any logging statements won't be logged 
-# (and logging statements are often triggered when the rcParams are loaded).
-from ChitwanABM import rcParams
-from ChitwanABM.initialize import generate_world
-from ChitwanABM.modelloop import main_loop
-
-from PyABM.rcsetup import write_RC_file
-from PyABM.file_io import write_single_band_raster
 
 def main(argv=None):
     if argv is None:
@@ -81,7 +71,7 @@ def main(argv=None):
     parser.add_argument('--rc', metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
     parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="info", help='The logging level to use as a threshold for logging information about the model run to the console')
-    parser.add_argument('--log_file', metavar="LOG_FILE_LEVEL", type=str, default="warning", help='The logging level to use as a threshold for logging information about the model run to the log file')
+    parser.add_argument('--log_file', metavar="LOG_FILE_LEVEL", type=str, default="debug", help='The logging level to use as a threshold for logging information about the model run to the log file')
     args = parser.parse_args()
 
     # Setup logging according to the desired levels
@@ -97,6 +87,16 @@ def main(argv=None):
     if not(args.rc == None):
         logger.critical("An rc file path was passed as a command line parameter, but custom rc file use is not yet implemented.")
         return 1
+
+    # Wait to load rcParams until here as logging statements are often 
+    # triggered when the rcParams are loaded.
+    global rcParams
+    from ChitwanABM import rcParams
+    from ChitwanABM.initialize import generate_world
+    from ChitwanABM.modelloop import main_loop
+
+    from PyABM.rcsetup import write_RC_file
+    from PyABM.file_io import write_single_band_raster
 
     # Get machine hostname to print it in the results file and use in the 
     # run_ID_number.
@@ -138,6 +138,9 @@ def main(argv=None):
     if rcParams['model.reinitialize']:
         # Generate a new world (with new resampling, etc.)
         world = generate_world()
+        if world == 1:
+            logger.critical('Error initializing model world')
+            return 1
     else:
         # Load a pickled World for use in the model.
         input_data_file = rcParams['path.input_data_file']
@@ -175,7 +178,6 @@ def main(argv=None):
     world_mask_data_file = os.path.join(results_path, "ChitwanABM_world_mask.tif")
     array, gt, prj = world.get_world_mask_data()
     write_single_band_raster(array, gt, prj, world_mask_data_file)
-
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
     # from the commit (the output of the git diff command). sys.path[0] gives 
