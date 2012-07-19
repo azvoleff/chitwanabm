@@ -81,7 +81,7 @@ def __probability_index__(t):
     else:
         raise UnitsError("unhandled probability_time_units")
 
-def calc_firstbirth_prob_ghimireaxinn2010(person, time):
+def calc_first_birth_prob_ghimireaxinn2010(person, time):
     """
     Calculates the probability of a first birth in a given month for an agent, 
     using the results of Ghimire and Axinn (2010).
@@ -193,6 +193,119 @@ def calc_firstbirth_prob_ghimireaxinn2010(person, time):
     #print "First birth: prob: %s (marriage_time: %s)"%(prob, mariage_time)
     return 1./(1 + np.exp(inner))
 
+def calc_first_birth_prob_zvoleff(person, time):
+    """
+    Calculates the probability of a first birth in a given month for an agent, 
+    using the results of Zvoleff's empirical analysis, following the analysis 
+    of Ghimire and Axinn (2010).
+    """
+    #########################################################################
+    # Intercept
+    inner = rcParams['firstbirth.zv.coef.intercept']
+
+    #########################################################################
+    # Adult community context
+    neighborhood = person.get_parent_agent().get_parent_agent()
+    percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
+    inner += rcParams['firstbirth.zv.coef.percagveg'] * percent_agveg
+    inner += rcParams['firstbirth.zv.coef.avgyrsnonfam'] * neighborhood._avg_years_nonfamily_services
+    inner += rcParams['firstbirth.zv.coef.distnara'] * neighborhood._distnara
+    inner += rcParams['firstbirth.zv.coef.elec_avail'] * neighborhood._elec_available
+    #inner += rcParams['firstbirth.zv.coef.NBH_wealth_index'] * neighborhood._wealth_index
+
+    #########################################################################
+    # Childhood community context
+    inner += rcParams['firstbirth.zv.coef.child_school_1hr'] * person._child_school_1hr
+    inner += rcParams['firstbirth.zv.coef.child_health_1hr'] * person._child_health_1hr
+    inner += rcParams['firstbirth.zv.coef.child_bus_1hr'] * person._child_bus_1hr
+    inner += rcParams['firstbirth.zv.coef.child_emp_1hr'] * person._child_emp_1hr
+
+    #inner += rcParams['firstbirth.zv.coef.age_1st_marr']
+    #inner += rcParams['firstbirth.zv.coef.marr_dur_pre_1997']
+
+    #########################################################################
+    # Ethnicity (high caste hindu as reference case)
+    ethnicity = person.get_ethnicity()
+    assert ethnicity!=None, "Ethnicity must be defined"
+    if ethnicity == "HighHindu":
+        # This was the reference level
+        pass
+    elif ethnicity == "HillTibeto":
+        inner += rcParams['firstbirth.zv.coef.ethnicHillTibeto']
+    elif ethnicity == "LowHindu":
+        inner += rcParams['firstbirth.zv.coef.ethnicLowHindu']
+    elif ethnicity == "Newar":
+        inner += rcParams['firstbirth.zv.coef.ethnicNewar']
+    elif ethnicity == "TeraiTibeto":
+        inner += rcParams['firstbirth.zv.coef.ethnicTeraiTibeto']
+ 
+    #########################################################################
+    # Education level of individual
+    assert person._schooling !=None, "schoolinging must be defined"
+    if person._schooling < 4:
+        # This was the reference level
+        pass
+    elif person._schooling < 8:
+        inner += rcParams['firstbirth.zv.coef.schooling4']
+    elif person._schooling < 11:
+        inner += rcParams['firstbirth.zv.coef.schooling8']
+    elif person._schooling >= 11:
+        inner += rcParams['firstbirth.zv.coef.schooling11']
+
+    #########################################################################
+    # Parents characteristics
+    inner += rcParams['firstbirth.zv.coef.parents_contracep_ever'] * person._parents_contracep_ever
+
+
+    #if person.is_initial_agent():
+    # For initial agents, use the data from the CVFS.
+    father_work = person._father_work
+    father_school = person._father_school
+    mother_work = person._mother_work
+    mother_school = person._mother_school
+    mother_num_children = person._mother_num_children
+    #else:
+        # For others (agents dynamically generated in the model - not from the 
+        # CVFS data), use the most current simulated data.
+        #if person.get_father()._work > 0: father_work = 1
+        #else: father_work = 0
+        #if person.get_father()._schooling > 0: father_school = 1
+        #else: father_school = 0
+        #if person.get_mother()._work > 0: mother_work = 1
+        #else: mother_work = 0
+        #if person.get_mother()._schooling > 0: mother_school = 1
+        #else: mother_school = 0
+        #mother_num_children = person.get_mother().get_num_children()
+    inner += rcParams['firstbirth.zv.coef.father_work'] * father_work
+    inner += rcParams['firstbirth.zv.coef.father_school'] * father_school
+    inner += rcParams['firstbirth.zv.coef.mother_work'] * mother_work
+    inner += rcParams['firstbirth.zv.coef.mother_school'] * mother_school
+
+    inner += rcParams['firstbirth.zv.coef.mother_num_children'] * mother_num_children
+
+    #########################################################################
+    # Hazard duration
+    marriage_time = time - person._marriage_time
+    if marriage_time <= 6:
+        inner += rcParams['firstbirth.zv.coef.hazdur_6']
+    elif marriage_time <= 12:
+        inner += rcParams['firstbirth.zv.coef.hazdur_12']
+    elif marriage_time <= 18:
+        inner += rcParams['firstbirth.zv.coef.hazdur_18']
+    elif marriage_time <= 24:
+        inner += rcParams['firstbirth.zv.coef.hazdur_24']
+    elif marriage_time <= 30:
+        inner += rcParams['firstbirth.zv.coef.hazdur_30']
+    elif marriage_time <= 36:
+        inner += rcParams['firstbirth.zv.coef.hazdur_36']
+    elif marriage_time > 36:
+        inner += rcParams['firstbirth.zv.coef.hazdur_42']
+
+    # Testing code:
+    #prob = np.round(1./(1 + np.exp(-inner)), 4)
+    #print "First birth: prob: %s (marriage_time: %s)"%(prob, mariage_time)
+    return 1./(1 + np.exp(inner))
+
 def calc_probability_marriage_yabiku2006(person):
     """
     Calculates the probability of marriage for an agent, using the results of 
@@ -298,35 +411,15 @@ def calc_probability_marriage_simple(person):
     elif person.get_sex() == 'male':
         return marriage_probabilities_male[probability_index]
 
-def choose_spouse(male, eligible_females):
+def calc_spouse_age_diff(person):
     """
-    Once lists of marrying men and women are created with the 
-    calc_probability_marriage_simple or calc_probability_marriage_yabiku2006 
-    functions, this function chooses a wife for a particular male based on the 
-    age differential between the man and each woman, based on observed data.
+    This function draws the age difference between this person and their 
+    spouse based on the observed probability distribution. Note that the age 
+    difference is defined as male's age - woman's age, so positive age 
+    differences should be subtracted from men's ages to get their spouse age, and 
+    added to women's.
     """
-    sp_probs = []
-    for female in eligible_females:
-        agediff = male.get_age()/12 - female.get_age()/12
-        if male.get_ethnicity() != female.get_ethnicity():
-            sp_probs.append(0)
-        else:
-            sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
-        #print "f", female.get_age()/12,
-        #print "m", male.get_age()/12, "|",
-    if sum(sp_probs) == 0:
-        # In this case NONE of the females are eligible (all of different 
-        # ethnicities than the male).
-        return None
-
-    num = np.random.rand() * np.sum(sp_probs)
-    sp_probs = np.cumsum(sp_probs)
-    n = 0
-    for upprob in sp_probs[0:-1]:
-        if num <= upprob:
-            break
-        n += 1
-    return eligible_females[n]
+    return draw_from_prob_dist(rcParams['spousechoice.male.agediff'])
 
 def calc_probability_death(person):
     "Calculates the probability of death for an agent."

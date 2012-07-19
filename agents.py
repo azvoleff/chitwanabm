@@ -39,10 +39,10 @@ from ChitwanABM import rcParams, random_state
 from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
-        calc_firstbirth_prob_ghimireaxinn2010, calc_fuelwood_usage_simple, \
+        calc_first_birth_prob_ghimireaxinn2010, calc_first_birth_prob_zvoleff, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
-        calc_fuelwood_usage_migration_feedback, calc_education_level, \
-        choose_spouse, calc_num_inmigrant_households
+        calc_education_level, calc_spouse_age_diff, \
+        calc_num_inmigrant_households
 
 logger = logging.getLogger(__name__)
 
@@ -237,23 +237,26 @@ class Person(Agent):
         # parameterization:
         num_children = len(self._children)
         if (num_children) == 0:
+            # TODO: Remove the next three lines of code after testing:
             if self._marriage_time < 1995 and random_state.rand() < .8:
                 # Prevent excessive first births at beginning of the model.
                 return False
+            first_birth_flag = False
             if rcParams['model.parameterization.firstbirthtiming'] == 'simple':
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
-                    logger.debug("First birth to agent %s"%self.get_ID())
-                    return True
-                else:
-                    return False
+                    first_birth_flag = True
             elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
-                if (random_state.rand() < calc_firstbirth_prob_ghimireaxinn2010(self, time)):
-                    logger.debug("First birth to agent %s"%self.get_ID())
-                    return True
-                else:
-                    return False
+                if (random_state.rand() < calc_first_birth_prob_ghimireaxinn2010(self, time)):
+                    first_birth_flag = True
+            elif rcParams['model.parameterization.firstbirthtiming'] == 'zvoleff':
+                if (random_state.rand() < calc_first_birth_prob_zvoleff(self, time)):
+                    first_birth_flag = True
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
+            if first_birth_flag == True:
+                logger.debug("First birth to agent %s"%self.get_ID())
+                return True
+            else: return False
         else:
             # Handle births to mothers who have already given birth in the 
             # past:
@@ -262,8 +265,7 @@ class Person(Agent):
             elif (num_children < self._des_num_children) or (self._des_num_children==-1):
                 # self._des_num_children = -1 means no preference
                 return True
-            else:
-                return False
+            else: return False
 
     def give_birth(self, time, father):
         "Agent gives birth. New agent inherits characterists of parents."
@@ -562,46 +564,25 @@ class Region(Agent_set):
                         (person.get_age()/12 <= maximum_age) and \
                         (random_state.rand() < calc_probability_marriage(person)):
                     # Agent is eligible to marry.
-                    if person.get_sex() == "male":
-                        eligible_males.append(person)
-                    else:
-                        eligible_females.append(person)
-        # To model in-migration through marriage, append to the list additional 
-        # agents, according to a parameter specifying the proportion of persons 
-        # who marry in-migrants.
-        num_new_females = int(np.floor(rcParams['prob.marry.inmigrant'] * len(eligible_females)))
-        for n in xrange(1, num_new_females):
-            # Choose the age randomly from the ages of the eligible females
-            agent_age = eligible_females[np.random.randint(len(eligible_females))].get_age()
-            agent_ethnicity = eligible_females[np.random.randint(len(eligible_females))].get_ethnicity()
-            eligible_females.append(self._world.new_person(time, sex="female", age=agent_age, ethnicity=agent_ethnicity))
-
-        num_new_males = int(np.floor(rcParams['prob.marry.inmigrant'] * len(eligible_males)))
-        for n in xrange(1, num_new_males):
-            # Choose the age randomly from the ages of the eligible males
-            agent_age = eligible_males[np.random.randint(len(eligible_males))].get_age()
-            agent_ethnicity = eligible_males[np.random.randint(len(eligible_males))].get_ethnicity()
-            eligible_males.append(self._world.new_person(time, sex="male", age=agent_age, ethnicity=agent_ethnicity))
+                    if person.get_sex() == "female": eligible_females.append(person)
+                    if person.get_sex() == "male": eligible_males.append(person)
         logger.debug('%s males and %s females eligible for marriage'%(len(eligible_males), len(eligible_females)))
+        eligible_persons = eligible_males + eligible_females
 
-        # Now pair up the eligible agents. Any extra males/females will not 
-        # marry this timestep.
         couples = []
-        for male in eligible_males:
-            # The 'choose_spouse' function in statistics.py chooses a spouse 
-            # based on the probability of the man marrying each woman in the 
-            # eligible_females list (with the probability dependent on the age 
-            # difference between the man and each woman in the list.
-            if len(eligible_females) == 0: break
-            female = choose_spouse(male, eligible_females)
-            if female == None:
-                # In this case there are no eligible females for this man 
-                # (because all the females are of a different ethnicity than 
-                # the man).
-                continue
-            eligible_females.remove(female)
-            couples.append((male, female))
-        logger.debug("%s couple(s) formed"%len(couples))
+        for person in eligible_persons:
+            age_diff = calc_spouse_age_diff(person)
+            if person.get_sex() == "female":
+                spouse_sex = "male"
+                spouse_age = person.get_age() + age_diff
+            else:
+                spouse_sex = "female"
+                spouse_age = person.get_age() - age_diff
+            # Create the spouse:
+            spouse = self._world.new_person(time, sex=spouse_sex, age=spouse_age, ethnicity=person.get_ethnicity())
+            # Ensure that the man is first in the couples tuple
+            if person.get_sex() == "female": couples.append((spouse, person))
+            else: couples.append((person, spouse))
 
         marriages = {}
         # Now marry the agents
