@@ -164,6 +164,10 @@ class Person(Agent):
         self._mother_school = boolean_choice()
         self._mother_num_children = boolean_choice()
 
+        # _store_list tracks any agent_store instances this person is a member 
+        # of (for LL or LD migration for example).
+        self._store_list = []
+
     def get_mother(self):
         return self._mother
 
@@ -475,12 +479,22 @@ class Region(Agent_set):
     def __init__(self, world, ID=None, initial_agent=False):
         Agent_set.__init__(self, world, ID, initial_agent)
 
-        # The agent_store instance is used to store migrants while they are 
-        # away from their household (prior to their return).
-        self.agent_store = Agent_Store()
+        # Maintain a list of agent_stores in a dictionary keyed by agent type 
+        # and then by store name. This allows iterating over all agent stores 
+        # for a particular agent type, which is important for things like 
+        # iterating the ages of all persons in the model, even those who may be 
+        # away from their neighborhood.
+        self._agent_stores = {}
+        # The agent_store instances are used to store migrants while they are 
+        # away from their household (prior to their return).  LL_agent_store 
+        # stores local-local migrants while LD_migr_agent_store stores 
+        # local-distant migrants.
+        self._agent_stores['person'] = {}
+        self._agent_stores['person']['LL_migr'] = Agent_Store()
+        self._agent_stores['person']['LD_migr'] = Agent_Store()
 
-        # TODO: Here demographic variables could be setup specific for each 
-        # region - these could be used to represent different strata.
+        # TODO: Demographic variables could be setup here to be specific for 
+        # each region - these could be used to represent different strata.
 
     def __repr__(self):
         #TODO: Finish this
@@ -500,10 +514,31 @@ class Region(Agent_set):
                 yield household
 
     def iter_persons(self):
-        "Returns an iterator over all the persons in the region"
+        """
+        Returns an iterator over all the persons in the region that are NOT 
+        within an agent_store class instance (so only those resident in 
+        Chitwan).
+        """
         for household in self.iter_households():
             for person in household.iter_agents():
                 yield person
+
+    def iter_all_persons(self):
+        """"
+        Returns an iterator over all the persons in the region, including those 
+        within agent store class instances. Necessary for doing things that 
+        apply to all agents regardless of their status, like incrementing ages.
+        """
+        for household in self.iter_households():
+            for person in household.iter_agents():
+                yield person
+        for agent_store in self.iter_person_agent_stores():
+            for person in agent_store._stored_agents:
+                yield person
+
+    def iter_person_agent_stores(self):
+        for agent_store_name in self._agent_stores['person'].keys():
+            yield self._agent_stores['person'][agent_store_name]
 
     def births(self, time):
         """Runs through the population and agents give birth probabilistically 
@@ -701,7 +736,7 @@ class Region(Agent_set):
                     # The add_agent function of the agent_store class also 
                     # handles removing the agent from its parent (the 
                     # household).
-                    self.agent_store.add_agent(person, time+(months_away/12))
+                    self._agent_stores['person']['LD_migr'].add_agent(person, time+(months_away/12))
                     neighborhood = household.get_parent_agent()
                     if not out_migr.has_key(neighborhood.get_ID()):
                         out_migr[neighborhood.get_ID()] = 0
@@ -709,7 +744,7 @@ class Region(Agent_set):
 
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially outmigrated)
-        return_migr = self.agent_store.release_agents(time)
+        return_migr = self._agent_stores['person']['LD_migr'].release_agents(time)
 
         # Now handle inmigrations:
         new_in_migr = {}
@@ -726,6 +761,8 @@ class Region(Agent_set):
         logger.debug("Incrementing ages")
         """Adds one to the age of each agent. The units of age are dependent on 
         the units of the input rc parameters."""
+        n_LL_migrants_away = 0
+        n_LD_migrants_away = 0
         unmarr_females = 0
         unmarr_males = 0
         max_age_male = 0.
@@ -734,7 +771,10 @@ class Region(Agent_set):
         age_sum_male = 0.
         n_female = 0.
         n_male = 0.
-        for person in self.iter_persons():
+        person_IDs = []
+        for person in self.iter_all_persons():
+            assert (person.get_ID() not in person_IDs), ("Age of person %s incremented twice"%person.get_ID())
+            person_IDs.append(person.get_ID())
             timestep = rcParams['model.timestep']
             person._age += timestep
             # Track some extra information for logging
@@ -749,9 +789,12 @@ class Region(Agent_set):
             if (person._spouse != None):
                 if person.get_sex() == 'female': unmarr_females += 1
                 else: unmarr_males += 1
+            if self._agent_stores['person']['LD_migr'] in person._store_list: n_LD_migrants_away += 1
+            elif self._agent_stores['person']['LL_migr'] in person._store_list: n_LL_migrants_away += 1
         logger.debug('%s unmarried females, %s unmarried males'%(unmarr_males, unmarr_females))
         logger.debug('Oldest female is %.2f, oldest male is %.2f'%(max_age_female/12., max_age_male/12.))
         logger.debug('Mean age of women is %.2f, mean age of men is %.2f'%((age_sum_male/n_male)/12., (age_sum_female/n_female)/12.))
+        logger.debug('%s LL migrants away, %s LD migrants away'%(n_LL_migrants_away, n_LD_migrants_away))
 
     def get_neighborhood_fw_usage(self, time):
         fw_usage = {}
