@@ -133,6 +133,9 @@ class Person(Agent):
         self._des_num_children = None
 
         if self._sex=="female":
+            # TODO: For initial agents, set birth interval to start as of the 
+            # date of their last birth, and initialize first birth interval for 
+            # these agents in initialization code.
             self._birth_interval = calc_birth_interval()
 
         self._spouse = None
@@ -234,7 +237,8 @@ class Person(Agent):
         if (not (self.get_sex() == 'female')) or (not self.is_married()):
             return False
 
-        if self._age > (rcParams['birth.max_age.years'] * 12):
+        if (self._age > (rcParams['birth.max_age.years'] * 12)) | \
+                (self._age < (rcParams['birth.min_age.years'] * 12)):
             return False
 
         # Handle first births using the appropriate first birth timing 
@@ -310,6 +314,7 @@ class Person(Agent):
         self._last_birth_time = time
         # Assign a new birth interval for the next child
         self._birth_interval = calc_birth_interval()
+        logger.debug('New birth to %s, next birth interval %s'%(self.get_ID(), self._birth_interval))
         for parent in [self, father]:
             parent._children.append(baby)
         return baby
