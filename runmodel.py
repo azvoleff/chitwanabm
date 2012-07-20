@@ -48,13 +48,13 @@ root_logger.setLevel(logging.DEBUG)
 
 # Log to a temporary file until the final output log file path can be 
 # constructed using the results path given in rcParams:
-temp_log_fd, temp_log_path = tempfile.mkstemp()
-fh = logging.FileHandler(temp_log_path, mode='w')
-fh.setLevel(logging.DEBUG)
+temp_log_file = tempfile.NamedTemporaryFile(delete=False)
+temp_log = logging.FileHandler(temp_log_file.name)
+temp_log.setLevel(logging.DEBUG)
 log_file_formatter = logging.Formatter('%(asctime)s %(name)s:%(lineno)d %(levelname)s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
-fh.setFormatter(log_file_formatter)
-root_logger.addHandler(fh)
+temp_log.setFormatter(log_file_formatter)
+root_logger.addHandler(temp_log)
 # Add a console logger as well - the level will be updated from the command 
 # line parameters later as necessary.
 ch = logging.StreamHandler()
@@ -70,8 +70,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
     parser.add_argument('--rc', metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
-    parser.add_argument('--log', metavar="LOG_LEVEL", type=str, default="info", help='The logging level to use as a threshold for logging information about the model run to the console')
-    parser.add_argument('--log_file', metavar="LOG_FILE_LEVEL", type=str, default="debug", help='The logging level to use as a threshold for logging information about the model run to the log file')
+    parser.add_argument('--log', metavar="LEVEL", type=str, default="info", 
+            help='The logging threshold for logging to the console')
+    parser.add_argument('--logf', metavar="LEVEL", type=str, 
+            default="debug", help='The logging threshold for logging to the log file')
     args = parser.parse_args()
 
     # Setup logging according to the desired levels
@@ -79,7 +81,7 @@ def main(argv=None):
     if not isinstance(ch_level, int):
         logger.critical('Invalid log level: %s' %args.log)
     root_logger.handlers[1].setLevel(ch_level)
-    fh_level = getattr(logging, args.log_file.upper(), None)
+    fh_level = getattr(logging, args.logf.upper(), None)
     if not isinstance(fh_level, int):
         logger.critical('Invalid log level: %s' %args.log_file)
     root_logger.handlers[0].setLevel(fh_level)
@@ -122,19 +124,20 @@ def main(argv=None):
         logger.critical("Could not create results directory %s"%results_path)
         return 1
     
-    # Now that we know the rcParams, copy the temporary log file to the model 
-    # run output directory, and direct all further logging to append to that 
-    # file.
+    # Now that we know the rcParams and log file path, write the temp_log 
+    # stream to the log file in the proper output directory, and direct all 
+    # further logging to append to that file.
     log_file_path = os.path.join(results_path, "ChitwanABM.log")
-    shutil.copyfile(temp_log_path, log_file_path)
+    shutil.copyfile(temp_log_file.name, log_file_path)
+    temp_log_file.close()
+    root_logger.handlers.remove(temp_log)
+    temp_log.close()
+    os.unlink(temp_log_file.name)
     fh = logging.FileHandler(log_file_path, mode='a')
     fh.setLevel(fh_level)
     fh.setFormatter(log_file_formatter)
     root_logger.addHandler(fh)
-    # Remove the temporary file handler and add the new one:
-    root_logger.handlers.pop(0)
-    root_logger.addHandler(fh)
-        
+
     if rcParams['model.reinitialize']:
         # Generate a new world (with new resampling, etc.)
         world = generate_world()
