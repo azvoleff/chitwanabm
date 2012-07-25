@@ -41,7 +41,7 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
         calc_first_birth_prob_ghimireaxinn2010, calc_first_birth_prob_zvoleff, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
-        calc_education_level, calc_spouse_age_diff, \
+        calc_education_level, calc_spouse_age_diff, choose_spouse, \
         calc_num_inmigrant_households, calc_probability_divorce
 
 logger = logging.getLogger(__name__)
@@ -206,6 +206,10 @@ class Person(Agent):
 
     def marry(self, spouse, time):
         "Marries this agent to another Person instance."
+        assert self._spouse == None, "Person %s already has spouse %s"%(person.get_ID(), person.get_spouse().get_ID())
+        assert spouse._spouse == None, "Person %s already has spouse %s"%(spouse.get_ID(), spouse.get_spouse().get_ID())
+        assert spouse.get_sex() != self.get_sex(), "Two people of the same sex cannot marry"
+        assert spouse.get_ethnicity() == self.get_ethnicity(), "Two people of different ethnicities cannot marry"
         self._spouse = spouse
         spouse._spouse = self
         # Also assign first birth timing and desired number of children to the 
@@ -220,6 +224,7 @@ class Person(Agent):
         spouse._marriage_time = time
 
     def divorce(self):
+        assert self.get_spouse() != None, "Person %s cannot divorce as they are not married"%(person.get_ID())
         spouse = self._spouse
         spouse._spouse = None
         self._spouse = None
@@ -612,6 +617,25 @@ class Region(Agent_set):
         eligible_persons = eligible_males + eligible_females
 
         couples = []
+        for person in eligible_persons:
+            # The 'choose_spouse' function in statistics.py chooses a spouse
+            # based on the probability of a person man marrying each other 
+            # person of opposite sex in the eligible_persons list, with the 
+            # probability dependent on the age difference between the person 
+            # and each potential spouse in the list.
+            if len(eligible_persons) == 0: break
+            spouse = choose_spouse(person, eligible_persons)
+            if spouse == None:
+                # In this case there are no eligible spouses for this person 
+                # (because all the other persons are of a different ethnicity).
+                continue
+            eligible_persons.remove(spouse)
+            eligible_persons.remove(person)
+            if person.get_sex() == "male": couples.append((person, spouse))
+            else: couples.append((spouse, person))
+        logger.debug("%s couples formed, %s individuals remaining"%(len(couples), len(eligible_persons)))
+
+        # The remaining individuals marry in-migrants
         for person in eligible_persons:
             age_diff = calc_spouse_age_diff(person)
             if person.get_sex() == "female":

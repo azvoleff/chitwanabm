@@ -422,6 +422,37 @@ def calc_probability_divorce(person):
     #TODO: Complete this function to take into account logistic regression results.
     return boolean_choice(rcParams['prob.marriage.divorce'])
 
+def choose_spouse(person, eligible_mates):
+    """
+    Once lists of marrying men and women are created, this function chooses a 
+    wife for a particular male based on the age differential between the man 
+    and each woman, based on observed data.
+    """
+    sp_probs = []
+    for eligible_mate in eligible_mates:
+        if person.get_sex == "male":
+            agediff = person.get_age()/12 - eligible_mate.get_age()/12
+        else:
+            agediff = eligible_mate.get_age()/12 - person.get_age()/12
+        if person.get_sex() == eligible_mate.get_sex() or person.get_ethnicity() != eligible_mate.get_ethnicity():
+            sp_probs.append(0)
+        else:
+            sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
+        #print "f", eligible_mate.get_age()/12,
+        #print "m", male.get_age()/12, "|",
+    if sum(sp_probs) == 0:
+        # In this case NONE of the eligible_mates are eligible (all of different
+        # ethnicities than the person).
+        return None
+    num = np.random.rand() * np.sum(sp_probs)
+    sp_probs = np.cumsum(sp_probs)
+    n = 0
+    for upprob in sp_probs[0:-1]:
+        if num <= upprob:
+            break
+        n += 1
+    return eligible_mates[n]
+
 def calc_spouse_age_diff(person):
     """
     This function draws the age difference between this person and their 
