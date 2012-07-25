@@ -589,8 +589,10 @@ class Region(Agent_set):
         return deaths
                         
     def marriages(self, time):
-        """Runs through the population and marries agents probabilistically 
-        based on their age and the probability_marriage for this population"""
+        """
+        Runs through the population and marries agents probabilistically based 
+        on their age and the probability_marriage for this population
+        """
         logger.debug("Processing marriages")
         # First find the eligible agents
         minimum_age = rcParams['marriage.minimum_age_years']
@@ -763,9 +765,11 @@ class Region(Agent_set):
         return out_migr, return_migr, new_in_migr
 
     def increment_age(self):
+        """
+        Adds one to the age of each agent. The units of age are dependent on 
+        the units of the input rc parameters.
+        """
         logger.debug("Incrementing ages")
-        """Adds one to the age of each agent. The units of age are dependent on 
-        the units of the input rc parameters."""
         n_LL_migrants_away = 0
         n_LD_migrants_away = 0
         unmarr_females = 0
@@ -850,9 +854,11 @@ class Region(Agent_set):
         return len(self._members.values())
 
 class World():
-    """The world class generates new agents, while tracking ID numbers to 
-    ensure that they are always unique across each agent type. It also contains 
-    a dictionary with all the regions in the model."""
+    """
+    The world class generates new agents, while tracking ID numbers to ensure 
+    that they are always unique across each agent type. It also contains a 
+    dictionary with all the regions in the model.
+    """
     def __init__(self):
         # _members stores member regions in a dictionary keyed by RID
         self._members = {}
