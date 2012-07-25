@@ -23,6 +23,10 @@ Contains statistical models to calculate probabilities (such as of birth, and of
 marriage).
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 import numpy as np
 
 from ChitwanABM import rcParams
@@ -188,10 +192,10 @@ def calc_first_birth_prob_ghimireaxinn2010(person, time):
     elif marriage_time > 36:
         inner += rcParams['firstbirth.coef.hazdur_42']
 
-    # Testing code:
-    #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "First birth: prob: %s (marriage_time: %s)"%(prob, mariage_time)
-    return 1./(1 + np.exp(inner))
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Agent %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob, person._marriage_time))
+    return prob
 
 def calc_first_birth_prob_zvoleff(person, time):
     """
@@ -301,10 +305,10 @@ def calc_first_birth_prob_zvoleff(person, time):
     elif marriage_time > 36:
         inner += rcParams['firstbirth.zv.coef.hazdur_42']
 
-    # Testing code:
-    #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "First birth: prob: %s (marriage_time: %s)"%(prob, mariage_time)
-    return 1./(1 + np.exp(inner))
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Agent %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob,  person._marriage_time))
+    return prob
 
 def calc_probability_marriage_yabiku2006(person):
     """
@@ -349,10 +353,10 @@ def calc_probability_marriage_yabiku2006(person):
     inner += rcParams['marrtime.coef.age'] * age
     inner += rcParams['marrtime.coef.age_squared'] * (age**2)
     
-    # Testing code:
-    #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "Marriage: age: %s,  prob: %s"%(age, prob)
-    return 1./(1 + np.exp(-inner))
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+    return prob
 
 def calc_probability_marriage_zvoleff(person):
     """
@@ -394,10 +398,10 @@ def calc_probability_marriage_zvoleff(person):
     inner += rcParams['marrtime.zv.coef.agedecades'] * agedecades
     inner += rcParams['marrtime.zv.coef.agedecades_squared'] * (agedecades**2)
     
-    # Testing code:
-    #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "Marriage: age: %s,  prob: %s"%(agedecades*10, prob)
-    return 1./(1 + np.exp(-inner))
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+    return prob
 
 def calc_probability_marriage_simple(person):
     """
@@ -480,10 +484,10 @@ def calc_probability_migration_masseyetal_2010(person):
     elif (age > 34) & (age <= 44):
         inner += rcParams['migration.coef.age34-44']
 
-    # Testing code:
-    #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "Migration prob: age: %s,  prob: %s"%(age, prob)
-    return 1./(1 + np.exp(-inner))
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+    return prob
 
 def calc_probability_migration_zvoleff(person):
     """
@@ -491,10 +495,10 @@ def calc_probability_migration_zvoleff(person):
     the results of Alex Zvoleff's empirical analysis of the CVFS data, 
     following the results of the analysis conducted by Massey et al. (2010).
     """
-    # Testing code:
-    #prob = np.round(1./(1 + np.exp(-inner)), 4)
-    #print "Migration prob: age: %s,  prob: %s"%(age, prob)
-    return 1./(1 + np.exp(-inner))
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+    return prob
 
 def calc_migration_length(agent):
     """

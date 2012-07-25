@@ -141,6 +141,7 @@ class Person(Agent):
         self._spouse = None
 
         self._children = []
+        self._number_of_children = 0
 
         if self._sex == "female":
             self._first_birth_timing = calc_first_birth_time(self)
@@ -175,7 +176,7 @@ class Person(Agent):
         return self._mother
 
     def get_num_children(self):
-        return len(self._children)
+        return self._number_of_children
 
     def get_father(self):
         return self._father
@@ -243,26 +244,24 @@ class Person(Agent):
 
         # Handle first births using the appropriate first birth timing 
         # parameterization:
-        num_children = len(self._children)
+        num_children = self.get_num_children()
         if (num_children) == 0:
-            # TODO: Remove the next three lines of code after testing:
-            if self._marriage_time < 1995 and random_state.rand() < .8:
-                # Prevent excessive first births at beginning of the model.
-                return False
             first_birth_flag = False
+            if ((time - self._marriage_time) >= 6.):
+                return False
             if rcParams['model.parameterization.firstbirthtiming'] == 'simple':
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
                     first_birth_flag = True
             elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
-                if (random_state.rand() < calc_first_birth_prob_ghimireaxinn2010(self, time)):
+                if (random_state.rand() < calc_first_birth_prob_ghimireaxinn2010(self, time)) & ((time - self._marriage_time) >= 9/12.):
                     first_birth_flag = True
             elif rcParams['model.parameterization.firstbirthtiming'] == 'zvoleff':
-                if (random_state.rand() < calc_first_birth_prob_zvoleff(self, time)):
+                if (random_state.rand() < calc_first_birth_prob_zvoleff(self, time)) & ((time - self._marriage_time) >= 9/12.):
                     first_birth_flag = True
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
             if first_birth_flag == True:
-                logger.debug("First birth to agent %s"%self.get_ID())
+                logger.debug("First birth to agent %s (age %s, marriage time %s)"%(self.get_ID(), self.get_age(), self._marriage_time))
                 return True
             else: return False
         else:
@@ -314,9 +313,10 @@ class Person(Agent):
         self._last_birth_time = time
         # Assign a new birth interval for the next child
         self._birth_interval = calc_birth_interval()
-        logger.debug('New birth to %s, next birth interval %s'%(self.get_ID(), self._birth_interval))
         for parent in [self, father]:
             parent._children.append(baby)
+            parent._number_of_children += 1
+        logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %s)'%(self.get_ID(), self.get_age()/12., self._number_of_children, self._des_num_children, self._birth_interval))
         return baby
 
     def is_married(self):
