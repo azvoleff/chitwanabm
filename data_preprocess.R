@@ -126,7 +126,7 @@ parents_char <- cbind(RESPID=t1indiv$RESPID, parents_char)
 # Now handle DS0013, the life history calendar data, to get information on what 
 # women had births in the past year (so they can start out ineligible for 
 # pregnancy).
-lhc <- read.xport(paste(DATA_PATH, "04538-0013-Data.xpt", sep="/"))
+lhc <- read.xport(paste(DATA_PATH, "04538_0013_data.xpt", sep="/"))
 # NOTE: lhc contains no NEIGHID column. Respondents in excluded neighborhoods 
 # (greather than 151) will be dropped when the lhc data is merged later on in 
 # the process.
@@ -139,11 +139,32 @@ recent_birth[recent_birth == 5] <- 1
 recent_birth[recent_birth == 6] <- 1
 recent_birth[recent_birth != 1] <- 0
 recent_birth[is.na(recent_birth)] <- 0
-# Now add up across the rows - anything greather than or equal to 1 means there 
+# Now add up across the rows - anything greater than or equal to 1 means there 
 # was (at least) one birth in year 2053.
 recent_birth <- apply(recent_birth, 1, sum, na.rm=TRUE)
 recent_birth[recent_birth > 1] <- 1
-recent_births <- data.frame(RESPID=lhc$RESPID, recent_birth)
+
+# Also add a "number of children" variable to each person, by counting up the
+# counting the number of entries in the SEXC1-SEXC15 columns for each person.
+sexc_cols <- grep('SEXC[1]?[0-9]', names(lhc))
+n_children <- apply(!is.na(lhc[sexc_cols]), 1, sum)
+
+# Set marriage time to the time of the most recent marriage (some may have had 
+# more than one marriage).
+lhc_marr_cols <- grep('^(M[1]?[0-9]E199[4-9])|(M[1]?[0-9]E20[0-5][0-9])$', names(lhc))
+
+marr_year <- apply(lhc[lhc_marr_cols], 1,
+                    function(marit_row) match(1, rev(marit_row)))
+marr_year <- 1996.5 - (marr_year %% 60)
+# We only have the month of marriage for the first spouse, so subtract a random 
+# number from 1-12 from each marr_year
+marr_date <- marr_year + sample(seq(1,12)/12, length(marr_year), replace=TRUE)
+
+lhc_marr_exists_cols <- grep('^(MYN[1]?[0-9])$', names(lhc))
+ever_had_spouse <- apply(lhc[lhc_marr_exists_cols], 1,
+                    function(marit_row) sum(marit_row, na.rm=T)==1)
+
+lhc_recode <- data.frame(RESPID=lhc$RESPID, recent_birth, n_children, marr_date, ever_had_spouse)
 
 ###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
@@ -160,9 +181,17 @@ hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 hhrel.processed <- merge(hhrel.processed, desnumchild, all.x=TRUE)
 hhrel.processed$desnumchild <- replace_nas(hhrel.processed$desnumchild)
 
-# Add the recent birth tags onto hhrel.procbessed
-hhrel.processed <- merge(hhrel.processed, recent_births, all.x=TRUE)
-hhrel.processed$recent_birth <- replace_nas(hhrel.processed$recent_birth)
+# Add the recent birth tags and number of children count onto hhrel.processed
+hhrel.processed <- merge(hhrel.processed, lhc_recode, all.x=TRUE)
+# Only replace NAs in recent birth and n_children for ever-married individuals 
+# over age 15. Otherwise set recent birth to 0 and n_children to 0.
+had_spouse <- hhrel.processed$ever_had_spouse == 1
+had_spouse[is.na(had_spouse)] <- FALSE
+under_15 <- hhrel.processed$AGEMNTHS < (15*12)
+hhrel.processed[had_spouse, ]$recent_birth <- replace_nas(hhrel.processed[had_spouse, ]$recent_birth)
+hhrel.processed[under_15 | !had_spouse, ]$recent_birth <- 0
+hhrel.processed[had_spouse, ]$n_children <- replace_nas(hhrel.processed[had_spouse, ]$n_children)
+hhrel.processed[under_15 | !had_spouse, ]$n_children <- 0
 
 # Merge the education data
 hhrel.processed <- merge(hhrel.processed, schooling, all.x=TRUE)
