@@ -42,7 +42,6 @@ import argparse # Requires Python 2.7 or above
 import logging
 import shutil
 
-logging.addLevelName(5, 'TRACE')
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.DEBUG)
@@ -134,10 +133,10 @@ def main(argv=None):
     root_logger.handlers.remove(temp_log)
     temp_log.close()
     os.unlink(temp_log_file.name)
-    fh = logging.FileHandler(log_file_path, mode='a')
-    fh.setLevel(fh_level)
-    fh.setFormatter(log_file_formatter)
-    root_logger.addHandler(fh)
+    new_fh = logging.FileHandler(log_file_path, mode='a')
+    new_fh.setLevel(fh_level)
+    new_fh.setFormatter(log_file_formatter)
+    root_logger.addHandler(new_fh)
 
     if rcParams['model.reinitialize']:
         # Generate a new world (with new resampling, etc.)
