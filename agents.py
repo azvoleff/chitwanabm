@@ -42,7 +42,7 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_first_birth_prob_ghimireaxinn2010, calc_first_birth_prob_zvoleff, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
         calc_education_level, calc_spouse_age_diff, \
-        calc_num_inmigrant_households
+        calc_num_inmigrant_households, calc_probability_divorce
 
 logger = logging.getLogger(__name__)
 
@@ -686,6 +686,33 @@ class Region(Agent_set):
                 marriages[neighborhood.get_ID()] = 0
             marriages[neighborhood.get_ID()] += 1
         return marriages
+
+    def divorces(self, time):
+        """
+        Runs through the population and marries agents probabilistically 
+        based on their age and the probability_marriage for this population
+        """
+        logger.debug("Processing divorces")
+        # First find the divorcing agents
+        checked_spouses = []
+        divorcing_spouses = []
+        divorces = {}
+        for household in self.iter_households():
+            for person in household.iter_agents():
+                if not person.is_married() or \
+                        (person in checked_spouses) or \
+                        (random_state.rand() >= calc_probability_divorce(person)):
+                    # Person does NOT get divorced
+                    divorcing_spouses.append(person)
+                    continue
+                # Person DOES get divorced:
+                checked_spouses.append(person)
+                neighborhood = household.get_parent_agent()
+                if not divorces.has_key(neighborhood.get_ID()):
+                    divorces[neighborhood.get_ID()] = 0
+                divorces[neighborhood.get_ID()] += 1
+                logger.debug("Divorce to agent %s and %s (age %s, and %s, marriage time %s)"%(person.get_ID(), person.get_spouse().get_ID(), person.get_age(), person.get_spouse().get_age(), person._marriage_time))
+        return divorces
 
     def get_num_marriages(self):
         "Returns the total number of marriages in this region."

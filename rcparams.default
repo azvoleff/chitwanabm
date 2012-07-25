@@ -107,7 +107,11 @@
 'probability.death.female' : [{(0, 3):0.013335, (3, 6):0.00093, (6, 12):0.00061, (12, 20):0.001144, (20, 40):0.002016, (40, 60):0.004577, (60, 80):0.032828, (80, 90):0.140105, (90, 199):0.302326} | validate_probability(0, 199)]
 'probability.marriage.male' : [{(15, 18):0.031023, (18, 22):0.114269, (22, 30):0.231391, (30, 40):0.118592, (40, 60):0.049346, (60, 199):0.004103} | validate_probability(15, 199)]
 'probability.marriage.female' : [{(15, 18):0.108413, (18, 22):0.198113, (22, 30):0.168199, (30, 40):0.095898, (40, 60):0.005689, (60, 199):0} | validate_probability(15, 199)]
+# prob.marriage.moveout is the household fission rate
 'prob.marriage.moveout' : [.30 | validate_float]
+# prob.marriage.divorce is the monthly probability of divorce (monthly 
+# probability given per marriage per month).
+'prob.marriage.divorce' : [.0004 | validate_float]
 'marriage.minimum_age_years' : [15 | validate_int]
 'marriage.maximum_age_years' : [35 | validate_int]
 'migration.minimum_age_years' : [15 | validate_int]

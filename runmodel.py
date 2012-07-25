@@ -42,6 +42,7 @@ import argparse # Requires Python 2.7 or above
 import logging
 import shutil
 
+logging.addLevelName(5, 'TRACE')
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.DEBUG)
@@ -83,7 +84,7 @@ def main(argv=None):
     root_logger.handlers[1].setLevel(ch_level)
     fh_level = getattr(logging, args.logf.upper(), None)
     if not isinstance(fh_level, int):
-        logger.critical('Invalid log level: %s' %args.log_file)
+        logger.critical('Invalid log level: %s' %args.logf)
     root_logger.handlers[0].setLevel(fh_level)
 
     if not(args.rc == None):

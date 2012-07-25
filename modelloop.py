@@ -59,6 +59,7 @@ def main_loop(world, results_path):
 
     # Keep annual totals to print while the model is running
     annual_num_marr = 0
+    annual_num_divo = 0
     annual_num_births = 0
     annual_num_deaths = 0
     annual_num_out_migr = 0
@@ -90,7 +91,8 @@ def main_loop(world, results_path):
     write_results_CSV(world, results_path, 0)
 
     def save_data_dict(saved_data, timestep, date_float, region, new_births, 
-            new_deaths, new_marr, new_out_migr, new_return_migr, new_in_migr):
+            new_deaths, new_marr, new_divo, new_out_migr, new_return_migr, 
+            new_in_migr):
         """
         Store model results for later plotting. Store each variable in a 
         dictionary data while the model is runningthe data keyed by: 
@@ -100,6 +102,7 @@ def main_loop(world, results_path):
         saved_data[timestep]['births'] = new_births
         saved_data[timestep]['deaths'] = new_deaths
         saved_data[timestep]['marr'] = new_marr
+        saved_data[timestep]['divo'] = new_divo
         saved_data[timestep]['out_migr'] = new_out_migr
         saved_data[timestep]['ret_migr'] = new_in_migr
         saved_data[timestep]['in_migr'] = new_in_migr
@@ -121,7 +124,8 @@ def main_loop(world, results_path):
     for neighborhood in region.iter_agents():
         empty_events[neighborhood.get_ID()] = np.NaN
     save_data_dict(saved_data, 0, 0, region, empty_events, empty_events,
-            empty_events, empty_events, empty_events, empty_events)
+            empty_events, empty_events, empty_events, empty_events, 
+            empty_events)
 
     while model_time.in_bounds():
         logger.debug('beginning timestep %s (%s)'%(model_time.get_cur_int_timestep(), model_time.get_cur_date_string()))
@@ -129,6 +133,7 @@ def main_loop(world, results_path):
             annual_num_births = 0
             annual_num_deaths = 0
             annual_num_marr = 0
+            annual_num_divo = 0
             annual_num_out_migr = 0
             annual_num_ret_migr = 0
             annual_num_in_migr = 0
@@ -140,19 +145,21 @@ def main_loop(world, results_path):
             new_births = region.births(model_time.get_cur_date_float())
             new_deaths = region.deaths(model_time.get_cur_date_float())
             new_marr = region.marriages(model_time.get_cur_date_float())
+            new_divo = region.divorces(model_time.get_cur_date_float())
             new_out_migr, new_return_migr, new_in_migr = region.migrations(model_time.get_cur_date_float())
             schooling = region.education(model_time.get_cur_date_float())
 
             # Save event, LULC, and population data for later output to CSV.
             save_data_dict(saved_data, model_time.get_cur_int_timestep(), 
                     model_time.get_cur_date_float(), region, new_births, 
-                    new_deaths, new_marr, new_out_migr, new_return_migr,
-                    new_in_migr)
+                    new_deaths, new_marr, new_divo, new_out_migr, 
+                    new_return_migr, new_in_migr)
 
             # Keep running total for printing results:
             num_new_births = sum(new_births.values())
             num_new_deaths = sum(new_deaths.values())
             num_new_marr = sum(new_marr.values())
+            num_new_divo = sum(new_divo.values())
             num_new_out_migr = sum(new_out_migr.values())
             num_new_return_migr = sum(new_return_migr.values())
             num_new_in_migr = sum(new_in_migr.values())
@@ -160,6 +167,7 @@ def main_loop(world, results_path):
             annual_num_births += num_new_births
             annual_num_deaths += num_new_deaths
             annual_num_marr += num_new_marr
+            annual_num_divo += num_new_divo
             annual_num_out_migr += num_new_out_migr
             annual_num_return_migr += num_new_return_migr
             annual_num_in_migr += num_new_in_migr
@@ -170,9 +178,11 @@ def main_loop(world, results_path):
         # is running.
         num_persons = region.num_persons()
         num_households = region.num_households()
-        stats_string = "Stats for %s: P: %5s | TMa: %5s | HH: %5s | Ma: %3s | B: %3s | D: %3s | OutMi: %3s | RetMi: %3s | InMi: %3s"%(
-                model_time.get_cur_date_string().ljust(7), num_persons, region.get_num_marriages(), num_households,
-                num_new_marr, num_new_births, num_new_deaths, num_new_out_migr, num_new_return_migr, num_new_in_migr)
+        stats_string = "Stats for %s: P: %5s | TMa: %5s | HH: %5s | Ma: %3s | Dv: %3s | B: %3s | D: %3s | OutMi: %3s | RetMi: %3s | InMi: %3s"%(
+                model_time.get_cur_date_string().ljust(7), num_persons, 
+                region.get_num_marriages(), num_households,
+                num_new_marr, num_new_divo, num_new_births, num_new_deaths, 
+                num_new_out_migr, num_new_return_migr, num_new_in_migr)
         logger.info('%s'%stats_string)
 
         # Save timestep, year and month, and time_float values for use in 
@@ -186,12 +196,13 @@ def main_loop(world, results_path):
             # The last condition in the above if statement is necessary as 
             # there is no total to print on the first timestep, so it wouldn't 
             # make sense to print it.
-            total_string = "%s totals: New Ma: %3s, B: %3s, D: %3s, OutMi: %3s, RetMi: %3s, InMi: %3s"%(
-                    model_time.get_cur_year(), annual_num_marr, annual_num_births,
+            total_string = "%s totals: New Ma: %3s, Dv: %3s, B: %3s, D: %3s, OutMi: %3s, RetMi: %3s, InMi: %3s"%(
+                    model_time.get_cur_year(), annual_num_marr, 
+                    annual_num_divo, annual_num_births,
                     annual_num_deaths, annual_num_out_migr, 
                     annual_num_return_migr, annual_num_in_migr)
-            logger.debug('%s'%total_string)
-            logger.debug("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
+            logger.info('%s'%total_string)
+            logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
 
         if num_persons == 0:
             logger.info("End of model run: population is zero")
