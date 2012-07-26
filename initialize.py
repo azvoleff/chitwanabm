@@ -278,18 +278,19 @@ def assemble_persons(relationshipsFile, model_world):
         person._des_num_children = int(relation['desnumchild'])
         person._schooling = int(relation['schooling'])
 
-        person._child_school_1hr = int(relation['child_school_1hr'])
-        person._child_health_1hr = int(relation['child_health_1hr'])
-        person._child_bus_1hr = int(relation['child_bus_1hr'])
-        person._child_emp_1hr = int(relation['child_emp_1hr'])
+        person._child_school_lt_1hr_ft = int(relation['child_school_1hr'])
+        person._child_health_lt_1hr_ft = int(relation['child_health_1hr'])
+        person._child_bus_lt_1hr_ft = int(relation['child_bus_1hr'])
+        person._child_emp_lt_1hr_ft = int(relation['child_emp_1hr'])
+        person._child_market_lt_1hr_ft = int(relation['child_market_1hr'])
+
         person._parents_contracep_ever = int(relation['parents_contracep_ever'])
+
         person._father_work = int(relation['father_work'])
         person._father_school = int(relation['father_school'])
         person._mother_work = int(relation['mother_work'])
         person._mother_school = int(relation['mother_school'])
         person._mother_num_children = int(relation['mother_num_children'])
-
-        person._mother_num_children = int(relation['desnumchild'])
 
         marr_time = relation['marr_date']
         if marr_time == 'NA':

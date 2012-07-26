@@ -90,6 +90,8 @@ class Person(Agent):
         # initialize the model.
         self._initial_agent = initial_agent
 
+        self._in_migrant = in_migrant
+
         # self._age is used as a convenience to avoid the need to calculate the 
         # agent's age from self._birthdate each time it is needed. It is         
         # important to remember though that all agent's ages must be 
@@ -157,16 +159,26 @@ class Person(Agent):
         self._work = boolean_choice(.1)
         self._parents_contracep_ever = boolean_choice()
 
-        self._child_school_1hr = boolean_choice()
-        self._child_health_1hr = boolean_choice()
-        self._child_bus_1hr = boolean_choice()
-        self._child_emp_1hr = boolean_choice()
+        # NOTE: These are set in the give_birth function for agents that are 
+        # endogenous to the Chitwan ABM
+        self._child_school_lt_1hr_ft = boolean_choice()
+        self._child_health_lt_1hr_ft =  boolean_choice()
+        self._child_bus_lt_1hr_ft =  boolean_choice()
+        self._child_market_lt_1hr_ft =  boolean_choice()
+        self._child_employer_lt_1hr_ft =  boolean_choice()
 
-        self._father_work = boolean_choice()
-        self._father_school = boolean_choice()
+        # These values are overwritten in the give_birth method of mother 
+        # agents for agents born within the model run, and in initialize.py for 
+        # agents that initialize the model.
         self._mother_work = boolean_choice()
+        self._father_work = boolean_choice()
         self._mother_school = boolean_choice()
+        self._father_school = boolean_choice()
         self._mother_num_children = boolean_choice()
+
+        # These values are set in the give_birth method of mother agents
+        self._birth_household_ID = None
+        self._birth_neighborhood_ID = None
 
         # _store_list tracks any agent_store instances this person is a member 
         # of (for LL or LD migration for example).
@@ -193,10 +205,51 @@ class Person(Agent):
     def get_spouse(self):
         return self._spouse
 
+    def get_years_schooling(self):
+        return self._schooling
+
+    def get_work(self):
+        return self._work
+
+    def get_mother_years_schooling(self):
+        if self.is_initial_agent():
+            # Only initial agents have this attribute. For endogenous agents, 
+            # check the actual years of schooling their mother had, since it 
+            # may have changed since births. Same comment applies to all the 
+            # 'get_mother_' and 'get_father_' methods.
+            return self._mother_years_schooling
+        else:
+            return self.get_mother().get_years_schooling()
+
+    def get_father_years_schooling(self):
+        if self.is_initial_agent():
+            return self._father_years_schooling
+        else:
+            return self.get_father().get_years_schooling()
+
+    def get_mother_work(self):
+        if self.is_initial_agent():
+            return self._mother_work
+        else:
+            return self.get_mother().get_work()
+
+    def get_father_work(self):
+        if self.is_initial_agent():
+            return self._father_work
+        else:
+            return self.get_father().get_work()
+
+    def get_mother_num_children(self):
+        if self.is_initial_agent():
+            return self._mother_num_children
+        else:
+            return self.get_mother().get_num_children()
+
     def is_sibling(self, person):
         if person.get_mother() == None:
             # Handle initial agents for whom we have no data on their mother's 
-            # children's relationships.
+            # children's relationships. This is the case for only a subset of 
+            # the initial agents.
             return False
         elif self in person.get_mother()._children: return True
         else: return False
@@ -226,7 +279,6 @@ class Person(Agent):
             female=self
         else:
             female=spouse
-        if female._des_num_children == None:
             female._des_num_children = calc_des_num_children(self)
         self._marriage_time = time
         spouse._marriage_time = time
@@ -274,7 +326,7 @@ class Person(Agent):
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
             if first_birth_flag == True:
-                logger.debug("First birth to agent %s (age %s, marriage time %s)"%(self.get_ID(), self.get_age(), self._marriage_time))
+                logger.debug("First birth to agent %s (age %s, marriage time %s)"%(self.get_ID(), self.get_age()/12., self._marriage_time))
                 return True
             else: return False
         else:
@@ -295,35 +347,19 @@ class Person(Agent):
         baby = self._world.new_person(birthdate=time, mother=self, father=father, ethnicity=self.get_ethnicity())
 
         neighborhood = self.get_parent_agent().get_parent_agent()
-        ###########################################
-        # Set childhood community context for baby:
-        # School within 1 hour walk as child:
-        if neighborhood._nfo_schl_minft_1996 < 60:
-            baby._child_school_1hr = 1
-        else:
-            baby._child_school_1hr = 0
-        # Health center within 1 hour walk as child:
-        if neighborhood._nfo_hlth_minft_1996 < 60:
-            baby._child_health_1hr = 1
-        else:
-            baby._child_health_1hr = 0
-        # Bus within 1 hour walk as child:
-        if neighborhood._nfo_bus_minft_1996 < 60:
-            baby._child_bus_1hr = 1
-        else:
-            baby._child_bus_1hr = 0
-        # Market within 1 hour walk as child:
-        if neighborhood._nfo_mar_minft_1996 < 60:
-            baby._child_mar_1hr = 1
-        else:
-            baby._child_mar_1hr = 0
-        # Employer within 1 hour walk as child:
-        if neighborhood._nfo_emp_minft_1996 < 60:
-            baby._child_emp_1hr = 1
-        else:
-            baby._child_emp_1hr = 0
+    
+        # Set childhood community context for baby
+        baby._child_school_lt_1hr_ft = neighborhood._school_min_ft < 60
+        baby._child_health_lt_1hr_ft = neighborhood._health_min_ft < 60
+        baby._child_bus_lt_1hr_ft = neighborhood._bus_min_ft < 60
+        baby._child_market_lt_1hr_ft = neighborhood._market_min_ft < 60
+        baby._child_employer_lt_1hr_ft = neighborhood._employer_min_ft < 60
+
+        baby._birth_household_ID = self.get_parent_agent().get_ID()
+        baby._birth_neighborhood_ID = neighborhood.get_ID()
 
         self._last_birth_time = time
+
         # Assign a new birth interval for the next child
         self._birth_interval = calc_birth_interval()
         for parent in [self, father]:
@@ -422,6 +458,13 @@ class Neighborhood(Agent_set):
         self._x = None # x coordinate in UTM45N
         self._y = None # y coordinate in UTM45N
         self._elev = None # Elevation of neighborhood from SRTM DEM
+
+        # These values are set in the initialize.py script.
+        self._school_min_ft = None
+        self._health_min_ft = None
+        self._bus_min_ft = None
+        self._market_min_ft = None
+        self._employer_min_ft = None
 
     def add_agent(self, agent, initializing=False):
         """
@@ -727,7 +770,6 @@ class Region(Agent_set):
         logger.debug("Processing divorces")
         # First find the divorcing agents
         checked_spouses = []
-        divorcing_spouses = []
         divorces = {}
         for household in self.iter_households():
             for person in household.iter_agents():
@@ -735,15 +777,39 @@ class Region(Agent_set):
                         (person in checked_spouses) or \
                         (random_state.rand() >= calc_probability_divorce(person)):
                     # Person does NOT get divorced
-                    divorcing_spouses.append(person)
+                    checked_spouses.append(person)
                     continue
                 # Person DOES get divorced:
                 checked_spouses.append(person)
                 neighborhood = household.get_parent_agent()
+                # Make the woman move out and either:
+                # 	- return to her parental home if it still exists
+                # 	- establish a new household in a randomly selected              
+                # 	neighborhood
+                if person.get_sex() == "female":
+                    woman = person
+                else: woman = person.get_spouse()
+                person.divorce()
+                woman.get_parent_agent().remove_agent(woman)
+                if woman.get_mother() == None or \
+                        woman.get_mother().get_parent_agent() == None:
+                    # First make a new home for the woman
+                    new_home = self._world.new_household()
+                    new_home.add_agent(woman)
+                    # Now find a neighborhood for the new home
+                    poss_neighborhoods = self.get_agents()
+                    new_neighborhood = poss_neighborhoods[np.random.randint( \
+                        len(poss_neighborhoods))]
+                    new_neighborhood.add_agent(new_home)
+                else:
+                    # If the woman's mother's home still exists, move the woman 
+                    # to that home.
+                    new_home = woman.get_mother().get_parent_agent()
+                    new_home.add_agent(woman)
                 if not divorces.has_key(neighborhood.get_ID()):
                     divorces[neighborhood.get_ID()] = 0
                 divorces[neighborhood.get_ID()] += 1
-                logger.debug("Divorce to agent %s and %s (age %s, and %s, marriage time %s)"%(person.get_ID(), person.get_spouse().get_ID(), person.get_age(), person.get_spouse().get_age(), person._marriage_time))
+                logger.debug("Divorce to agent %s (age %s, marriage time %s)"%(person.get_ID(), person.get_age()/12., person._marriage_time))
         return divorces
 
     def get_num_marriages(self):

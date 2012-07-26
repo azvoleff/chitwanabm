@@ -108,10 +108,10 @@ def calc_first_birth_prob_ghimireaxinn2010(person, time):
 
     #########################################################################
     # Childhood community context
-    inner += rcParams['firstbirth.coef.child_school_1hr'] * person._child_school_1hr
-    inner += rcParams['firstbirth.coef.child_health_1hr'] * person._child_health_1hr
-    inner += rcParams['firstbirth.coef.child_bus_1hr'] * person._child_bus_1hr
-    inner += rcParams['firstbirth.coef.child_emp_1hr'] * person._child_emp_1hr
+    inner += rcParams['firstbirth.coef.child_school_1hr'] * person._child_school_lt_1hr_ft
+    inner += rcParams['firstbirth.coef.child_health_1hr'] * person._child_health_lt_1hr_ft
+    inner += rcParams['firstbirth.coef.child_bus_1hr'] * person._child_bus_lt_1hr_ft
+    inner += rcParams['firstbirth.coef.child_emp_1hr'] * person._child_emp_lt_1hr_ft
 
     #inner += rcParams['firstbirth.coef.age_1st_marr']
     #inner += rcParams['firstbirth.coef.marr_dur_pre_1997']
@@ -221,10 +221,10 @@ def calc_first_birth_prob_zvoleff(person, time):
 
     #########################################################################
     # Childhood community context
-    inner += rcParams['firstbirth.zv.coef.child_school_1hr'] * person._child_school_1hr
-    inner += rcParams['firstbirth.zv.coef.child_health_1hr'] * person._child_health_1hr
-    inner += rcParams['firstbirth.zv.coef.child_bus_1hr'] * person._child_bus_1hr
-    inner += rcParams['firstbirth.zv.coef.child_emp_1hr'] * person._child_emp_1hr
+    inner += rcParams['firstbirth.zv.coef.child_school_1hr'] * person._child_school_lt_1hr_ft
+    inner += rcParams['firstbirth.zv.coef.child_health_1hr'] * person._child_health_lt_1hr_ft
+    inner += rcParams['firstbirth.zv.coef.child_bus_1hr'] * person._child_bus_lt_1hr_ft
+    inner += rcParams['firstbirth.zv.coef.child_emp_1hr'] * person._child_emp_lt_1hr_ft
 
     #inner += rcParams['firstbirth.zv.coef.age_1st_marr']
     #inner += rcParams['firstbirth.zv.coef.marr_dur_pre_1997']
