@@ -434,7 +434,9 @@ def choose_spouse(person, eligible_mates):
             agediff = person.get_age()/12 - eligible_mate.get_age()/12
         else:
             agediff = eligible_mate.get_age()/12 - person.get_age()/12
-        if person.get_sex() == eligible_mate.get_sex() or person.get_ethnicity() != eligible_mate.get_ethnicity():
+        if person.get_sex() == eligible_mate.get_sex() or \
+                person.get_ethnicity() != eligible_mate.get_ethnicity() or \
+                person.is_sibling(eligible_mate):
             sp_probs.append(0)
         else:
             sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))

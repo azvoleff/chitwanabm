@@ -193,6 +193,14 @@ class Person(Agent):
     def get_spouse(self):
         return self._spouse
 
+    def is_sibling(self, person):
+        if person.get_mother() == None:
+            # Handle initial agents for whom we have no data on their mother's 
+            # children's relationships.
+            return False
+        elif self in person.get_mother()._children: return True
+        else: return False
+
     def is_initial_agent(self):
         return self._initial_agent
 
