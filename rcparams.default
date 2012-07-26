@@ -111,7 +111,7 @@
 'prob.marriage.moveout' : [.30 | validate_float]
 # prob.marriage.divorce is the monthly probability of divorce (monthly 
 # probability given per marriage per month).
-'prob.marriage.divorce' : [.0004 | validate_float]
+'prob.marriage.divorce' : [.0005 | validate_float]
 'marriage.minimum_age_years' : [15 | validate_int]
 'marriage.maximum_age_years' : [35 | validate_int]
 'migration.minimum_age_years' : [15 | validate_int]
