@@ -8,6 +8,8 @@ import subprocess
 number_of_runs = 20
 max_threads = 3
 
+time_format = "%m/%d/%Y %I:%M:%S %p"
+
 python_path = "C:/Python27/python.exe"
 script_path = "C:/Users/azvoleff/Code/Python/ChitwanABM/runmodel.py"
 class ChitwanABMThread(threading.Thread):
@@ -18,14 +20,19 @@ class ChitwanABMThread(threading.Thread):
         dev_null = open(os.devnull, 'w')
         subprocess.check_call([python_path, script_path, "--log=CRITICAL"], cwd=sys.path[0])
         dev_null.close()
-        start_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime())
-        print "***************RUN %s FINISHED***************"%self.name
+        end_time = time.strftime(time_format, time.localtime())
+        print "%s: Finished %s"(end_time, self.name)
 
 run_count = 1
-while threading.active_count() <= max_threads and run_count <= number_of_runs:
-    new_thread = ChitwanABMThread(run_count)
-    start_time_string = time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime())
-    print "***************STARTING RUN %s***************"%(run_count)
-    new_thread.start()
-    time.sleep(5)
-    run_count += 1
+while run_count <= number_of_runs:
+    if run_count != 1:
+        current_time = time.strftime(time_format, time.localtime())
+        print "%s: Waiting to start new thread"%(current_time)
+    while threading.active_count() <= max_threads:
+        new_thread = ChitwanABMThread(run_count)
+        start_time = time.strftime(time_format, time.localtime())
+        print "%s: Starting %s"%(start_time, new_thread.name)
+        new_thread.start()
+        time.sleep(5)
+        run_count += 1
+    time.sleep(30)
