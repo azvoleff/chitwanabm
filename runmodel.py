@@ -52,7 +52,7 @@ temp_log_file = tempfile.NamedTemporaryFile(delete=False)
 temp_log = logging.FileHandler(temp_log_file.name)
 temp_log.setLevel(logging.DEBUG)
 log_file_formatter = logging.Formatter('%(asctime)s %(name)s:%(lineno)d %(levelname)s %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p')
+        datefmt='%Y/%m/%d %H:%M:%S')
 temp_log.setFormatter(log_file_formatter)
 root_logger.addHandler(temp_log)
 # Add a console logger as well - the level will be updated from the command 
