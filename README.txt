@@ -50,8 +50,6 @@ CITATIONS:
             Arbor, MI: Inter-university Consortium for Political and Social 
             Research [distributor], 2011-09-06.
 
-            
-
     The parameterizations used in the model are based off of the works listed 
     below:
 
@@ -60,11 +58,11 @@ CITATIONS:
 
     Biddlecom, A. E.; Axinn, W. G. & Barber, J. S. (2005), 'Environmental 
         Effects on Family Size Preferences and Subsequent Reproductive Behavior 
-        in Nepal', Population & Environment 26(3), 583--621.
+        in Nepal', Population & Environment 26(3), 583-621.
 
     Ghimire, D. & Mohai, P. (2005), 'Environmentalism and Contraceptive Use: 
         How people in less developed settings approach environmental issues', 
-        Population & Environment 27(1), 29--61.
+        Population & Environment 27(1), 29-61.
 
     Ghimire, D. J., and W. G. Axinn. 2010. Community context, land use, and 
         first birth. Rural Sociology 75 (3):478–513.
@@ -76,7 +74,7 @@ CITATIONS:
         and out-migration: evidence from Nepal. Population and Environment. 
 
     Yabiku, S. (2006), 'Land Use and Marriage Timing in Nepal', Population & 
-        Environment 27(5), 445--461.
+        Environment 27(5), 445-461.
 
     Yabiku, S. (2006), 'Neighbors and neighborhoods: effects on marriage 
-        timing', Population Research and Policy Review 25(4), 305--327.
+        timing', Population Research and Policy Review 25(4), 305-327.
