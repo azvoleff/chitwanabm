@@ -74,6 +74,8 @@ def main(argv=None):
             help='The logging threshold for logging to the console')
     parser.add_argument('--logf', metavar="LEVEL", type=str, 
             default="debug", help='The logging threshold for logging to the log file')
+    parser.add_argument('--tail', dest='tail', action='store_const', 
+            const=True, default=False, help='Tail the logfile with the default tail application specified in the rc parameters')
     args = parser.parse_args()
 
     # Setup logging according to the desired levels
@@ -137,6 +139,9 @@ def main(argv=None):
     new_fh.setLevel(fh_level)
     new_fh.setFormatter(log_file_formatter)
     root_logger.addHandler(new_fh)
+
+    if args.tail:
+        subprocess.Popen([rcParams['path.tail_binary'], log_file_path], cwd=results_path)
 
     if rcParams['model.reinitialize']:
         # Generate a new world (with new resampling, etc.)
