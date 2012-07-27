@@ -135,7 +135,7 @@ def main_loop(world, results_path):
             annual_num_marr = 0
             annual_num_divo = 0
             annual_num_out_migr = 0
-            annual_num_ret_migr = 0
+            annual_num_return_migr = 0
             annual_num_in_migr = 0
 
         for region in world.iter_regions():

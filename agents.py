@@ -727,24 +727,24 @@ class Region(Agent_set):
             female._first_birth_timing = calc_first_birth_time(self)
             moveout_prob = rcParams['prob.marriage.moveout']
             # Create a new household according to the moveout probability
-            if boolean_choice(moveout_prob) or male.get_parent_agent()==None:
+            if boolean_choice(moveout_prob) or male.get_parent_agent() == None:
                 # Create a new household. male.get_parent_agent() is equal to 
                 # None for in-migrants, as they are not a member of a 
                 # household.
                 new_home = self._world.new_household()
                 poss_neighborhoods = [] # Possible neighborhoods for the new_home
                 for person in [male, female]:
-                    new_home.add_agent(person)
                     old_household = person.get_parent_agent() # this person's old household
-                    if old_household == None:
+                    if old_household != None:
                         # old_household will equal none for in-migrants, as 
                         # they are not tracked in the model until after this 
                         # timestep. This means they also will not have a 
-                        # neighborhood.
-                        continue
-                    old_household.remove_agent(person)
-                    poss_neighborhoods.append(old_household.get_parent_agent()) # this persons old neighborhood
-                # Assign the new household to the male or females neighborhood. 
+                        # neighborhood yet, so the next two lines would not 
+                        # work.
+                        poss_neighborhoods.append(old_household.get_parent_agent()) # this persons old neighborhood
+                        old_household.remove_agent(person)
+                    new_home.add_agent(person)
+                # Assign the new household to the male or females neighborhood.  
                 # Or randomly pick new neighborhood if both members of the 
                 # couple are in-migrants.
                 if len(poss_neighborhoods)>0:
