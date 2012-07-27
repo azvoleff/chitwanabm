@@ -153,7 +153,7 @@ def assemble_households(householdsFile, model_world):
         NEIGHID = int(household_data['NEIGHID'])
         HHID_NEIGHID_map[HHID] = NEIGHID
         
-        household = model_world.new_household(HHID, initial_agent=True)
+        household = model_world.new_household(HID=HHID, initial_agent=True)
         household._own_house_plot = bool(household_data['BAA43']) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
 

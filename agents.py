@@ -71,10 +71,10 @@ else:
 
 class Person(Agent):
     "Represents a single person agent"
-    def __init__(self, world, birthdate, PID=None, mother=None, father=None,
+    def __init__(self, world, birthdate, ID=None, mother=None, father=None,
             age=None, sex=None, initial_agent=False, ethnicity=None, 
             in_migrant=False):
-        Agent.__init__(self, world, PID, initial_agent)
+        Agent.__init__(self, world, ID, initial_agent)
 
         # birthdate is the timestep of the birth of the agent. It is used to 
         # calculate the age of the agent. Agents have a birthdate of 0 if they 
@@ -341,7 +341,7 @@ class Person(Agent):
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
             if first_birth_flag == True:
-                logger.debug("First birth to agent %s (age %s, marriage time %s)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
+                logger.debug("First birth to agent %s (age %.2f, marriage time %s)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
                 return True
             else: return False
         else:
@@ -380,7 +380,7 @@ class Person(Agent):
         for parent in [self, father]:
             parent._children.append(baby)
             parent._number_of_children += 1
-        logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %s)'%(self.get_ID(), self.get_age_years(), self._number_of_children, self._des_num_children, self._birth_interval))
+        logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %.2f)'%(self.get_ID(), self.get_age_years(), self._number_of_children, self._des_num_children, self._birth_interval))
         return baby
 
     def is_married(self):
@@ -734,7 +734,6 @@ class Region(Agent_set):
                 new_home = self._world.new_household()
                 poss_neighborhoods = [] # Possible neighborhoods for the new_home
                 for person in [male, female]:
-                    set_trace()
                     new_home.add_agent(person)
                     old_household = person.get_parent_agent() # this person's old household
                     if old_household == None:
@@ -1048,25 +1047,25 @@ class World():
         else:
             # Update the generator so the PID will not be reused
             self._PIDGen.use_ID(PID)
-        return Person(self, birthdate, PID=PID, **kwargs)
+        return Person(self, birthdate, ID=PID, **kwargs)
 
-    def new_household(self, HID=None, initial_agent=False):
+    def new_household(self, HID=None, **kwargs):
         "Returns a new household agent."
         if HID == None:
             HID = self._HIDGen.next()
         else:
             # Update the generator so the HID will not be reused
             self._HIDGen.use_ID(HID)
-        return Household(self, HID, initial_agent)
+        return Household(self, ID=HID, **kwargs)
 
-    def new_neighborhood(self, NID=None, initial_agent=False):
+    def new_neighborhood(self, NID=None, **kwargs):
         "Returns a new neighborhood agent."
         if NID == None:
             NID = self._NIDGen.next()
         else:
             # Update the generator so the NID will not be reused
             self._NIDGen.use_ID(NID)
-        return Neighborhood(self, NID, initial_agent)
+        return Neighborhood(self, ID=NID, **kwargs)
 
     def new_region(self, RID=None, initial_agent=False):
         "Returns a new region agent, and adds it to the world member list."
