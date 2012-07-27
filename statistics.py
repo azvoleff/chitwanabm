@@ -111,7 +111,7 @@ def calc_first_birth_prob_ghimireaxinn2010(person, time):
     inner += rcParams['firstbirth.coef.child_school_1hr'] * person._child_school_lt_1hr_ft
     inner += rcParams['firstbirth.coef.child_health_1hr'] * person._child_health_lt_1hr_ft
     inner += rcParams['firstbirth.coef.child_bus_1hr'] * person._child_bus_lt_1hr_ft
-    inner += rcParams['firstbirth.coef.child_emp_1hr'] * person._child_emp_lt_1hr_ft
+    inner += rcParams['firstbirth.coef.child_emp_1hr'] * person._child_employer_lt_1hr_ft
 
     #inner += rcParams['firstbirth.coef.age_1st_marr']
     #inner += rcParams['firstbirth.coef.marr_dur_pre_1997']
@@ -149,32 +149,12 @@ def calc_first_birth_prob_ghimireaxinn2010(person, time):
     # Parents characteristics
     inner += rcParams['firstbirth.coef.parents_contracep_ever'] * person._parents_contracep_ever
 
+    inner += rcParams['firstbirth.coef.father_work'] * person.get_father_work()
+    inner += rcParams['firstbirth.coef.father_school'] * person.get_father_years_schooling()
+    inner += rcParams['firstbirth.coef.mother_work'] * person.get_mother_work()
+    inner += rcParams['firstbirth.coef.mother_school'] * person.get_mother_years_schooling()
 
-    #if person.is_initial_agent():
-    # For initial agents, use the data from the CVFS.
-    father_work = person._father_work
-    father_school = person._father_school
-    mother_work = person._mother_work
-    mother_school = person._mother_school
-    mother_num_children = person._mother_num_children
-    #else:
-        # For others (agents dynamically generated in the model - not from the 
-        # CVFS data), use the most current simulated data.
-        #if person.get_father()._work > 0: father_work = 1
-        #else: father_work = 0
-        #if person.get_father()._schooling > 0: father_school = 1
-        #else: father_school = 0
-        #if person.get_mother()._work > 0: mother_work = 1
-        #else: mother_work = 0
-        #if person.get_mother()._schooling > 0: mother_school = 1
-        #else: mother_school = 0
-        #mother_num_children = person.get_mother().get_num_children()
-    inner += rcParams['firstbirth.coef.father_work'] * father_work
-    inner += rcParams['firstbirth.coef.father_school'] * father_school
-    inner += rcParams['firstbirth.coef.mother_work'] * mother_work
-    inner += rcParams['firstbirth.coef.mother_school'] * mother_school
-
-    inner += rcParams['firstbirth.coef.mother_num_children'] * mother_num_children
+    inner += rcParams['firstbirth.coef.mother_num_children'] * person.get_mother_num_children()
 
     #########################################################################
     # Hazard duration
@@ -224,7 +204,7 @@ def calc_first_birth_prob_zvoleff(person, time):
     inner += rcParams['firstbirth.zv.coef.child_school_1hr'] * person._child_school_lt_1hr_ft
     inner += rcParams['firstbirth.zv.coef.child_health_1hr'] * person._child_health_lt_1hr_ft
     inner += rcParams['firstbirth.zv.coef.child_bus_1hr'] * person._child_bus_lt_1hr_ft
-    inner += rcParams['firstbirth.zv.coef.child_emp_1hr'] * person._child_emp_lt_1hr_ft
+    inner += rcParams['firstbirth.zv.coef.child_emp_1hr'] * person._child_employer_lt_1hr_ft
 
     #inner += rcParams['firstbirth.zv.coef.age_1st_marr']
     #inner += rcParams['firstbirth.zv.coef.marr_dur_pre_1997']
@@ -265,11 +245,6 @@ def calc_first_birth_prob_zvoleff(person, time):
 
     #if person.is_initial_agent():
     # For initial agents, use the data from the CVFS.
-    father_work = person._father_work
-    father_school = person._father_school
-    mother_work = person._mother_work
-    mother_school = person._mother_school
-    mother_num_children = person._mother_num_children
     #else:
         # For others (agents dynamically generated in the model - not from the 
         # CVFS data), use the most current simulated data.
@@ -282,12 +257,12 @@ def calc_first_birth_prob_zvoleff(person, time):
         #if person.get_mother()._schooling > 0: mother_school = 1
         #else: mother_school = 0
         #mother_num_children = person.get_mother().get_num_children()
-    inner += rcParams['firstbirth.zv.coef.father_work'] * father_work
-    inner += rcParams['firstbirth.zv.coef.father_school'] * father_school
-    inner += rcParams['firstbirth.zv.coef.mother_work'] * mother_work
-    inner += rcParams['firstbirth.zv.coef.mother_school'] * mother_school
+    inner += rcParams['firstbirth.zv.coef.father_work'] * person.get_father_work()
+    inner += rcParams['firstbirth.zv.coef.father_school'] * person.get_father_years_schooling()
+    inner += rcParams['firstbirth.zv.coef.mother_work'] * person.get_mother_work()
+    inner += rcParams['firstbirth.zv.coef.mother_school'] * person.get_mother_years_schooling()
 
-    inner += rcParams['firstbirth.zv.coef.mother_num_children'] * mother_num_children
+    inner += rcParams['firstbirth.zv.coef.mother_num_children'] * person.get_mother_num_children()
 
     #########################################################################
     # Hazard duration
@@ -350,14 +325,13 @@ def calc_probability_marriage_yabiku2006(person):
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['marrtime.coef.ethnicTeraiTibeto']
 
-    # Convert person's age from months to years:
-    age = person.get_age() / 12.
+    age = person.get_age_years()
     inner += rcParams['marrtime.coef.age'] * age
     inner += rcParams['marrtime.coef.age_squared'] * (age**2)
     
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_probability_marriage_zvoleff(person):
@@ -396,13 +370,13 @@ def calc_probability_marriage_zvoleff(person):
         inner += rcParams['marrtime.zv.coef.ethnicTeraiTibeto']
 
     # Convert person's age from months to decades:
-    agedecades = (person.get_age() / 12.) / 10
+    agedecades = (person.get_age_years()) / 10
     inner += rcParams['marrtime.zv.coef.agedecades'] * agedecades
     inner += rcParams['marrtime.zv.coef.agedecades_squared'] * (agedecades**2)
     
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_probability_marriage_simple(person):
@@ -410,7 +384,7 @@ def calc_probability_marriage_simple(person):
     Calculate the probability of marriage using a simple sex and age dependent 
     probability distribution.
     """
-    age = person.get_age()
+    age = person.get_age_months()
     probability_index = __probability_index__(age)
     if person.get_sex() == 'female':
         return marriage_probabilities_female[probability_index]
@@ -431,17 +405,17 @@ def choose_spouse(person, eligible_mates):
     sp_probs = []
     for eligible_mate in eligible_mates:
         if person.get_sex == "male":
-            agediff = person.get_age()/12 - eligible_mate.get_age()/12
+            agediff = person.get_age_years() - eligible_mate.get_age_years()
         else:
-            agediff = eligible_mate.get_age()/12 - person.get_age()/12
+            agediff = eligible_mate.get_age_years() - person.get_age_years()
         if person.get_sex() == eligible_mate.get_sex() or \
                 person.get_ethnicity() != eligible_mate.get_ethnicity() or \
                 person.is_sibling(eligible_mate):
             sp_probs.append(0)
         else:
             sp_probs.append(calc_prob_from_prob_dist(rcParams['spousechoice.male.agediff'], agediff))
-        #print "f", eligible_mate.get_age()/12,
-        #print "m", male.get_age()/12, "|",
+        #print "f", eligible_mate.get_age_years(),
+        #print "m", male.get_age_years(), "|",
     if sum(sp_probs) == 0:
         # In this case NONE of the eligible_mates are eligible (all of different
         # ethnicities than the person).
@@ -467,7 +441,7 @@ def calc_spouse_age_diff(person):
 
 def calc_probability_death(person):
     "Calculates the probability of death for an agent."
-    age = person.get_age()
+    age = person.get_age_months()
     probability_index = __probability_index__(age)
     try:
         if person.get_sex() == 'female':
@@ -479,7 +453,7 @@ def calc_probability_death(person):
 
 def calc_probability_migration_simple(person):
     "Calculates the probability of migration for an agent."
-    age = person.get_age()
+    age = person.get_age_months()
     probability_index = __probability_index__(age)
     if person.get_sex() == 'female':
         return migration_probabilities_female[probability_index]
@@ -515,8 +489,7 @@ def calc_probability_migration_masseyetal_2010(person):
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['migration.coef.ethnicTeraiTibeto']
 
-    # Convert person's age from months to years:
-    age = person.get_age() / 12.
+    age = person.get_age_years()
     if (age >= 15) & (age <= 24):
         inner += rcParams['migration.coef.age15-24']
     elif (age > 24) & (age <= 34):
@@ -526,7 +499,7 @@ def calc_probability_migration_masseyetal_2010(person):
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_probability_migration_zvoleff(person):
@@ -537,7 +510,7 @@ def calc_probability_migration_zvoleff(person):
     """
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age()/12.))
+        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_migration_length(agent):
