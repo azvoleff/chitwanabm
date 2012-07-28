@@ -353,7 +353,7 @@ def assemble_persons(relationshipsFile, model_world):
                             max_marr_age = 27.
                         marriage_age_mnths = np.random.randint(15, max_marr_age)*12.
                         marriage_time = model_start_time - (youngests_age_mnths -
-                                marriage_age_mnths)
+                                marriage_age_mnths) / 12.
                     person._marriage_time = marriage_time
                     person._spouse._marriage_time = marriage_time
                 if person._spouse == person:

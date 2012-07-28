@@ -93,7 +93,7 @@ def validate_person_attributes(world):
             logger.warning("Spouse of person %s (spouse ID %s) is dead. Person: %s, Spouse: %s"%(
                 person.get_ID(), person.get_spouse().get_ID(), person_info, spouse_info))
             all_agents_valid = False
-        if person.get_spouse() != None and person._marriage_time <= 1940:
+        if person.get_spouse() != None and person._marriage_time <= 1920:
             spouse_info = get_person_info(person.get_spouse())
             logger.warning("Person %s (spouse ID %s) was married in %.2f. Person: %s, Spouse: %s"%(
                 person.get_ID(), person.get_spouse().get_ID(), person._marriage_time,  person_info, spouse_info))
