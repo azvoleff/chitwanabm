@@ -169,7 +169,7 @@ class Person(Agent):
             if (self._age / 12.) > rcParams['education.start_school_age_years']:
                 self._schooling = np.random.randint(1, 15)
                 #TODO: Fix this to also allow inschool status
-                person._school_status == "outofschool"
+                self._school_status == "outofschool"
             self._mother_work = boolean_choice()
             self._father_work = boolean_choice()
             #TODO: fix this value elsewhere according to empirical probability
@@ -341,7 +341,7 @@ class Person(Agent):
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
             if first_birth_flag == True:
-                logger.debug("First birth to agent %s (age %.2f, marriage time %s)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
+                logger.debug("First birth to agent %s (age %.2f, marriage time %.2f)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
                 return True
             else: return False
         else:
@@ -679,7 +679,7 @@ class Region(Agent_set):
                     # Agent is eligible to marry.
                     if person.get_sex() == "female": eligible_females.append(person)
                     if person.get_sex() == "male": eligible_males.append(person)
-        logger.debug('%s males and %s females eligible for marriage'%(len(eligible_males), len(eligible_females)))
+        logger.debug('%s resident males and %s resident females eligible for marriage'%(len(eligible_males), len(eligible_females)))
         eligible_persons = eligible_males + eligible_females
 
         couples = []
@@ -699,21 +699,25 @@ class Region(Agent_set):
             eligible_persons.remove(person)
             if person.get_sex() == "male": couples.append((person, spouse))
             else: couples.append((spouse, person))
-        logger.debug("%s couples formed, %s individuals remaining"%(len(couples), len(eligible_persons)))
+        logger.debug("%s resident couples formed, %s couples with in-migrants"%(len(couples), len(eligible_persons)))
 
         # The remaining individuals marry in-migrants
         for person in eligible_persons:
-            age_diff = calc_spouse_age_diff(person)
+            frac_year, years = np.modf(calc_spouse_age_diff(person))
+            months = np.round(frac_year * 12)
+            age_diff_months = years * 12 + months
             if person.get_sex() == "female":
                 spouse_sex = "male"
-                spouse_age = person.get_age_years() + age_diff
+                spouse_age_months = person.get_age_months() + age_diff_months
             else:
                 spouse_sex = "female"
-                spouse_age = person.get_age_years() - age_diff
+                spouse_age_months = person.get_age_months() - age_diff_months
+            if spouse_age_months < rcParams['marriage.minimum_age_years']:
+                spouse_age_months = rcParams['marriage.minimum_age_years']
             # Create the spouse:
-            spouse_birthdate = time - spouse_age/12.
+            spouse_birthdate = time - spouse_age_months/12.
             spouse = self._world.new_person(birthdate=spouse_birthdate, 
-                    age=spouse_age, sex=spouse_sex,
+                    age=spouse_age_months, sex=spouse_sex,
                     ethnicity=person.get_ethnicity(), in_migrant=True)
             # Ensure that the man is first in the couples tuple
             if person.get_sex() == "female": couples.append((spouse, person))
@@ -827,7 +831,7 @@ class Region(Agent_set):
                 if not divorces.has_key(neighborhood.get_ID()):
                     divorces[neighborhood.get_ID()] = 0
                 divorces[neighborhood.get_ID()] += 1
-                logger.debug("Divorce to agent %s (age %s, marriage time %s)"%(person.get_ID(), person.get_age_years(), person._marriage_time))
+                logger.debug("Divorce to agent %s (age %.2f, marriage time %.2f)"%(person.get_ID(), person.get_age_years(), person._marriage_time))
         return divorces
 
     def get_num_marriages(self):

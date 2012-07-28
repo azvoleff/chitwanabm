@@ -29,27 +29,65 @@ model.
 
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
-###############################################################################
-# Check initialization from CVFS data
-###############################################################################
-# Ensure init_data.pickle is the most recent version
 
-# Ensure relationships are tracked properly
+import logging
 
-###############################################################################
-# Double check demographic processes
-###############################################################################
-# Ensure marriage works correctly
+logger = logging.getLogger(__name__)
 
-# Ensure deaths work correctly
+import numpy as np
 
-# Ensure births work properly
+def validate_person_attributes(world):
+    logger.debug("Validating person attributes")
+    all_agents_valid = True
+    valid_ethnicities = ["HighHindu",
+                         "HillTibeto",
+                         "LowHindu",
+                         "Newar",
+                         "TeraiTibeto"]
+    maximum_age = 110
+    for region in world.get_regions():
+        for person in region.iter_persons():
+            person_info ="(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s)"%( \
+                person.get_age_years(), person.get_ethnicity(), 
+                person.is_in_migrant(), person.is_initial_agent(), 
+                person.get_parent_agent().get_ID(),
+                person.get_parent_agent().get_parent_agent().get_ID())
 
-# Ensure migration works properly
+            if person.get_age_months() != np.round(person.get_age_years() * 12):
+                logger.warning("Person %s age in months (%.2f) does not match age in years (%.2f) %s"%(
+                    person.get_ID(), person.get_age_months(), person.get_age_years(), person_info))
+                all_agents_valid = False
+            if person.get_age_years() > maximum_age:
+                logger.warning("Person %s is older than the maximum allowed age (%s) %s"%(
+                    person.get_ID(), maximum_age, person.get_age_years(), person_info))
+                all_agents_valid = False
+            if person.get_ethnicity() not in valid_ethnicities:
+                logger.warning("Person %s is not a valid ethnicity %s"%(person.get_ID(), person_info))
+                all_agents_valid = False
+            if not person._alive:
+                logger.warning("Person %s %s is dead, but is still participating in household activities"%(
+                    person.get_ID(), person_info))
+            if person.get_age_years() < 0 or person.get_age_months() < 0:
+                logger.warning("Person %s %s has not been born yet, but is already participating in household activities"%(
+                    person.get_ID(), person_info))
+            if person.get_spouse() != None and not person.get_spouse()._alive:
+                logger.warning("Spouse of person %s (spouse ID %s) is dead %s"%(
+                    person.get_ID(), person.get_spouse().get_ID(), person_info))
+                all_agents_valid = False
+            if person.get_parent_agent() == None:
+                logger.warning("Person %s %s is not a member of any household"%(
+                    person.get_ID(), person_info))
+                all_agents_valid = False
+    return all_agents_valid
 
-###############################################################################
-# Check that hazards are used correctly
-###############################################################################
-# Ensure hazards are read in properly
+def validate_household_attributes(world):
+    logger.debug("Validating household attributes")
+    # TODO: Complete validation function.
+    all_agents_valid = True
+    return all_agents_valid
 
-# Ensure hazards are indexed properly
+def validate_neighborhood_attributes(world):
+    logger.debug("Validating neighborhood attributes")
+    # TODO: Complete validation function.
+    all_agents_valid = True
+    return all_agents_valid

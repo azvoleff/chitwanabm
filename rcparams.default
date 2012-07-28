@@ -60,6 +60,9 @@
 # Whether to save shapefiles of LULC periodically while running the model. This 
 # will slow down the model considerably.
 'save_LULC_shapefiles': [False | validate_boolean]
+# Whether to run the functions in test.py to check proper functioning of the 
+# model code. This will slow down the model considerably.
+'run_validation_checks': [False | validate_boolean]
 
 'model.parameterization.marriage': ["zvoleff" | validate_string]
 'model.parameterization.firstbirthtiming': ["ghimireaxinn2010" | validate_string]

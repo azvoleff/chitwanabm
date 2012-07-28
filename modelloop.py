@@ -36,6 +36,7 @@ from PyABM.file_io import write_NBH_shapefile
 from PyABM.utility import TimeSteps
 
 from ChitwanABM import rcParams
+from ChitwanABM import test
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +204,13 @@ def main_loop(world, results_path):
                     annual_num_return_migr, annual_num_in_migr)
             logger.info('%s'%total_string)
             logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
+            if rcParams['run_validation_checks']:
+                if not test.validate_person_attributes(world):
+                    logger.critical("Person attributes validation failed")
+                if not test.validate_household_attributes(world):
+                    logger.critical("Household attributes validation failed")
+                if not test.validate_neighborhood_attributes(world):
+                    logger.critical("Neighborhood attributes validation failed")
 
         if num_persons == 0:
             logger.info("End of model run: population is zero")
