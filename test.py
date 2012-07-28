@@ -42,7 +42,7 @@ def validate_person_attributes(world):
             household_ID = None
             neighborhood_ID = None
         else:
-            household_ID = person.get_parent_agent()
+            household_ID = person.get_parent_agent().get_ID()
             neighborhood_ID = person.get_parent_agent().get_parent_agent().get_ID(), 
         person_info ="(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s, stores: %s, alive: %s)"%( \
                 person.get_age_years(), person.get_ethnicity(), 
@@ -58,12 +58,17 @@ def validate_person_attributes(world):
                          "Newar",
                          "TeraiTibeto"]
     maximum_age = 110
+    checked_person_list = []
     for person in world.iter_all_persons():
+        person_info = get_person_info(person)
         if person.get_parent_agent() == None and not person.is_away():
             logger.warning("Person %s is not a member of any household %s"%(
                 person.get_ID(), person_info))
             all_agents_valid = False
-        person_info = get_person_info(person)
+        if person in checked_person_list:
+            logger.warning("Person %s is a member of more than one household"%(
+                person.get_ID(), person_info))
+            all_agents_valid = False
         if person.get_age_months() != np.round(person.get_age_years() * 12):
             logger.warning("Person %s age in months (%.2f) does not match age in years (%.2f) %s"%(
                 person.get_ID(), person.get_age_months(), person.get_age_years(), person_info))
@@ -96,14 +101,18 @@ def validate_household_attributes(world):
     all_agents_valid = True
     for region in world.iter_regions():
         for household in region.iter_households():
-            pass
+            if household.get_agents() == [] and household.get_away_members() == []:
+                logger.warning("Household %s has no members."%household.get_ID())
+                all_agents_valid = False
     return all_agents_valid
 
 def validate_neighborhood_attributes(world):
     logger.debug("Validating neighborhood attributes")
-    for region in world.iter_regions():
-        for neighborhood in region.iter_agents():
-            pass
     # TODO: Complete validation function.
     all_agents_valid = True
+    for region in world.iter_regions():
+        for neighborhood in region.iter_agents():
+            if neighborhood.get_agents() == []:
+                logger.warning("Neighborhood %s has no members."%neighborhood.get_ID())
+                all_agents_valid = False
     return all_agents_valid

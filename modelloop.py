@@ -49,6 +49,13 @@ def main_loop(world, results_path):
     """This function contains the main model loop. Passed to it is a list of 
     regions, which contains the person, household, and neighborhood agents to 
     be used in the model, and the land-use parameters."""
+    if rcParams['run_validation_checks']:
+        if not test.validate_person_attributes(world):
+            logger.critical("Person attributes validation failed")
+        if not test.validate_household_attributes(world):
+            logger.critical("Household attributes validation failed")
+        if not test.validate_neighborhood_attributes(world):
+            logger.critical("Neighborhood attributes validation failed")
 
     time_strings = {}
     # Store the date values (as timestep number (0),  float and date string) 
