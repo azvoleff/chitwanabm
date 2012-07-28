@@ -44,11 +44,11 @@ def validate_person_attributes(world):
         else:
             household_ID = person.get_parent_agent().get_ID()
             neighborhood_ID = person.get_parent_agent().get_parent_agent().get_ID()
-        person_info = "(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s, stores: %s, alive: %s)"%(
+        person_info = "(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s, in %s store(s), alive: %s)"%(
                 person.get_age_years(), person.get_ethnicity(), 
                 person.is_in_migrant(), person.is_initial_agent(), 
                 household_ID, neighborhood_ID,
-                person._store_list, person._alive)
+                len(person._store_list), person._alive)
         return person_info
     logger.debug("Validating person attributes")
     all_agents_valid = True

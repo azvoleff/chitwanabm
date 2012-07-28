@@ -153,7 +153,7 @@ def main_loop(world, results_path):
             new_births = region.births(model_time.get_cur_date_float())
             new_deaths = region.deaths(model_time.get_cur_date_float())
             new_marr = region.marriages(model_time.get_cur_date_float())
-            new_divo = region.divorces(model_time.get_cur_date_float())
+            new_divo = region.divorces(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             new_out_migr, new_return_migr, new_in_migr = region.migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             schooling = region.education(model_time.get_cur_date_float())
 

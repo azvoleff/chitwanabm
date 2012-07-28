@@ -193,6 +193,7 @@ class Person(Agent):
         self._store_list = []
         self._last_migration = {'type':None, 'time':None}
         self._away = False
+        self._return_timestep = None
 
         self._ever_divorced = False
         self._ever_widowed = False
@@ -279,7 +280,7 @@ class Person(Agent):
     def is_in_migrant(self):
         return self._in_migrant
 
-    def make_LD_migration(self, time, region):
+    def make_LD_migration(self, time, timestep, region):
         household = self.get_parent_agent()
         household._lastmigrant_time = time
         household._members_away.append(self)
@@ -288,8 +289,8 @@ class Person(Agent):
         # The add_agent function of the agent_store class also handles removing 
         # the agent from its parent (the household), and adding the agent_store 
         # to the person's store_list
-        self._return_time = time + (months_away/12.)
-        region._agent_stores['person']['LD_migr'].add_agent(self, self._return_time)
+        self._return_timestep = timestep + months_away
+        region._agent_stores['person']['LD_migr'].add_agent(self, self._return_timestep)
         self._last_migration['type'] = 'LD'
         self._last_migration['time'] = time
         self._away = True
@@ -299,7 +300,7 @@ class Person(Agent):
         # by the agent_set class release_agents method. Otherwise the below 
         # line would not work.
         self.get_parent_agent()._members_away.remove(self)
-        self._return_time = None
+        self._return_timestep = None
         self._away = False
 
     def kill(self, time):
@@ -318,11 +319,10 @@ class Person(Agent):
         # agent_store
         if self._store_list != []:
             for store in self._store_list:
-                print "killed migrant agent"
-                print "removed from %s"%store
+                logger.debug("Away out-migrant %s died"%self.get_ID())
                 store.remove_agent(self)
 
-    def make_permanent_outmigration(self, time):
+    def make_permanent_outmigration(self, timestep):
         """
         Permanently removes an agent from a model. Will also work on people who 
         are not currently present in Chitwan Valley, and are resident only in 
@@ -332,11 +332,11 @@ class Person(Agent):
             # People who are away don't need to be removed from a household.
             household = self.get_parent_agent()
             household.remove_agent(self)
+            logger.debug("Person %s permanently out-migrated (while NOT away)"%self.get_ID())
         # Remove agents from their agent store while in an agent_store
         if self._store_list != []:
-            for store in self._store_list():
-                print "outmigrated person agent"
-                print "removed from %s"%store
+            for store in self._store_list:
+                logger.debug("Person %s permanently out-migrated (while away)"%self.get_ID())
                 store.remove_agent(self)
 
     def marry(self, spouse, time):
@@ -364,6 +364,8 @@ class Person(Agent):
         spouse._spouse = None
         self._ever_divorced = True
         spouse._ever_divorced = True
+        self._marriage_time = None
+        spouse._marriage_time = None
 
     def is_eligible_for_birth(self, time):
         """
@@ -822,6 +824,7 @@ class Region(Agent_set):
                         # work.
                         poss_neighborhoods.append(old_household.get_parent_agent()) # this persons old neighborhood
                         old_household.remove_agent(person)
+                        logger.debug("Agent %s removed from old household (for marriage)"%person.get_ID())
                     new_home.add_agent(person)
                 # Assign the new household to the male or females neighborhood.  
                 # Or randomly pick new neighborhood if both members of the 
@@ -859,7 +862,7 @@ class Region(Agent_set):
             marriages[neighborhood.get_ID()] += 1
         return marriages
 
-    def divorces(self, time):
+    def divorces(self, time_float, timestep):
         """
         Runs through the population and marries agents probabilistically 
         based on their age and the probability_marriage for this population
@@ -885,12 +888,16 @@ class Region(Agent_set):
                 # 	neighborhood
                 if person.get_sex() == "female":
                     woman = person
-                else: woman = person.get_spouse()
+                    man = woman.get_spouse()
+                else:
+                    woman = person.get_spouse()
+                    man = person
+                logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
                 person.divorce()
                 if woman.is_away():
                     # Women who are away when they get divorced are made to 
                     # permanently outmigrate.
-                    woman.make_permanent_outmigration()
+                    woman.make_permanent_outmigration(timestep)
                     logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
                 elif woman.get_mother() == None or \
                         woman.get_mother().get_parent_agent() == None:
@@ -915,7 +922,6 @@ class Region(Agent_set):
                 if not divorces.has_key(neighborhood.get_ID()):
                     divorces[neighborhood.get_ID()] = 0
                 divorces[neighborhood.get_ID()] += 1
-                logger.debug("Divorce to agent %s (age %.2f, marriage time %.2f)"%(person.get_ID(), person.get_age_years(), person._marriage_time))
         return divorces
 
     def get_num_marriages(self):
@@ -967,7 +973,7 @@ class Region(Agent_set):
         for household in self.iter_households():
             for person in household.iter_agents():
                 if random_state.rand() < calc_probability_migration(person):
-                    person.make_LD_migration(timestep, self)
+                    person.make_LD_migration(time_float, timestep, self)
                     neighborhood = household.get_parent_agent()
                     if not out_migr.has_key(neighborhood.get_ID()):
                         out_migr[neighborhood.get_ID()] = 0
