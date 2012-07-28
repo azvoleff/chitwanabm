@@ -28,6 +28,7 @@
 require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "V:/Nepal/ChitwanABM_Initialization"
 
 # Define a function to replace NAs with resampling:
 replace_nas <- function(input_vector) {
@@ -41,6 +42,13 @@ replace_nas <- function(input_vector) {
 census <- read.xport(paste(DATA_PATH, "da04538-0004_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 census <- census[census$NEIGHID <= 151,]
+# Convert IDs to new 9 digit format:
+old_respID_census <- sprintf("%07i", census$RESPID)
+census$NEIGHID <- sprintf("%03i", as.numeric(substr(old_respID_census, 1, 3)))
+HHNUM_census <- sprintf("%03i", as.numeric(substr(old_respID_census, 4, 5)))
+census$HHID <- paste(census$NEIGHID, HHNUM_census, sep="")
+SUBJID_census <- sprintf("%03i", as.numeric(substr(old_respID_census, 6, 7)))
+census$RESPID <- paste(census$HHID, SUBJID_census, sep="")
 # 5 people don't know their age, coded as -3 in dataset. Exclude these 
 # individuals.
 census$CENAGE[census$CENAGE==-3] <- NA
@@ -58,6 +66,14 @@ census.processed <- na.omit(census.processed)
 t1indiv <- read.xport(paste(DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
+# Convert IDs to new 9 digit format:
+old_respID_t1indiv <- sprintf("%07i", t1indiv$RESPID)
+t1indiv$NEIGHID <- sprintf("%03i", as.numeric(substr(old_respID_t1indiv, 1, 3)))
+HHNUM_t1indiv <- sprintf("%03i", as.numeric(substr(old_respID_t1indiv, 4, 5)))
+t1indiv$HHID <- paste(t1indiv$NEIGHID, HHNUM_t1indiv, sep="")
+SUBJID_t1indiv <- sprintf("%03i", as.numeric(substr(old_respID_t1indiv, 6, 7)))
+t1indiv$RESPID <- paste(t1indiv$HHID, SUBJID_t1indiv, sep="")
+# Get required columns:
 columns <- grep('^(RESPID|F7)$', names(t1indiv))
 desnumchild <- t1indiv[columns]
 names(desnumchild)[2] <- "desnumchild"
@@ -127,9 +143,15 @@ parents_char <- cbind(RESPID=t1indiv$RESPID, parents_char)
 # women had births in the past year (so they can start out ineligible for 
 # pregnancy).
 lhc <- read.xport(paste(DATA_PATH, "04538_0013_data.xpt", sep="/"))
-# NOTE: lhc contains no NEIGHID column. Respondents in excluded neighborhoods 
-# (greather than 151) will be dropped when the lhc data is merged later on in 
-# the process.
+# NOTE: lhc contains no NEIGHID column before I add one here.
+# Convert IDs to new 9 digit format:
+old_respID_lhc <- sprintf("%07i", lhc$RESPID)
+lhc$NEIGHID <- sprintf("%03i", as.numeric(substr(old_respID_lhc, 1, 3)))
+HHNUM_lhc <- sprintf("%03i", as.numeric(substr(old_respID_lhc, 4, 5)))
+lhc$HHID <- paste(lhc$NEIGHID, HHNUM_lhc, sep="")
+SUBJID_lhc <- sprintf("%03i", as.numeric(substr(old_respID_lhc, 6, 7)))
+lhc$RESPID <- paste(lhc$HHID, SUBJID_lhc, sep="")
+lhc <- lhc[lhc$NEIGHID <= 151,]
 cols.childL2053 <- grep('^C[0-9]*L2053$', names(lhc))
 recent_birth <- lhc[cols.childL2053]
 # Count "born" (coded as 1), "born, died in same year" (coded as 5), and "born, 
@@ -172,6 +194,13 @@ lhc_recode <- data.frame(RESPID=lhc$RESPID, recent_birth, n_children, marr_date,
 hhrel <- read.xport(paste(DATA_PATH, "da04538-0016_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 hhrel <- hhrel[hhrel$NEIGHID <= 151,]
+# Convert IDs to new 9 digit format:
+old_respID_hhrel <- sprintf("%07i", hhrel$RESPID)
+hhrel$NEIGHID <- sprintf("%03i", as.numeric(substr(old_respID_hhrel, 1, 3)))
+HHNUM_hhrel <- sprintf("%03i", as.numeric(substr(old_respID_hhrel, 4, 5)))
+hhrel$HHID <- paste(hhrel$NEIGHID, HHNUM_hhrel, sep="")
+SUBJID_hhrel <- sprintf("%03i", as.numeric(substr(old_respID_hhrel, 6, 7)))
+hhrel$RESPID <- paste(hhrel$HHID, SUBJID_hhrel, sep="")
 hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
 hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
@@ -212,6 +241,11 @@ hhrel.processed[parents_char_cols] <- apply(hhrel.processed[parents_char_cols], 
 hhag <- read.xport(paste(DATA_PATH, "da04538-0002_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 hhag <- hhag[hhag$NEIGHID <= 151,]
+# Convert IDs to new 6 digit format:
+old_hhID_hhag <- sprintf("%05i", hhag$HHID)
+hhag$NEIGHID <- sprintf("%03i", as.numeric(substr(old_hhID_hhag, 1, 3)))
+HHNUM_hhag <- sprintf("%03i", as.numeric(substr(old_hhID_hhag, 4, 5)))
+hhag$HHID <- paste(hhag$NEIGHID, HHNUM_hhag, sep="")
 hhag.processed <- with(hhag, data.frame(HHID, NEIGHID, BAA10A, BAA18A, BAA43, BAA44))
 # Need to handle households where questions BAA10A and BAA18A were 
 # innappropriate (where they did no farming on that type of land).
@@ -230,6 +264,9 @@ hhrel.processed <- hhrel.processed[in_hhag,]
 neigh <- read.xport(paste(DATA_PATH, "da04538-0014_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 neigh <- neigh[neigh$NEIGHID <= 151,]
+# Convert IDs to new 3 digit format:
+old_neighID <- sprintf("%03i", neigh$NEIGHID)
+neigh$NEIGHID <- sprintf("%03i", as.numeric(substr(old_neighID, 1, 3)))
 # Axinn (2007) uses the "average number of years non-family services were 
 # within a 30 minute walk". The data are stored for each service for each year, 
 # using Nepali years. For example, SCHLFT10 for a particular neighborhood 
@@ -278,8 +315,10 @@ neigh.processed <- merge(neigh.processed, ccadult)
 # 	Public buildings - ROAD1, SCHOOL1, TEMPLE1
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
 lu <- read.xport(paste(DATA_PATH, "landuse.xpt", sep="/"))
+# Convert IDs to new 3 digit format:
+old_neighID <- sprintf("%03i", lu$NEIGHID)
+lu$NEIGHID <- sprintf("%03i", as.numeric(substr(old_neighID, 1, 3)))
 # Exclude neighborhoods 152-172
-lu$NEIGHID <- as.ordered(lu$NEIGHID)
 lu <- lu[lu$NEIGHID <= 151,]
 
 land.agveg <- with(lu, rowSums(cbind(BARI1, IKHET1, RKHET1)))
@@ -292,19 +331,18 @@ lu.processed <- data.frame(NEIGHID=lu$NEIGHID, land.agveg, land.nonagveg, land.p
 # Convert land areas expressed in square feet to square meters
 lu.processed[2:6]  <- lu.processed[2:6] * .09290304
 
-# Prior to merging, convert factor levels in lu (the NEIGHID column) to 
-# numeric, then back to factor, so that neighIDs with less than three 
-# characters (like 001) are instead represented as integers (001 -> 1). If this 
-# is not done, neighborhoods will be lost as merge will think neighborhood 001 
-# in dataframe lu has no complement in the neigh dataframe (where it is 
-# represented with a NEIGHID of 1 instead of 001).
-lu.processed$NEIGHID <- factor(as.numeric(lu.processed$NEIGHID))
-
 # Join these rows to the neighborhood data processed earlier.
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 
 # Read in the household registry data to get the ethnicities
 load(paste(DATA_PATH, "hhreg.Rdata", sep="/"))
+# Convert IDs to new 9 digit format:
+old_respID_hhreg <- sprintf("%07i", hhreg$respid)
+NEIGHID_hhreg <- sprintf("%03i", as.numeric(substr(old_respID_hhreg, 1, 3)))
+HHNUM_hhreg <- sprintf("%03i", as.numeric(substr(old_respID_hhreg, 4, 5)))
+SUBJID_hhreg <- sprintf("%03i", as.numeric(substr(old_respID_hhreg, 6, 7)))
+hhreg$respid <- paste(NEIGHID_hhreg, HHNUM_hhreg, SUBJID_hhreg, sep="")
+# Now get the two needed columns:
 columns <- grep('^(respid|ethnic)$', names(hhreg))
 hhreg <- hhreg[columns]
 names(hhreg)[grep('^respid$', names(hhreg))] <- 'RESPID'
