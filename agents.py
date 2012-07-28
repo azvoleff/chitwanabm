@@ -282,24 +282,56 @@ class Person(Agent):
         household._members_away.append(self)
 
         months_away = calc_migration_length(self)
-        print months_away
         # The add_agent function of the agent_store class also handles removing 
         # the agent from its parent (the household), and adding the agent_store 
         # to the person's store_list
-        region._agent_stores['person']['LD_migr'].add_agent(self, time+(months_away/12))
+        self._return_time = time + (months_away/12.)
+        region._agent_stores['person']['LD_migr'].add_agent(self, self._return_time)
         self._last_migration['type'] = 'LD'
         self._last_migration['time'] = time
         self._away = True
+
+    def return_from_LD_migration(self):
+        # This runs AFTER the agent has been released back to their household 
+        # by the agent_set class release_agents method. Otherwise the below 
+        # line would not work.
+        self.get_parent_agent()._members_away.remove(self)
+        self._return_time = None
+        self._away = False
 
     def kill(self, time):
         self._alive = False
         self._deathdate = time
         if self.is_married():
             self.divorce()
-        household = self.get_parent_agent()
-        household.remove_agent(self)
-        # Also remove agents from their agent store if they die while in an 
+        if not self.is_away():
+            # People who are away don't need to be removed from a household.
+            household = self.get_parent_agent()
+            household.remove_agent(self)
+        # Remove agents from their agent store if they die while in an 
         # agent_store
+        if self._store_list != []:
+            for store in self._store_list():
+                print "killed migrant agent"
+                print "removed from %s"%store
+                store.remove_agent(self)
+
+    def make_permanent_outmigration(self, time):
+        """
+        Permanently removes an agent from a model. Will also work on people who 
+        are not currently present in Chitwan Valley, and are resident only in 
+        agent stores.
+        """
+        if not self.is_away():
+            # People who are away don't need to be removed from a household.
+            household = self.get_parent_agent()
+            household.remove_agent(self)
+        # Remove agents from their agent store while in an agent_store
+        if self._store_list != []:
+            for store in self._store_list():
+                print "outmigrated person agent"
+                print "removed from %s"%store
+                store.remove_agent(self)
 
     def marry(self, spouse, time):
         "Marries this agent to another Person instance."
@@ -432,6 +464,11 @@ class Household(Agent_set):
     def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
         return self._any_non_wood_fuel
+
+
+    def get_away_members(self):
+        "Returns any household members that area away (migrants)."
+        return self._members_away
     
     def get_hh_head(self):
         max_age = None
@@ -677,16 +714,16 @@ class Region(Agent_set):
         deaths = {}
         for person in self.iter_all_persons():
             if random_state.rand() < calc_probability_death(person):
-                # Agent dies.
-                neighborhood = person.get_parent_agent().get_parent_agent()
-                person.kill(time)
                 if not person.is_away():
                     # People who are away don't have household parent agents, 
                     # and their deaths shouldn't be tracked as coming from a 
-                    # Chitwan neighborhood.
+                    # Chitwan neighborhood. So the below is only performed for 
+                    # those who are NOT away.
+                    neighborhood = person.get_parent_agent().get_parent_agent()
                     if not deaths.has_key(neighborhood.get_ID()):
                         deaths[neighborhood.get_ID()] = 0
                     deaths[neighborhood.get_ID()] += 1
+                person.kill(time)
         return deaths
                         
     def marriages(self, time):
@@ -842,12 +879,20 @@ class Region(Agent_set):
                     woman = person
                 else: woman = person.get_spouse()
                 person.divorce()
-                woman.get_parent_agent().remove_agent(woman)
-                if woman.get_mother() == None or \
+                if woman.is_away():
+                    # Women who are away when they get divorced are made to 
+                    # permanently outmigrate.
+                    woman.make_permanent_outmigration()
+                    logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
+                elif woman.get_mother() == None or \
                         woman.get_mother().get_parent_agent() == None:
-                    # First make a new home for the woman
+                    # Women whose mothers are not in the model (initial agents) 
+                    # or whose mother's households are no longer in the model 
+                    # (due to outmigration, death, etc.) will establish a new 
+                    # home.
                     new_home = self._world.new_household()
                     new_home.add_agent(woman)
+                    household.remove_agent(woman)
                     # Now find a neighborhood for the new home
                     poss_neighborhoods = self.get_agents()
                     new_neighborhood = poss_neighborhoods[np.random.randint( \
@@ -858,6 +903,7 @@ class Region(Agent_set):
                     # to that home.
                     new_home = woman.get_mother().get_parent_agent()
                     new_home.add_agent(woman)
+                    household.remove_agent(woman)
                 if not divorces.has_key(neighborhood.get_ID()):
                     divorces[neighborhood.get_ID()] = 0
                 divorces[neighborhood.get_ID()] += 1
@@ -921,7 +967,10 @@ class Region(Agent_set):
 
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially outmigrated)
-        return_migr = self._agent_stores['person']['LD_migr'].release_agents(time)
+        return_migr_count, released_persons = self._agent_stores['person']['LD_migr'].release_agents(time)
+        for person in released_persons:
+            # Last housekeeping to return agent to model.
+            person.return_from_LD_migration()
 
         # Now handle inmigrations:
         new_in_migr = {}
@@ -932,7 +981,7 @@ class Region(Agent_set):
         timestep = rcParams['inmigrant.prob.hh_size']
         timestep = rcParams['inmigrant.prob.hh_head_age']
         
-        return out_migr, return_migr, new_in_migr
+        return out_migr, return_migr_count, new_in_migr
 
     def increment_age(self):
         """
