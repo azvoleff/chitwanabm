@@ -522,10 +522,10 @@ class Household(Agent_set):
         Agent_set.remove_agent(self, person)
         if self.num_members() == 0 and self.get_away_members() == []:
             logger.debug("Household %s left empty - household removed from model"%self.get_ID())
-            #neighborhood = self.get_parent_agent()
-            #neighborhood._land_agveg += self._hh_area
-            #neighborhood._land_privbldg -= self._hh_area
-            #neighborhood.remove_agent(self)
+            neighborhood = self.get_parent_agent()
+            neighborhood._land_agveg += self._hh_area
+            neighborhood._land_privbldg -= self._hh_area
+            neighborhood.remove_agent(self)
 
     def __str__(self):
         return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())
