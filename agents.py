@@ -191,6 +191,8 @@ class Person(Agent):
         # _store_list tracks any agent_store instances this person is a member 
         # of (for LL or LD migration for example).
         self._store_list = []
+        self._last_migration = {'type':None, 'time':None}
+        self._away = False
 
     def get_mother(self):
         return self._mother
@@ -221,6 +223,9 @@ class Person(Agent):
 
     def get_work(self):
         return self._work
+
+    def is_away(self):
+        return self._away
 
     def get_mother_years_schooling(self):
         if self.is_initial_agent() or self.is_in_migrant():
@@ -271,6 +276,21 @@ class Person(Agent):
     def is_in_migrant(self):
         return self._in_migrant
 
+    def make_LD_migration(self, time, region):
+        household = self.get_parent_agent()
+        household._lastmigrant_time = time
+        household._members_away.append(self)
+
+        months_away = calc_migration_length(self)
+        print months_away
+        # The add_agent function of the agent_store class also handles removing 
+        # the agent from its parent (the household), and adding the agent_store 
+        # to the person's store_list
+        region._agent_stores['person']['LD_migr'].add_agent(self, time+(months_away/12))
+        self._last_migration['type'] = 'LD'
+        self._last_migration['time'] = time
+        self._away = True
+
     def kill(self, time):
         self._alive = False
         self._deathdate = time
@@ -278,6 +298,8 @@ class Person(Agent):
             self.divorce()
         household = self.get_parent_agent()
         household.remove_agent(self)
+        # Also remove agents from their agent store if they die while in an 
+        # agent_store
 
     def marry(self, spouse, time):
         "Marries this agent to another Person instance."
@@ -402,6 +424,9 @@ class Household(Agent_set):
         self._own_land = boolean_choice(.61) # From Axinn, Ghimire (2007)
         self._rented_out_land = boolean_choice(.11) # From Axinn, Ghimire (2007)
         self._lastmigrant_time = None
+        # The _members_away list tracks household members that area away 
+        # (returning migrants).
+        self._members_away = []
         self._hh_area = 0 # Area of house plot in square meters
 
     def any_non_wood_fuel(self):
@@ -644,16 +669,21 @@ class Region(Agent_set):
         return births
                         
     def deaths(self, time):
-        """Runs through the population and kills agents probabilistically based 
-        on their age and sex and the probability.death for this population"""
+        """
+        Runs through the population and kills agents probabilistically based on 
+        their age and sex and the probability.death for this population.
+        """
         logger.debug("Processing deaths")
         deaths = {}
-        for household in self.iter_households():
-            for person in household.iter_agents():
-                if random_state.rand() < calc_probability_death(person):
-                    # Agent dies.
-                    person.kill(time)
-                    neighborhood = household.get_parent_agent()
+        for person in self.iter_all_persons():
+            if random_state.rand() < calc_probability_death(person):
+                # Agent dies.
+                neighborhood = person.get_parent_agent().get_parent_agent()
+                person.kill(time)
+                if not person.is_away():
+                    # People who are away don't have household parent agents, 
+                    # and their deaths shouldn't be tracked as coming from a 
+                    # Chitwan neighborhood.
                     if not deaths.has_key(neighborhood.get_ID()):
                         deaths[neighborhood.get_ID()] = 0
                     deaths[neighborhood.get_ID()] += 1
@@ -883,14 +913,7 @@ class Region(Agent_set):
         for household in self.iter_households():
             for person in household.iter_agents():
                 if random_state.rand() < calc_probability_migration(person):
-                    household._lastmigrant_time = time
-                    # Agent migrates. Choose how long the agent is migrating 
-                    # for from a probability distribution.
-                    months_away = calc_migration_length(person)
-                    # The add_agent function of the agent_store class also 
-                    # handles removing the agent from its parent (the 
-                    # household).
-                    self._agent_stores['person']['LD_migr'].add_agent(person, time+(months_away/12))
+                    person.make_LD_migration(time, self)
                     neighborhood = household.get_parent_agent()
                     if not out_migr.has_key(neighborhood.get_ID()):
                         out_migr[neighborhood.get_ID()] = 0
@@ -1091,9 +1114,18 @@ class World():
             yield region
 
     def iter_persons(self):
-        "Convenience function used for things like incrementing agent ages."
+        "Convenience function used for things like migrations and births."
         for region in self.iter_regions():
             for person in region.iter_persons():
+                yield person
+
+    def iter_all_persons(self):
+        """
+        Convenience function used for processes that apply to ALL agents, even 
+        those in agent_stores (things like incrementing agent ages).
+        """
+        for region in self.iter_regions():
+            for person in region.iter_all_persons():
                 yield person
 
     def write_persons_to_csv(self, timestep, results_path):

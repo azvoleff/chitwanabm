@@ -38,11 +38,16 @@ import numpy as np
 
 def validate_person_attributes(world):
     def get_person_info(person):
+        if person.is_away():
+            household_ID = None
+            neighborhood_ID = None
+        else:
+            household_ID = person.get_parent_agent()
+            neighborhood_ID = person.get_parent_agent().get_parent_agent().get_ID(), 
         person_info ="(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s, stores: %s, alive: %s)"%( \
                 person.get_age_years(), person.get_ethnicity(), 
                 person.is_in_migrant(), person.is_initial_agent(), 
-                person.get_parent_agent().get_ID(),
-                person.get_parent_agent().get_parent_agent().get_ID(), 
+                household_ID, neighborhood_ID,
                 person._store_list, person._alive)
         return person_info
     logger.debug("Validating person attributes")
@@ -53,9 +58,9 @@ def validate_person_attributes(world):
                          "Newar",
                          "TeraiTibeto"]
     maximum_age = 110
-    for person in world.iter_persons():
-        if person.get_parent_agent() == None:
-            logger.warning("Person %s %s is not a member of any household"%(
+    for person in world.iter_all_persons():
+        if person.get_parent_agent() == None and not person.is_away():
+            logger.warning("Person %s is not a member of any household %s"%(
                 person.get_ID(), person_info))
             all_agents_valid = False
         person_info = get_person_info(person)
