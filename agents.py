@@ -194,6 +194,9 @@ class Person(Agent):
         self._last_migration = {'type':None, 'time':None}
         self._away = False
 
+        self._ever_divorced = False
+        self._ever_widowed = False
+
     def get_mother(self):
         return self._mother
 
@@ -303,7 +306,10 @@ class Person(Agent):
         self._alive = False
         self._deathdate = time
         if self.is_married():
-            self.divorce()
+            spouse = self.get_spouse()
+            self._spouse = None
+            spouse._spouse = None
+            spouse._ever_widowed = True
         if not self.is_away():
             # People who are away don't need to be removed from a household.
             household = self.get_parent_agent()
@@ -311,7 +317,7 @@ class Person(Agent):
         # Remove agents from their agent store if they die while in an 
         # agent_store
         if self._store_list != []:
-            for store in self._store_list():
+            for store in self._store_list:
                 print "killed migrant agent"
                 print "removed from %s"%store
                 store.remove_agent(self)
@@ -343,10 +349,10 @@ class Person(Agent):
         spouse._spouse = self
         # Also assign first birth timing and desired number of children to the 
         # female (if not already defined, which it will be for initial agents).
-        if self.get_sex()=="female":
-            female=self
+        if self.get_sex() == "female":
+            female = self
         else:
-            female=spouse
+            female = spouse
             female._des_num_children = calc_des_num_children(self)
         self._marriage_time = time
         spouse._marriage_time = time
@@ -354,8 +360,10 @@ class Person(Agent):
     def divorce(self):
         assert self.get_spouse() != None, "Person %s cannot divorce as they are not married"%(person.get_ID())
         spouse = self._spouse
-        spouse._spouse = None
         self._spouse = None
+        spouse._spouse = None
+        self._ever_divorced = True
+        spouse._ever_divorced = True
 
     def is_eligible_for_birth(self, time):
         """
@@ -510,12 +518,12 @@ class Household(Agent_set):
         for agent removal from a household Agent_set.
         """
         Agent_set.remove_agent(self, person)
-        if self.num_members() == 0:
+        if self.num_members() == 0 and self.get_away_members() == []:
             logger.debug("Household %s left empty - household removed from model"%self.get_ID())
-        #    neighborhood = self.get_parent_agent()
-        #    neighborhood._land_agveg += self._hh_area
-        #    neighborhood._land_privbldg -= self._hh_area
-        #    neighborhood.remove_agent(neighborhood)
+            #neighborhood = self.get_parent_agent()
+            #neighborhood._land_agveg += self._hh_area
+            #neighborhood._land_privbldg -= self._hh_area
+            #neighborhood.remove_agent(self)
 
     def __str__(self):
         return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())
@@ -890,9 +898,9 @@ class Region(Agent_set):
                     # or whose mother's households are no longer in the model 
                     # (due to outmigration, death, etc.) will establish a new 
                     # home.
+                    household.remove_agent(woman)
                     new_home = self._world.new_household()
                     new_home.add_agent(woman)
-                    household.remove_agent(woman)
                     # Now find a neighborhood for the new home
                     poss_neighborhoods = self.get_agents()
                     new_neighborhood = poss_neighborhoods[np.random.randint( \
@@ -901,9 +909,9 @@ class Region(Agent_set):
                 else:
                     # If the woman's mother's home still exists, move the woman 
                     # to that home.
+                    household.remove_agent(woman)
                     new_home = woman.get_mother().get_parent_agent()
                     new_home.add_agent(woman)
-                    household.remove_agent(woman)
                 if not divorces.has_key(neighborhood.get_ID()):
                     divorces[neighborhood.get_ID()] = 0
                 divorces[neighborhood.get_ID()] += 1

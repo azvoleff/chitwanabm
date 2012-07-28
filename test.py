@@ -43,8 +43,8 @@ def validate_person_attributes(world):
             neighborhood_ID = None
         else:
             household_ID = person.get_parent_agent().get_ID()
-            neighborhood_ID = person.get_parent_agent().get_parent_agent().get_ID(), 
-        person_info ="(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s, stores: %s, alive: %s)"%( \
+            neighborhood_ID = person.get_parent_agent().get_parent_agent().get_ID()
+        person_info = "(age: %.2f, ethnicity: %s, in-mig: %s, initial: %s, HH: %s, NBH: %s, stores: %s, alive: %s)"%(
                 person.get_age_years(), person.get_ethnicity(), 
                 person.is_in_migrant(), person.is_initial_agent(), 
                 household_ID, neighborhood_ID,
@@ -92,6 +92,11 @@ def validate_person_attributes(world):
             spouse_info = get_person_info(person.get_spouse())
             logger.warning("Spouse of person %s (spouse ID %s) is dead. Person: %s, Spouse: %s"%(
                 person.get_ID(), person.get_spouse().get_ID(), person_info, spouse_info))
+            all_agents_valid = False
+        if person.get_spouse() != None and person._marriage_time <= 1940:
+            spouse_info = get_person_info(person.get_spouse())
+            logger.warning("Person %s (spouse ID %s) was married in %.2f. Person: %s, Spouse: %s"%(
+                person.get_ID(), person.get_spouse().get_ID(), person._marriage_time,  person_info, spouse_info))
             all_agents_valid = False
     return all_agents_valid
 
