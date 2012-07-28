@@ -956,7 +956,7 @@ class Region(Agent_set):
             #schooling[neighborhood.get_ID()] += 1
         return schooling
 
-    def migrations(self, time):
+    def migrations(self, time_float, timestep):
         """
         Runs through the population and makes agents probabilistically migrate
         based on their age and the probability_marriage for this population.
@@ -967,7 +967,7 @@ class Region(Agent_set):
         for household in self.iter_households():
             for person in household.iter_agents():
                 if random_state.rand() < calc_probability_migration(person):
-                    person.make_LD_migration(time, self)
+                    person.make_LD_migration(timestep, self)
                     neighborhood = household.get_parent_agent()
                     if not out_migr.has_key(neighborhood.get_ID()):
                         out_migr[neighborhood.get_ID()] = 0
@@ -975,7 +975,7 @@ class Region(Agent_set):
 
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially outmigrated)
-        return_migr_count, released_persons = self._agent_stores['person']['LD_migr'].release_agents(time)
+        return_migr_count, released_persons = self._agent_stores['person']['LD_migr'].release_agents(timestep)
         for person in released_persons:
             # Last housekeeping to return agent to model.
             person.return_from_LD_migration()
@@ -985,9 +985,9 @@ class Region(Agent_set):
         num_in_migr_households = calc_num_inmigrant_households()
         logger.debug("%s in-migrant households"%num_in_migr_households)
 
-        timestep = rcParams['inmigrant.prob.ethnicity']
-        timestep = rcParams['inmigrant.prob.hh_size']
-        timestep = rcParams['inmigrant.prob.hh_head_age']
+        #a = rcParams['inmigrant.prob.ethnicity']
+        #b = rcParams['inmigrant.prob.hh_size']
+        #c = rcParams['inmigrant.prob.hh_head_age']
         
         return out_migr, return_migr_count, new_in_migr
 
