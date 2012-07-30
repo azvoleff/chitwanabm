@@ -186,7 +186,7 @@ def main_loop(world, results_path):
         # is running.
         num_persons = region.num_persons()
         num_households = region.num_households()
-        stats_string = "Stats for %s: P: %5s | TMa: %5s | HH: %5s | Ma: %3s | Dv: %3s | B: %3s | D: %3s | OutMi: %3s | RetMi: %3s | InMi: %3s"%(
+        stats_string = "%s: P: %5s | TMa: %5s | HH: %5s | Ma: %3s | Dv: %3s | B: %3s | D: %3s | OutMi: %3s | RetMi: %3s | InMi: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, 
                 region.get_num_marriages(), num_households,
                 num_new_marr, num_new_divo, num_new_births, num_new_deaths, 
