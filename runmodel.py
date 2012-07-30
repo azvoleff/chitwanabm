@@ -126,6 +126,26 @@ def main(argv=None):
         logger.critical("Could not create results directory %s"%results_path)
         return 1
     
+    # Setup a special logger to log demographic events while the model is 
+    # running (births, migrations, deaths, marriages, etc.)
+    agent_event_log_file_path = os.path.join(results_path, "person_events.log")
+    agent_event_log_file = open(agent_event_log_file_path, mode='w')
+    agent_event_log_file.write('time,event,PID,age,ethnic,marrtime,schooling,NID,agveg,nonagveg,privbldg,pubbldg,other,elec,school_min_ft,health_min_ft,bus_min_ft,market_min_ft,employer_min_ft\n')
+    agent_event_log_file.close()
+    agent_event_fh = logging.FileHandler(os.path.join(results_path, "person_events.log"), mode='a')
+    agent_event_fh.setLevel(logging.INFO)
+    agent_event_fh.setFormatter(logging.Formatter('%(modeltime)s,"%(message)s",%(personinfo)s,%(nbhinfo)s'))
+
+    # Setup a filter so the agent event log will contain only agent events.
+    class PassEventFilter(logging.Filter):
+        def filter(self, record):
+            logger_name = getattr(record, 'name', None)
+            return 'agent_events' in logger_name
+    agent_event_fh.addFilter(PassEventFilter())
+
+    agent_event_logger = logging.getLogger('agent_events')
+    agent_event_logger.addHandler(agent_event_fh)
+
     # Now that we know the rcParams and log file path, write the temp_log 
     # stream to the log file in the proper output directory, and direct all 
     # further logging to append to that file.
@@ -139,6 +159,13 @@ def main(argv=None):
     new_fh.setLevel(fh_level)
     new_fh.setFormatter(log_file_formatter)
     root_logger.addHandler(new_fh)
+    # Dont' log agent event records to the main or console loggers
+    class DontPassEventFilter(logging.Filter):
+        def filter(self, record):
+            logger_name = getattr(record, 'name', None)
+            return 'agent_events' not in logger_name
+    for handler in root_logger.handlers:
+        handler.addFilter(DontPassEventFilter())
 
     if args.tail:
         subprocess.Popen([rcParams['path.tail_binary'], log_file_path], cwd=results_path)

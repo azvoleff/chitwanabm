@@ -2,8 +2,8 @@
 #
 # This file is part of the ChitwanABM agent-based model.
 # 
-# ChitwanABM is free software: you can redistribute it and/or modify it under the
-# terms of the GNU General Public License as published by the Free Software
+# ChitwanABM is free software: you can redistribute it and/or modify it under 
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
 # 
@@ -45,6 +45,18 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_num_inmigrant_households, calc_probability_divorce
 
 logger = logging.getLogger(__name__)
+agent_event_logger = logging.getLogger('agent_events')
+
+def log_event_record(message, person, modeltime, **kwargs):
+    if person.is_away():
+        extra = {'modeltime' : modeltime,
+                 'personinfo' : person.get_info(),
+                 'nbhinfo' : 'NA,' * 11 + 'NA'}
+    else:
+        extra = {'modeltime' : modeltime,
+                 'personinfo' : person.get_info(),
+                 'nbhinfo' : person.get_parent_agent().get_parent_agent().get_info()}
+    agent_event_logger.info(message, extra=extra, **kwargs)
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -198,6 +210,12 @@ class Person(Agent):
         self._ever_divorced = False
         self._ever_widowed = False
 
+    def get_info(self):
+        "Returns basic info about this person for use in logging."
+        return ",".join([str(self.get_ID()), str(self.get_age_years()), 
+                         str(self.get_ethnicity()), str(self._marriage_time), 
+                         str(self._schooling)])
+
     def get_mother(self):
         return self._mother
 
@@ -281,6 +299,7 @@ class Person(Agent):
         return self._in_migrant
 
     def make_LD_migration(self, time, timestep, region):
+        log_event_record("LD_migration", self, time)
         household = self.get_parent_agent()
         household._lastmigrant_time = time
         household._members_away.append(self)
@@ -304,6 +323,7 @@ class Person(Agent):
         self._away = False
 
     def kill(self, time):
+        log_event_record("Death", self, time)
         self._alive = False
         self._deathdate = time
         if self.is_married():
@@ -407,6 +427,7 @@ class Person(Agent):
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
             if first_birth_flag == True:
                 logger.debug("First birth to agent %s (age %.2f, marriage time %.2f)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
+                log_event_record("First birth", self, time)
                 return True
             else: return False
         else:
@@ -446,6 +467,7 @@ class Person(Agent):
             parent._children.append(baby)
             parent._number_of_children += 1
         logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %.2f)'%(self.get_ID(), self.get_age_years(), self._number_of_children, self._des_num_children, self._birth_interval))
+        log_event_record("Birth", self, time)
         return baby
 
     def is_married(self):
@@ -535,7 +557,6 @@ class Neighborhood(Agent_set):
     "Represents a single neighborhood agent"
     def __init__(self, world, ID=None, initial_agent=False):
         Agent_set.__init__(self, world, ID, initial_agent)
-        self._avg_years_nonfamily_services = None
         self._elec_available = None
         self._land_agveg = None
         self._land_nonagveg = None
@@ -553,6 +574,15 @@ class Neighborhood(Agent_set):
         self._bus_min_ft = None
         self._market_min_ft = None
         self._employer_min_ft = None
+
+    def get_info(self):
+        "Returns basic info about this neighborhood for use in logging."
+        return ",".join([str(self.get_ID()), str(self._land_agveg), 
+                         str(self._land_nonagveg), str(self._land_privbldg), 
+                         str(self._land_pubbldg), str(self._land_other), 
+                         str(self._elec_available), str(self._school_min_ft), 
+                         str(self._health_min_ft), str(self._bus_min_ft), 
+                         str(self._market_min_ft), str(self._employer_min_ft)])
 
     def add_agent(self, agent, initializing=False):
         """
@@ -583,10 +613,6 @@ class Neighborhood(Agent_set):
 
     def is_initial_agent(self):
         return self._initial_agent
-
-    def avg_years_nonfamily_services(self):
-        "Average number of years non-family services have been available."
-        return self._avg_years_nonfamily_services
 
     def elec_available(self):
         "Boolean for whether neighborhood has electricity."
@@ -866,6 +892,8 @@ class Region(Agent_set):
             if not marriages.has_key(neighborhood.get_ID()):
                 marriages[neighborhood.get_ID()] = 0
             marriages[neighborhood.get_ID()] += 1
+            log_event_record("Marriage", male, time)
+            log_event_record("Marriage", female, time)
         return marriages
 
     def divorces(self, time_float, timestep):
@@ -899,6 +927,8 @@ class Region(Agent_set):
                     woman = person.get_spouse()
                     man = person
                 logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
+                log_event_record("Divorce", man, time)
+                log_event_record("Divorce", woman, time)
                 person.divorce()
                 if woman.is_away():
                     # Women who are away when they get divorced are made to 
