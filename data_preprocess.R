@@ -28,6 +28,12 @@
 require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[2]
+
+if (is.na(DATA_PATH)) stop("Data path must be supplied")
+
+if (is.na(RANDOM_SEED)) stop("Random seed must be supplied")
+set.seed(RANDOM_SEED)
 
 # Define a function to replace NAs with resampling:
 replace_nas <- function(input_vector) {

@@ -516,7 +516,8 @@ def generate_world():
         logger.info("Calling R to preprocess CVFS data")
         raw_data_path = rcParams['path.raw_input_data']
         Rscript_binary = rcParams['path.Rscript_binary']
-        check_call([Rscript_binary, "data_preprocess.R", raw_data_path])
+        check_call([Rscript_binary, "data_preprocess.R", raw_data_path, 
+            str(rcParams['RandomState'])])
     except CalledProcessError:
         logger.exception("Problem while running data_preprocess.R R script")
         return 1
