@@ -28,7 +28,6 @@
 require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "V:/Nepal/ChitwanABM_Initialization"
 
 # Define a function to replace NAs with resampling:
 replace_nas <- function(input_vector) {
