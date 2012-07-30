@@ -78,27 +78,25 @@ HHNUM_t1indiv <- sprintf("%03i", as.numeric(substr(old_respID_t1indiv, 4, 5)))
 t1indiv$HHID <- paste(t1indiv$NEIGHID, HHNUM_t1indiv, sep="")
 SUBJID_t1indiv <- sprintf("%03i", as.numeric(substr(old_respID_t1indiv, 6, 7)))
 t1indiv$RESPID <- paste(t1indiv$HHID, SUBJID_t1indiv, sep="")
-# Get required columns:
-columns <- grep('^(RESPID|F7)$', names(t1indiv))
-desnumchild <- t1indiv[columns]
-names(desnumchild)[2] <- "desnumchild"
+
+desnumchild <- t1indiv[grep('^(RESPID|F7)$', names(t1indiv))]
+names(desnumchild)[names(desnumchild) == "F7"] <- "desnumchild"
 # People who said "it is god's will" were coded as 97, and reasked the 
 # question, in F9.
 godswill <- which(desnumchild$desnumchild==97)
-desnumchild[godswill,]$desnumchild <- desnumchild$F9[godswill]
+desnumchild[godswill,]$desnumchild <- t1indiv$F9[godswill]
+# Some still didn't give an answer - recode this person as NA
+godswill <- which(desnumchild$desnumchild==97)
+desnumchild[godswill,]$desnumchild <- NA
 # 2 people said a range from low to high. Here, take an average of the low and 
 # high number, stored in F7A and F7B.
 # TODO: Fix this:
 child_range <- which(desnumchild$desnumchild==95)
-desnumchild[child_range,]$desnumchild <- desnumchild$F7B[child_range]
+desnumchild[child_range,]$desnumchild <- t1indiv$F7B[child_range]
 #desnumchild[child_range,]$desnumchild <- desnumchild$F7A[child_range] / desnumchild$F7B[child_range]
 # 28 people said they don't know. This is coded as -3 in the CVFS data. Recode 
 # this as NA so it will get replaced when it is resampled.
 desnumchild$desnumchild[desnumchild$desnumchild==-3] <- NA
-# TODO: Also there are 22 individuals with # kids wanted in the thousands...  
-# ask Dirgha what these are
-desnumchild$desnumchild[desnumchild$desnumchild > 1000] <- NA
-desnumchild$desnumchild[desnumchild$desnumchild < 0] <- NA
 
 # Now get years schooling data
 schooling_col <- grep('^A1$', names(t1indiv))
