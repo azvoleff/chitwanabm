@@ -24,9 +24,10 @@
 # Plots the LULC data from a model run.
 ###############################################################################
 
-require(ggplot2, quietly=TRUE)
-require(gstat)
-require(rgdal)
+library(ggplot2, quietly=TRUE)
+library(gstat)
+library(rgdal)
+library(reshape)
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
@@ -36,11 +37,8 @@ source("calc_NBH_stats.R")
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
 lulc.sd.mean <- calc_agg_LULC(DATA_PATH)
-# Stack lulc.mean so it can easily be used with ggplot2 faceting
-time.Robj <- lulc.sd.mean$time.Robj
-lulc.sd.mean <- stack(lulc.sd.mean)
-lulc.sd.mean <- cbind(time.Robj=rep(time.Robj,5), lulc.sd.mean)
-names(lulc.sd.mean)[2:3] <- c("area", "LULC_type")
+lulc.sd.mean <- melt(lulc.sd.mean, id.vars="time.Robj")
+names(lulc.sd.mean)[2:3] <- c("LULC_type", "area")
 
 # Now actually make the plots
 theme_update(theme_grey(base_size=18))

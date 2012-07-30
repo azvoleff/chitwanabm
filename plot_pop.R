@@ -25,9 +25,9 @@
 # migration, total population, etc.).
 ###############################################################################
 
-require(reshape)
-require(ggplot2, quietly=TRUE)
-require(scales, quietly=TRUE) # Used for formatting time on the x axis
+library(reshape)
+library(ggplot2, quietly=TRUE)
+library(scales, quietly=TRUE) # Used for formatting time on the x axis
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53

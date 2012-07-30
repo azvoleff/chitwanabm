@@ -23,7 +23,8 @@
 # from a single model run, or from an ensemble of model runs.
 ###############################################################################
 
-require(ggplot2, quietly=TRUE)
+library(ggplot2, quietly=TRUE)
+library(reshape)
 
 calc_NBH_LULC <- function(DATA_PATH, timestep) {
     # Make plots of LULC for a model run.
@@ -134,19 +135,17 @@ make_shaded_error_plot <- function(ens_res, ylabel, typelabel) {
     time.Robj <- ens_res$time.Robj
 
     # Stack the data to use in ggplot2
-    mean.cols <- grep(".mean$", names(ens_res))
+    mean.cols <- grep("(^time.Robj$)|(.mean$)", names(ens_res))
     sd.cols <- grep(".sd$", names(ens_res))
-    ens_res.mean <- stack(data.frame(ens_res$time.Robj, ens_res[mean.cols]))
-    # Need the *2 below because each var has two cols, one for sd and one for 
-    # mean
-    ens_res.mean <- cbind(time.Robj=rep(time.Robj,num_vars*2), ens_res.mean)
-    names(ens_res.mean)[2:3] <- c("mean", "Type")
+    ens_res.mean <- melt(ens_res[mean.cols], id.vars="time.Robj")
+    names(ens_res.mean)[2:3] <- c("Type", "mean")
     # Remove the ".mean" appended to the Type values (agveg.mean, 
     # nonagveg.mean, etc) so that it does not appear in the plot legend.
     ens_res.mean$Type <- gsub(".mean", "", ens_res.mean$Type)
-    ens_res.sd <- stack(data.frame(ens_res$time.Robj, ens_res[sd.cols]))
-    ens_res.sd <- cbind(time.Robj=rep(time.Robj,num_vars*2), ens_res.sd)
-    names(ens_res.sd)[2:3] <- c("sd", "Type")
+
+    sd.cols <- grep("(^time.Robj$)|(.sd$)", names(ens_res))
+    ens_res.sd <- melt(ens_res[sd.cols], id.vars="time.Robj")
+    names(ens_res.sd)[2:3] <- c("Type", "sd")
 
     # Add lower and upper limits of ribbon to ens_res.sd dataframe
     ens_res.sd <- cbind(ens_res.sd, lim.up=ens_res.mean$mean + 2*ens_res.sd$sd)

@@ -24,9 +24,9 @@
 # Plots the LULC data from a model runp.
 ###############################################################################
 
-require(ggplot2, quietly=TRUE)
-require(gstat)
-require(rgdal)
+library(ggplot2, quietly=TRUE)
+library(gstat)
+library(rgdal)
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
