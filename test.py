@@ -57,7 +57,7 @@ def validate_person_attributes(world):
                          "LowHindu",
                          "Newar",
                          "TeraiTibeto"]
-    maximum_age = 110
+    maximum_age = 115
     checked_person_list = []
     spouse_count_dict = {}
     for person in world.iter_all_persons():
@@ -82,7 +82,7 @@ def validate_person_attributes(world):
             all_agents_valid = False
         if person.get_age_years() > maximum_age:
             logger.warning("Person %s is older than the maximum allowed age (%s) %s"%(
-                person.get_ID(), maximum_age, person.get_age_years(), person_info))
+                person.get_ID(), maximum_age, person_info))
             all_agents_valid = False
         if person.get_ethnicity() not in valid_ethnicities:
             logger.warning("Person %s is not a valid ethnicity %s"%(person.get_ID(), person_info))
