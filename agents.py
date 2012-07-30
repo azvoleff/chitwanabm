@@ -314,6 +314,7 @@ class Person(Agent):
         if not self.is_away():
             # People who are away don't need to be removed from a household.
             household = self.get_parent_agent()
+            logger.debug("Agent %s removed from household after death"%self.get_ID())
             household.remove_agent(self)
         # Remove agents from their agent store if they die while in an 
         # agent_store
@@ -853,7 +854,9 @@ class Region(Agent_set):
                 old_household = female.get_parent_agent() # this person's old household
                 # old_household will equal none for in-migrants, as they are 
                 # not tracked in the model until after this timestep.
-                if old_household != None: old_household.remove_agent(female)
+                if old_household != None:
+                    old_household.remove_agent(female)
+                    logger.debug("Agent %s removed from old household (for marriage)"%female.get_ID())
                 male_household = male.get_parent_agent()
                 male_household.add_agent(female)
                 neighborhood = male.get_parent_agent().get_parent_agent()
@@ -906,6 +909,7 @@ class Region(Agent_set):
                     # (due to outmigration, death, etc.) will establish a new 
                     # home.
                     household.remove_agent(woman)
+                    logger.debug("Woman %s removed from old household to establish new household after divorce"%woman.get_ID())
                     new_home = self._world.new_household()
                     new_home.add_agent(woman)
                     # Now find a neighborhood for the new home
@@ -917,6 +921,7 @@ class Region(Agent_set):
                     # If the woman's mother's home still exists, move the woman 
                     # to that home.
                     household.remove_agent(woman)
+                    logger.debug("Woman %s removed from old household to move into mother's household after divorce"%woman.get_ID())
                     new_home = woman.get_mother().get_parent_agent()
                     new_home.add_agent(woman)
                 if not divorces.has_key(neighborhood.get_ID()):
