@@ -127,4 +127,10 @@ def validate_neighborhood_attributes(world):
             if neighborhood.get_agents() == []:
                 logger.warning("Neighborhood %s has no members."%neighborhood.get_ID())
                 all_agents_valid = False
+            if neighborhood._land_agveg < 0 or neighborhood._land_nonagveg < 0 or neighborhood._land_privbldg < 0 or neighborhood._land_pubbldg < 0 or neighborhood._land_other < 0:
+                logger.warning("Neighborhood %s has a land use class with < 0 area: %.2f, %.2f, %.2f, %.2f, %.2f"%(
+                    neighborhood.get_ID(), neighborhood._land_agveg,
+                    neighborhood._land_nonagveg, neighborhood._land_privbldg, 
+                    neighborhood._land_pubbldg, neighborhood._land_other))
+                all_agents_valid = False
     return all_agents_valid
