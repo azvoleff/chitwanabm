@@ -105,6 +105,9 @@ def validate_person_attributes(world):
             logger.warning("Person %s (spouse ID %s) was married in %.2f. Person: %s, Spouse: %s"%(
                 person.get_ID(), person.get_spouse().get_ID(), person._marriage_time,  person_info, spouse_info))
             all_agents_valid = False
+        if person._des_num_children > 10:
+            logger.warning("Desired number of children for person %s is %s"%(person.get_ID(), person._des_num_children))
+            all_agents_valid = False
     return all_agents_valid
 
 def validate_household_attributes(world):
