@@ -203,6 +203,10 @@ hhrel$RESPID <- paste(hhrel$HHID, SUBJID_hhrel, sep="")
 hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
 hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
+# Fix the incorrect SPOUSE2 variable for one respondent.
+#TODO: Get this fixed in the original CVFS dataset.
+hhrel.processed[hhrel.processed$RESPID=="151003002",]$SPOUSE2 <- 4
+
 # Merge the desnumchild data for desired family size. Note that I do not have 
 # data for all individuals, so individuals for whom I do not have desired 
 # family size I will use resampling to assign values.

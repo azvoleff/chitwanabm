@@ -207,6 +207,10 @@ def assemble_persons(relationshipsFile, model_world):
     # times
     model_start_time = rcParams['model.timebounds'][0]
     model_start_time = model_start_time[0] + model_start_time[1]/12.
+    # The extra spouses list will contain a list of second and third spouses - 
+    # these spouses will have their status set to unmarried as the model does 
+    # not allow having more than one spouse.
+    extra_spouses = []
     for relation in relations.itervalues():
         RESPID = int(relation['RESPID'])
         HHID = int(relation['HHID'])
@@ -224,7 +228,11 @@ def assemble_persons(relationshipsFile, model_world):
         # Read in SUBJECT IDs of parents/spouse/children
         mother_SUBJECT = int(relation['PARENT1'])
         father_SUBJECT = int(relation['PARENT2'])
-        spouse_SUBJECT = int(relation['SPOUSE1'])
+        spouse_1_SUBJECT = int(relation['SPOUSE1'])
+        # Also read in spouse 2 and spouse 3 ID so that these spouses can be 
+        # excluded from the model.
+        spouse_2_SUBJECT = int(relation['SPOUSE2'])
+        spouse_3_SUBJECT = int(relation['SPOUSE3'])
 
         # Convert SUBJECT IDs into RESPIDs
         if father_SUBJECT != 0:
@@ -243,14 +251,28 @@ def assemble_persons(relationshipsFile, model_world):
         else:
             mother_RESPID = None
 
-        if spouse_SUBJECT != 0:
+        if spouse_1_SUBJECT != 0:
             try:
-                spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_SUBJECT]
+                spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_1_SUBJECT]
             except KeyError:
                 logger.warning("Spouse of person %s was excluded from the model - spouse field set to None"%RESPID)
                 spouse_RESPID = None
         else:
             spouse_RESPID = None
+
+        if spouse_2_SUBJECT != 0:
+            try:
+                spouse_2_RESPID = SUBJECT_RESPID_map[HHID][spouse_2_SUBJECT]
+                extra_spouses.append(spouse_2_RESPID)
+            except KeyError:
+                logger.warning("Spouse two of person %s was excluded from the model"%RESPID)
+
+        if spouse_3_SUBJECT != 0:
+            try:
+                spouse_3_RESPID = SUBJECT_RESPID_map[HHID][spouse_3_SUBJECT]
+                extra_spouses.append(spouse_3_RESPID)
+            except KeyError:
+                logger.warning("Spouse three of person %s was excluded from the model"%RESPID)
 
         # Convert numerical genders to "male" or "female". 1 = male, 2 = female
         if CENGENDR == '1':
@@ -313,6 +335,10 @@ def assemble_persons(relationshipsFile, model_world):
 
         n_children = int(relation['n_children'])
         person._number_of_children = n_children
+
+    # Ignore second and third spouses, as the model does not allow them.
+    for extra_spouse in extra_spouses:
+        personsDict[extra_spouse]._spouse = None
 
     # Now, for each person in the personsDict, convert the RESPIDs for mother, 
     # father, and spouse to be references to the actual instances  of the 
