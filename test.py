@@ -59,12 +59,19 @@ def validate_person_attributes(world):
                          "TeraiTibeto"]
     maximum_age = 110
     checked_person_list = []
+    spouse_count_dict = {}
     for person in world.iter_all_persons():
         person_info = get_person_info(person)
         if person.get_parent_agent() == None and not person.is_away():
             logger.warning("Person %s is not a member of any household %s"%(
                 person.get_ID(), person_info))
             all_agents_valid = False
+        if person.get_spouse() != None and spouse_count_dict.has_key(person.get_spouse().get_ID()):
+            spouse_count_dict[person.get_spouse().get_ID()] += 1
+            logger.warning("Person %s has %s spouses"%(person.get_ID(), spouse_count_dict[person.get_spouse().get_ID()]))
+            all_agents_valid = False
+        elif person.get_spouse() != None and not spouse_count_dict.has_key(person.get_spouse().get_ID()):
+            spouse_count_dict[person.get_spouse().get_ID()] = 1
         if person in checked_person_list:
             logger.warning("Person %s is a member of more than one household"%(
                 person.get_ID(), person_info))
