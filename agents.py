@@ -804,6 +804,9 @@ class Region(Agent_set):
         marriages = {}
         # Now marry the agents
         for male, female in couples:
+            logger.debug("New marriage to %s (%.2f years old, %s) and %s (%.2f years old, %s)"%(
+                male.get_ID(), male.get_age_years(), male.get_sex(), 
+                female.get_ID(), female.get_age_years(), female.get_sex()))
             # First marry the agents.
             male.marry(female, time)
             female._first_birth_timing = calc_first_birth_time(self)
