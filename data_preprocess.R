@@ -29,6 +29,7 @@ require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[2]
+#DATA_PATH <- "V:/Nepal/ChitwanABM_Initialization"
 
 if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
@@ -341,6 +342,15 @@ lu.processed[2:6]  <- lu.processed[2:6] * .09290304
 # Join these rows to the neighborhood data processed earlier.
 neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 
+###############################################################################
+# Add on forest distances rows:
+forest_distances <- read.csv(paste(DATA_PATH, "CVFS_NBHs_forest_distances_recode.csv", sep="/"))
+columns <- grep('^(NEIGHID)|(BZ_meters)|(CNP_meters)|(closest_type)|(closest_meters)$', names(forest_distances))
+forest_distances <- forest_distances[columns]
+forest_distances$NEIGHID <- sprintf("%03i", as.numeric(substr(forest_distances$NEIGHID, 1, 3)))
+neigh.processed <- merge(neigh.processed, forest_distances, by="NEIGHID")
+
+###############################################################################
 # Read in the household registry data to get the ethnicities
 load(paste(DATA_PATH, "hhreg.Rdata", sep="/"))
 # Convert IDs to new 9 digit format:

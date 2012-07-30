@@ -123,6 +123,11 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
                 neighborhood._land_nonagveg + neighborhood._land_privbldg + \
                 neighborhood._land_pubbldg + neighborhood._land_other
 
+        neighborhood._forest_dist_BZ_km = float(neigh_data['BZ_meters']) / 1000.
+        neighborhood._forest_dist_CNP_km = float(neigh_data['CNP_meters']) / 1000.
+        neighborhood._forest_closest_km = float(neigh_data['closest_meters']) / 1000.
+        neighborhood._forest_closest_type = neigh_data['closest_type']
+
         neighborhood._school_min_ft = float(neigh_data['SCHLFT52'])
         neighborhood._health_min_ft = float(neigh_data['HLTHFT52'])
         neighborhood._bus_min_ft = float(neigh_data['BUSFT52'])

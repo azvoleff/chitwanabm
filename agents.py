@@ -51,7 +51,7 @@ def log_event_record(message, person, modeltime, **kwargs):
     if person.is_away():
         extra = {'modeltime' : modeltime,
                  'personinfo' : person.get_info(),
-                 'nbhinfo' : 'NA,' * 11 + 'NA'}
+                 'nbhinfo' : 'NA,' * 15 + 'NA'}
     else:
         extra = {'modeltime' : modeltime,
                  'personinfo' : person.get_info(),
@@ -582,7 +582,9 @@ class Neighborhood(Agent_set):
                          str(self._land_pubbldg), str(self._land_other), 
                          str(self._elec_available), str(self._school_min_ft), 
                          str(self._health_min_ft), str(self._bus_min_ft), 
-                         str(self._market_min_ft), str(self._employer_min_ft)])
+                         str(self._market_min_ft), str(self._employer_min_ft),
+                         str(self._forest_dist_BZ_km), str(self._forest_dist_CNP_km),
+                         str(self._forest_closest_km), str(self._forest_closest_type)])
 
     def add_agent(self, agent, initializing=False):
         """
