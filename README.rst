@@ -24,12 +24,15 @@ Contact Alex Zvoleff or Prof. Li An at SDSU with any questions.
 
 Getting the Code
 _______________________________________________________________________________
-See the ChitwanABM website at:
-    http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
+
+See the ChitwanABM website at: 
+http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
+
 The latest version of the code is available as a zipped snapshot from:
-    https://github.com/azvoleff/ChitwanABM/zipball/master
+https://github.com/azvoleff/ChitwanABM/zipball/master
+
 You can also browse the source at:
-    https://github.com/azvoleff/ChitwanABM
+https://github.com/azvoleff/ChitwanABM
 
 Author Contact Information
 _______________________________________________________________________________
