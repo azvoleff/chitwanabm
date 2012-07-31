@@ -16,9 +16,12 @@ DESCRIPTION:
     Inter-university Consortium for Political and Social Research (the datasets 
     can be found online at: http://dx.doi.org/10.3886/ICPSR04538.v7).
 
-    The model was constructed by Alex Zvoleff as part of his dissertation 
-    research at San Diego State University (SDSU) in the Department of 
-    Geography. Contact Alex Zvoleff or Prof. Li An at SDSU with any questions.
+    The model was constructed with the support of the National Science 
+    Foundation Partnerships for International Research and Education program 
+    (NSF-PIRE, grant OISE 0729709). The code was written by Alex Zvoleff as 
+    part of his dissertation research at San Diego State University (SDSU) in 
+    the Department of Geography. Contact Alex Zvoleff or Prof. Li An at SDSU 
+    with any questions.
 
 GETTING THE CODE:
     See the ChitwanABM website at:
