@@ -46,6 +46,8 @@ Main model code:
   file used to initiate a model run.
 - `statistics.py` - Contains statistics functions that implement empirical 
   results for usage in the model.
+- `test.py` - Contains validation functions to validate proper functioning of 
+  the model code.
 
 Plotting files (to process model run results)
 ===============================================================================
@@ -82,6 +84,3 @@ these files will be added after they are complete.
 - `generate_agents.R`
 - `install.py`
 - `install.R`
-- `test.py`
-- `test.R`
-
