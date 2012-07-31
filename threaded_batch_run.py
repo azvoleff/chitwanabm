@@ -5,8 +5,8 @@ import os
 import threading
 import subprocess
 
-number_of_runs = 10
-max_threads = 2
+number_of_runs = 40
+max_threads = 3
 
 time_format = "%m/%d/%Y %I:%M:%S %p"
 
