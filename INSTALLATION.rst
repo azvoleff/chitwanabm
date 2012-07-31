@@ -3,8 +3,10 @@ ChitwanABM Installation Instructions
 
 Dependencies
 _______________________________________________________________________________
+
 Python
 -------------------------------------------------------------------------------
+
 ChitwanABM has been tested to be functional on Linux, Windows 7, and 
 Mac OS 10.6.4. The model needs a Python 2.7 installation along with several 
 other dependencies:
@@ -17,6 +19,7 @@ other dependencies:
 
 R and R packages:
 -------------------------------------------------------------------------------
+
 Several R scripts are used to initialize the model, to 
 generate synthetic populations to be used for running the model 
 (if the ICPSR restricted data from the CVFS survey is unavailable), 
@@ -31,12 +34,14 @@ plotting: foreign, ggplot2, reshape, gstat, rgdal, epicalc.
 
 Git (optional)
 -------------------------------------------------------------------------------
+
 Git (or msysGit on Windows) is required for the model to be able to save the 
 current code version in the ChitwanABMrc file that is output together with 
 model results at the end of each model run.
 
 Model Installation
 _______________________________________________________________________________
+
 To get the model, download the latest stable version of the 
 code from http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php.
 
@@ -54,6 +59,7 @@ path so that the code modules will load correctly.
 
 Adding ChitwanABM directory to Python path on Linux and Mac OS:
 -------------------------------------------------------------------------------
+
 On Linux and Mac OS, you will need to add a line to your user profile telling 
 Python where the ChitwanABM files are located. You can do this one of two ways.  
 To temporarily add the ChitwanABM path to your Python path, open XTerm and 

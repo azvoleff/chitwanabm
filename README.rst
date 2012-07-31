@@ -36,6 +36,7 @@ https://github.com/azvoleff/ChitwanABM
 
 Author Contact Information
 _______________________________________________________________________________
+
 | Alex Zvoleff
 | SDSU/UCSB Joint Doctoral Candidate
 | Department of Geography
@@ -46,6 +47,7 @@ _______________________________________________________________________________
 
 References
 _______________________________________________________________________________
+
 The ChitwanABM is based off of extensive work done as a part of the Chitwan 
 Valley Family Study. The Chitwan Valley Family Study dataset can be cited 
 as:
