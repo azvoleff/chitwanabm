@@ -36,14 +36,13 @@ https://github.com/azvoleff/ChitwanABM
 
 Author Contact Information
 _______________________________________________________________________________
-::
-Alex Zvoleff
-SDSU/UCSB Joint Doctoral Candidate
-Department of Geography
-San Diego State University
-5500 Campanile Dr.
-San Diego, CA 92182-4493
-Email: azvoleff@mail.sdsu.edu
+| Alex Zvoleff
+| SDSU/UCSB Joint Doctoral Candidate
+| Department of Geography
+| San Diego State University
+| 5500 Campanile Dr.
+| San Diego, CA 92182-4493
+| Email: azvoleff@mail.sdsu.edu
 
 References
 _______________________________________________________________________________
