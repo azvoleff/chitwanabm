@@ -67,9 +67,10 @@ Plotting files (to process model run results)
 Documentation
 ===============================================================================
 
-- `INSTALLATION.txt` - A file with information on how to install the ChitwanABM 
-  model.
-- `FILES.rst`- This file, a reStructuredText format file listing the files
+- `INSTALLATION.rst` - A file with information on how to install the ChitwanABM 
+  model (reStructuredText format).
+- `FILES.rst`- This file, a listing the files in the ChitwanABM 
+  (reStructuredText format).
 - `FILES.PDF`- The PDF version of this file.
 - `gpl.txt` - The GNU General Public License (GPL) text file.
 - `README.txt` - A readme file with general information about the ChitwanABM.

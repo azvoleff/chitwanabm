@@ -27,14 +27,7 @@ installed, you will need to set the parameter "make_plots" to
 R (verison 2.15.1 is tested and working) is needed to produce result plots at 
 the end of each model run, and to initialize the model from the CVFS survey 
 data. The following R packages are used in model initialization and results 
-plotting:
-
-- foreign
-- ggplot2
-- reshape
-- gstat
-- rgdal
-- epicalc
+plotting: foreign, ggplot2, reshape, gstat, rgdal, epicalc.
 
 Git (optional)
 -------------------------------------------------------------------------------
@@ -60,20 +53,27 @@ will need to add the folder containing the model to your computer's Python
 path so that the code modules will load correctly.
 
 Adding ChitwanABM directory to Python path on Linux and Mac OS:
-        On Linux and Mac OS, you will need to add a line to your user 
-    profile telling Python where the ChitwanABM files are located. You can 
-    do this one of two ways. To temporarily add the ChitwanABM path to your 
-    Python path, open XTerm and type:
-        export PYTHONPATH=/path/to/ChitwanABM/folder
-    Replace "/path/to/ChitwanABM/folder" with the correct full path to the 
-    ChitwanABM folder. For example, if the code is on your desktop, this 
-    might be "/Users/azvoleff/Desktop/ChitwanABM" on a Mac, or 
-    "/home/azvoleff/Desktop/ChitwanABM" on Linux.
+-------------------------------------------------------------------------------
+On Linux and Mac OS, you will need to add a line to your user profile telling 
+Python where the ChitwanABM files are located. You can do this one of two ways.  
+To temporarily add the ChitwanABM path to your Python path, open XTerm and 
+type:
 
-    To make this change permanent, add the line
-        export PYTHONPATH=/path/to/ChitwanABM/folder
-    to the ".profile" file in your home directory.
+    export PYTHONPATH=/path/to/ChitwanABM/folder
+
+Replace "/path/to/ChitwanABM/folder" with the correct full path to the 
+ChitwanABM folder. For example, if the code is on your desktop, this might be 
+"/Users/azvoleff/Desktop/ChitwanABM" on a Mac, or 
+"/home/azvoleff/Desktop/ChitwanABM" on Linux.
+
+To make this change permanent, add the line
+
+    export PYTHONPATH=/path/to/ChitwanABM/folder
+
+to the ".profile" file in your home directory.
 
 Adding ChitwanABM directory to Python path on Windows XP:
+-------------------------------------------------------------------------------
 
 Adding ChitwanABM directory to Python path on Windows 7:
+-------------------------------------------------------------------------------
