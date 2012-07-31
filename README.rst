@@ -36,6 +36,7 @@ https://github.com/azvoleff/ChitwanABM
 
 Author Contact Information
 _______________________________________________________________________________
+::
 Alex Zvoleff
 SDSU/UCSB Joint Doctoral Candidate
 Department of Geography
