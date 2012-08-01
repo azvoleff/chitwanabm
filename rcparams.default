@@ -125,10 +125,12 @@
 'prob.migration.length.permanent' : [.0790 | validate_float]
 'probability.migration.male' : [{(0, 10):0, (10, 14):0.0029, (14, 18):0.0177, (18, 22):0.0296, (22, 30):0.054, (30, 40):0.02, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
 'probability.migration.female' : [{(0, 10):0, (10, 14):0.0019, (14, 18):0.0087, (18, 22):0.0136, (22, 30):0.020, (30, 40):0.01, (40, 60):0, (60, 199):0} | validate_probability(0, 199)]
-'inmigrant.prob.ethnicity' : [((1, 2, 3, 4, 5, 6), (.43881, .23222, .14226, .06224, .12448)) | validate_prob_dist]
-'inmigrant.prob.hh_size' : [((1, 2, 3, 4, 5, 6, 7), (.09559, .22108, .28627, .22108, .12059, .05539)) | validate_prob_dist]
-'inmigrant.prob.hh_head_age' : [((15, 25, 35, 45, 55), (.2997, .4274, .1720, .1008)) | validate_prob_dist]
-'inmigrant.prob.num_HHs' : [((0, 5, 10, 15, 20, 25, 30), (.1016949, .2372881, .2203390, .1684407, .1525424, .1016949)) | validate_prob_dist]
+'inmigrant_HH.prob.ethnicity' : [((1, 2, 3, 4, 5, 6), (.43881, .23222, .14226, .06224, .12448)) | validate_prob_dist]
+'inmigrant_HH.prob.hh_size' : [((1, 2, 3, 4, 5, 6, 7), (.09559, .22108, .28627, .22108, .12059, .05539)) | validate_prob_dist]
+'inmigrant_HH.prob.hh_head_age' : [((15, 25, 35, 45, 55), (.2997, .4274, .1720, .1008)) | validate_prob_dist]
+'inmigrant_HH.prob.num_HHs' : [((0, 5, 10, 15, 20, 25, 30), (.1016949, .2372881, .2203390, .1684407, .1525424, .1016949)) | validate_prob_dist]
+
+'outmigrant_HH.prob' : [.001 | validate_float]
 
 # Coefficients for marriage timing from Yabiku (2006).
 'marrtime.coef.intercept' : [-15.6 | validate_float]
@@ -256,6 +258,13 @@
 ###############################################################################
 # Household agent parameters
 ###############################################################################
+'fw_usageprob.coef.intercept' : [1.816 | validate_float]
+'fw_usageprob.coef.hhsize' : [1.816 | validate_float]
+'fw_usageprob.coef.ethnicLowHindu' : [0.12222 | validate_float]
+'fw_usageprob.coef.ethnicNewar' : [0.05827 | validate_float]
+'fw_usageprob.coef.ethnicHillTibeto' : [2.37862 | validate_float]
+'fw_usageprob.coef.ethnicTeraiTibeto' : [0.36464 | validate_float]
+
 'fw_demand.simple.coef.intercept' : [1.816 | validate_float]
 'fw_demand.simple.coef.hhsize' : [-.408 | validate_float]
 'fw_demand.simple.coef.hhsize_squared' : [.034 | validate_float]

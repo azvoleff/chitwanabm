@@ -30,11 +30,70 @@ model.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
+import sys
 import logging
 
 logger = logging.getLogger(__name__)
 
 import numpy as np
+
+from matplotlib import pyplot as plt
+
+def main(argv=None):
+    logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+            datefmt='%I:%M:%S%p')
+    ch.setFormatter(log_console_formatter)
+    logger.addHandler(ch)
+
+    sample_size = 10000
+    
+    logger.info("Plotting desired number of children test histogram")
+    from ChitwanABM.statistics import calc_des_num_children
+    retvalues = []
+    for n in xrange(sample_size):
+        retvalues.append(calc_des_num_children())
+    plt.hist(retvalues)
+    plt.title("Desired Number of Children")
+    plt.show()
+
+    logger.info("Plotting birth interval test histogram")
+    from ChitwanABM.statistics import calc_birth_interval
+    retvalues = []
+    for n in xrange(sample_size):
+        retvalues.append(calc_birth_interval())
+    plt.hist(retvalues)
+    plt.title("Birth interval")
+    plt.show()
+
+    logger.info("Plotting num in migrant households test histogram")
+    from ChitwanABM.statistics import calc_num_inmigrant_households
+    retvalues = []
+    for n in xrange(sample_size):
+        retvalues.append(calc_num_inmigrant_households())
+    plt.hist(retvalues, bins=(0, 5, 10, 15, 20, 25, 30))
+    plt.title("Number of In-migrant Households")
+    plt.show()
+
+    logger.info("Plotting in migrant household ethnicity test histogram")
+    from ChitwanABM.statistics import calc_inmigrant_household_ethnicity
+    retvalues = []
+    for n in xrange(sample_size):
+        retvalues.append(calc_inmigrant_household_ethnicity(as_integer=True))
+    plt.hist(retvalues)
+    plt.title("In-migrant Household Ethnicity")
+    plt.show()
+
+    logger.info("Plotting in migrant household size test histogram")
+    from ChitwanABM.statistics import calc_inmigrant_household_size
+    retvalues = []
+    for n in xrange(sample_size):
+        retvalues.append(calc_inmigrant_household_size())
+    plt.hist(retvalues)
+    plt.title("In-migrant Household Size")
+    plt.show()
 
 def validate_person_attributes(world):
     def get_person_info(person):
@@ -137,3 +196,6 @@ def validate_neighborhood_attributes(world):
                     neighborhood._land_pubbldg, neighborhood._land_other))
                 all_agents_valid = False
     return all_agents_valid
+
+if __name__ == "__main__":
+    sys.exit(main())

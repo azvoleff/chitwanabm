@@ -157,7 +157,8 @@ def main_loop(world, results_path):
             new_deaths = region.deaths(model_time.get_cur_date_float())
             new_marr = region.marriages(model_time.get_cur_date_float())
             new_divo = region.divorces(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            new_out_migr_indiv, new_ret_migr_indiv, new_in_migr_HH, new_out_migr_HH = region.migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
+            new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
+            new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             schooling = region.education(model_time.get_cur_date_float())
 
             # Save event, LULC, and population data for later output to CSV.
@@ -191,7 +192,7 @@ def main_loop(world, results_path):
         # is running.
         num_persons = region.num_persons()
         num_households = region.num_households()
-        stats_string = "%s: P: %5s | TMa: %5s | THH: %5s | NMa: %3s | NDv: %3s | NB: %3s | ND: %3s | NOMI: %3s | NRI: %3s | NOMH: %3s | NIMH: %3s"%(
+        stats_string = "%s: P: %5s | TMa: %5s | THH: %5s | NMa: %3s | NDv: %3s | NB: %3s | ND: %3s | NOM: %3s | NRM: %3s | NOMH: %3s | NIMH: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, 
                 region.get_num_marriages(), num_households,
                 num_new_marr, num_new_divo, num_new_births, num_new_deaths, 

@@ -176,7 +176,7 @@ def calc_first_birth_prob_ghimireaxinn2010(person, time):
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob, person._marriage_time))
+        logger.debug("Person %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob, person._marriage_time))
     return prob
 
 def calc_first_birth_prob_zvoleff(person, time):
@@ -284,7 +284,7 @@ def calc_first_birth_prob_zvoleff(person, time):
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob,  person._marriage_time))
+        logger.debug("Person %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob,  person._marriage_time))
     return prob
 
 def calc_probability_marriage_yabiku2006(person):
@@ -331,7 +331,7 @@ def calc_probability_marriage_yabiku2006(person):
     
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
+        logger.debug("Person %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_probability_marriage_zvoleff(person):
@@ -376,7 +376,7 @@ def calc_probability_marriage_zvoleff(person):
     
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
+        logger.debug("Person %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_probability_marriage_simple(person):
@@ -499,7 +499,7 @@ def calc_probability_migration_masseyetal_2010(person):
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
+        logger.debug("Person %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_probability_migration_zvoleff(person):
@@ -510,10 +510,10 @@ def calc_probability_migration_zvoleff(person):
     """
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Agent %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
+        logger.debug("Person %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
-def calc_migration_length(agent):
+def calc_migration_length(person):
     """
     Calculated the length of a migration from a probability distribution.
     """
@@ -521,7 +521,7 @@ def calc_migration_length(agent):
     # "prob.migration.length.permanent" parameter:
     if np.random.rand() < rcParams['prob.migration.length.permanent']:
         # TODO: Instead of very long term in agent-store, just remove them from 
-        # the model.
+        # the model with the make_permanent_outmigration method.
         return 99999999
     mig_length_prob_dist = rcParams['prob.migration.lengths']
     return int(draw_from_prob_dist(mig_length_prob_dist))
@@ -531,8 +531,35 @@ def calc_num_inmigrant_households():
     Draws the number of in migrating households in a given month based on an 
     empirical probability distribution.
     """
-    n_inmig_HH_prob_dist = rcParams['inmigrant.prob.num_HHs']
-    return int(draw_from_prob_dist(n_inmig_HH_prob_dist))
+    return int(draw_from_prob_dist(rcParams['inmigrant_HH.prob.num_HHs']))
+
+def calc_inmigrant_household_ethnicity(as_integer=False):
+    ethnicity = int(draw_from_prob_dist(rcParams['inmigrant_HH.prob.ethnicity']))
+    if not as_integer:
+        if ethnicity == 1:
+            ethnicity = "HighHindu"
+        elif ethnicity == 2:
+            ethnicity = "HillTibeto"
+        elif ethnicity == 3:
+            ethnicity = "LowHindu"
+        elif ethnicity == 4:
+            ethnicity = "Newar"
+        elif ethnicity == 5:
+            ethnicity = "TeraiTibeto"
+        else:
+            logger.critical("Undefined ethnicity %s drawn for new inmigrant household"%ethnicity)
+    return ethnicity
+
+def calc_inmigrant_household_size():
+    return int(draw_from_prob_dist(rcParams['inmigrant_HH.prob.hh_size']))
+
+def calc_probability_HH_outmigration(household, timestep):
+    """
+    Draws the number of out migrating households in a given month based on an 
+    empirical probability distribution.
+    """
+    outmigrant_HH_prob = rcParams['outmigrant_HH.prob']
+    return outmigrant_HH_prob
 
 def calc_first_birth_time(person):
     """
@@ -542,7 +569,7 @@ def calc_first_birth_time(person):
     first_birth_prob_dist = rcParams['prob.firstbirth.times']
     return int(draw_from_prob_dist(first_birth_prob_dist))
 
-def calc_des_num_children(person):
+def calc_des_num_children():
     "Calculates the desired number of children for this person."
     des_num_children_prob_dist = rcParams['prob.num.children.desired']
     # Use np.floor as the last number in the des_num_children prob dist (10) is 
@@ -613,7 +640,27 @@ def calc_prob_from_prob_dist(prob_dist, attribute):
     # between those two limits.
     return probs[n]
 
-def calc_fuelwood_usage_simple(household, time):
+def calc_fuelwood_usage_probability(household, time):
+    """
+    Calculates the probability of fuelwood usage (not quantity of usage, but 
+    probability of using any wood at all) at the household-level.
+    """
+    inner = rcParams['fw_usageprob.coef.intercept']
+
+    inner += rcParams['fw_usageprob.coef.hhsize']
+
+    inner += rcParams['fw_usageprob.coef.ethnicLowHindu']
+    inner += rcParams['fw_usageprob.coef.ethnicNewar']
+    inner += rcParams['fw_usageprob.coef.ethnicHillTibeto']
+    inner += rcParams['fw_usageprob.coef.ethnicTeraiTibeto']
+
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Household %s fuelwood usage probability %.6f (size: %s)"%(household.get_ID(), prob, household.num_members()))
+    return prob
+
+
+def calc_daily_fuelwood_usage_simple(household, time):
     """
     Calculates household-level fuelwood usage, using the results of a 2009 
     survey of fuelwood usage in the valley.
@@ -646,7 +693,7 @@ def calc_fuelwood_usage_simple(household, time):
     wood_usage = wood_usage * hhsize
     return wood_usage
 
-def calc_fuelwood_usage_migration_feedback(household, time):
+def calc_daily_fuelwood_usage_migration_feedback(household, time):
     """
     Calculates household-level fuelwood usage, using the results of a 2009 
     survey of fuelwood usage in the valley.

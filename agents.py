@@ -42,7 +42,9 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_first_birth_prob_ghimireaxinn2010, calc_first_birth_prob_zvoleff, \
         calc_probability_migration_masseyetal_2010, calc_migration_length, \
         calc_education_level, calc_spouse_age_diff, choose_spouse, \
-        calc_num_inmigrant_households, calc_probability_divorce
+        calc_num_inmigrant_households, calc_inmigrant_household_ethnicity, \
+        calc_inmigrant_household_size, calc_probability_HH_outmigration, \
+        calc_probability_divorce, calc_fuelwood_usage_probability
 
 logger = logging.getLogger(__name__)
 agent_event_logger = logging.getLogger('agent_events')
@@ -75,9 +77,9 @@ else:
     raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['model.parameterization.migration'])
 
 if rcParams['model.parameterization.fuelwood_usage'] == 'simple':
-    from ChitwanABM.statistics import calc_fuelwood_usage_simple as calc_fuelwood_usage
+    from ChitwanABM.statistics import calc_daily_fuelwood_usage_simple as calc_daily_fuelwood_usage
 elif rcParams['model.parameterization.fuelwood_usage'] == 'migrationfeedback':
-    from ChitwanABM.statistics import calc_fuelwood_usage_migration_feedback as calc_fuelwood_usage
+    from ChitwanABM.statistics import calc_daily_fuelwood_usage_migration_feedback as calc_daily_fuelwood_usage
 else:
     raise Exception("Unknown option for fuelwood usage: '%s'"%rcParams['model.parameterization.fuelwood_usage'])
 
@@ -298,7 +300,7 @@ class Person(Agent):
     def is_in_migrant(self):
         return self._in_migrant
 
-    def make_LD_migration(self, time, timestep, region):
+    def make_individual_LD_migration(self, time, timestep, region):
         log_event_record("LD_migration", self, time)
         household = self.get_parent_agent()
         household._lastmigrant_time = time
@@ -309,6 +311,7 @@ class Person(Agent):
         # the agent from its parent (the household), and adding the agent_store 
         # to the person's store_list
         self._return_timestep = timestep + months_away
+        self._return_household = household
         region._agent_stores['person']['LD_migr'].add_agent(self, self._return_timestep)
         self._last_migration['type'] = 'LD'
         self._last_migration['time'] = time
@@ -351,13 +354,18 @@ class Person(Agent):
         """
         if not self.is_away():
             # People who are away don't need to be removed from a household.
+            logger.debug("Person %s permanently out-migrated (while NOT away)"%self.get_ID())
             household = self.get_parent_agent()
             household.remove_agent(self)
-            logger.debug("Person %s permanently out-migrated (while NOT away)"%self.get_ID())
-        # Remove agents from their agent store while in an agent_store
+        else:
+            # If agent is away, then remove then from the returning agents list 
+            # of their parent household:
+            logger.debug("Person %s permanently out-migrated (while away)"%self.get_ID())
+            self._return_household._members_away.remove(agent)
+        # Remove agents from any agent store if they are in them while in an 
+        # agent_store
         if self._store_list != []:
             for store in self._store_list:
-                logger.debug("Person %s permanently out-migrated (while away)"%self.get_ID())
                 store.remove_agent(self)
 
     def marry(self, spouse, time):
@@ -374,7 +382,7 @@ class Person(Agent):
             female = self
         else:
             female = spouse
-            female._des_num_children = calc_des_num_children(self)
+            female._des_num_children = calc_des_num_children()
         self._marriage_time = time
         spouse._marriage_time = time
 
@@ -528,27 +536,41 @@ class Household(Agent_set):
     def is_initial_agent(self):
         return self._initial_agent
 
-    def fw_usage(self, time):
-        fw_usage = calc_fuelwood_usage(self, time)
+    def get_monthly_fw_usage_quantity(self, time):
+        fw_usage = calc_daily_fuelwood_usage(self, time)
         # Convert daily fw_usage to monthly
         fw_usage = fw_usage * 30
         return fw_usage
+
+    def get_fw_usage_probability(self, time):
+        return calc_fuelwood_usage_probability(self, time)
 
     def remove_agent(self, person):
         """
         Remove a person from this household. Override the default method for an 
         Agent_set so that we can check if the removal of this agent would leave 
-        this household empty. It it would leave it empty, they destroy this 
+        this household empty. It it would leave it empty, then destroy this 
         household after removing the agent. Otherwise, run the normal method 
         for agent removal from a household Agent_set.
         """
         Agent_set.remove_agent(self, person)
         if self.num_members() == 0 and self.get_away_members() == []:
-            logger.debug("Household %s left empty - household removed from model"%self.get_ID())
             neighborhood = self.get_parent_agent()
             neighborhood._land_agveg += self._hh_area
             neighborhood._land_privbldg -= self._hh_area
             neighborhood.remove_agent(self)
+            logger.debug("Household %s left empty - household removed from model"%self.get_ID())
+
+    def out_migrate(self, timestep):
+        neighborhood = self.get_parent_agent()
+        hhsize = len(self.get_agents())
+        # Note that we don't need to call neighborhood.remove_agent(self) since 
+        # once the last person outmigrates from the hh, the household will be 
+        # removed automatically from the make_permanent_outmigration function.
+        for person in self.get_agents():
+            person.make_permanent_outmigration(timestep)
+        logger.debug("Household %s outmigrated from neighborhood %s (hhsize: %s)"%( \
+                self.get_ID(), neighborhood.get_ID(), hhsize))
 
     def __str__(self):
         return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())
@@ -689,6 +711,14 @@ class Region(Agent_set):
         for neighborhood in self.iter_agents():
             for household in neighborhood.iter_agents():
                 yield household
+
+    def get_households(self):
+        "Returns a list of all the households in the region"
+        households = []
+        for neighborhood in self.iter_agents():
+            for household in neighborhood.iter_agents():
+                households.append(household)
+        return households
 
     def iter_persons(self):
         """
@@ -934,7 +964,7 @@ class Region(Agent_set):
                 person.divorce()
                 if woman.is_away():
                     # Women who are away when they get divorced are made to 
-                    # permanently outmigrate.
+                    # permanently out migrate.
                     woman.make_permanent_outmigration(timestep)
                     logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
                 elif woman.get_mother() == None or \
@@ -1002,40 +1032,61 @@ class Region(Agent_set):
             #schooling[neighborhood.get_ID()] += 1
         return schooling
 
-    def migrations(self, time_float, timestep):
+    def individual_migrations(self, time_float, timestep):
         """
         Runs through the population and makes agents probabilistically migrate
-        based on their age and the probability_marriage for this population.
+        based on demographic characteristics.
         """
         # First handle out-migrations
-        logger.debug("Processing migrations")
-        out_migr = {}
+        logger.debug("Processing person-level migrations")
+        n_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
                 if random_state.rand() < calc_probability_migration(person):
-                    person.make_LD_migration(time_float, timestep, self)
+                    person.make_individual_LD_migration(time_float, timestep, self)
                     neighborhood = household.get_parent_agent()
-                    if not out_migr.has_key(neighborhood.get_ID()):
-                        out_migr[neighborhood.get_ID()] = 0
-                    out_migr[neighborhood.get_ID()] += 1
+                    if not n_outmigr_indiv.has_key(neighborhood.get_ID()):
+                        n_outmigr_indiv[neighborhood.get_ID()] = 0
+                    n_outmigr_indiv[neighborhood.get_ID()] += 1
 
         # Now handle the returning migrants (based on the return times assigned 
-        # to them when they initially outmigrated)
-        return_migr_count, released_persons = self._agent_stores['person']['LD_migr'].release_agents(timestep)
+        # to them when they initially out migrated)
+        n_ret_migr_indiv, released_persons = self._agent_stores['person']['LD_migr'].release_agents(timestep)
         for person in released_persons:
             # Last housekeeping to return agent to model.
             person.return_from_LD_migration()
+        return n_outmigr_indiv, n_ret_migr_indiv
 
-        # Now handle inmigrations:
-        new_in_migr = {}
-        num_in_migr_households = calc_num_inmigrant_households()
-        logger.debug("%s in-migrant households"%num_in_migr_households)
-
+    def household_migrations(self, time_float, timestep):
+        """
+        Runs through the list of households and allows household-level in and 
+        out-migration. Household-level out-migration is handled 
+        probabilistically based on household attributes.
+        """
+        logger.debug("Processing household-level migrations")
+        # First handle in migrating households
+        n_inmigr_hh = {}
         #a = rcParams['inmigrant.prob.ethnicity']
         #b = rcParams['inmigrant.prob.hh_size']
         #c = rcParams['inmigrant.prob.hh_head_age']
-        
-        return out_migr, return_migr_count, new_in_migr
+        num_in_migr_households = calc_num_inmigrant_households()
+        print num_in_migr_households
+        hh_ethnicity = calc_inmigrant_household_ethnicity()
+        print hh_ethnicity
+        hh_size = calc_inmigrant_household_size()
+        print hh_size
+
+        # Now handle out-migrating households:
+        n_outmigr_hh = {}
+        for household in self.get_households():
+            if random_state.rand() < calc_probability_HH_outmigration(household, 
+                    timestep):
+                neighborhood = household.get_parent_agent()
+                household.out_migrate(timestep)
+                if not n_outmigr_hh.has_key(neighborhood.get_ID()):
+                    n_outmigr_hh[neighborhood.get_ID()] = 0
+                n_outmigr_hh[neighborhood.get_ID()] += 1
+        return n_inmigr_hh, n_outmigr_hh
 
     def increment_age(self):
         """
@@ -1083,7 +1134,9 @@ class Region(Agent_set):
         for neighborhood in self.iter_agents():
             fw_usage[neighborhood.get_ID()] = 0
             for household in neighborhood.iter_agents():
-                fw_usage[neighborhood.get_ID()] += household.fw_usage(time)
+                fw_usage[neighborhood.get_ID()] += \
+                        household.get_monthly_fw_usage_quantity(time) * \
+                        household.get_fw_usage_probability(time)
         return {'fw_usage': fw_usage}
 
     def get_neighborhood_landuse(self):
