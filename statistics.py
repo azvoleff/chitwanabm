@@ -302,11 +302,11 @@ def calc_probability_marriage_yabiku2006(person):
     else:
         log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
     inner += rcParams['marrtime.coef.logpercagveg'] * log_percent_agveg
-    inner += rcParams['marrtime.coef.school_minft_1996'] * neighborhood._nfo_schl_minft_1996
-    inner += rcParams['marrtime.coef.health_minft_1996'] * neighborhood._nfo_hlth_minft_1996
-    inner += rcParams['marrtime.coef.bus_minft_1996'] * neighborhood._nfo_bus_minft_1996
-    inner += rcParams['marrtime.coef.market_minft_1996'] * neighborhood._nfo_mar_minft_1996
-    inner += rcParams['marrtime.coef.emp_minft_1996'] * neighborhood._nfo_emp_minft_1996
+    inner += rcParams['marrtime.coef.school_minft_1996'] * neighborhood._school_min_ft
+    inner += rcParams['marrtime.coef.health_minft_1996'] * neighborhood._health_min_ft
+    inner += rcParams['marrtime.coef.bus_minft_1996'] * neighborhood._bus_min_ft
+    inner += rcParams['marrtime.coef.market_minft_1996'] * neighborhood._market_min_ft
+    inner += rcParams['marrtime.coef.emp_minft_1996'] * neighborhood._employer_min_ft
 
     if person.get_sex() == "female":
         inner += rcParams['marrtime.coef.female']
@@ -350,7 +350,7 @@ def calc_probability_marriage_zvoleff(person):
     else:
         log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
     inner += rcParams['marrtime.zv.coef.logpercagveg'] * log_percent_agveg
-    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._nfo_schl_minft_1996
+    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
 
     if person.get_sex() == "female":
         inner += rcParams['marrtime.zv.coef.female']
