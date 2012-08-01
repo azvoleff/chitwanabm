@@ -1070,11 +1070,8 @@ class Region(Agent_set):
         #b = rcParams['inmigrant.prob.hh_size']
         #c = rcParams['inmigrant.prob.hh_head_age']
         num_in_migr_households = calc_num_inmigrant_households()
-        print num_in_migr_households
         hh_ethnicity = calc_inmigrant_household_ethnicity()
-        print hh_ethnicity
         hh_size = calc_inmigrant_household_size()
-        print hh_size
 
         # Now handle out-migrating households:
         n_outmigr_hh = {}
