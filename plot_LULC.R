@@ -28,6 +28,7 @@ library(ggplot2, quietly=TRUE)
 library(gstat)
 library(rgdal)
 library(reshape)
+library(grid) # for 'unit' function
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
@@ -44,8 +45,23 @@ names(lulc.sd.mean)[2:3] <- c("LULC_type", "area")
 theme_update(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
 
-qplot(time.Robj, area, geom="line", colour=LULC_type, xlab="Year",
-        ylab="Mean Percentage of Neighborhood", data=lulc.sd.mean)
+p <- qplot(time.Robj, area, geom="line", colour=LULC_type, linetype=LULC_type, 
+           xlab="Year", ylab="Mean Percentage of Neighborhood", 
+           data=lulc.sd.mean)
+p + scale_linetype_discrete(name="Land-use Type",
+                            breaks=c("agveg", "nonagveg", "pubbldg", 
+                                     "privbldg", "other"),
+                            labels=c("Agricultural", "Non-agricultural",
+                                     "Public Bldgs.", "Private Bldgs.", 
+                                     "Other")) +
+    scale_colour_discrete(name="Land-use Type",
+                            breaks=c("agveg", "nonagveg", "pubbldg", 
+                                     "privbldg", "other"),
+                            labels=c("Agricultural", "Non-agricultural",
+                                     "Public Bldgs.", "Private Bldgs.", 
+                                     "Other")) +
+    opts(legend.key.width=unit(1, "cm"))
+
 ggsave(paste(DATA_PATH, "LULC.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 
