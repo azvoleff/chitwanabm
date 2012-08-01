@@ -423,8 +423,8 @@ def choose_spouse(person, eligible_mates):
     num = np.random.rand() * np.sum(sp_probs)
     sp_probs = np.cumsum(sp_probs)
     n = 0
-    for upprob in sp_probs[0:-1]:
-        if num <= upprob:
+    for problim in sp_probs[0:-1]:
+        if num <= problim:
             break
         n += 1
     return eligible_mates[n]
@@ -602,8 +602,8 @@ def draw_from_prob_dist(prob_dist):
     num = np.random.rand() * np.sum(probs)
     n = 0
     probcumsums = np.cumsum(probs)
-    for upprob in probcumsums[1:]:
-        if num < upprob:
+    for problim in probcumsums[0:-1]:
+        if num < problim:
             break
         n += 1
     upbinlim = binlims[n+1]

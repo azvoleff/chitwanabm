@@ -55,7 +55,8 @@ def main(argv=None):
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_des_num_children())
-    plt.hist(retvalues)
+    print retvalues[1:100]
+    plt.hist(retvalues, bins=(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
     plt.title("Desired Number of Children")
     plt.show()
 
@@ -64,8 +65,19 @@ def main(argv=None):
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_birth_interval())
+    print retvalues[1:100]
     plt.hist(retvalues)
     plt.title("Birth interval")
+    plt.show()
+
+    logger.info("Plotting household area test histogram")
+    from ChitwanABM.statistics import calc_hh_area
+    retvalues = []
+    for n in xrange(sample_size):
+        retvalues.append(calc_hh_area())
+    print retvalues[1:100]
+    plt.hist(retvalues, bins=(30, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000))
+    plt.title("Household Plot Land Area (sq. m)")
     plt.show()
 
     logger.info("Plotting num in migrant households test histogram")
@@ -73,6 +85,7 @@ def main(argv=None):
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_num_inmigrant_households())
+    print retvalues[1:100]
     plt.hist(retvalues, bins=(0, 5, 10, 15, 20, 25, 30))
     plt.title("Number of In-migrant Households")
     plt.show()
@@ -82,6 +95,7 @@ def main(argv=None):
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_inmigrant_household_ethnicity(as_integer=True))
+    print retvalues[1:100]
     plt.hist(retvalues)
     plt.title("In-migrant Household Ethnicity")
     plt.show()
@@ -91,6 +105,7 @@ def main(argv=None):
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_inmigrant_household_size())
+    print retvalues[1:100]
     plt.hist(retvalues)
     plt.title("In-migrant Household Size")
     plt.show()
