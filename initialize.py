@@ -42,16 +42,16 @@ from ChitwanABM.agents import World
 logger = logging.getLogger(__name__)
 
 def main():
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+            datefmt='%I:%M:%S%p')
+    ch.setFormatter(log_console_formatter)
+    logger.addHandler(ch)
+
     world = generate_world()
     if world == 1:
-        log.critical("Problem generating world")
-        return 1
-
-    try:
-        processed_data_file = rcParams['path.input_data_file']
-        save_world(world, processed_data_file)
-    except:
-        logger.exception("Problem saving world file to %s"%processed_data_file)
+        logger.critical("Problem generating world")
         return 1
 
 def read_CVFS_data(textfile, key_field):
@@ -528,6 +528,12 @@ def generate_world():
         return 1
     logger.info("Generating world from preprocessed CVFS data")
     model_world = assemble_world()
+
+    try:
+        processed_data_file = rcParams['path.input_data_file']
+        save_world(model_world, processed_data_file)
+    except:
+        logger.error("Problem saving world file to %s"%processed_data_file)
 
     return model_world
 
