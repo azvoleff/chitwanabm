@@ -35,6 +35,7 @@ PLOT_HEIGHT = 5.53
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Default/20120801-153859_azvoleff-THINK-Ubuntu"
 
 pop.results <- calc_NBH_pop(DATA_PATH)
 
@@ -45,7 +46,8 @@ vital_events <- with(pop.results, data.frame(time.Robj=time.Robj, marr, births, 
 vital_events <- melt(vital_events, id.vars="time.Robj")
 names(vital_events)[2:3] <- c("Event_type", "events")
 
-migrations <- with(pop.results, data.frame(time.Robj=time.Robj, in_migr, out_migr))
+migrations <- with(pop.results, data.frame(time.Robj=time.Robj, out_migr_indiv, 
+                                           ret_migr_indiv, out_migr_HH, in_migr_HH))
 migrations <- melt(migrations, id.vars="time.Robj")
 names(migrations)[2:3] <- c("Event_type", "events")
 
@@ -72,8 +74,11 @@ ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH,
 p <- qplot(time.Robj, events, geom="line", linetype=Event_type, 
            xlab="Year", ylab="Number of Migrants", data=migrations)
 p + scale_linetype_discrete(name="Legend",
-                            breaks=c("in_migr", "out_migr"),
-                            labels=c("In-migrants", "Out-migrants"))
+                            breaks=c("out_migr_indiv", "ret_migr_indiv", 
+                                     "out_migr_HH", "in_migr_HH"),
+                            labels=c("Out-migrant Indiv.",
+                                     "Return Migrant Indiv.",
+                                     "Out-migrant HH", "In-migrant HH"))
 ggsave(paste(DATA_PATH, "migrations.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT,
         dpi=300)

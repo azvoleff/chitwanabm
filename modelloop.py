@@ -101,19 +101,19 @@ def main_loop(world, results_path):
 
     def save_data_dict(saved_data, timestep, date_float, region, new_births, 
             new_deaths, new_marr, new_divo, new_out_migr_indiv, new_ret_migr_indiv, 
-            new_in_migr_HH, new_out_migr_HH):
+            new_out_migr_HH, new_in_migr_HH):
         """
         Store model results for later plotting. Store each variable in a 
         dictionary data while the model is runningthe data keyed by: 
         timestep:variable:nbh.
         """
         saved_data[timestep] = {}
+        saved_data[timestep]['marr'] = new_marr
         saved_data[timestep]['births'] = new_births
         saved_data[timestep]['deaths'] = new_deaths
-        saved_data[timestep]['marr'] = new_marr
         saved_data[timestep]['divo'] = new_divo
         saved_data[timestep]['out_migr_indiv'] = new_out_migr_indiv
-        saved_data[timestep]['ret_migr'] = new_ret_migr_indiv
+        saved_data[timestep]['ret_migr_indiv'] = new_ret_migr_indiv
         saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
         saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
         saved_data[timestep].update(region.get_neighborhood_pop_stats())
@@ -165,8 +165,7 @@ def main_loop(world, results_path):
             save_data_dict(saved_data, model_time.get_cur_int_timestep(), 
                     model_time.get_cur_date_float(), region, new_births, 
                     new_deaths, new_marr, new_divo, new_out_migr_indiv, 
-                    new_ret_migr_indiv, new_in_migr_HH, new_out_migr_HH)
-
+                    new_ret_migr_indiv, new_out_migr_HH, new_in_migr_HH)
             # Keep running total for printing results:
             num_new_births = sum(new_births.values())
             num_new_deaths = sum(new_deaths.values())
