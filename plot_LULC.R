@@ -42,7 +42,7 @@ lulc.sd.mean <- melt(lulc.sd.mean, id.vars="time.Robj")
 names(lulc.sd.mean)[2:3] <- c("LULC_type", "area")
 
 # Now actually make the plots
-theme_update(theme_grey(base_size=18))
+theme_update(theme_grey(base_size=16))
 update_geom_defaults("line", aes(size=1))
 
 p <- qplot(time.Robj, area, geom="line", colour=LULC_type, linetype=LULC_type, 
@@ -132,3 +132,51 @@ bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
         maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3),
         key.entries=c(-.5, -.25, -.1, .1, .25, .5))
 dev.off()
+
+###############################################################################
+# Plot the transition matrix
+run_results <- read.csv(paste(DATA_PATH, "/run_results.csv", sep=""))
+lulc_cols <- grep('^(agveg|nonagveg|privbldg|pubbldg|other).[0-9]*$', names(run_results))
+lulc_results <- cbind(run_results[lulc_cols])
+total_nbh_area <- with(lulc_results, agveg.0 + nonagveg.0 + privbldg.0 + pubbldg.0 + other.0)
+max_timestep <- (ncol(lulc_results) / 5) - 1
+lulc_results <- lulc_results / total_nbh_area * 100
+lulc_results <- cbind(neighid=run_results$neighid, lulc_results)
+
+# Cut the initial and final LULC into categories
+agveg_class.Initial <- cut(lulc_results$agveg.1, seq(0,100, 25), right=FALSE)
+last_agveg_col <- grep(paste('^agveg.', max_timestep, '$', sep=""), names(lulc_results))
+agveg_class.Final <- cut(lulc_results[, last_agveg_col], seq(0, 100, 25), right=FALSE)
+
+privbldg_class.Initial <- cut(lulc_results$privbldg.1, seq(0,100, 25), right=FALSE)
+last_privbldg_col <- grep(paste('^privbldg.', max_timestep, '$', sep=""), names(lulc_results))
+privbldg_class.Final <- cut(lulc_results[, last_privbldg_col], seq(0,100, 25), right=FALSE)
+
+transitions <- data.frame(neighid=lulc_results$neighid, agveg_class.Initial, 
+                          agveg_class.Final, privbldg_class.Initial, privbldg_class.Final)
+transitions <- reshape(transitions, idvar="neighid", direction="long", 
+                       varying=c(2:ncol(transitions)))
+transitions <- melt(transitions, id.vars=c("neighid", "time"))
+transitions$time <- factor(transitions$time)
+transitions$time <- relevel(transitions$time, "Initial")
+
+# Set a color blind compatible palette
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+p <- qplot(variable, geom="histogram", 
+    facets=value~time, fill=time,
+    data=transitions[transitions$variable=="agveg_class", ], 
+    xlabel="Transitions", ylab="Number of Neighborhoods", xlab="Agricultural Land-use Category")
+p + scale_fill_manual(name="Time", breaks=c("Initial", "Final"), labels=c("Initial", "Final"), values=cbPalette) + 
+    scale_x_discrete(labels=NULL)
+ggsave(paste(DATA_PATH, "LULC_transition_agveg.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+p <- qplot(variable, geom="histogram", 
+    facets=value~time, fill=time,
+    data=transitions[transitions$variable=="privbldg_class", ], 
+    xlabel="Transitions", ylab="Number of Neighborhoods", xlab="Private Buildings Land-use Category")
+p + scale_fill_manual(name="Time", breaks=c("Initial", "Final"), labels=c("Initial", "Final"), values=cbPalette) + 
+    scale_x_discrete(labels=NULL)
+ggsave(paste(DATA_PATH, "LULC_transition_privbldg.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
