@@ -118,7 +118,7 @@ def main_loop(world, results_path):
     saved_data[0]['marr'] = empty_events
     saved_data[0]['divo'] = empty_events
     saved_data[0]['out_migr_indiv'] = empty_events
-    saved_data[0]['ret_migr'] = empty_events
+    saved_data[0]['ret_migr_indiv'] = empty_events
     saved_data[0]['in_migr_HH'] = empty_events
     saved_data[0]['out_migr_HH'] = empty_events
     saved_data[0].update(region.get_neighborhood_pop_stats())
@@ -149,15 +149,15 @@ def main_loop(world, results_path):
             new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             schooling = region.education(model_time.get_cur_date_float())
 
-            # Save event, LULC, and population data in the saved_data_dict for 
-            # later output to CSV.
+            # Save event, LULC, and population data in the saved_data 
+            # dictionary for later output to CSV.
             saved_data[timestep] = {}
             saved_data[timestep]['births'] = new_births
             saved_data[timestep]['deaths'] = new_deaths
             saved_data[timestep]['marr'] = new_marr
             saved_data[timestep]['divo'] = new_divo
             saved_data[timestep]['out_migr_indiv'] = new_out_migr_indiv
-            saved_data[timestep]['ret_migr'] = new_ret_migr_indiv
+            saved_data[timestep]['ret_migr_indiv'] = new_ret_migr_indiv
             saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
             saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
             saved_data[timestep].update(region.get_neighborhood_pop_stats())
