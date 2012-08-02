@@ -28,7 +28,6 @@ library(reshape)
 
 calc_NBH_LULC <- function(DATA_PATH, timestep) {
     # Make plots of LULC for a model run.
-    # 276.csv
     lulc <- read.csv(paste(DATA_PATH, "/NBHs_time_", timestep, ".csv", sep=""))
 
     agveg.col <- grep('^agveg.*$', names(lulc))
