@@ -163,6 +163,8 @@ def main_loop(world, results_path):
             saved_data[timestep].update(region.get_neighborhood_pop_stats())
             saved_data[timestep].update(region.get_neighborhood_fw_usage(model_time.get_cur_date_float()))
             saved_data[timestep].update(region.get_neighborhood_landuse())
+            saved_data[timestep].update(region.get_neighborhood_nfo_context())
+            saved_data[timestep].update(region.get_neighborhood_forest_distance())
 
             # Keep running totals of events for printing results:
             num_new_births = sum(new_births.values())

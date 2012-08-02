@@ -167,6 +167,8 @@ class Person(Agent):
 
         self._marriage_time = None
 
+        self._last_birth_time = None
+
         self._schooling = 0
         self._final_schooling_level = None
         self._school_status = "undetermined"
@@ -197,6 +199,8 @@ class Person(Agent):
             self._child_bus_lt_1hr_ft = boolean_choice()
             self._child_market_lt_1hr_ft = boolean_choice()
             self._child_employer_lt_1hr_ft = boolean_choice()
+            if self._sex == "female":
+                self._des_num_children = calc_des_num_children()
 
         # These values are set in the give_birth method of mother agents
         self._birth_household_ID = None
@@ -1066,12 +1070,6 @@ class Region(Agent_set):
         logger.debug("Processing household-level migrations")
         # First handle in migrating households
         n_inmigr_hh = {}
-        #a = rcParams['inmigrant.prob.ethnicity']
-        #b = rcParams['inmigrant.prob.hh_size']
-        #c = rcParams['inmigrant.prob.hh_head_age']
-        num_in_migr_households = calc_num_inmigrant_households()
-        hh_ethnicity = calc_inmigrant_household_ethnicity()
-        hh_size = calc_inmigrant_household_size()
 
         # Now handle out-migrating households:
         n_outmigr_hh = {}
@@ -1145,6 +1143,25 @@ class Region(Agent_set):
             landuse['pubbldg'][neighborhood.get_ID()] = neighborhood._land_pubbldg
             landuse['other'][neighborhood.get_ID()] = neighborhood._land_other
         return landuse
+
+    def get_neighborhood_nfo_context(self):
+        nfocontext = {'school_min_ft':{}, 'health_min_ft':{}, 'bus_min_ft':{}, 'market_min_ft':{}, 'employer_min_ft':{}}
+        for neighborhood in self.iter_agents():
+            nfocontext['school_min_ft'][neighborhood.get_ID()] = neighborhood._school_min_ft
+            nfocontext['health_min_ft'][neighborhood.get_ID()] = neighborhood._health_min_ft
+            nfocontext['bus_min_ft'][neighborhood.get_ID()] = neighborhood._bus_min_ft
+            nfocontext['market_min_ft'][neighborhood.get_ID()] = neighborhood._market_min_ft
+            nfocontext['employer_min_ft'][neighborhood.get_ID()] = neighborhood._employer_min_ft
+        return nfocontext
+
+    def get_neighborhood_forest_distance(self):
+        forest_dist = {'for_dist_BZ_km':{}, 'for_dist_CNP_km':{}, 'for_closest_km':{}, 'for_closest_type':{}}
+        for neighborhood in self.iter_agents():
+            forest_dist['for_dist_BZ_km'][neighborhood.get_ID()] = neighborhood._forest_dist_BZ_km
+            forest_dist['for_dist_CNP_km'][neighborhood.get_ID()] = neighborhood._forest_dist_CNP_km
+            forest_dist['for_closest_km'][neighborhood.get_ID()] = neighborhood._forest_closest_km
+            forest_dist['for_closest_type'][neighborhood.get_ID()] = neighborhood._forest_closest_type
+        return forest_dist
 
     def get_neighborhood_pop_stats(self):
         """
