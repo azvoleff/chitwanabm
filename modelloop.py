@@ -99,27 +99,6 @@ def main_loop(world, results_path):
     # Write the results for timestep 0
     write_results_CSV(world, results_path, 0)
 
-    def save_data_dict(saved_data, timestep, date_float, region, new_births, 
-            new_deaths, new_marr, new_divo, new_out_migr_indiv, new_ret_migr_indiv, 
-            new_in_migr_HH, new_out_migr_HH):
-        """
-        Store model results for later plotting. Store each variable in a 
-        dictionary data while the model is runningthe data keyed by: 
-        timestep:variable:nbh.
-        """
-        saved_data[timestep] = {}
-        saved_data[timestep]['births'] = new_births
-        saved_data[timestep]['deaths'] = new_deaths
-        saved_data[timestep]['marr'] = new_marr
-        saved_data[timestep]['divo'] = new_divo
-        saved_data[timestep]['out_migr_indiv'] = new_out_migr_indiv
-        saved_data[timestep]['ret_migr'] = new_ret_migr_indiv
-        saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
-        saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
-        saved_data[timestep].update(region.get_neighborhood_pop_stats())
-        saved_data[timestep].update(region.get_neighborhood_fw_usage(date_float))
-        saved_data[timestep].update(region.get_neighborhood_landuse())
-
     # saved_data will store event, population, and fuelwood usage data keyed by 
     # timestep:variable:nbh.
     saved_data = {}
@@ -133,11 +112,20 @@ def main_loop(world, results_path):
     empty_events = {}
     for neighborhood in region.iter_agents():
         empty_events[neighborhood.get_ID()] = np.NaN
-    save_data_dict(saved_data, 0, 0, region, empty_events, empty_events,
-            empty_events, empty_events, empty_events, empty_events, 
-            empty_events, empty_events)
+    saved_data[0] = {}
+    saved_data[0]['births'] = empty_events
+    saved_data[0]['deaths'] = empty_events
+    saved_data[0]['marr'] = empty_events
+    saved_data[0]['divo'] = empty_events
+    saved_data[0]['out_migr_indiv'] = empty_events
+    saved_data[0]['ret_migr_indiv'] = empty_events
+    saved_data[0]['in_migr_HH'] = empty_events
+    saved_data[0]['out_migr_HH'] = empty_events
+    saved_data[0].update(region.get_neighborhood_pop_stats())
+    saved_data[0].update(region.get_neighborhood_fw_usage(model_time.get_T0_date_float()))
 
     while model_time.in_bounds():
+        timestep = model_time.get_cur_int_timestep()
         logger.debug('beginning timestep %s (%s)'%(model_time.get_cur_int_timestep(), model_time.get_cur_date_string()))
         if model_time.get_cur_month() == 1:
             annual_num_births = 0
@@ -161,13 +149,22 @@ def main_loop(world, results_path):
             new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             schooling = region.education(model_time.get_cur_date_float())
 
-            # Save event, LULC, and population data for later output to CSV.
-            save_data_dict(saved_data, model_time.get_cur_int_timestep(), 
-                    model_time.get_cur_date_float(), region, new_births, 
-                    new_deaths, new_marr, new_divo, new_out_migr_indiv, 
-                    new_ret_migr_indiv, new_in_migr_HH, new_out_migr_HH)
+            # Save event, LULC, and population data in the saved_data 
+            # dictionary for later output to CSV.
+            saved_data[timestep] = {}
+            saved_data[timestep]['births'] = new_births
+            saved_data[timestep]['deaths'] = new_deaths
+            saved_data[timestep]['marr'] = new_marr
+            saved_data[timestep]['divo'] = new_divo
+            saved_data[timestep]['out_migr_indiv'] = new_out_migr_indiv
+            saved_data[timestep]['ret_migr_indiv'] = new_ret_migr_indiv
+            saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
+            saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
+            saved_data[timestep].update(region.get_neighborhood_pop_stats())
+            saved_data[timestep].update(region.get_neighborhood_fw_usage(model_time.get_cur_date_float()))
+            saved_data[timestep].update(region.get_neighborhood_landuse())
 
-            # Keep running total for printing results:
+            # Keep running totals of events for printing results:
             num_new_births = sum(new_births.values())
             num_new_deaths = sum(new_deaths.values())
             num_new_marr = sum(new_marr.values())

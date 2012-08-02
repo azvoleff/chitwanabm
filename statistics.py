@@ -524,7 +524,8 @@ def calc_migration_length(person):
         # the model with the make_permanent_outmigration method.
         return 99999999
     mig_length_prob_dist = rcParams['prob.migration.lengths']
-    return int(draw_from_prob_dist(mig_length_prob_dist))
+    # Use ceil here so the minimum value is 1, and the maximum value is 36
+    return np.ceil(draw_from_prob_dist(mig_length_prob_dist))
 
 def calc_num_inmigrant_households():
     """

@@ -1153,8 +1153,6 @@ class Region(Agent_set):
         """
         pop_stats = {'num_psn':{}, 'num_hs':{}, 'num_marr':{}}
         for neighborhood in self.iter_agents():
-            if not pop_stats.has_key(neighborhood.get_ID()):
-                pop_stats[neighborhood.get_ID()] = {}
             pop_stats['num_psn'][neighborhood.get_ID()] = neighborhood.get_num_psn()
             pop_stats['num_hs'][neighborhood.get_ID()] = neighborhood.num_members()
             pop_stats['num_marr'][neighborhood.get_ID()] = neighborhood.get_num_marriages()
