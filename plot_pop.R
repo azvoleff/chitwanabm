@@ -35,7 +35,6 @@ PLOT_HEIGHT = 5.53
 source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Default/20120801-153859_azvoleff-THINK-Ubuntu"
 
 pop.results <- calc_NBH_pop(DATA_PATH)
 
