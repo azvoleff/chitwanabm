@@ -525,7 +525,7 @@ def calc_migration_length(person):
         return 99999999
     mig_length_prob_dist = rcParams['prob.migration.lengths']
     # Use ceil here so the minimum value is 1, and the maximum value is 36
-    return ceil(draw_from_prob_dist(mig_length_prob_dist))
+    return np.ceil(draw_from_prob_dist(mig_length_prob_dist))
 
 def calc_num_inmigrant_households():
     """

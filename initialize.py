@@ -335,7 +335,7 @@ def assemble_persons(relationshipsFile, model_world):
         else:
             # Otherwise, randomly set person._last_birth_time anywhere from 18
             # months prior to the initial timestep of the model:
-            person._last_birth_time = model_start_time + np.random.randint(-18, 0)/12.
+            person._last_birth_time = model_start_time + np.random.randint(-24, 0)/12.
         personsDict[RESPID] = person
 
         n_children = int(relation['n_children'])
