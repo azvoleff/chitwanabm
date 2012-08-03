@@ -29,6 +29,7 @@ library(gstat)
 library(rgdal)
 library(reshape)
 library(grid) # for 'unit' function
+library(RColorBrewer) # for 'unit' function
 
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
@@ -138,9 +139,9 @@ dev.off()
 run_results <- read.csv(paste(DATA_PATH, "/run_results.csv", sep=""))
 lulc_cols <- grep('^(agveg|nonagveg|privbldg|pubbldg|other).[0-9]*$', names(run_results))
 lulc_results <- cbind(run_results[lulc_cols])
-total_nbh_area <- with(lulc_results, agveg.0 + nonagveg.0 + privbldg.0 + pubbldg.0 + other.0)
+total_nbh_area <- with(lulc_results, agveg.1 + nonagveg.1 + privbldg.1 + pubbldg.1 + other.1)
 max_timestep <- (ncol(lulc_results) / 5) - 1
-lulc_results <- lulc_results / total_nbh_area * 100
+lulc_results <- (lulc_results / total_nbh_area) * 100
 lulc_results <- cbind(neighid=run_results$neighid, lulc_results)
 
 # Cut the initial and final LULC into categories
@@ -159,24 +160,59 @@ transitions <- reshape(transitions, idvar="neighid", direction="long",
 transitions <- melt(transitions, id.vars=c("neighid", "time"))
 transitions$time <- factor(transitions$time)
 transitions$time <- relevel(transitions$time, "Initial")
+names(transitions)[names(transitions) == "variable"] <- "lulc_type"
+names(transitions)[names(transitions) == "value"] <- "lulc_cut_cat"
+forest_distances <- with(run_results, data.frame(neighid, for_dist_BZ_km.1,
+                                             for_dist_CNP_km.1,
+                                             for_closest_km.1, 
+                                             for_closest_type.1))
+transitions <- merge(transitions, forest_distances)
+transitions$forest_closest_km_cat <- cut(transitions$for_closest_km.1, c(0, 2, 4, 8, 15))
 
 # Set a color blind compatible palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-p <- qplot(variable, geom="histogram", 
-    facets=value~time, fill=time,
-    data=transitions[transitions$variable=="agveg_class", ], 
-    xlabel="Transitions", ylab="Number of Neighborhoods", xlab="Agricultural Land-use Category")
-p + scale_fill_manual(name="Time", breaks=c("Initial", "Final"), labels=c("Initial", "Final"), values=cbPalette) + 
+p <- qplot(lulc_type, geom="histogram", 
+    facets=lulc_cut_cat~time, fill=time,
+    data=transitions[transitions$lulc_type=="agveg_class", ], 
+    ylab="Number of Neighborhoods", xlab="Agricultural Land-use Category")
+p + scale_fill_manual(name="Time", breaks=c("Initial", "Final"), 
+                      labels=c("Initial", "Final"), values=cbPalette) + 
     scale_x_discrete(labels=NULL)
 ggsave(paste(DATA_PATH, "LULC_transition_agveg.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
 
-p <- qplot(variable, geom="histogram", 
-    facets=value~time, fill=time,
-    data=transitions[transitions$variable=="privbldg_class", ], 
-    xlabel="Transitions", ylab="Number of Neighborhoods", xlab="Private Buildings Land-use Category")
-p + scale_fill_manual(name="Time", breaks=c("Initial", "Final"), labels=c("Initial", "Final"), values=cbPalette) + 
+p <- qplot(lulc_type, geom="histogram", 
+    facets=lulc_cut_cat~time, fill=time,
+    data=transitions[transitions$lulc_type=="privbldg_class", ], 
+    ylab="Number of Neighborhoods", xlab="Private Buildings Land-use Category")
+p + scale_fill_manual(name="Time", breaks=c("Initial", "Final"), 
+                      labels=c("Initial", "Final"), values=cbPalette) + 
     scale_x_discrete(labels=NULL)
 ggsave(paste(DATA_PATH, "LULC_transition_privbldg.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+# Now make plots faceted by distance to park:
+p <- qplot(lulc_type, geom="histogram", 
+    facets=lulc_cut_cat~time, fill=forest_closest_km_cat,
+    data=transitions[transitions$lulc_type=="agveg_class", ], 
+    ylab="Number of Neighborhoods", xlab="Agricultural Land-use Category")
+p + scale_fill_manual(name="Distance from forest", breaks=c("(0,2]", "(2,4]", 
+                                                            "(4,8]", "(8,15]"),
+                   labels=c("0-2 km ", "2-4 km ", "4-8 km", "8-12 km"),
+                   values=rev(brewer.pal(4, "Greens"))) +
+    scale_x_discrete(labels=NULL)
+ggsave(paste(DATA_PATH, "LULC_transition_agveg_forest.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+p <- qplot(lulc_type, geom="histogram", 
+    facets=lulc_cut_cat~time, fill=forest_closest_km_cat,
+    data=transitions[transitions$lulc_type=="privbldg_class", ], 
+    ylab="Number of Neighborhoods", xlab="Private Buildings Land-use Category")
+p + scale_fill_manual(name="Distance from forest", breaks=c("(0,2]", "(2,4]", 
+                                                            "(4,8]", "(8,15]"),
+                   labels=c("0-2 km ", "2-4 km ", "4-8 km", "8-12 km"),
+                   values=rev(brewer.pal(4, "Greens"))) +
+    scale_x_discrete(labels=NULL)
+ggsave(paste(DATA_PATH, "LULC_transition_privbldg_forest.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
