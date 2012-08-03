@@ -37,13 +37,14 @@ https://github.com/azvoleff/ChitwanABM
 Author Contact Information
 _______________________________________________________________________________
 
-| Alex Zvoleff
-| SDSU/UCSB Joint Doctoral Candidate
-| Department of Geography
-| San Diego State University
-| 5500 Campanile Dr.
-| San Diego, CA 92182-4493
-| Email: azvoleff@mail.sdsu.edu
+::
+    Alex Zvoleff
+    SDSU/UCSB Joint Doctoral Candidate
+    Department of Geography
+    San Diego State University
+    5500 Campanile Dr.
+    San Diego, CA 92182-4493
+    Email: azvoleff@mail.sdsu.edu
 
 References
 _______________________________________________________________________________
@@ -59,8 +60,8 @@ Family Study: Changing Social Contexts and Family Formation [Computer file].
 ICPSR04538-v7. Ann Arbor, MI: Inter-university Consortium for Political and 
 Social Research [distributor], 2011-09-06.
 
-The parameterizations used in the model are based off of the works listed 
-below:
+The parameterizations used in the model are based in part off of the works 
+listed below:
 
 - Axinn, W. G., and D. J. Ghimire. 2011. Social Organization, Population, and 
   Land Use. American Journal of Sociology 117 (1).
