@@ -111,7 +111,8 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
     for neigh_data in neigh_datas.itervalues():
         NEIGHID = int(neigh_data["NEIGHID"])
         neighborhood = model_world.new_neighborhood(NEIGHID, initial_agent=True)
-        neighborhood._avg_years_nonfamily_services = float(neigh_data["AVG_YRS_SRVC"])
+        neighborhood._avg_yrs_services_lt15 = float(neigh_data["avg_yrs_services_lt15"])
+        neighborhood._avg_yrs_services_lt30 = float(neigh_data["avg_yrs_services_lt30"])
         neighborhood._elec_available =  bool(neigh_data['ELEC_AVAIL']) # is neighborhood electrified (in 1995/1996)
         # All land areas are given in square meters
         neighborhood._land_agveg = float(neigh_data['land.agveg'])

@@ -286,13 +286,16 @@ services <- neigh[grep('SCHLFT|HLTHFT|BUSFT|MARFT|^EMPFT', names(neigh))]
 # services currently expresses the number of minutes on foot to get each 
 # service for each year. Convert it so it is 1 if services were <= 30 minutes 
 # walk away, and 0 otherwise
-services[services<=30] <- 1
-services[services>30] <- 0
-avg_yrs_services <- rowSums(services) / 5
+services_lt15[services_lt15<=15] <- 1
+services_lt15[services_lt15>15] <- 0
+avg_yrs_services_lt15 <- rowSums(services_lt15) / 5
+services_lt30[services_lt30<=30] <- 1
+services_lt30[services_lt30>30] <- 0
+avg_yrs_services_lt30 <- rowSums(services_lt30) / 5
 # Find if electricity is currently available in the neighborhood (as of the 
 # census)
 elec_avail <- neigh$ELEC52
-neigh.processed <- data.frame(NEIGHID=neigh_ID, AVG_YRS_SRVC=avg_yrs_services, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY)
+neigh.processed <- data.frame(NEIGHID=neigh_ID, avg_yrs_services_lt15, avg_yrs_services_lt30, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY)
 
 # Calculate the distance of each neighborhood from Narayanghat (using the 
 # coordinates of the center of the road in the middle of the downtown area of 
