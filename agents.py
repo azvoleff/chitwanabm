@@ -453,34 +453,39 @@ class Person(Agent):
                 return True
             else: return False
 
-    def give_birth(self, time, father):
+    def give_birth(self, time, father, simulate=False):
         "Agent gives birth. New agent inherits characterists of parents."
         assert self.get_sex() == 'female', "Men can't give birth"
         assert self.get_spouse().get_ID() == father.get_ID(), "All births must be in marriages"
         assert self.get_ID() != father.get_ID(), "No immaculate conception (agent: %s)"%(self.get_ID())
-        baby = self._world.new_person(birthdate=time, age=0, mother=self, father=father, ethnicity=self.get_ethnicity())
+        if not simulate:
+            baby = self._world.new_person(birthdate=time, age=0, mother=self, father=father, ethnicity=self.get_ethnicity())
 
-        neighborhood = self.get_parent_agent().get_parent_agent()
-    
-        # Set childhood community context for baby
-        baby._child_school_lt_1hr_ft = neighborhood._school_min_ft < 60
-        baby._child_health_lt_1hr_ft = neighborhood._health_min_ft < 60
-        baby._child_bus_lt_1hr_ft = neighborhood._bus_min_ft < 60
-        baby._child_market_lt_1hr_ft = neighborhood._market_min_ft < 60
-        baby._child_employer_lt_1hr_ft = neighborhood._employer_min_ft < 60
+            neighborhood = self.get_parent_agent().get_parent_agent()
+        
+            # Set childhood community context for baby
+            baby._child_school_lt_1hr_ft = neighborhood._school_min_ft < 60
+            baby._child_health_lt_1hr_ft = neighborhood._health_min_ft < 60
+            baby._child_bus_lt_1hr_ft = neighborhood._bus_min_ft < 60
+            baby._child_market_lt_1hr_ft = neighborhood._market_min_ft < 60
+            baby._child_employer_lt_1hr_ft = neighborhood._employer_min_ft < 60
 
-        baby._birth_household_ID = self.get_parent_agent().get_ID()
-        baby._birth_neighborhood_ID = neighborhood.get_ID()
+            baby._birth_household_ID = self.get_parent_agent().get_ID()
+            baby._birth_neighborhood_ID = neighborhood.get_ID()
+
+            for parent in [self, father]:
+                parent._children.append(baby)
+                parent._number_of_children += 1
+
+            logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %.2f)'%(self.get_ID(), self.get_age_years(), self._number_of_children, self._des_num_children, self._birth_interval))
+
+            log_event_record("Birth", self, time)
 
         self._last_birth_time = time
 
         # Assign a new birth interval for the next child
         self._birth_interval = calc_birth_interval()
-        for parent in [self, father]:
-            parent._children.append(baby)
-            parent._number_of_children += 1
-        logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %.2f)'%(self.get_ID(), self.get_age_years(), self._number_of_children, self._des_num_children, self._birth_interval))
-        log_event_record("Birth", self, time)
+
         return baby
 
     def is_married(self):
@@ -759,9 +764,15 @@ class Region(Agent_set):
         for agent_store_name in self._agent_stores['person'].keys():
             yield self._agent_stores['person'][agent_store_name]
 
-    def births(self, time):
-        """Runs through the population and agents give birth probabilistically 
-        based on their birth interval and desired family size."""
+    def births(self, time, simulate=False):
+        """
+        Runs through the population and agents give birth probabilistically 
+        based on their birth interval and desired family size, and the first 
+        birth timing model that was selected in rcParams. The 'simulate' 
+        parameter allows running all functions in the model (setting last birth 
+        time, next birth time, etc) during the burn-in period, WITHOUT actually 
+        having women give birth.
+        """
         logger.debug("Processing births")
         births = {}
         for household in self.iter_households():
@@ -773,7 +784,7 @@ class Region(Agent_set):
                     # Now have the mother give birth, and add the 
                     # new person to the mother's household.
                     household.add_agent(person.give_birth(time,
-                        father=father))
+                        father=father, simulate=simulate))
                     if rcParams['feedback.birth.nonagveg']:
                         neighborhood = household.get_parent_agent()
                         if (neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area']) >= 0:

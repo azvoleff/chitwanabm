@@ -124,6 +124,20 @@ def main_loop(world, results_path):
     saved_data[0].update(region.get_neighborhood_pop_stats())
     saved_data[0].update(region.get_neighborhood_fw_usage(model_time.get_T0_date_float()))
 
+    # "Burn in" by running the model for three years in simulated mode, where 
+    # age isn't incremented, but migrations occur. This allows starting the 
+    # model with realistic migration histories, avoiding a huge loss of 
+    # population to migration in the first month of the model.
+    logger.info('Burning in events for region %s'%region.get_ID())
+    for neg_timestep in xrange(-rcParams['model.burnin_timesteps'], 0):
+        for region in world.iter_regions():
+            new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep)
+
+            num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
+            num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
+
+            logger.info("Burn in %s: P: %5s | NOM: %3s | NRM: %3s"%(neg_timestep, region.num_persons(), num_new_out_migr_indiv, num_new_ret_migr_indiv))
+
     while model_time.in_bounds():
         timestep = model_time.get_cur_int_timestep()
         logger.debug('beginning timestep %s (%s)'%(model_time.get_cur_int_timestep(), model_time.get_cur_date_string()))
@@ -191,7 +205,7 @@ def main_loop(world, results_path):
         # is running.
         num_persons = region.num_persons()
         num_households = region.num_households()
-        stats_string = "%s: P: %5s | TMa: %5s | THH: %5s | NMa: %3s | NDv: %3s | NB: %3s | ND: %3s | NOM: %3s | NRM: %3s | NOMH: %3s | NIMH: %3s"%(
+        stats_string = "%s: P: %5s | TMa: %5s | THH: %5s | NMa: %3s | NDv: %3s | NB: %3s | ND: %3s | NOM: %3s | NOMH: %3s | NIMH: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, 
                 region.get_num_marriages(), num_households,
                 num_new_marr, num_new_divo, num_new_births, num_new_deaths, 
@@ -210,7 +224,7 @@ def main_loop(world, results_path):
             # The last condition in the above if statement is necessary as 
             # there is no total to print on the first timestep, so it wouldn't 
             # make sense to print it.
-            total_string = "%s totals: New Ma: %3s, Dv: %3s, B: %3s, D: %3s, OutMiInd: %3s, RetMiInd: %3s, InMiHH: %3s, OutMiHH: %3s"%(
+            total_string = "%s totals: New Ma: %3s, Dv: %3s, B: %3s, D: %3s, OutMiInd: %3s, RetMiInd: %3s, OutMiHH: %3s, InMiHH: %3s"%(
                     model_time.get_cur_year(), annual_num_marr, 
                     annual_num_divo, annual_num_births,
                     annual_num_deaths, annual_num_out_migr_indiv, 
