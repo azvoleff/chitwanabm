@@ -38,6 +38,7 @@ source("calc_NBH_stats.R")
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
+
 lulc.sd.mean <- calc_agg_LULC(DATA_PATH)
 lulc.sd.mean <- melt(lulc.sd.mean, id.vars="time.Robj")
 names(lulc.sd.mean)[2:3] <- c("LULC_type", "area")
