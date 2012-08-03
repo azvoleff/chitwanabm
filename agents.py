@@ -73,6 +73,8 @@ if rcParams['model.parameterization.migration'] == 'simple':
     from ChitwanABM.statistics import calc_probability_migration_simple as calc_probability_migration
 elif rcParams['model.parameterization.migration'] == 'massey2010':
     from ChitwanABM.statistics import calc_probability_migration_masseyetal_2010 as calc_probability_migration
+elif rcParams['model.parameterization.migration'] == 'zvoleff':
+    from ChitwanABM.statistics import calc_probability_migration_zvoleff as calc_probability_migration
 else:
     raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['model.parameterization.migration'])
 
