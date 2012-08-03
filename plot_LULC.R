@@ -198,7 +198,7 @@ p <- qplot(lulc_type, geom="histogram",
     facets=lulc_cut_cat~time, fill=forest_closest_km_cat,
     data=transitions[transitions$lulc_type=="agveg_class", ], 
     ylab="Number of Neighborhoods", xlab="Agricultural Land-use Category")
-p + scale_fill_manual(name="Distance from forest", breaks=c("(0,2]", "(2,4]", 
+p + scale_fill_manual(name="Forest distance", breaks=c("(0,2]", "(2,4]", 
                                                             "(4,8]", "(8,15]"),
                    labels=c("0-2 km ", "2-4 km ", "4-8 km", "8-12 km"),
                    values=rev(brewer.pal(4, "Greens"))) +
@@ -210,7 +210,7 @@ p <- qplot(lulc_type, geom="histogram",
     facets=lulc_cut_cat~time, fill=forest_closest_km_cat,
     data=transitions[transitions$lulc_type=="privbldg_class", ], 
     ylab="Number of Neighborhoods", xlab="Private Buildings Land-use Category")
-p + scale_fill_manual(name="Distance from forest", breaks=c("(0,2]", "(2,4]", 
+p + scale_fill_manual(name="Forest distance", breaks=c("(0,2]", "(2,4]", 
                                                             "(4,8]", "(8,15]"),
                    labels=c("0-2 km ", "2-4 km ", "4-8 km", "8-12 km"),
                    values=rev(brewer.pal(4, "Greens"))) +
