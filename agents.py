@@ -162,6 +162,7 @@ class Person(Agent):
 
         if self._sex == "female":
             self._first_birth_timing = calc_first_birth_time(self)
+            self._last_birth_time = None
         else:
             self._first_birth_timing = None
 
@@ -197,6 +198,8 @@ class Person(Agent):
             self._child_bus_lt_1hr_ft = boolean_choice()
             self._child_market_lt_1hr_ft = boolean_choice()
             self._child_employer_lt_1hr_ft = boolean_choice()
+            if self._sex == "female":
+                self._des_num_children = calc_des_num_children()
 
         # These values are set in the give_birth method of mother agents
         self._birth_household_ID = None
@@ -1066,12 +1069,62 @@ class Region(Agent_set):
         logger.debug("Processing household-level migrations")
         # First handle in migrating households
         n_inmigr_hh = {}
-        #a = rcParams['inmigrant.prob.ethnicity']
-        #b = rcParams['inmigrant.prob.hh_size']
-        #c = rcParams['inmigrant.prob.hh_head_age']
         num_in_migr_households = calc_num_inmigrant_households()
-        hh_ethnicity = calc_inmigrant_household_ethnicity()
-        hh_size = calc_inmigrant_household_size()
+        household_list = self.get_households()
+        for n in xrange(num_in_migr_households):
+            # Randomly create a household of this size
+            hh_size = calc_inmigrant_household_size()
+            hh_ethnicity = calc_inmigrant_household_ethnicity()
+            np.random.shuffle(household_list)
+            # Choose an existing household as a model
+            for model_hh in household_list:
+                if model_hh.num_members() == hh_size:
+                    break
+            # Create and populate the new household
+            new_household = self._world.new_household()
+            clone_dict = {}
+            for psn in model_hh.get_agents():
+                new_psn = self._world.new_person(birthdate=psn._birthdate, 
+                                                    age=psn.get_age_months(), 
+                                                    sex=psn.get_sex(), 
+                                                    ethnicity=hh_ethnicity, 
+                                                    in_migrant=True)
+                clone_dict[psn.get_ID()] = new_psn.get_ID()
+                new_household.add_agent(new_psn)
+            # Now setup the relationships within the new household.
+            for psn in model_hh.get_agents():
+                clone = new_household.get_agent(clone_dict[psn.get_ID()])
+                if psn._mother != None and model_hh.is_member(psn._mother.get_ID()):
+                    clone_mother_ID = clone_dict[psn._mother.get_ID()]
+                    clone._mother = new_household.get_agent(clone_mother_ID)
+                if psn._father != None and model_hh.is_member(psn._father.get_ID()):
+                    clone_father_ID = clone_dict[psn._father.get_ID()]
+                    clone._father = new_household.get_agent(clone_father_ID)
+                if psn.get_sex == "female" and psn._last_birth_time != None:
+                    clone._last_birth_time = psn._last_birth_time
+                if psn._spouse != None and model_hh.is_member(psn._spouse.get_ID()):
+                    clone_spouse_ID = clone_dict[psn._spouse.get_ID()]
+                    clone._spouse = new_household.get_agent(clone_spouse_ID)
+                    clone._marriage_time = psn._marriage_time
+            # Now add the in migrant household to a randomly chosen 
+            # neighborhood:
+            poss_neighborhoods = self.get_agents()
+            neighborhood = poss_neighborhoods[np.random.randint( \
+                len(poss_neighborhoods))]
+            # Try to add the household to the chosen neighborhood. If
+            # the add_agent function returns false it means there is no 
+            # available land in the chosen neighborhood, so pick another 
+            # neighborhood, iterating through the closest neighborhoods 
+            # until one is found with adequate land:
+            n = 0
+            while neighborhood.add_agent(new_household) == False:
+                neighborhood = neighborhood._neighborhoods_by_distance[n]
+                n += 1
+            if not n_inmigr_hh.has_key(neighborhood.get_ID()):
+                n_inmigr_hh[neighborhood.get_ID()] = 0
+            n_inmigr_hh[neighborhood.get_ID()] += 1
+            logger.debug("New in-migrant household %s added to neighborhood %s (%s members)"%(
+                new_household.get_ID(), neighborhood.get_ID(), hh_size))
 
         # Now handle out-migrating households:
         n_outmigr_hh = {}
@@ -1145,6 +1198,25 @@ class Region(Agent_set):
             landuse['pubbldg'][neighborhood.get_ID()] = neighborhood._land_pubbldg
             landuse['other'][neighborhood.get_ID()] = neighborhood._land_other
         return landuse
+
+    def get_neighborhood_nfo_context(self):
+        nfocontext = {'school_min_ft':{}, 'health_min_ft':{}, 'bus_min_ft':{}, 'market_min_ft':{}, 'employer_min_ft':{}}
+        for neighborhood in self.iter_agents():
+            nfocontext['school_min_ft'][neighborhood.get_ID()] = neighborhood._school_min_ft
+            nfocontext['health_min_ft'][neighborhood.get_ID()] = neighborhood._health_min_ft
+            nfocontext['bus_min_ft'][neighborhood.get_ID()] = neighborhood._bus_min_ft
+            nfocontext['market_min_ft'][neighborhood.get_ID()] = neighborhood._market_min_ft
+            nfocontext['employer_min_ft'][neighborhood.get_ID()] = neighborhood._employer_min_ft
+        return nfocontext
+
+    def get_neighborhood_forest_distance(self):
+        forest_dist = {'for_dist_BZ_km':{}, 'for_dist_CNP_km':{}, 'for_closest_km':{}, 'for_closest_type':{}}
+        for neighborhood in self.iter_agents():
+            forest_dist['for_dist_BZ_km'][neighborhood.get_ID()] = neighborhood._forest_dist_BZ_km
+            forest_dist['for_dist_CNP_km'][neighborhood.get_ID()] = neighborhood._forest_dist_CNP_km
+            forest_dist['for_closest_km'][neighborhood.get_ID()] = neighborhood._forest_closest_km
+            forest_dist['for_closest_type'][neighborhood.get_ID()] = neighborhood._forest_closest_type
+        return forest_dist
 
     def get_neighborhood_pop_stats(self):
         """
