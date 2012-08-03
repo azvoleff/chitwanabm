@@ -128,7 +128,7 @@
 'inmigrant_HH.prob.ethnicity' : [((1, 2, 3, 4, 5, 6), (.43881, .23222, .14226, .06224, .12448)) | validate_prob_dist]
 'inmigrant_HH.prob.hh_size' : [((1, 2, 3, 4, 5, 6, 7), (.09559, .22108, .28627, .22108, .12059, .05539)) | validate_prob_dist]
 'inmigrant_HH.prob.hh_head_age' : [((15, 25, 35, 45, 55), (.2997, .4274, .1720, .1008)) | validate_prob_dist]
-'inmigrant_HH.prob.num_HHs' : [((0, 5, 10, 15, 20, 25, 30), (.1016949, .2372881, .2203390, .1684407, .1525424, .1016949)) | validate_prob_dist]
+'inmigrant_HH.prob.num_HHs' : [((0, 5, 10), (.6, .4)) | validate_prob_dist]
 
 'outmigrant_HH.prob' : [0 | validate_float]
 
@@ -289,13 +289,13 @@
 # Education OLR results
 'education.start_school_age_years' : [6 | validate_int]
 'education.depvar_levels' : [(0, 4, 8, 11, 15) | validate_nseq_int(5)]
-'education.coef.intercepts' : [(3.6027, 2.8999, 1.5719, -0.0345) | validate_nseq_float(4)]
-'education.coef.female' : [-2.0501| validate_float]
-'education.coef.ethnicLowHindu' : [-1.9192 | validate_float]
-'education.coef.ethnicNewar' : [0.0835 | validate_float]
-'education.coef.ethnicHillTibeto' : [-1.4424 | validate_float]
-'education.coef.ethnicTeraiTibeto' : [-2.5374 | validate_float]
-'education.coef.log_percagveg' : [-0.1878 | validate_float]
+'education.coef.intercepts' : [(2.0783, 1.3574, -.0135, -1.6826) | validate_nseq_float(4)]
+'education.coef.female' : [-2.0839 | validate_float]
+'education.coef.ethnicLowHindu' : [-2.0151 | validate_float]
+'education.coef.ethnicHillTibeto' : [-1.4839 | validate_float]
+'education.coef.ethnicNewar' : [-0.0171 | validate_float]
+'education.coef.ethnicTeraiTibeto' : [-2.4833 | validate_float]
+'education.coef.avg_yrs_services_lt15' : [0.0485 | validate_float]
 
 # Spouse choice (dependent on age) parameters
 'spousechoice.male.agediff' : [((20, -15, -10, -5, -2, -1, 0, 1, 2, 5, 10, 15, 30), (.0005411, .0032468, .0075758, .0205628, .0178571, .0524892, .0703463, .1049784, .3019481, .2732684, .0963203, .0508658)) | validate_prob_dist]

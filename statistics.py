@@ -101,7 +101,7 @@ def calc_first_birth_prob_ghimireaxinn2010(person, time):
     neighborhood = person.get_parent_agent().get_parent_agent()
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
     inner += rcParams['firstbirth.coef.percagveg'] * percent_agveg
-    inner += rcParams['firstbirth.coef.avgyrsnonfam'] * neighborhood._avg_years_nonfamily_services
+    inner += rcParams['firstbirth.coef.avgyrsnonfam'] * neighborhood._avg_yrs_services_lt15
     inner += rcParams['firstbirth.coef.distnara'] * neighborhood._distnara
     inner += rcParams['firstbirth.coef.elec_avail'] * neighborhood._elec_available
     #inner += rcParams['firstbirth.coef.NBH_wealth_index'] * neighborhood._wealth_index
@@ -194,7 +194,7 @@ def calc_first_birth_prob_zvoleff(person, time):
     neighborhood = person.get_parent_agent().get_parent_agent()
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
     inner += rcParams['firstbirth.zv.coef.percagveg'] * percent_agveg
-    inner += rcParams['firstbirth.zv.coef.avgyrsnonfam'] * neighborhood._avg_years_nonfamily_services
+    inner += rcParams['firstbirth.zv.coef.avgyrsnonfam'] * neighborhood._avg_yrs_services_lt15
     inner += rcParams['firstbirth.zv.coef.distnara'] * neighborhood._distnara
     inner += rcParams['firstbirth.zv.coef.elec_avail'] * neighborhood._elec_available
     #inner += rcParams['firstbirth.zv.coef.NBH_wealth_index'] * neighborhood._wealth_index
@@ -825,11 +825,8 @@ def calc_education_level(person):
 
         # Neighborhood-level characteristics
         neighborhood = person.get_parent_agent().get_parent_agent()
-        if neighborhood._land_agveg == 0:
-            log_percent_agveg = 0
-        else:
-            log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
-        xb_sum += rcParams['education.coef.log_percagveg'] * log_percent_agveg
+        xb_sum += rcParams['education.coef.avg_yrs_services_lt15'] * \
+                neighborhood._avg_yrs_services_lt15
 
         prob_y_gte_j[n] = 1. / (1 + np.exp(-(intercept + xb_sum)))
 
@@ -844,6 +841,7 @@ def calc_education_level(person):
 
     # Code for testing only:
     #print prob_cutoffs
+
     rand = np.random.rand()
     for n in np.arange(len(prob_cutoffs)):
         if rand <= prob_cutoffs[n]:
