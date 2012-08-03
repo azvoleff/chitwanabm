@@ -677,14 +677,50 @@ def calc_fuelwood_usage_probability(household, time):
     Calculates the probability of fuelwood usage (not quantity of usage, but 
     probability of using any wood at all) at the household-level.
     """
+
+    hhsize = household.num_members()
+    if hhsize == 0:
+        # Households may be empty but still in the model if they have 
+        # out-migrants currently away, but that will be returning.
+        return 0
+
     inner = rcParams['fw_usageprob.coef.intercept']
 
-    inner += rcParams['fw_usageprob.coef.hhsize']
+    ######################################################################
+    # Household level vars
+    inner += rcParams['fw_usageprob.coef.hhsize'] * hhsize
 
-    inner += rcParams['fw_usageprob.coef.ethnicLowHindu']
-    inner += rcParams['fw_usageprob.coef.ethnicNewar']
-    inner += rcParams['fw_usageprob.coef.ethnicHillTibeto']
-    inner += rcParams['fw_usageprob.coef.ethnicTeraiTibeto']
+    hh_ethnicity = household.get_hh_head().get_ethnicity()
+    if hh_ethnicity == "HighHindu":
+        # This was the reference class
+        pass
+    elif hh_ethnicity == "LowHindu":
+        inner += rcParams['fw_usageprob.coef.ethnicLowHindu']
+    elif hh_ethnicity == "Newar":
+        inner += rcParams['fw_usageprob.coef.ethnicNewar']
+    elif hh_ethnicity == "HillTibeto":
+        inner += rcParams['fw_usageprob.coef.ethnicHillTibeto']
+    elif hh_ethnicity == "TeraiTibeto":
+        inner += rcParams['fw_usageprob.coef.ethnicTeraiTibeto']
+    else:
+        raise StatisticsError("No coefficient was specified for ethnicity '%s'"%hh_ethnicity)
+
+    inner += rcParams['fw_usageprob.coef.meangender'] * household.mean_gender()
+
+    ######################################################################
+    # Neighborhood level vars
+    neighborhood = household.get_parent_agent()
+    inner += rcParams['fw_usageprob.coef.elecavail'] * \
+            neighborhood._elec_available
+    inner += rcParams['fw_usageprob.coef.distnara_km'] * \
+            neighborhood._distnara
+    if neighborhood._forest_closest_type == "BZ":
+        # Reference level
+        pass
+    elif neighborhood._forest_closest_type == "CNP":
+        inner += rcParams['fw_usageprob.coef.closest_typeCNP']
+    else:
+        raise StatisticsError("No coefficient was specified for closest forest type '%s'"%neighborhood._forest_closest_type)
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:

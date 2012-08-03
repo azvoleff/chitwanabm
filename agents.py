@@ -519,7 +519,7 @@ class Household(Agent_set):
     def get_hh_head(self):
         max_age = None
         if self.num_members() == 0:
-            raise AgentError("No household head for household %s. Household has no members"%self.get_ID())
+            raise Exception("No household head for household %s. Household has no members"%self.get_ID())
         for person in self.get_agents():
             if person.get_age_months() > max_age:
                 max_age = person.get_age_months()
@@ -576,6 +576,13 @@ class Household(Agent_set):
             person.make_permanent_outmigration(timestep)
         logger.debug("Household %s outmigrated from neighborhood %s (hhsize: %s)"%( \
                 self.get_ID(), neighborhood.get_ID(), hhsize))
+
+    def mean_gender(self):
+        gender_total = 0
+        for member in self.get_agents():
+            if member.get_sex() == 'female':
+                gender_total += 1
+        return gender_total / self.num_members()
 
     def __str__(self):
         return "Household(HID: %s. %s person(s))"%(self.get_ID(), self.num_members())

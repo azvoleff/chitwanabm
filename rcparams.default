@@ -258,12 +258,16 @@
 ###############################################################################
 # Household agent parameters
 ###############################################################################
-'fw_usageprob.coef.intercept' : [1.816 | validate_float]
-'fw_usageprob.coef.hhsize' : [1.816 | validate_float]
-'fw_usageprob.coef.ethnicLowHindu' : [0.12222 | validate_float]
-'fw_usageprob.coef.ethnicNewar' : [0.05827 | validate_float]
-'fw_usageprob.coef.ethnicHillTibeto' : [2.37862 | validate_float]
-'fw_usageprob.coef.ethnicTeraiTibeto' : [0.36464 | validate_float]
+'fw_usageprob.coef.intercept' : [1.0346 | validate_float]
+'fw_usageprob.coef.hhsize' : [.3320 | validate_float]
+'fw_usageprob.coef.ethnicLowHindu' : [1.0965 | validate_float]
+'fw_usageprob.coef.ethnicNewar' : [-.7423 | validate_float]
+'fw_usageprob.coef.ethnicHillTibeto' : [-.0037 | validate_float]
+'fw_usageprob.coef.ethnicTeraiTibeto' : [2.5426 | validate_float]
+'fw_usageprob.coef.meangender' : [.9869 | validate_float]
+'fw_usageprob.coef.elecavail' : [-1.3013 | validate_float]
+'fw_usageprob.coef.distnara_km' : [.0949 | validate_float]
+'fw_usageprob.coef.closest_typeCNP' : [-0.4760 | validate_float]
 
 'fw_demand.simple.coef.intercept' : [1.816 | validate_float]
 'fw_demand.simple.coef.hhsize' : [-.408 | validate_float]
