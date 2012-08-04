@@ -1,4 +1,4 @@
-
+#!/usr/bin/env Rscript
 #
 # Copyright 2008-2012 Alex Zvoleff
 #
