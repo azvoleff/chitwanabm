@@ -1,59 +1,100 @@
+#!/usr/bin/env Rscript
+
 require(reshape) # For 'melt' command
 require(ggplot2, quietly=TRUE)
+
 WIDTH = 8.33
 HEIGHT = 5.53
 DPI = 300
 theme_update(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
 
-nofb <- read.csv("R:/Data/Nepal/ChitwanABM_runs/USIALE2012_nofeedback/fw_usage_ens_results.csv")
-names(nofb) <- gsub('fw_usage_metrictons', 'nofb', names(nofb))
-midfb <- read.csv("R:/Data/Nepal/ChitwanABM_runs/USIALE2012_midfeedback/fw_usage_ens_results.csv")
-names(midfb) <- gsub('fw_usage_metrictons', 'midfb', names(midfb))
-lowfb <- read.csv("R:/Data/Nepal/ChitwanABM_runs/USIALE2012_lowfeedback/fw_usage_ens_results.csv")
-names(lowfb) <- gsub('fw_usage_metrictons', 'lowfb', names(lowfb))
-highfb <- read.csv("R:/Data/Nepal/ChitwanABM_runs/USIALE2012_highfeedback/fw_usage_ens_results.csv")
-names(highfb) <- gsub('fw_usage_metrictons', 'highfb', names(highfb))
+low_scenario_path  <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/225_fission"
+mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
+high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/375_fission"
 
-fw_scenarios <- merge(nofb, lowfb)
-fw_scenarios <- merge(fw_scenarios, midfb)
-fw_scenarios <- merge(fw_scenarios, highfb)
+low_scenario_name <- ".225 HH Fission Rate"
+mid_scenario_name <- ".300 HH Fission Rate"
+high_scenario_name <- ".375 HH Fission Rate"
 
-meancols <- grep('mean', names(fw_scenarios))
-fw_means <- data.frame(time_Robj=fw_scenarios$time.Robj, fw_scenarios[meancols])
-fw_means <- melt(fw_means, id='time_Robj')
-fw_means$variable <- gsub('.mean', '', fw_means$variable)
-names(fw_means)[names(fw_means) == "value"] <- "fwmean"
-names(fw_means)[names(fw_means) == "variable"] <- "scenario"
+plot_scenario_comparison <- function(result_file_name, low_name, mid_name, 
+                                     high_name, var_name, ylabel) {
+    low_scenario <- read.csv(paste(low_scenario_path, result_file_name, 
+                                   sep="/"))
+    names(low_scenario) <- gsub(var_name, 'low', names(low_scenario))
+    mid_scenario <- read.csv(paste(mid_scenario_path, result_file_name, 
+                                   sep="/"))
+    names(mid_scenario) <- gsub(var_name, 'mid', names(mid_scenario))
+    high_scenario <- read.csv(paste(high_scenario_path, result_file_name, 
+                                    sep="/"))
+    names(high_scenario) <- gsub(var_name, 'high', names(high_scenario))
+    needed_cols <- grep('^(time.Robj|low)', names(low_scenario))
+    scenarios <- merge(low_scenario[needed_cols], mid_scenario[needed_cols])
+    scenarios <- merge(scenarios, high_scenario[needed_cols])
 
-sdcols <- grep('sd', names(fw_scenarios))
-fw_sds <- data.frame(time_Robj=fw_scenarios$time.Robj, fw_scenarios[sdcols])
-fw_sds <- melt(fw_sds, id='time_Robj')
-fw_sds$variable <- gsub('.sd', '', fw_sds$variable)
-names(fw_sds)[names(fw_sds) == "value"] <- "sd"
-names(fw_sds)[names(fw_sds) == "variable"] <- "scenario"
+    meancols <- grep('mean', names(scenarios))
+    means <- data.frame(time_Robj=scenarios$time.Robj, scenarios[meancols])
+    means <- melt(means, id='time_Robj')
+    means$variable <- gsub('.mean', '', means$variable)
+    names(means)[names(means) == "value"] <- "varmean"
+    names(means)[names(means) == "variable"] <- "scenario"
 
-fw_results <- merge(fw_means, fw_sds)
-fw_results$bound.low <- fw_results$fwmean - 2*fw_results$sd
-fw_results$bound.high <- fw_results$fwmean + 2*fw_results$sd
-fw_results$scenario <- factor(fw_results$scenario)
-fw_results$time_Robj <- as.Date(fw_results$time_Robj)
-fw_results$scenario <- ordered(fw_results$scenario, levels=c("nofb", "lowfb", "midfb", "highfb"))
+    sdcols <- grep('sd', names(scenarios))
+    sds <- data.frame(time_Robj=scenarios$time.Robj, scenarios[sdcols])
+    sds <- melt(sds, id='time_Robj')
+    sds$variable <- gsub('.sd', '', sds$variable)
+    names(sds)[names(sds) == "value"] <- "sd"
+    names(sds)[names(sds) == "variable"] <- "scenario"
 
-fw_results <- fw_results[!(fw_results$scenario=="midfb"),]
-fw_results <- fw_results[fw_results$time_Robj>"1998-01-01",]
+    results <- merge(means, sds)
+    results$bound.low <- results$varmean - 2*results$sd
+    results$bound.high <- results$varmean + 2*results$sd
+    results$scenario <- factor(results$scenario)
+    results$time_Robj <- as.Date(results$time_Robj)
+    results$scenario <- ordered(results$scenario, levels=c("low", "mid", 
+                                                                 "high"))
+    results <- results[results$time_Robj>"1997-01-01",]
 
-# Plot fw consumption in metric tons
-p <- ggplot()
-p + geom_line(aes(time_Robj, fwmean, colour=scenario), data=fw_results) +
-    geom_ribbon(aes(x=time_Robj, ymin=bound.low, ymax=bound.high, fill=scenario, alpha=.2), data=fw_results) +
-    scale_fill_discrete(name="Model Type",
-                            breaks=c("nofb", "lowfb", "midfb", "highfb"),
-                            labels=c("No Feedback", "Low Feedback",
-                                     "Mid Feedback", "High Feedback")) +
-    scale_colour_discrete(name="Model Type",
-                            breaks=c("nofb", "lowfb", "midfb", "highfb"),
-                            labels=c("No Feedback", "Low Feedback",
-                                     "Mid Feedback", "High Feedback")) +
-    labs(x="Time", y="Metric Tons of Fuelwood / Month")
-ggsave("fuelwood_usage.png", width=WIDTH, height=HEIGHT, dpi=DPI)
+    p <- ggplot()
+    p + geom_line(aes(time_Robj, varmean, colour=scenario), data=results) +
+        geom_ribbon(aes(x=time_Robj, ymin=bound.low, ymax=bound.high, 
+                        fill=scenario, alpha=.2), data=results) +
+        scale_fill_discrete(name="Scenario",
+                                breaks=c("low", "mid", "high"),
+                                labels=c(low_scenario_name, mid_scenario_name, 
+                                    high_scenario_name)) +
+        scale_colour_discrete(name="Scenario",
+                                breaks=c("low", "mid", "high"),
+                                labels=c(low_scenario_name, mid_scenario_name, 
+                                         high_scenario_name)) +
+        scale_alpha(guide=FALSE) +
+        labs(x="Time", y=ylabel)
+    ggsave(paste("scenario_comparison_", var_name, ".png", sep=""), 
+           width=WIDTH, height=HEIGHT, dpi=DPI)
+}
+
+
+plot_scenario_comparison("fw_usage_ens_results.csv", 
+                         low_scenario_name,mid_scenario_name, 
+                         high_scenario_name, 'fw_usage_metrictons',
+                         "Metric Tons of Fuelwood / Month")
+
+plot_scenario_comparison("ens_results_pop.csv", 
+                         low_scenario_name, mid_scenario_name, 
+                         high_scenario_name, 'num_psn',
+                         "Total Population")
+
+plot_scenario_comparison("ens_results_pop.csv", 
+                         low_scenario_name, mid_scenario_name, 
+                         high_scenario_name, 'num_hs',
+                         "Number of Households")
+
+plot_scenario_comparison("ens_results_LULC.csv", 
+                         low_scenario_name, mid_scenario_name, 
+                         high_scenario_name, 'agveg',
+                         "Percent Agricultural Vegetation")
+
+plot_scenario_comparison("ens_results_LULC.csv", 
+                         low_scenario_name, mid_scenario_name, 
+                         high_scenario_name, 'privbldg',
+                         "Percent Private Buildings")
