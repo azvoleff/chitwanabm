@@ -193,6 +193,9 @@ def validate_household_attributes(world):
             if household.get_agents() == [] and household.get_away_members() == []:
                 logger.warning("Household %s has no members."%household.get_ID())
                 all_agents_valid = False
+            if household.get_parent_agent() == None:
+                logger.warning("Household %s is not a member of any neighborhood."%household.get_ID())
+                all_agents_valid = False
     return all_agents_valid
 
 def validate_neighborhood_attributes(world):
