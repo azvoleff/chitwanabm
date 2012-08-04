@@ -366,7 +366,7 @@ class Person(Agent):
             # If agent is away, then remove then from the returning agents list 
             # of their parent household:
             logger.debug("Person %s permanently out-migrated (while away)"%self.get_ID())
-            self._return_household._members_away.remove(agent)
+            self._return_household._members_away.remove(self)
         # Remove agents from any agent store if they are in them while in an 
         # agent_store
         if self._store_list != []:
