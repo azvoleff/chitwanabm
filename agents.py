@@ -990,8 +990,8 @@ class Region(Agent_set):
                     woman = person.get_spouse()
                     man = person
                 logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
-                log_event_record("Divorce", man, time)
-                log_event_record("Divorce", woman, time)
+                log_event_record("Divorce", man, time_float)
+                log_event_record("Divorce", woman, time_float)
                 person.divorce()
                 if woman.is_away():
                     # Women who are away when they get divorced are made to 
