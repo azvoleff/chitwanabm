@@ -130,7 +130,7 @@ def main(argv=None):
     # running (births, migrations, deaths, marriages, etc.)
     agent_event_log_file_path = os.path.join(results_path, "person_events.log")
     agent_event_log_file = open(agent_event_log_file_path, mode='w')
-    agent_event_log_file.write('time,event,PID,age,ethnic,marrtime,schooling,NID,agveg,nonagveg,privbldg,pubbldg,other,elec,school_min_ft,health_min_ft,bus_min_ft,market_min_ft,employer_min_ft,forest_dist_BZ_km,forest_dist_CNP_km,forest_closest_km,forest_closest_type\n')
+    agent_event_log_file.write('time,event,PID,age,ethnic,marrtime,spouse,schooling,NID,agveg,nonagveg,privbldg,pubbldg,other,elec,school_min_ft,health_min_ft,bus_min_ft,market_min_ft,employer_min_ft,forest_dist_BZ_km,forest_dist_CNP_km,forest_closest_km,forest_closest_type\n')
     agent_event_log_file.close()
     agent_event_fh = logging.FileHandler(os.path.join(results_path, "person_events.log"), mode='a')
     agent_event_fh.setLevel(logging.INFO)

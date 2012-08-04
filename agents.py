@@ -219,9 +219,13 @@ class Person(Agent):
 
     def get_info(self):
         "Returns basic info about this person for use in logging."
+        if self._spouse != None:
+            spouse = self._spouse.get_ID()
+        else:
+            spouse = None
         return ",".join([str(self.get_ID()), str(self.get_age_years()), 
                          str(self.get_ethnicity()), str(self._marriage_time), 
-                         str(self._schooling)])
+                         str(spouse), str(self._schooling)])
 
     def get_mother(self):
         return self._mother
@@ -511,6 +515,11 @@ class Household(Agent_set):
         # (returning migrants).
         self._members_away = []
         self._hh_area = 0 # Area of house plot in square meters
+
+    def get_info(self):
+        "Returns basic info about this person for use in logging."
+        # TODO: Complete this function.
+        pass
 
     def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
@@ -1126,15 +1135,19 @@ class Region(Agent_set):
                 if psn._mother != None and model_hh.is_member(psn._mother.get_ID()):
                     clone_mother_ID = clone_dict[psn._mother.get_ID()]
                     clone._mother = new_household.get_agent(clone_mother_ID)
+
                 if psn._father != None and model_hh.is_member(psn._father.get_ID()):
                     clone_father_ID = clone_dict[psn._father.get_ID()]
                     clone._father = new_household.get_agent(clone_father_ID)
+
                 if (psn.get_sex() == "female") and (psn._last_birth_time != None):
                     clone._last_birth_time = psn._last_birth_time
+
                 if psn._spouse != None and model_hh.is_member(psn._spouse.get_ID()):
                     clone_spouse_ID = clone_dict[psn._spouse.get_ID()]
                     clone._spouse = new_household.get_agent(clone_spouse_ID)
                     clone._marriage_time = psn._marriage_time
+
             # Now add the in migrant household to a randomly chosen 
             # neighborhood:
             poss_neighborhoods = self.get_agents()
