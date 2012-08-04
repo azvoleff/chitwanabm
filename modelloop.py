@@ -228,8 +228,8 @@ def main_loop(world, results_path):
                     model_time.get_cur_year(), annual_num_marr, 
                     annual_num_divo, annual_num_births,
                     annual_num_deaths, annual_num_out_migr_indiv, 
-                    annual_num_ret_migr_indiv, annual_num_in_migr_HH, 
-                    annual_num_out_migr_HH)
+                    annual_num_ret_migr_indiv, annual_num_out_migr_HH, 
+                    annual_num_in_migr_HH)
             logger.info('%s'%total_string)
             logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
             if rcParams['run_validation_checks']:

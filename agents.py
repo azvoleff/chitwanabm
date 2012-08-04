@@ -156,17 +156,17 @@ class Person(Agent):
             # date of their last birth, and initialize first birth interval for 
             # these agents in initialization code.
             self._birth_interval = calc_birth_interval()
+            self._last_birth_time = None
+        
+        # Note that first birth timing is assigned to men, just to make 
+        # outputting results easier, so that we don't have to check if a value 
+        # is assigned.
+        self._first_birth_timing = calc_first_birth_time(self)
 
         self._spouse = None
 
         self._children = []
         self._number_of_children = 0
-
-        if self._sex == "female":
-            self._first_birth_timing = calc_first_birth_time(self)
-            self._last_birth_time = None
-        else:
-            self._first_birth_timing = None
 
         self._marriage_time = None
 
@@ -518,8 +518,16 @@ class Household(Agent_set):
 
 
     def get_away_members(self):
-        "Returns any household members that area away (migrants)."
+        "Returns any household members that are away (migrants)."
         return self._members_away
+    
+    def num_away_members(self):
+        "Returns number of household members that are away (migrants)."
+        return len(self._members_away)
+
+    def get_all_HH_members(self):
+        "Returns all household members (including away migrants)."
+        return self.get_agents() + self.get_away_members()
     
     def get_hh_head(self):
         max_age = None
@@ -1098,12 +1106,13 @@ class Region(Agent_set):
             np.random.shuffle(household_list)
             # Choose an existing household as a model
             for model_hh in household_list:
-                if model_hh.num_members() == hh_size:
+                model_hh_size = model_hh.num_members() + model_hh.num_away_members()
+                if model_hh_size == hh_size:
                     break
             # Create and populate the new household
             new_household = self._world.new_household()
             clone_dict = {}
-            for psn in model_hh.get_agents():
+            for psn in model_hh.get_all_HH_members():
                 new_psn = self._world.new_person(birthdate=psn._birthdate, 
                                                     age=psn.get_age_months(), 
                                                     sex=psn.get_sex(), 
@@ -1112,7 +1121,7 @@ class Region(Agent_set):
                 clone_dict[psn.get_ID()] = new_psn.get_ID()
                 new_household.add_agent(new_psn)
             # Now setup the relationships within the new household.
-            for psn in model_hh.get_agents():
+            for psn in model_hh.get_all_HH_members():
                 clone = new_household.get_agent(clone_dict[psn.get_ID()])
                 if psn._mother != None and model_hh.is_member(psn._mother.get_ID()):
                     clone_mother_ID = clone_dict[psn._mother.get_ID()]
@@ -1120,7 +1129,7 @@ class Region(Agent_set):
                 if psn._father != None and model_hh.is_member(psn._father.get_ID()):
                     clone_father_ID = clone_dict[psn._father.get_ID()]
                     clone._father = new_household.get_agent(clone_father_ID)
-                if psn.get_sex == "female" and psn._last_birth_time != None:
+                if (psn.get_sex() == "female") and (psn._last_birth_time != None):
                     clone._last_birth_time = psn._last_birth_time
                 if psn._spouse != None and model_hh.is_member(psn._spouse.get_ID()):
                     clone_spouse_ID = clone_dict[psn._spouse.get_ID()]
