@@ -260,6 +260,10 @@ class Person(Agent):
     def is_away(self):
         return self._away
 
+    def is_in_school(self):
+        if self._school_status == "inschool": return True
+        else: return False
+
     def get_mother_years_schooling(self):
         if self.is_initial_agent() or self.is_in_migrant():
             # Only initial agents and in-migrant agents have this attribute.  
@@ -394,6 +398,12 @@ class Person(Agent):
             female._des_num_children = calc_des_num_children()
         self._marriage_time = time
         spouse._marriage_time = time
+
+    def get_marriage_age_years(self, time):
+        assert self._spouse != None, "Person %s does not have a spouse %s"%(self.get_ID())
+        marr_age_years = self.get_age_years() - (time - self._marriage_time) 
+        assert marr_age_years > 0, "Person %s got married before they were borns"%(self.get_ID())
+        return marr_age_years
 
     def divorce(self):
         assert self.get_spouse() != None, "Person %s cannot divorce as they are not married"%(person.get_ID())

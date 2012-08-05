@@ -192,25 +192,26 @@ def calc_first_birth_prob_zvoleff(person, time):
     #########################################################################
     # Adult community context
     neighborhood = person.get_parent_agent().get_parent_agent()
+    # Convert nbh_area form square meters to square kilometers
+    nbh_area = neighborhood._land_total / 1000000
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
     inner += rcParams['firstbirth.zv.coef.percagveg'] * percent_agveg
-    inner += rcParams['firstbirth.zv.coef.avgyrsnonfam'] * neighborhood._avg_yrs_services_lt15
+    inner += rcParams['firstbirth.zv.coef.nbh_area'] * nbh_area
     inner += rcParams['firstbirth.zv.coef.distnara'] * neighborhood._distnara
     inner += rcParams['firstbirth.zv.coef.elec_avail'] * neighborhood._elec_available
-    #inner += rcParams['firstbirth.zv.coef.NBH_wealth_index'] * neighborhood._wealth_index
+    inner += rcParams['firstbirth.zv.coef.avgyrsnonfam'] * neighborhood._avg_yrs_services_lt15
 
     #########################################################################
-    # Childhood community context
-    inner += rcParams['firstbirth.zv.coef.child_school_1hr'] * person._child_school_lt_1hr_ft
-    inner += rcParams['firstbirth.zv.coef.child_health_1hr'] * person._child_health_lt_1hr_ft
-    inner += rcParams['firstbirth.zv.coef.child_bus_1hr'] * person._child_bus_lt_1hr_ft
-    inner += rcParams['firstbirth.zv.coef.child_emp_1hr'] * person._child_employer_lt_1hr_ft
-
-    #inner += rcParams['firstbirth.zv.coef.age_1st_marr']
-    #inner += rcParams['firstbirth.zv.coef.marr_dur_pre_1997']
+    # Parents characteristics
+    inner += rcParams['firstbirth.zv.coef.mother_num_children'] * person.get_mother_num_children()
+    inner += rcParams['firstbirth.zv.coef.mother_school'] * person.get_mother_years_schooling()
+    inner += rcParams['firstbirth.zv.coef.mother_work'] * person.get_mother_work()
+    inner += rcParams['firstbirth.zv.coef.father_school'] * person.get_father_years_schooling()
+    inner += rcParams['firstbirth.zv.coef.father_work'] * person.get_father_work()
+    inner += rcParams['firstbirth.zv.coef.parents_contracep_ever'] * person._parents_contracep_ever
 
     #########################################################################
-    # Ethnicity (high caste hindu as reference case)
+    # Other personal controls
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
     if ethnicity == "HighHindu":
@@ -224,46 +225,10 @@ def calc_first_birth_prob_zvoleff(person, time):
         inner += rcParams['firstbirth.zv.coef.ethnicNewar']
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['firstbirth.zv.coef.ethnicTeraiTibeto']
+
+    inner += rcParams['firstbirth.zv.coef.age_1st_marr'] * person.get_marriage_age_years(time)
+    #inner += rcParams['firstbirth.zv.coef.marr_dur_pre_1997']
  
-    #########################################################################
-    # Education level of individual
-    assert person._schooling !=None, "schoolinging must be defined"
-    if person._schooling < 4:
-        # This was the reference level
-        pass
-    elif person._schooling < 8:
-        inner += rcParams['firstbirth.zv.coef.schooling4']
-    elif person._schooling < 11:
-        inner += rcParams['firstbirth.zv.coef.schooling8']
-    elif person._schooling >= 11:
-        inner += rcParams['firstbirth.zv.coef.schooling11']
-
-    #########################################################################
-    # Parents characteristics
-    inner += rcParams['firstbirth.zv.coef.parents_contracep_ever'] * person._parents_contracep_ever
-
-
-    #if person.is_initial_agent():
-    # For initial agents, use the data from the CVFS.
-    #else:
-        # For others (agents dynamically generated in the model - not from the 
-        # CVFS data), use the most current simulated data.
-        #if person.get_father()._work > 0: father_work = 1
-        #else: father_work = 0
-        #if person.get_father()._schooling > 0: father_school = 1
-        #else: father_school = 0
-        #if person.get_mother()._work > 0: mother_work = 1
-        #else: mother_work = 0
-        #if person.get_mother()._schooling > 0: mother_school = 1
-        #else: mother_school = 0
-        #mother_num_children = person.get_mother().get_num_children()
-    inner += rcParams['firstbirth.zv.coef.father_work'] * person.get_father_work()
-    inner += rcParams['firstbirth.zv.coef.father_school'] * person.get_father_years_schooling()
-    inner += rcParams['firstbirth.zv.coef.mother_work'] * person.get_mother_work()
-    inner += rcParams['firstbirth.zv.coef.mother_school'] * person.get_mother_years_schooling()
-
-    inner += rcParams['firstbirth.zv.coef.mother_num_children'] * person.get_mother_num_children()
-
     #########################################################################
     # Hazard duration
     marriage_time = time - person._marriage_time
@@ -281,6 +246,19 @@ def calc_first_birth_prob_zvoleff(person, time):
         inner += rcParams['firstbirth.zv.coef.hazdur_36']
     elif marriage_time > 36:
         inner += rcParams['firstbirth.zv.coef.hazdur_42']
+
+    #########################################################################
+    # Education level of individual
+    assert person._schooling !=None, "schoolinging must be defined"
+    if person._schooling < 4:
+        # This was the reference level
+        pass
+    elif person._schooling < 8:
+        inner += rcParams['firstbirth.zv.coef.schooling4']
+    elif person._schooling < 11:
+        inner += rcParams['firstbirth.zv.coef.schooling8']
+    elif person._schooling >= 11:
+        inner += rcParams['firstbirth.zv.coef.schooling11']
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
@@ -340,18 +318,24 @@ def calc_probability_marriage_zvoleff(person):
     Alex Zvoleff's empirical analysis of the CVFS data, following the results 
     of the analysis conducted by Yabiku (2006).
     """
-    neighborhood = person.get_parent_agent().get_parent_agent()
-
     inner = rcParams['marrtime.zv.coef.intercept']
 
     # Neighborhood characteristics
+    neighborhood = person.get_parent_agent().get_parent_agent()
     if neighborhood._land_agveg == 0:
         log_percent_agveg = 0
     else:
         log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
     inner += rcParams['marrtime.zv.coef.logpercagveg'] * log_percent_agveg
-    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
 
+    inner += rcParams['migration.zv.coef.log_market_min_ft'] * np.log(neighborhood._market_min_ft + 1)
+
+    # Schooling
+    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
+    if person.is_in_school():
+        inner += rcParams['marrtime.zv.coef.in_school']
+
+    # Gender
     if person.get_sex() == "female":
         inner += rcParams['marrtime.zv.coef.female']
 
@@ -369,10 +353,9 @@ def calc_probability_marriage_zvoleff(person):
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['marrtime.zv.coef.ethnicTeraiTibeto']
 
-    # Convert person's age from months to decades:
-    agedecades = (person.get_age_years()) / 10
-    inner += rcParams['marrtime.zv.coef.agedecades'] * agedecades
-    inner += rcParams['marrtime.zv.coef.agedecades_squared'] * (agedecades**2)
+    age = person.get_age_years()
+    inner += rcParams['marrtime.zv.coef.age'] * age
+    inner += rcParams['marrtime.zv.coef.age_squared'] * (age ** 2)
     
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
@@ -512,11 +495,26 @@ def calc_probability_migration_zvoleff(person):
     # Intercept
     inner = rcParams['migration.zv.coef.intercept']
 
+    if person.is_in_school():
+        inner += rcParams['migration.zv.coef.in_school']
+
+    inner += person.get_years_schooling() * rcParams['migration.zv.coef.years_schooling']
+
+    #######################################################################
+    # Household level variables
+    household = person.get_parent_agent()
+    inner += rcParams['migration.zv.coef.own_farmland'] * household._own_land
+
+    #######################################################################
+    # Neighborhood level variables
+    neighborhood = household.get_parent_agent()
+    inner += rcParams['migration.zv.coef.log_market_min_ft'] * np.log(neighborhood._market_min_ft + 1)
+
+    #########################################################################
+    # Other controls
     if person.get_sex() == "female":
         inner += rcParams['migration.zv.coef.female']
 
-    #########################################################################
-    # Ethnicity (high caste hindu as reference case)
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
     if ethnicity == "HighHindu":
@@ -538,6 +536,11 @@ def calc_probability_migration_zvoleff(person):
         inner += rcParams['migration.zv.coef.age24-34']
     elif (age > 34) & (age <= 44):
         inner += rcParams['migration.zv.coef.age34-44']
+    elif (age > 44) & (age <= 55):
+        inner += rcParams['migration.zv.coef.age45-55']
+    elif (age > 55):
+        # Reference class
+        pass
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
