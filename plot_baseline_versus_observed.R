@@ -64,4 +64,54 @@ p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type),
     scale_linetype_discrete(name="Data_type",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
-ggsave("scenario_versus_observed_events.png", width=WIDTH, height=HEIGHT, dpi=DPI)
+ggsave("scenario_versus_observed_events_all.png", width=WIDTH, height=HEIGHT, 
+       dpi=DPI)
+
+p <- ggplot()
+p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type), 
+              data=all_events[all_events$Event_type=="marriages", ]) +
+    geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up, fill=Event_type),
+                alpha=.2, 
+                data=baseline_events.sds[all_events$Event_type=="marriages", ]) +
+    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Events") +
+    scale_color_discrete(name="Event Type",
+                         breaks=c("births", "deaths", "marriages"),
+                         labels=c("Births", "Deaths", "Marriages")) + 
+    scale_linetype_discrete(name="Data_type",
+                            breaks=c("ABM", "CVFS"),
+                            labels=c("ABM", "Observed"))
+ggsave("scenario_versus_observed_events_marriages.png", width=WIDTH, 
+       height=HEIGHT, dpi=DPI)
+
+p <- ggplot()
+p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type), 
+              data=all_events[all_events$Event_type=="births", ]) +
+    geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up, fill=Event_type),
+                alpha=.2, 
+                data=baseline_events.sds[all_events$Event_type=="births", ]) +
+    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Events") +
+    scale_color_discrete(name="Event Type",
+                         breaks=c("births", "deaths", "marriages"),
+                         labels=c("Births", "Deaths", "Marriages")) + 
+    scale_linetype_discrete(name="Data_type",
+                            breaks=c("ABM", "CVFS"),
+                            labels=c("ABM", "Observed"))
+ggsave("scenario_versus_observed_events_births.png", width=WIDTH, 
+       height=HEIGHT, dpi=DPI)
+
+p <- ggplot()
+p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type), 
+              data=all_events[all_events$Event_type=="deaths", ]) +
+    geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up, fill=Event_type),
+                alpha=.2, 
+                data=baseline_events.sds[all_events$Event_type=="deaths", ]) +
+    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Events") +
+    scale_color_discrete(name="Event Type",
+                         breaks=c("births", "deaths", "marriages"),
+                         labels=c("Births", "Deaths", "Marriages")) + 
+    scale_linetype_discrete(name="Data_type",
+                            breaks=c("ABM", "CVFS"),
+                            labels=c("ABM", "Observed"))
+ggsave("scenario_versus_observed_events_deaths.png", width=WIDTH, 
+       height=HEIGHT, dpi=DPI)
+
