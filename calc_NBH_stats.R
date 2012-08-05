@@ -194,6 +194,9 @@ calc_ensemble_results <- function(model_results) {
         var_sd.name <- paste(var_name, ".sd", sep="")
         names(ens_res)[(length(ens_res)-1):length(ens_res)] <- c(var_mean.name, var_sd.name)
     }
+
+    ens_res <- ens_res[ens_res$time.Robj>"1997-01-01", ]
+
     return(ens_res)
 }
 

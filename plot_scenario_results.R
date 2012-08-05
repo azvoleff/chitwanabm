@@ -15,7 +15,7 @@ update_geom_defaults("line", aes(size=1))
 # low_scenario_name <- ".225 HH Fission Rate"
 # mid_scenario_name <- ".300 HH Fission Rate"
 # high_scenario_name <- ".375 HH Fission Rate"
- 
+
 # low_scenario_path  <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/150_fission"
 # mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
 # high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/600_fission"
@@ -23,13 +23,19 @@ update_geom_defaults("line", aes(size=1))
 # mid_scenario_name <- ".300 HH Fission Rate"
 # high_scenario_name <- ".600 HH Fission Rate"
 
+# low_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/0395_perm_outmig"
+# mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
+# high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/1185_perm_outmig"
+# low_scenario_name <- ".0395 Perm. Outmig. Rate"
+# mid_scenario_name <- ".0795 Perm. Outmig. Rate"
+# high_scenario_name <- ".1185 Perm. Outmig. Rate"
 
-low_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/0395_perm_outmig"
+low_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/low_des_num_child"
 mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
-high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/1185_perm_outmig"
-low_scenario_name <- ".0395 Perm. Outmig. Rate"
-mid_scenario_name <- ".0795 Perm. Outmig. Rate"
-high_scenario_name <- ".1185 Perm. Outmig. Rate"
+high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/high_des_num_child"
+low_scenario_name <- "Fewer Children"
+mid_scenario_name <- "Baseline"
+high_scenario_name <- "More Children"
  
 plot_scenario_comparison <- function(result_file_name, low_name, mid_name, 
                                      high_name, var_name, ylabel) {
