@@ -30,9 +30,9 @@ update_geom_defaults("line", aes(size=1))
 # mid_scenario_name <- ".0795 Perm. Outmig. Rate"
 # high_scenario_name <- ".1185 Perm. Outmig. Rate"
 
-low_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/low_des_num_child"
+low_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/high_des_num_child"
 mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
-high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/high_des_num_child"
+high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/low_des_num_child"
 low_scenario_name <- "Fewer Children"
 mid_scenario_name <- "Baseline"
 high_scenario_name <- "More Children"
