@@ -9,14 +9,28 @@ DPI = 300
 theme_update(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
 
-low_scenario_path  <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/225_fission"
+# low_scenario_path  <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/225_fission"
+# mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
+# high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/375_fission"
+# low_scenario_name <- ".225 HH Fission Rate"
+# mid_scenario_name <- ".300 HH Fission Rate"
+# high_scenario_name <- ".375 HH Fission Rate"
+ 
+# low_scenario_path  <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/150_fission"
+# mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
+# high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/600_fission"
+# low_scenario_name <- ".150 HH Fission Rate"
+# mid_scenario_name <- ".300 HH Fission Rate"
+# high_scenario_name <- ".600 HH Fission Rate"
+
+
+low_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/0395_perm_outmig"
 mid_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/Baseline"
-high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/375_fission"
-
-low_scenario_name <- ".225 HH Fission Rate"
-mid_scenario_name <- ".300 HH Fission Rate"
-high_scenario_name <- ".375 HH Fission Rate"
-
+high_scenario_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/1185_perm_outmig"
+low_scenario_name <- ".0395 Perm. Outmig. Rate"
+mid_scenario_name <- ".0795 Perm. Outmig. Rate"
+high_scenario_name <- ".1185 Perm. Outmig. Rate"
+ 
 plot_scenario_comparison <- function(result_file_name, low_name, mid_name, 
                                      high_name, var_name, ylabel) {
     low_scenario <- read.csv(paste(low_scenario_path, result_file_name, 
