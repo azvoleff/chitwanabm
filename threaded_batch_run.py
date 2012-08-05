@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import time
 import os
@@ -5,15 +6,17 @@ import os
 import threading
 import subprocess
 
-number_of_runs = 40
-max_threads = 3
+number_of_runs = 20
+max_threads = 4
 
 time_format = "%m/%d/%Y %I:%M:%S %p"
 
 pool_sema = threading.BoundedSemaphore(value=(max_threads+1))
 
-python_path = "C:/Python27/python.exe"
-script_path = "C:/Users/azvoleff/Code/Python/ChitwanABM/runmodel.py"
+#python_path = "C:/Python27/python.exe"
+#script_path = "C:/Users/azvoleff/Code/Python/ChitwanABM/runmodel.py"
+python_path = "/usr/bin/python"
+script_path = "/home/azvoleff/Code/Python/ChitwanABM/runmodel.py"
 class ChitwanABMThread(threading.Thread):
     def __init__(self, thread_ID):
         pool_sema.acquire()
