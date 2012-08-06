@@ -107,8 +107,8 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
 ggsave("scenario_versus_observed_events_deaths.png", width=WIDTH, 
        height=HEIGHT, dpi=DPI)
 
-# # First calculate ethnicities so we can drop hosueholds of the 'other' 
-# # ethnicity.
+# # First calculate ethnicities so we can drop hosueholds of the 'other' # 
+# ethnicity.
 # ethnic_hhid <- data.frame(ethnic=as.numeric(hhreg$ethnic), hhid=hhreg$hhid108)
 # ethnic_hhid <- ethnic_hhid[!is.na(ethnic_hhid$ethnic), ]
 # ethnic_hhid <- ethnic_hhid[!is.na(ethnic_hhid$hhid), ]
