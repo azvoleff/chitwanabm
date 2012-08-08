@@ -64,7 +64,7 @@ p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type),
     scale_color_discrete(name="Event Type",
                          breaks=c("births", "deaths", "marriages"),
                          labels=c("Births", "Deaths", "Marriages")) + 
-    scale_linetype_discrete(name="Data_type",
+    scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
 ggsave("scenario_versus_observed_events_all.png", width=WIDTH, height=HEIGHT, 
@@ -76,7 +76,7 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up), alpha=.2, 
                 data=baseline_events.sds[all_events$Event_type=="marriages", ]) +
     scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Marriages") +
-    scale_linetype_discrete(name="Data_type",
+    scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
 ggsave("scenario_versus_observed_events_marriages.png", width=WIDTH, 
@@ -88,7 +88,7 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up), alpha=.2, 
                 data=baseline_events.sds[all_events$Event_type=="births", ]) +
     scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Births") +
-    scale_linetype_discrete(name="Data_type",
+    scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
 ggsave("scenario_versus_observed_events_births.png", width=WIDTH, 
@@ -101,7 +101,7 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
                 alpha=.2, 
                 data=baseline_events.sds[all_events$Event_type=="deaths", ]) +
     scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Deaths") +
-    scale_linetype_discrete(name="Data_type",
+    scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
 ggsave("scenario_versus_observed_events_deaths.png", width=WIDTH, 
@@ -157,7 +157,7 @@ p + geom_line(aes(time_Robj, num_psn, linetype=Data_type),
                 alpha=.2, 
                 data=baseline_num_psn.sds) +
     scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Sample Population") +
-    scale_linetype_discrete(name="Data_type",
+    scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
 ggsave("scenario_versus_observed_num_psn.png", width=WIDTH, 
@@ -194,7 +194,7 @@ p + geom_line(aes(time_Robj, num_hs, linetype=Data_type),
                 alpha=.2, 
                 data=baseline_num_HH.sds) +
     scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Households") +
-    scale_linetype_discrete(name="Data_type",
+    scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
 ggsave("scenario_versus_observed_num_hs.png", width=WIDTH, 
