@@ -163,44 +163,45 @@ def main_loop(world, results_path):
             new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             schooling = region.education(model_time.get_cur_date_float())
 
-            # Save event, LULC, and population data in the saved_data 
-            # dictionary for later output to CSV.
-            saved_data[timestep] = {}
-            saved_data[timestep]['births'] = new_births
-            saved_data[timestep]['deaths'] = new_deaths
-            saved_data[timestep]['marr'] = new_marr
-            saved_data[timestep]['divo'] = new_divo
-            saved_data[timestep]['out_migr_indiv'] = new_out_migr_indiv
-            saved_data[timestep]['ret_migr_indiv'] = new_ret_migr_indiv
-            saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
-            saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
-            saved_data[timestep].update(region.get_neighborhood_pop_stats())
-            saved_data[timestep].update(region.get_neighborhood_fw_usage(model_time.get_cur_date_float()))
-            saved_data[timestep].update(region.get_neighborhood_landuse())
-            saved_data[timestep].update(region.get_neighborhood_nfo_context())
-            saved_data[timestep].update(region.get_neighborhood_forest_distance())
-
-            # Keep running totals of events for printing results:
-            num_new_births = sum(new_births.values())
-            num_new_deaths = sum(new_deaths.values())
-            num_new_marr = sum(new_marr.values())
-            num_new_divo = sum(new_divo.values())
-            num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
-            num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
-            num_new_in_migr_HH = sum(new_in_migr_HH.values())
-            num_new_out_migr_HH = sum(new_out_migr_HH.values())
-
-            annual_num_births += num_new_births
-            annual_num_deaths += num_new_deaths
-            annual_num_marr += num_new_marr
-            annual_num_divo += num_new_divo
-            annual_num_out_migr_indiv += num_new_out_migr_indiv
-            annual_num_ret_migr_indiv += num_new_ret_migr_indiv
-            annual_num_in_migr_HH += num_new_in_migr_HH
-            annual_num_out_migr_HH += num_new_out_migr_HH
-
             region.increment_age()
                 
+
+        # Save event, LULC, and population data in the saved_data dictionary 
+        # for later output to CSV.
+        saved_data[timestep] = {}
+        saved_data[timestep]['births'] = new_births
+        saved_data[timestep]['deaths'] = new_deaths
+        saved_data[timestep]['marr'] = new_marr
+        saved_data[timestep]['divo'] = new_divo
+        saved_data[timestep]['out_migr_indiv'] = new_out_migr_indiv
+        saved_data[timestep]['ret_migr_indiv'] = new_ret_migr_indiv
+        saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
+        saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
+        saved_data[timestep].update(region.get_neighborhood_pop_stats())
+        saved_data[timestep].update(region.get_neighborhood_fw_usage(model_time.get_cur_date_float()))
+        saved_data[timestep].update(region.get_neighborhood_landuse())
+        saved_data[timestep].update(region.get_neighborhood_nfo_context())
+        saved_data[timestep].update(region.get_neighborhood_forest_distance())
+
+        # Keep running totals of events for printing results:
+        num_new_births = sum(new_births.values())
+        num_new_deaths = sum(new_deaths.values())
+        num_new_marr = sum(new_marr.values())
+        num_new_divo = sum(new_divo.values())
+        num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
+        num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
+        num_new_in_migr_HH = sum(new_in_migr_HH.values())
+        num_new_out_migr_HH = sum(new_out_migr_HH.values())
+
+        annual_num_births += num_new_births
+        annual_num_deaths += num_new_deaths
+        annual_num_marr += num_new_marr
+        annual_num_divo += num_new_divo
+        annual_num_out_migr_indiv += num_new_out_migr_indiv
+        annual_num_ret_migr_indiv += num_new_ret_migr_indiv
+        annual_num_in_migr_HH += num_new_in_migr_HH
+        annual_num_out_migr_HH += num_new_out_migr_HH
+
         # Print an information line to allow keeping tabs on the model while it 
         # is running.
         num_persons = region.num_persons()
