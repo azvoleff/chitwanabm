@@ -30,9 +30,10 @@ import os
 import sys
 import logging
 
-import numpy as np
 import pickle
 from subprocess import check_call, CalledProcessError
+
+import numpy as np
 
 from PyABM.file_io import read_single_band_raster
 
@@ -523,7 +524,7 @@ def generate_world():
         raw_data_path = rcParams['path.raw_input_data']
         Rscript_binary = rcParams['path.Rscript_binary']
         check_call([Rscript_binary, "data_preprocess.R", raw_data_path, 
-            str(rcParams['RandomState'])])
+            str(rcParams['random_seed'])])
     except CalledProcessError:
         logger.exception("Problem while running data_preprocess.R R script")
         return 1

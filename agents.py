@@ -35,7 +35,7 @@ import numpy as np
 from PyABM import IDGenerator, boolean_choice
 from PyABM.agents import Agent, Agent_set, Agent_Store
 
-from ChitwanABM import rcParams, random_state
+from ChitwanABM import rcParams
 from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
@@ -445,10 +445,10 @@ class Person(Agent):
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
                     first_birth_flag = True
             elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
-                if (random_state.rand() < calc_first_birth_prob_ghimireaxinn2010(self, time)) & ((time - self._marriage_time) >= 9/12.):
+                if (np.random.rand() < calc_first_birth_prob_ghimireaxinn2010(self, time)) & ((time - self._marriage_time) >= 9/12.):
                     first_birth_flag = True
             elif rcParams['model.parameterization.firstbirthtiming'] == 'zvoleff':
-                if (random_state.rand() < calc_first_birth_prob_zvoleff(self, time)) & ((time - self._marriage_time) >= 9/12.):
+                if (np.random.rand() < calc_first_birth_prob_zvoleff(self, time)) & ((time - self._marriage_time) >= 9/12.):
                     first_birth_flag = True
             else:
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
@@ -832,7 +832,7 @@ class Region(Agent_set):
         logger.debug("Processing deaths")
         deaths = {}
         for person in self.iter_all_persons():
-            if random_state.rand() < calc_probability_death(person):
+            if np.random.rand() < calc_probability_death(person):
                 if not person.is_away():
                     # People who are away don't have household parent agents, 
                     # and their deaths shouldn't be tracked as coming from a 
@@ -861,7 +861,7 @@ class Region(Agent_set):
                 if (not person.is_married()) and \
                         (person.get_age_years() >= minimum_age) and \
                         (person.get_age_years() <= maximum_age) and \
-                        (random_state.rand() < calc_probability_marriage(person)):
+                        (np.random.rand() < calc_probability_marriage(person)):
                     # Agent is eligible to marry.
                     if person.get_sex() == "female": eligible_females.append(person)
                     if person.get_sex() == "male": eligible_males.append(person)
@@ -991,7 +991,7 @@ class Region(Agent_set):
             for person in household.iter_agents():
                 if (not person.is_married()) or \
                         (person in checked_spouses) or \
-                        (random_state.rand() >= calc_probability_divorce(person)):
+                        (np.random.rand() >= calc_probability_divorce(person)):
                     # Person does NOT get divorced
                     checked_spouses.append(person)
                     continue
@@ -1092,7 +1092,7 @@ class Region(Agent_set):
         n_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if random_state.rand() < calc_probability_migration(person):
+                if np.random.rand() < calc_probability_migration(person):
                     person.make_individual_LD_migration(time_float, timestep, self)
                     neighborhood = household.get_parent_agent()
                     if not n_outmigr_indiv.has_key(neighborhood.get_ID()):
@@ -1181,7 +1181,7 @@ class Region(Agent_set):
         # Now handle out-migrating households:
         n_outmigr_hh = {}
         for household in self.get_households():
-            if random_state.rand() < calc_probability_HH_outmigration(household, 
+            if np.random.rand() < calc_probability_HH_outmigration(household, 
                     timestep):
                 neighborhood = household.get_parent_agent()
                 household.out_migrate(timestep)

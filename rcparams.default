@@ -39,11 +39,11 @@
  # The size of each timestep (in months)
 'model.timestep' : [1 | validate_int]
 'model.burnin_timesteps' : [24 | validate_int]
-# model.RandomState seeds the random number generator (useful for regenerating 
+# model.random_seed seeds the random number generator (useful for regenerating 
 # results later). If it is set to 'None' no seed is given. Regardless of 
 # whether or not a seed is provided, the seed that is used will be saved
 # in the model output for later reuse.
-'model.RandomState' : [None | validate_RandomState] 
+'model.random_seed' : [None | validate_random_seed] 
 # Whether to reinitialize a new world from scratch for each model run
 'model.reinitialize' : [True | validate_boolean] 
 'model.resultspath' : ["M:/Data/Nepal/ChitwanABM_runs" | validate_writable_dir]

@@ -27,14 +27,4 @@ the model.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-import os
-import sys
-import warnings
-
-import numpy as np
-
-# This is the rcParams instance that will be used to setup all of the 
-# parameters for this model. The random_state instance will be used for all 
-# random number generation, to ensure that the random seed is stored and known 
-# for future replication of the results.
-from PyABM import rcParams, random_state
+from PyABM import rcParams, np

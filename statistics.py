@@ -27,9 +27,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import numpy as np
-
-from ChitwanABM import rcParams
+from ChitwanABM import rcParams, np
 
 from PyABM import boolean_choice
 
