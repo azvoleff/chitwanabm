@@ -738,6 +738,11 @@ class Region(Agent_set):
 
         # TODO: Demographic variables could be setup here to be specific for 
         # each region - these could be used to represent different strata.
+        
+        # The cemetary stores agents who have died and been removed for the 
+        # model. It isn't accessed while the model is running, but is used for 
+        # debugging only.
+        self._cemetary = {}
 
     def __repr__(self):
         #TODO: Finish this
@@ -843,6 +848,9 @@ class Region(Agent_set):
                         deaths[neighborhood.get_ID()] = 0
                     deaths[neighborhood.get_ID()] += 1
                 person.kill(time)
+                # Add the agent to the cemetary, for later access during 
+                # debugging.
+                self._cemetary[self.get_ID()] = self
         return deaths
                         
     def marriages(self, time):
