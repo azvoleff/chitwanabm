@@ -313,13 +313,13 @@ class Person(Agent):
     def is_in_migrant(self):
         return self._in_migrant
 
-    def make_individual_LD_migration(self, time, timestep, region):
+    def make_individual_LD_migration(self, time, timestep, region, BURN_IN=False):
         log_event_record("LD_migration", self, time)
         household = self.get_parent_agent()
         household._lastmigrant_time = time
         household._members_away.append(self)
 
-        months_away = calc_migration_length(self)
+        months_away = calc_migration_length(self, BURN_IN)
         # The add_agent function of the agent_store class also handles removing 
         # the agent from its parent (the household), and adding the agent_store 
         # to the person's store_list
@@ -1090,7 +1090,7 @@ class Region(Agent_set):
             #schooling[neighborhood.get_ID()] += 1
         return schooling
 
-    def individual_migrations(self, time_float, timestep):
+    def individual_migrations(self, time_float, timestep, BURN_IN=False):
         """
         Runs through the population and makes agents probabilistically migrate
         based on demographic characteristics.
@@ -1101,7 +1101,7 @@ class Region(Agent_set):
         for household in self.iter_households():
             for person in household.iter_agents():
                 if np.random.rand() < calc_probability_migration(person):
-                    person.make_individual_LD_migration(time_float, timestep, self)
+                    person.make_individual_LD_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
                     if not n_outmigr_indiv.has_key(neighborhood.get_ID()):
                         n_outmigr_indiv[neighborhood.get_ID()] = 0

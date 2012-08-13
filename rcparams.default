@@ -38,7 +38,7 @@
 'model.timebounds' : [((1996, 1), (2020,1)) | validate_time_bounds]
  # The size of each timestep (in months)
 'model.timestep' : [1 | validate_int]
-'model.burnin_timesteps' : [24 | validate_int]
+'model.burnin_timesteps' : [36 | validate_int]
 # model.random_seed seeds the random number generator (useful for regenerating 
 # results later). If it is set to 'None' no seed is given. Regardless of 
 # whether or not a seed is provided, the seed that is used will be saved

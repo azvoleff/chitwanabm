@@ -545,13 +545,18 @@ def calc_probability_migration_zvoleff(person):
         logger.debug("Person %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
-def calc_migration_length(person):
+def calc_migration_length(person, BURN_IN):
     """
     Calculated the length of a migration from a probability distribution.
+
+    Note: The BURN_IN variable is used in the initialization of a model run to 
+    model migrations that occurred prior to the beginning of the data 
+    collection. Permanent migrations are not allowed during this burn-in 
+    period.
     """
     # First decide if it is permanent, according to the 
     # "prob.migration.length.permanent" parameter:
-    if np.random.rand() < rcParams['prob.migration.length.permanent']:
+    if not BURN_IN and np.random.rand() < rcParams['prob.migration.length.permanent']:
         # TODO: Instead of very long term in agent-store, just remove them from 
         # the model with the make_permanent_outmigration method.
         return 99999999

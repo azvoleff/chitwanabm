@@ -131,7 +131,7 @@ def main_loop(world, results_path):
     logger.info('Burning in events for region %s'%region.get_ID())
     for neg_timestep in xrange(-rcParams['model.burnin_timesteps'], 0):
         for region in world.iter_regions():
-            new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep)
+            new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
 
             num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
             num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
