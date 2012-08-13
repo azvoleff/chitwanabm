@@ -29,7 +29,6 @@ require(foreign, quietly=TRUE)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[2]
-#DATA_PATH <- "V:/Nepal/ChitwanABM_Initialization"
 
 if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
@@ -208,9 +207,12 @@ hhrel$RESPID <- paste(hhrel$HHID, SUBJID_hhrel, sep="")
 hhrel.processed  <- with(hhrel, data.frame(RESPID, HHID, SUBJECT, PARENT1, PARENT2, SPOUSE1, SPOUSE2, SPOUSE3))
 hhrel.processed  <- merge(hhrel.processed, census.processed, by="RESPID")
 
+#TODO: Get these fixed in the original CVFS dataset.
 # Fix the incorrect SPOUSE2 variable for one respondent.
-#TODO: Get this fixed in the original CVFS dataset.
 hhrel.processed[hhrel.processed$RESPID=="151003002",]$SPOUSE2 <- 4
+# Also fix the incorrect SPOUSE1 variables for two other respondents.
+hhrel.processed[hhrel.processed$RESPID=="035002001",]$SPOUSE1 <- 2
+hhrel.processed[hhrel.processed$RESPID=="035002002",]$SPOUSE1 <- 1
 
 # Merge the desnumchild data for desired family size. Note that I do not have 
 # data for all individuals, so individuals for whom I do not have desired 
