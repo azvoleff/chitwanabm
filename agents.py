@@ -35,7 +35,7 @@ import numpy as np
 from PyABM import IDGenerator, boolean_choice
 from PyABM.agents import Agent, Agent_set, Agent_Store
 
-from ChitwanABM import rcParams
+from ChitwanABM import rc_params
 from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
@@ -48,6 +48,8 @@ from ChitwanABM.statistics import calc_probability_death, \
 
 logger = logging.getLogger(__name__)
 agent_event_logger = logging.getLogger('agent_events')
+
+rcParams = rc_params.get_params()
 
 def log_event_record(message, person, modeltime, **kwargs):
     if person.is_away():
@@ -210,7 +212,7 @@ class Person(Agent):
         # _store_list tracks any agent_store instances this person is a member 
         # of (for LL or LD migration for example).
         self._store_list = []
-        self._last_migration = {'type':None, 'time':None}
+        self._last_migration = {'type':None, 'time':None, 'duration_months':None}
         self._away = False
         self._return_timestep = None
 
@@ -328,6 +330,7 @@ class Person(Agent):
         region._agent_stores['person']['LD_migr'].add_agent(self, self._return_timestep)
         self._last_migration['type'] = 'LD'
         self._last_migration['time'] = time
+        self._last_migration['duration_months'] = months_away
         self._away = True
 
     def return_from_LD_migration(self):
@@ -352,6 +355,10 @@ class Person(Agent):
             household = self.get_parent_agent()
             logger.debug("Agent %s removed from household after death"%self.get_ID())
             household.remove_agent(self)
+        else:
+            # People who _are_ away need to be removed from their old 
+            # household's members away list
+            self._return_household._members_away.remove(self)
         # Remove agents from their agent store if they die while in an 
         # agent_store
         if self._store_list != []:

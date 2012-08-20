@@ -37,10 +37,12 @@ import numpy as np
 
 from PyABM.file_io import read_single_band_raster
 
-from ChitwanABM import rcParams
+from ChitwanABM import rc_params
 from ChitwanABM.agents import World
 
 logger = logging.getLogger(__name__)
+
+rcParams = rc_params.get_params()
 
 def main():
     ch = logging.StreamHandler()

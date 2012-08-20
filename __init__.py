@@ -27,4 +27,4 @@ the model.
 Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
-from PyABM import rcParams, np
+from PyABM import rc_params, np

@@ -64,11 +64,9 @@ log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s
 ch.setFormatter(log_console_formatter)
 root_logger.addHandler(ch)
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
+def main():
     parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
-    parser.add_argument('--rc', metavar="RC_FILE", type=str, default=None,
+    parser.add_argument('--rc', dest="rc_file", metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
     parser.add_argument('--log', metavar="LEVEL", type=str, default="info", 
             help='The logging threshold for logging to the console')
@@ -88,14 +86,18 @@ def main(argv=None):
         logger.critical('Invalid log level: %s' %args.logf)
     root_logger.handlers[0].setLevel(fh_level)
 
-    if not(args.rc == None):
-        logger.critical("An rc file path was passed as a command line parameter, but custom rc file use is not yet implemented.")
-        return 1
-
     # Wait to load rcParams until here as logging statements are often 
     # triggered when the rcParams are loaded.
+    from ChitwanABM import rc_params
+    # Make sure the rc_params are setup before loading any other ChitwanABM 
+    # modules, so that they will all take the default params including any that 
+    # might be specifed in user_rc_file
+    if not(args.rc_file == None): user_rc_file = args.rc_file
+    else: user_rc_file = None
+    rc_params.load_params(user_rc_file)
     global rcParams
-    from ChitwanABM import rcParams
+    rcParams = rc_params.get_params()
+
     from ChitwanABM.initialize import generate_world
     from ChitwanABM.modelloop import main_loop
 

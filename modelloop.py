@@ -35,10 +35,12 @@ import numpy as np
 from PyABM.file_io import write_NBH_shapefile
 from PyABM.utility import TimeSteps
 
-from ChitwanABM import rcParams
+from ChitwanABM import rc_params
 from ChitwanABM import test
 
 logger = logging.getLogger(__name__)
+
+rcParams = rc_params.get_params()
 
 timebounds = rcParams['model.timebounds']
 timestep = rcParams['model.timestep']
