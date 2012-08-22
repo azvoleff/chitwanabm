@@ -138,7 +138,7 @@ def main_loop(world, results_path):
             num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
             num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
 
-            logger.info("Burn in %s: P: %5s | NOM: %3s | NRM: %3s"%(neg_timestep, region.num_persons(), num_new_out_migr_indiv, num_new_ret_migr_indiv))
+            logger.info("Burn in %3s: P: %5s NOM: %3s NRM: %3s"%(neg_timestep, region.num_persons(), num_new_out_migr_indiv, num_new_ret_migr_indiv))
 
     while model_time.in_bounds():
         timestep = model_time.get_cur_int_timestep()
