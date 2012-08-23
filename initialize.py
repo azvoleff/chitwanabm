@@ -38,8 +38,6 @@ from PyABM.file_io import read_single_band_raster
 from ChitwanABM import rc_params
 from ChitwanABM.agents import World
 
-from ipdb import set_trace
-
 logger = logging.getLogger(__name__)
 
 rcParams = rc_params.get_params()
