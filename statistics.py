@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License along with
 # ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Contact Alex Zvoleff in the Department of Geography at San Diego State 
-# University with any comments or questions. See the README.txt file for 
-# contact information.
+# Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
+# at San Diego State University with any comments or questions. See the 
+# README.txt file for contact information.
 
 """
 Contains statistical models to calculate probabilities (such as of birth, and of 

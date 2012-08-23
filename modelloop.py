@@ -14,15 +14,13 @@
 # You should have received a copy of the GNU General Public License along with
 # ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Contact Alex Zvoleff in the Department of Geography at San Diego State 
-# University with any comments or questions. See the README.txt file for 
-# contact information.
+# Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
+# at San Diego State University with any comments or questions. See the 
+# README.txt file for contact information.
 
 """
 Contains main model loop: Contains the main loop for the model. Takes input 
 parameters read from runModel.py, and passes results of model run back.
-
-Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import os

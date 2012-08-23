@@ -15,19 +15,15 @@
 # You should have received a copy of the GNU General Public License along with
 # ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Contact Alex Zvoleff in the Department of Geography at San Diego State 
-# University with any comments or questions. See the README.txt file for 
-# contact information.
+# Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
+# at San Diego State University with any comments or questions. See the 
+# README.txt file for contact information.
 
 """
-Part of Chitwan Valley agent-based model.
-
 Script to run a test of the Chitwan Valley ABM code, to ensure, for example, 
 that agents are properly initialized, and that demographic processes 
 (marriages, deaths, births, migrations) are all properly represented in the 
 model.
-
-Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import sys

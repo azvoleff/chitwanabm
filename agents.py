@@ -14,16 +14,14 @@
 # You should have received a copy of the GNU General Public License along with
 # ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Contact Alex Zvoleff in the Department of Geography at San Diego State 
-# University with any comments or questions. See the README.txt file for 
-# contact information.
+# Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
+# at San Diego State University with any comments or questions. See the 
+# README.txt file for contact information.
 
 """
 Contains the classes for Person, Household, Neighborhood, and Region agents. 
 Person agents are subclasses of the Agent class, while Household, Neighborhood, 
 and Region agents are all subclasses of the Agent_set object.
-
-Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import os

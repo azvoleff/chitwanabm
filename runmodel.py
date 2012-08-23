@@ -15,17 +15,15 @@
 # You should have received a copy of the GNU General Public License along with
 # ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Contact Alex Zvoleff in the Department of Geography at San Diego State 
-# University with any comments or questions. See the README.txt file for 
-# contact information.
+# Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
+# at San Diego State University with any comments or questions. See the 
+# README.txt file for contact information.
 
 """
 Wrapper to run a set of Chitwan ABM model runs: Reads in input parameters, then 
 calls routines to initialize and run the model, and output model statistics.
 
 NOTE: Borrows code from matplotlib, particularly for rcsetup functions.
-
-Alex Zvoleff, azvoleff@mail.sdsu.edu
 """
 
 import os
