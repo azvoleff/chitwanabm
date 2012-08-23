@@ -27,6 +27,7 @@
 
 require(foreign, quietly=TRUE)
 
+DATA_PATH <- "V:/Nepal/ChitwanABM_Initialization"
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[2]
 
