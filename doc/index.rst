@@ -10,12 +10,13 @@ model represents a subset of the population of the Valley using a number of
 agent types (person, household and neighborhood agents), environmental 
 variables (topography, land use and land cover) and social context variables.
 
-Construction of the model is supported as part of an ongoing `NSF
-PIRE <http://pire.psc.isr.umich.edu>`_ project investigating human-environment 
-interactions in the Western Chitwan Valley.  Development of the model is in 
-progress, and model documentation is still incomplete.  As work continues, this 
-page will be updated with more information on initializing and running the 
-model, and on interpreting the model output.
+Construction of the model is supported as part of an ongoing National Science 
+Foundation Partnerships for International Research and Education (NSF PIRE) 
+project `(grant OISE 0729709) <http://pire.psc.isr.umich.edu>`_ investigating 
+human-environment interactions in the Western Chitwan Valley. Development of 
+the model is in progress, and model documentation is still incomplete.  As work 
+continues, this page will be updated with more information on initializing and 
+running the model, and on interpreting the model output.
 
 .. note:: The model requires restricted access survey data from the
     Chitwan Valley Family Study (CVFS) to run. See the  `Interuniversity 

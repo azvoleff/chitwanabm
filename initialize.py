@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2008-2012 Alex Zvoleff
-#
+# 
 # This file is part of the ChitwanABM agent-based model.
 # 
 # ChitwanABM is free software: you can redistribute it and/or modify it under the
@@ -18,7 +18,6 @@
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
 # README.txt file for contact information.
-
 """
 Sets up a ChitwanABM model run: Initializes neighborhood/household/person agents 
 and land use using the original CVFS data.

@@ -17,10 +17,16 @@
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
 # README.txt file for contact information.
-
 """
-Sets up rc parameters so that they can be loaded and reused by other parts of 
-the model.
+'ChitwanABM' is an agent-based model of the Western Chitwan Valley, Nepal. The 
+model represents a subset of the population of the Valley using a number of 
+agent types (person, household and neighborhood agents), environmental 
+variables (topography, land use and land cover) and social context variables.
+
+Construction of the model is supported as part of an ongoing National Science 
+Foundation Partnerships for International Research and Education (NSF PIRE) 
+project (grant OISE 0729709) investigating human-environment interactions in 
+the Western Chitwan Valley.
 """
 
 from PyABM import rc_params, np
