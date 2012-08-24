@@ -23,17 +23,22 @@ Contains statistical models to calculate probabilities (such as of birth, and of
 marriage).
 """
 
+import os
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 from ChitwanABM import rc_params, np
 
+if not rc_params.is_initialized():
+    # Load the rc parameters if this module was imported directly (needed for 
+    # Sphinx autodoc).
+    rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
+    rc_params.initialize(os.path.dirname(os.path.realpath(__file__)))
 rcParams = rc_params.get_params()
 
 from PyABM import boolean_choice
-
-probability_time_units = rcParams['probability.time_units']
 
 class UnitsError(Exception):
     pass
@@ -50,6 +55,7 @@ def convert_probability_units(probability):
     """
     # If the probability time units don't match the model timestep units, then the 
     # probabilities need to be converted.
+    probability_time_units = rcParams['probability.time_units']
     if probability_time_units == 'months':
         pass
     elif probability_time_units == 'years':
@@ -78,6 +84,7 @@ def __probability_index__(t):
     it to decades, rounding down. NOTE: all probabilities must be expressed with the 
     same time units.
     """
+    probability_time_units = rcParams['probability.time_units']
     if probability_time_units == 'months':
         return t
     elif probability_time_units == 'years':

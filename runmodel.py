@@ -89,10 +89,9 @@ def main():
     from ChitwanABM import rc_params
     # Make sure the rc_params are setup before loading any other ChitwanABM 
     # modules, so that they will all take the default params including any that 
-    # might be specifed in user_rc_file
-    if not(args.rc_file == None): user_rc_file = args.rc_file
-    else: user_rc_file = None
-    rc_params.load_params(user_rc_file)
+    # might be specified in user_rc_file
+    rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
+    rc_params.initialize(os.path.dirname(os.path.realpath(__file__)), args.rc_file)
     global rcParams
     rcParams = rc_params.get_params()
 
