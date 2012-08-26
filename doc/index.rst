@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-ChitwanABM Documentation
+The ChitwanABM
 =============================
 'ChitwanABM' is an agent-based model of the Western Chitwan Valley, Nepal.  The 
 model represents a subset of the population of the Valley using a number of 
@@ -25,19 +25,15 @@ running the model, and on interpreting the model output.
 .. _Interuniversity Consortium for Political and Social Research (ICPSR): 
 
 
-
-Contents:
+Documentation
+==============
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
+   setup
+   running
+   analysis
    ChitwanABM
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   references
 

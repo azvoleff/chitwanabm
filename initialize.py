@@ -508,6 +508,7 @@ def generate_world():
     """
     Performs the complete process necessary for initializing the model from    
     CVFS restricted data.
+
         1) Calls the necessary R script  (data_preprocess.R) for preparing the 
         necessary CSV initialization files from the CVFS data. 
 

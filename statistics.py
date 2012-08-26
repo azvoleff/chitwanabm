@@ -637,8 +637,10 @@ def calc_hh_area():
 def draw_from_prob_dist(prob_dist):
     """
     Draws a random number from a manually specified probability distribution,
-    where the probability distribution is a tuple specified as:
+    where the probability distribution is a tuple specified as::
+
         ([a, b, c, d], [1, 2, 3])
+
     where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
     assigned to each bin. Notice one more bin limit must be specified than the 
     number of probabilities given (to close the interval).
@@ -663,8 +665,10 @@ def calc_prob_from_prob_dist(prob_dist, attribute):
     """
     Calculated the probability of something based on a manually specified 
     probability distribution, where the probability distribution is a tuple 
-    specified as:
+    specified as::
+
         ([a, b, c, d], [1, 2, 3])
+
     where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
     assigned to each bin. Notice one more bin limit must be specified than the 
     number of probabilities given (to close the interval). The bin limits are 
