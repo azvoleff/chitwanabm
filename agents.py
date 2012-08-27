@@ -194,7 +194,7 @@ class Person(Agent):
             self._father_years_schooling = np.random.randint(1, 15)
             #self._mother_years_schooling = calc_education_level(initial=True)
             #self._father_years_schooling = calc_education_level(initial=True)
-            self._mother_num_children = boolean_choice()
+            self._mother_num_children = np.random.randint(1, 6)
             self._child_school_lt_1hr_ft = boolean_choice()
             self._child_health_lt_1hr_ft = boolean_choice()
             self._child_bus_lt_1hr_ft = boolean_choice()
