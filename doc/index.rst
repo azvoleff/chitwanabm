@@ -17,14 +17,12 @@ running the model, and on interpreting the model output.
     Chitwan Valley Family Study (CVFS) to run. See the  `Interuniversity 
     Consortium for Political and Social Research (ICPSR) page on the CVFS 
     <http://dx.doi.org/10.3886/ICPSR04538>`_ for more information.
-.. _Interuniversity Consortium for Political and Social Research (ICPSR): 
-
 
 Documentation
 ==============
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    setup
    running
