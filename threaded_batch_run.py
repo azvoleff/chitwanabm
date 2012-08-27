@@ -28,6 +28,7 @@ import sys
 import time
 import os
 
+import argparse # Requires Python 2.7 or above
 import signal
 import threading
 import subprocess
@@ -49,16 +50,19 @@ script_path = "C:/Users/azvoleff/Code/Python/ChitwanABM/runmodel.py"
 #python_path = "/usr/bin/python"
 #script_path = "/home/azvoleff/Code/Python/ChitwanABM/runmodel.py"
 class ChitwanABMThread(threading.Thread):
-    def __init__(self, thread_ID):
+    def __init__(self, thread_ID, runmodel_args):
         pool_sema.acquire()
         threading.Thread.__init__(self)
         self.threadID = thread_ID
         self.name = thread_ID
+        self._runmodel_args = runmodel_args
 
     def run(self):
         dev_null = open(os.devnull, 'w')
-        self._modelrun = subprocess.Popen(python_path +  ' ' + script_path +  ' --log=CRITICAL',
-                cwd=sys.path[0], stdout=subprocess.PIPE, 
+        command = python_path +  ' ' + script_path +  ' ' + self._runmodel_args
+        if '--log' not in command:
+            command += ' --log=CRITICAL'
+        self._modelrun = subprocess.Popen(command, cwd=sys.path[0], stdout=subprocess.PIPE, 
                 stderr=subprocess.STDOUT)
         output, unused_err = self._modelrun.communicate()  # buffers the output
         retcode = self._modelrun.poll() 
@@ -70,7 +74,11 @@ class ChitwanABMThread(threading.Thread):
         self._modelrun.terminate()
         print "%s: Killed run %s (return code %s)"%(end_time, self.name, retcode)
 
-def main():
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    runmodel_args = " ".join(argv[1:])
+
     sigint = False
     signal.signal(signal.SIGINT, sighandler)
 
@@ -78,7 +86,7 @@ def main():
     run_count = 1
     while run_count <= number_of_runs:
         with pool_sema:
-            new_thread = ChitwanABMThread(run_count)
+            new_thread = ChitwanABMThread(run_count, runmodel_args)
             start_time = time.strftime(time_format, time.localtime())
             print "%s: Starting run %s"%(start_time, new_thread.name)
             try:
