@@ -63,7 +63,7 @@ Adding ChitwanABM directory to Python path on Linux and Mac OS:
 On Linux and Mac OS, you will need to add a line to your user profile telling 
 Python where the ChitwanABM files are located. You can do this one of two ways.  
 To temporarily add the ChitwanABM path to your Python path, open XTerm and 
-type:
+type::
 
     export PYTHONPATH=/path/to/ChitwanABM/folder
 
@@ -72,7 +72,7 @@ ChitwanABM folder. For example, if the code is on your desktop, this might be
 "/Users/azvoleff/Desktop/ChitwanABM" on a Mac, or 
 "/home/azvoleff/Desktop/ChitwanABM" on Linux.
 
-To make this change permanent, add the line
+To make this change permanent, add the line::
 
     export PYTHONPATH=/path/to/ChitwanABM/folder
 

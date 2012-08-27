@@ -18,6 +18,30 @@ running the model, and on interpreting the model output.
     Consortium for Political and Social Research (ICPSR) page on the CVFS 
     <http://dx.doi.org/10.3886/ICPSR04538>`_ for more information.
 
+Author Contact Information
+===========================
+
+| Alex Zvoleff
+| SDSU/UCSB Joint Doctoral Candidate
+| Department of Geography
+| San Diego State University
+| 5500 Campanile Dr.
+| San Diego, CA 92182-4493
+| Email: azvoleff@mail.sdsu.edu
+
+Getting the Code
+_______________________________________________________________________________
+
+See the ChitwanABM website at: 
+http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
+
+The latest version of the code (unstable) is available as a zipped snapshot 
+from:
+https://github.com/azvoleff/ChitwanABM/zipball/master
+
+You can also browse the source at:
+https://github.com/azvoleff/ChitwanABM
+
 Documentation
 ==============
 
