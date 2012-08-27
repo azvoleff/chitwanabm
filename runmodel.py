@@ -331,7 +331,7 @@ def write_time_csv(time_strings, time_csv_file):
     Write a CSV file for conversion of timestep number, float, etc. to actual 
     year and month (for plotting).
     """
-    out_file = open(time_csv_file, "w")
+    out_file = open(time_csv_file, "wb")
     csv_writer = csv.writer(out_file)
     col_headers = sorted(time_strings.keys())
     csv_writer.writerow(col_headers)
@@ -370,7 +370,7 @@ def write_results_csv(results, csv_file, ID_col_name):
 
     # The dataframe will end up (in R) having 1 column for agent ID, and 
     # timesteps * categories additional columns for the data.
-    out_file = open(csv_file, "w")
+    out_file = open(csv_file, "wb")
     csv_writer = csv.writer(out_file)
     var_names = [ID_col_name]
     for category in categories:
