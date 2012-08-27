@@ -126,23 +126,23 @@ def main():
     
     # Setup a special logger to log demographic events while the model is 
     # running (births, migrations, deaths, marriages, etc.)
-    agent_event_log_file_path = os.path.join(results_path, "person_events.log")
-    agent_event_log_file = open(agent_event_log_file_path, mode='w')
-    agent_event_log_file.write('time,event,PID,age,ethnic,marrtime,spouse,schooling,NID,agveg,nonagveg,privbldg,pubbldg,other,elec,school_min_ft,health_min_ft,bus_min_ft,market_min_ft,employer_min_ft,forest_dist_BZ_km,forest_dist_CNP_km,forest_closest_km,forest_closest_type\n')
-    agent_event_log_file.close()
-    agent_event_fh = logging.FileHandler(os.path.join(results_path, "person_events.log"), mode='a')
-    agent_event_fh.setLevel(logging.INFO)
-    agent_event_fh.setFormatter(logging.Formatter('%(modeltime)s,"%(message)s",%(personinfo)s,%(nbhinfo)s'))
+    person_event_log_file_path = os.path.join(results_path, "person_events.log")
+    person_event_log_file = open(person_event_log_file_path, mode='w')
+    person_event_log_file.write('time,event,PID,age,ethnic,marrtime,spouse,schooling,away,numchildren,alive,initialagent,inmigrant\n')
+    person_event_log_file.close()
+    person_event_fh = logging.FileHandler(os.path.join(results_path, "person_events.log"), mode='a')
+    person_event_fh.setLevel(logging.INFO)
+    person_event_fh.setFormatter(logging.Formatter('%(modeltime)s,%(message)s,%(personinfo)s'))
 
     # Setup a filter so the agent event log will contain only agent events.
     class PassEventFilter(logging.Filter):
         def filter(self, record):
             logger_name = getattr(record, 'name', None)
-            return 'agent_events' in logger_name
-    agent_event_fh.addFilter(PassEventFilter())
+            return 'person_events' in logger_name
+    person_event_fh.addFilter(PassEventFilter())
 
-    agent_event_logger = logging.getLogger('agent_events')
-    agent_event_logger.addHandler(agent_event_fh)
+    person_event_logger = logging.getLogger('person_events')
+    person_event_logger.addHandler(person_event_fh)
 
     # Now that we know the rcParams and log file path, write the temp_log 
     # stream to the log file in the proper output directory, and direct all 
@@ -161,7 +161,7 @@ def main():
     class DontPassEventFilter(logging.Filter):
         def filter(self, record):
             logger_name = getattr(record, 'name', None)
-            return 'agent_events' not in logger_name
+            return 'person_events' not in logger_name
     for handler in root_logger.handlers:
         handler.addFilter(DontPassEventFilter())
 

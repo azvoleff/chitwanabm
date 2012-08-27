@@ -45,20 +45,14 @@ from ChitwanABM.statistics import calc_probability_death, \
         calc_probability_divorce, calc_fuelwood_usage_probability
 
 logger = logging.getLogger(__name__)
-agent_event_logger = logging.getLogger('agent_events')
+person_event_logger = logging.getLogger('person_events')
 
 rcParams = rc_params.get_params()
 
 def log_event_record(message, person, modeltime, **kwargs):
-    if person.is_away():
-        extra = {'modeltime' : modeltime,
-                 'personinfo' : person.get_info(),
-                 'nbhinfo' : 'NA,' * 15 + 'NA'}
-    else:
-        extra = {'modeltime' : modeltime,
-                 'personinfo' : person.get_info(),
-                 'nbhinfo' : person.get_parent_agent().get_parent_agent().get_info()}
-    agent_event_logger.info(message, extra=extra, **kwargs)
+    extra = {'modeltime' : modeltime,
+             'personinfo' : person.get_info()}
+    person_event_logger.info(message, extra=extra, **kwargs)
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
@@ -225,7 +219,10 @@ class Person(Agent):
             spouse = None
         return ",".join([str(self.get_ID()), str(self.get_age_years()), 
                          str(self.get_ethnicity()), str(self._marriage_time), 
-                         str(spouse), str(self._schooling)])
+                         str(spouse), str(self._schooling), 
+                         str(self.is_away()), str(self._number_of_children), 
+                         str(self._alive), str(self.is_initial_agent()), 
+                         str(self.is_in_migrant())])
 
     def get_mother(self):
         return self._mother
@@ -927,6 +924,7 @@ class Region(Agent_set):
             spouse = self._world.new_person(birthdate=spouse_birthdate, 
                     age=spouse_age_months, sex=spouse_sex,
                     ethnicity=person.get_ethnicity(), in_migrant=True)
+            logger.debug("New in migrant (%s) for marriage (%s, %.2f years old)"%(spouse.get_ID(), spouse.get_sex(), spouse.get_age_years()))
             # Ensure that the man is first in the couples tuple
             if person.get_sex() == "female": couples.append((spouse, person))
             else: couples.append((person, spouse))
