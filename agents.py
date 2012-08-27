@@ -51,7 +51,7 @@ rcParams = rc_params.get_params()
 
 def log_event_record(message, person, modeltime, **kwargs):
     extra = {'modeltime' : modeltime,
-             'personinfo' : person.get_info()}
+             'personinfo' : ",".join(person.get_info())}
     person_event_logger.info(message, extra=extra, **kwargs)
 
 if rcParams['model.parameterization.marriage'] == 'simple':
@@ -217,12 +217,31 @@ class Person(Agent):
             spouse = self._spouse.get_ID()
         else:
             spouse = None
-        return ",".join([str(self.get_ID()), str(self.get_age_years()), 
-                         str(self.get_ethnicity()), str(self._marriage_time), 
-                         str(spouse), str(self._schooling), 
-                         str(self.is_away()), str(self._number_of_children), 
-                         str(self._alive), str(self.is_initial_agent()), 
-                         str(self.is_in_migrant())])
+        if self._mother != None:
+            mother = self._mother.get_ID()
+        else: 
+            mother = None
+        if self._father != None:
+            father = self._father.get_ID()
+        else: 
+            father = None
+        if self.is_away():
+            household = self._return_household.get_ID()
+            neighborhood = self._return_household.get_parent_agent().get_ID()
+            region = self._return_household.get_parent_agent().get_parent_agent().get_ID()
+        else:
+            household = self.get_parent_agent().get_ID()
+            neighborhood = self.get_parent_agent().get_parent_agent().get_ID()
+            region = self.get_parent_agent().get_parent_agent().get_parent_agent().get_ID()
+ 
+        return (str(self.get_ID()), str(household), str(neighborhood), 
+                str(region), str(self.get_sex()),
+                str(self.get_age_years()), str(self.get_ethnicity()), 
+                str(mother), str(father), str(spouse), 
+                str(self._marriage_time), str(self._schooling), 
+                str(self._number_of_children),
+                str(self._alive), str(self.is_away()), 
+                str(self.is_initial_agent()), str(self.is_in_migrant()))
 
     def get_mother(self):
         return self._mother
@@ -530,7 +549,7 @@ class Household(Agent_set):
         self._hh_area = 0 # Area of house plot in square meters
 
     def get_info(self):
-        "Returns basic info about this person for use in logging."
+        "Returns basic info about this household for use in logging."
         # TODO: Complete this function.
         pass
 
@@ -656,14 +675,14 @@ class Neighborhood(Agent_set):
 
     def get_info(self):
         "Returns basic info about this neighborhood for use in logging."
-        return ",".join([str(self.get_ID()), str(self._land_agveg), 
-                         str(self._land_nonagveg), str(self._land_privbldg), 
-                         str(self._land_pubbldg), str(self._land_other), 
-                         str(self._elec_available), str(self._school_min_ft), 
-                         str(self._health_min_ft), str(self._bus_min_ft), 
-                         str(self._market_min_ft), str(self._employer_min_ft),
-                         str(self._forest_dist_BZ_km), str(self._forest_dist_CNP_km),
-                         str(self._forest_closest_km), str(self._forest_closest_type)])
+        return ([str(self.get_ID()), str(self._land_agveg), 
+                str(self._land_nonagveg), str(self._land_privbldg), 
+                str(self._land_pubbldg), str(self._land_other), 
+                str(self._elec_available), str(self._school_min_ft), 
+                str(self._health_min_ft), str(self._bus_min_ft), 
+                str(self._market_min_ft), str(self._employer_min_ft),
+                str(self._forest_dist_BZ_km), str(self._forest_dist_CNP_km),
+                str(self._forest_closest_km), str(self._forest_closest_type)])
 
     def add_agent(self, agent, initializing=False):
         """
@@ -1162,18 +1181,18 @@ class Region(Agent_set):
             # Now setup the relationships within the new household.
             for psn in model_hh.get_all_HH_members():
                 clone = new_household.get_agent(clone_dict[psn.get_ID()])
-                if psn._mother != None and model_hh.is_member(psn._mother.get_ID()):
+                if psn._mother != None and (psn._mother.get_ID() in clone_dict.keys()):
                     clone_mother_ID = clone_dict[psn._mother.get_ID()]
                     clone._mother = new_household.get_agent(clone_mother_ID)
 
-                if psn._father != None and model_hh.is_member(psn._father.get_ID()):
+                if psn._father != None and (psn._father.get_ID() in clone_dict.keys()):
                     clone_father_ID = clone_dict[psn._father.get_ID()]
                     clone._father = new_household.get_agent(clone_father_ID)
 
                 if (psn.get_sex() == "female") and (psn._last_birth_time != None):
                     clone._last_birth_time = psn._last_birth_time
 
-                if psn._spouse != None and model_hh.is_member(psn._spouse.get_ID()):
+                if psn._spouse != None and (psn._spouse.get_ID() in clone_dict.keys()):
                     clone_spouse_ID = clone_dict[psn._spouse.get_ID()]
                     clone._spouse = new_household.get_agent(clone_spouse_ID)
                     clone._marriage_time = psn._marriage_time
@@ -1430,33 +1449,14 @@ class World():
         psn_csv_file = os.path.join(results_path, "psns_time_%s.csv"%timestep)
         out_file = open(psn_csv_file, "wb")
         csv_writer = csv.writer(out_file)
-        csv_writer.writerow(["pid", "hid", "nid", "rid", "gender", "ethnicity", "age", "spouseid", "father_id", "mother_id", "des_num_children", "first_birth_timing"])
+        csv_writer.writerow(["pid", "hid", "nid", "rid", "gender", "age", 
+                             "ethnicity", "mother_id", "father_id",
+                             "spouseid", "marrtime", "schooling", 
+                             "num_children", "alive", "is_away", 
+                             "is_initial_agent", "is_in_migrant"])
         for region in self.iter_regions():
             for person in region.iter_persons():
-                new_row = []
-                new_row.append(person.get_ID())
-                new_row.append(person.get_parent_agent().get_ID())
-                new_row.append(person.get_parent_agent().get_parent_agent().get_ID())
-                new_row.append(person.get_parent_agent().get_parent_agent().get_parent_agent().get_ID())
-                new_row.append(person.get_sex())
-                new_row.append(person.get_ethnicity())
-                new_row.append(person.get_age_months())
-                spouse = person.get_spouse()
-                if spouse != None:
-                    new_row.append(person.get_spouse().get_ID())
-                else:
-                    new_row.append(None)
-                if person._mother != None:
-                    new_row.append(person._mother.get_ID())
-                else: 
-                    new_row.append(None)
-                if person._father != None:
-                    new_row.append(person._father.get_ID())
-                else: 
-                    new_row.append(None)
-                new_row.append(person._des_num_children)
-                new_row.append(person._first_birth_timing)
-                csv_writer.writerow(new_row)
+                csv_writer.writerow(person.get_info())
         out_file.close()
 
     def write_NBHs_to_csv(self, timestep, results_path):

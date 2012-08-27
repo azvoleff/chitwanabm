@@ -90,7 +90,10 @@ def main():
     # Make sure the rc_params are setup before loading any other ChitwanABM 
     # modules, so that they will all take the default params including any that 
     # might be specified in user_rc_file
+    root_logger.handlers[0].setLevel(fh_level)
     rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
+    if not os.path.exists(args.rc_file):
+        logger.critical('Custom rc file %s does not exist'%args.rc_file)
     rc_params.initialize(os.path.dirname(os.path.realpath(__file__)), args.rc_file)
     global rcParams
     rcParams = rc_params.get_params()
@@ -128,7 +131,13 @@ def main():
     # running (births, migrations, deaths, marriages, etc.)
     person_event_log_file_path = os.path.join(results_path, "person_events.log")
     person_event_log_file = open(person_event_log_file_path, mode='w')
-    person_event_log_file.write('time,event,PID,age,ethnic,marrtime,spouse,schooling,away,numchildren,alive,initialagent,inmigrant\n')
+    person_event_log_header = ",".join(["time", "event",
+                                        "pid", "hid", "nid", "rid", "gender", "age", 
+                                        "ethnicity", "mother_id", "father_id", 
+                                        "spouseid", "marrtime", "schooling", 
+                                        "num_children", "alive", "is_away", 
+                                        "is_initial_agent", "is_in_migrant"])
+    person_event_log_file.write(person_event_log_header + '\n')
     person_event_log_file.close()
     person_event_fh = logging.FileHandler(os.path.join(results_path, "person_events.log"), mode='a')
     person_event_fh.setLevel(logging.INFO)
