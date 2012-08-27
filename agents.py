@@ -1026,61 +1026,68 @@ class Region(Agent_set):
         # First find the divorcing agents
         checked_spouses = []
         divorces = {}
-        for household in self.iter_households():
-            for person in household.iter_agents():
-                if (not person.is_married()) or \
-                        (person in checked_spouses) or \
-                        (np.random.rand() >= calc_probability_divorce(person)):
-                    # Person does NOT get divorced
-                    checked_spouses.append(person)
-                    continue
-                # Person DOES get divorced:
+        for person in self.iter_all_persons():
+            if (not person.is_married()) or \
+                    (person in checked_spouses) or \
+                    (np.random.rand() >= calc_probability_divorce(person)):
+                # Person does NOT get divorced
                 checked_spouses.append(person)
-                neighborhood = household.get_parent_agent()
-                # Make the woman move out and either:
-                # 	- return to her parental home if it still exists
-                # 	- establish a new household in a randomly selected              
-                # 	neighborhood
-                if person.get_sex() == "female":
-                    woman = person
-                    man = woman.get_spouse()
-                else:
-                    woman = person.get_spouse()
-                    man = person
-                logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
-                log_event_record("Divorce", man, time_float)
-                log_event_record("Divorce", woman, time_float)
-                person.divorce()
-                if woman.is_away():
-                    # Women who are away when they get divorced are made to 
-                    # permanently out migrate.
-                    woman.make_permanent_outmigration(timestep)
-                    logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
-                elif woman.get_mother() == None or \
-                        woman.get_mother().get_parent_agent() == None:
-                    # Women whose mothers are not in the model (initial agents) 
-                    # or whose mother's households are no longer in the model 
-                    # (due to outmigration, death, etc.) will establish a new 
-                    # home.
-                    household.remove_agent(woman)
-                    logger.debug("Woman %s removed from old household to establish new household after divorce"%woman.get_ID())
-                    new_home = self._world.new_household()
-                    new_home.add_agent(woman)
-                    # Now find a neighborhood for the new home
-                    poss_neighborhoods = self.get_agents()
-                    new_neighborhood = poss_neighborhoods[np.random.randint( \
-                        len(poss_neighborhoods))]
-                    new_neighborhood.add_agent(new_home)
-                else:
-                    # If the woman's mother's home still exists, move the woman 
-                    # to that home.
-                    household.remove_agent(woman)
-                    logger.debug("Woman %s removed from old household to move into mother's household after divorce"%woman.get_ID())
-                    new_home = woman.get_mother().get_parent_agent()
-                    new_home.add_agent(woman)
-                if not divorces.has_key(neighborhood.get_ID()):
-                    divorces[neighborhood.get_ID()] = 0
-                divorces[neighborhood.get_ID()] += 1
+                continue
+            checked_spouses.append(person)
+            if person.get_sex() == "female":
+                woman = person
+                man = woman.get_spouse()
+            else:
+                woman = person.get_spouse()
+                man = person
+            # Figure out which neighborhood to credit the divorce to, even if 
+            # one or both spouses are away for a migration. Doesn't matter 
+            # which spouse is used to figure out the NID, so we will use the 
+            # man.
+            if man.is_away():
+                original_nbh = man._return_household.get_parent_agent()
+            else:
+                original_nbh = man.get_parent_agent().get_parent_agent()
+            logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
+            log_event_record("Divorce", man, time_float)
+            log_event_record("Divorce", woman, time_float)
+            # Make the woman move out and either:
+            # 	- return to her parental home if it still exists
+            # 	- establish a new household in a randomly selected              
+            # 	neighborhood
+            person.divorce()
+            if woman.is_away():
+                # Women who are away when they get divorced are made to 
+                # permanently out migrate.
+                woman.make_permanent_outmigration(timestep)
+                logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
+            elif woman.get_mother() == None or \
+                    woman.get_mother().get_parent_agent() == None:
+                # Women whose mothers are not in the model (initial agents) 
+                # or whose mother's households are no longer in the model 
+                # (due to outmigration, death, etc.) will establish a new 
+                # home.
+                woman.get_parent_agent().remove_agent(woman)
+                logger.debug("Woman %s removed from old household to establish new household after divorce"%woman.get_ID())
+                new_home = self._world.new_household()
+                new_home.add_agent(woman)
+                # Now find a neighborhood for the new home
+                poss_neighborhoods = self.get_agents()
+                new_neighborhood = poss_neighborhoods[np.random.randint( \
+                    len(poss_neighborhoods))]
+                new_neighborhood.add_agent(new_home)
+            else:
+                # If the woman's mother's home still exists, move the woman 
+                # to that home.
+                woman.get_parent_agent().remove_agent(woman)
+                logger.debug("Woman %s removed from old household to move into mother's household after divorce"%woman.get_ID())
+                new_home = woman.get_mother().get_parent_agent()
+                new_home.add_agent(woman)
+            # People who in Chitwan need to have their deaths tracked as coming 
+            # from a Chitwan neighborhood.
+            if not divorces.has_key(original_nbh.get_ID()):
+                divorces[original_nbh.get_ID()] = 0
+            divorces[original_nbh.get_ID()] += 1
         return divorces
 
     def get_num_marriages(self):
