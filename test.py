@@ -138,7 +138,7 @@ def validate_person_attributes(world):
             all_agents_valid = False
         if person.get_spouse() != None and spouse_count_dict.has_key(person.get_spouse().get_ID()):
             spouse_count_dict[person.get_spouse().get_ID()] += 1
-            logger.warning("Person %s has %s spouses"%(person.get_ID(), spouse_count_dict[person.get_spouse().get_ID()]))
+            logger.warning("Person %s has %s spouses"%(person.get_spouse().get_ID(), spouse_count_dict[person.get_spouse().get_ID()]))
             all_agents_valid = False
         elif person.get_spouse() != None and not spouse_count_dict.has_key(person.get_spouse().get_ID()):
             spouse_count_dict[person.get_spouse().get_ID()] = 1
