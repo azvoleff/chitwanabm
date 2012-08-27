@@ -348,15 +348,16 @@ class Person(Agent):
             self._spouse = None
             spouse._spouse = None
             spouse._ever_widowed = True
-        if not self.is_away():
-            # People who are away don't need to be removed from a household.
+        if self.is_away():
+            # People who _are_ away need to be removed from their old 
+            # household's members away list.
+            self._return_household._members_away.remove(self)
+            self._return_household.destroy_if_empty()
+        else:
+            # People who are not away need to be removed from their household.
             household = self.get_parent_agent()
             logger.debug("Agent %s removed from household after death"%self.get_ID())
             household.remove_agent(self)
-        else:
-            # People who _are_ away need to be removed from their old 
-            # household's members away list
-            self._return_household._members_away.remove(self)
         # Remove agents from their agent store if they die while in an 
         # agent_store
         if self._store_list != []:
@@ -592,10 +593,20 @@ class Household(Agent_set):
         Remove a person from this household. Override the default method for an 
         Agent_set so that we can check if the removal of this agent would leave 
         this household empty. It it would leave it empty, then destroy this 
-        household after removing the agent. Otherwise, run the normal method 
-        for agent removal from a household Agent_set.
+        household after removing the agent.
         """
         Agent_set.remove_agent(self, person)
+        self.destroy_if_empty()
+
+    def destroy_if_empty(self):
+        """
+        Checks to see if a households has:
+
+            - No members present
+            - No members away (migrants) that may return in the future
+
+        If so, then destroy the household and return its land to agriculture.
+        """
         if self.num_members() == 0 and self.get_away_members() == []:
             neighborhood = self.get_parent_agent()
             neighborhood._land_agveg += self._hh_area
@@ -744,10 +755,10 @@ class Region(Agent_set):
         # TODO: Demographic variables could be setup here to be specific for 
         # each region - these could be used to represent different strata.
         
-        # The cemetary stores agents who have died and been removed for the 
+        # The cemetery stores agents who have died and been removed for the 
         # model. It isn't accessed while the model is running, but is used for 
         # debugging only.
-        self._cemetary = {}
+        self._cemetery = {}
 
     def __repr__(self):
         #TODO: Finish this
@@ -844,18 +855,16 @@ class Region(Agent_set):
         for person in self.iter_all_persons():
             if np.random.rand() < calc_probability_death(person):
                 if not person.is_away():
-                    # People who are away don't have household parent agents, 
-                    # and their deaths shouldn't be tracked as coming from a 
-                    # Chitwan neighborhood. So the below is only performed for 
-                    # those who are NOT away.
+                    # People who in Chitwan need to have their deaths tracked 
+                    # as coming from a Chitwan neighborhood.
                     neighborhood = person.get_parent_agent().get_parent_agent()
                     if not deaths.has_key(neighborhood.get_ID()):
                         deaths[neighborhood.get_ID()] = 0
                     deaths[neighborhood.get_ID()] += 1
                 person.kill(time)
-                # Add the agent to the cemetary, for later access during 
+                # Add the agent to the cemetery, for later access during 
                 # debugging.
-                self._cemetary[self.get_ID()] = self
+                self._cemetery[self.get_ID()] = self
         return deaths
                         
     def marriages(self, time):
