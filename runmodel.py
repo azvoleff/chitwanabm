@@ -98,7 +98,6 @@ def main():
     from ChitwanABM.initialize import generate_world
     from ChitwanABM.modelloop import main_loop
 
-    from PyABM.rcsetup import write_RC_file
     from PyABM.file_io import write_single_band_raster
 
     # Get machine hostname to print it in the results file and use in the 
@@ -276,7 +275,7 @@ def main():
 # Run speed:\t%.4f
 # Code version:\t%s"""%(run_ID_number, start_time_string, end_time_string, 
         speed, commit_hash)
-    write_RC_file(run_RC_file, RC_file_header, rcParams)
+    rc_params.write_RC_file(run_RC_file, RC_file_header)
 
     logger.info("Finished saving results for model run %s"%run_ID_number)
 
