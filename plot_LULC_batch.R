@@ -148,7 +148,6 @@ ycoord <- ycoord + deltay
 i3 <- list("sp.text", c(xcoord, ycoord),
                 format(paste("Cor. Pred. Resid.:",  round(cor.pred.resid, 4)), width=30))
 ycoord <- ycoord + deltay
-dev.off()
 png(filename=paste(DATA_PATH, "batch_LULC_ordinary_krig_endofrun_bubble.png", sep="/"),
         width=8.33, height=5.33, units="in", res=300)
 bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
