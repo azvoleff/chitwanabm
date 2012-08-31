@@ -398,6 +398,7 @@ class Person(Agent):
             # of their parent household:
             logger.debug("Person %s permanently out-migrated (while away)"%self.get_ID())
             self._last_household._members_away.remove(self)
+            self._last_household.destroy_if_empty()
         self._perm_away = True
         # Remove agents from any agent store if they are in them while in an 
         # agent_store
@@ -1074,7 +1075,6 @@ class Region(Agent_set):
                 # out-migrate.
                 if not woman._perm_away:
                     woman.make_permanent_outmigration(timestep)
-                    logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
                 else:
                     logger.debug("Woman %s (permanent outmigrant) divorced resident husband"%woman.get_ID())
             elif woman.get_mother() == None or \
