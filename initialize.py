@@ -536,6 +536,7 @@ def generate_world():
     try:
         processed_data_file = rcParams['path.input_data_file']
         save_world(model_world, processed_data_file)
+        logger.info("World file saved to %s"%processed_data_file)
     except:
         logger.error("Problem saving world file to %s"%processed_data_file)
 
