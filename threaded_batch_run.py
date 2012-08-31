@@ -32,7 +32,32 @@ import argparse # Requires Python 2.7 or above
 import signal
 import threading
 import subprocess
+import logging
+import socket
+import smtplib
 
+logger = logging.getLogger(__name__)
+
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+
+hostname = socket.gethostname()
+logfile = time.strftime("ChitwanABM_thread_log_%Y%m%d-%H%M%S") + '-' + hostname + '.log'
+fh = logging.FileHandler(logfile)
+fh.setLevel(logging.INFO)
+log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+        datefmt='%Y/%m/%d %H:%M:%S')
+fh.setFormatter(log_file_formatter)
+root_logger.addHandler(fh)
+# Add a console logger as well - the level will be updated from the command 
+# line parameters later as necessary.
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+        datefmt='%I:%M:%S%p')
+ch.setFormatter(log_console_formatter)
+root_logger.addHandler(ch)
+logger.info("Logging to %s"%logfile)
 
 def sighandler(num, frame):
   global sigint
@@ -40,6 +65,8 @@ def sighandler(num, frame):
 
 number_of_runs = 20
 max_threads = 4
+
+email_results = False
 
 time_format = "%m/%d/%Y %I:%M:%S %p"
 
@@ -67,12 +94,12 @@ class ChitwanABMThread(threading.Thread):
         output, unused_err = self._modelrun.communicate()  # buffers the output
         retcode = self._modelrun.poll() 
         end_time = time.strftime(time_format, time.localtime())
-        print "%s: Finished run %s (return code %s)"%(end_time, self.name, retcode)
+        logger.info("Finished run %s (return code %s)"%(self.name, retcode))
         pool_sema.release()
 
     def kill(self):
         self._modelrun.terminate()
-        print "%s: Killed run %s (return code %s)"%(end_time, self.name, retcode)
+        logger.warning("Killed run %s (return code %s)"%(self.name, retcode))
 
 def main(argv=None):
     if argv is None:
@@ -88,7 +115,7 @@ def main(argv=None):
         with pool_sema:
             new_thread = ChitwanABMThread(run_count, runmodel_args)
             start_time = time.strftime(time_format, time.localtime())
-            print "%s: Starting run %s"%(start_time, new_thread.name)
+            logger.info("Starting run %s"%new_thread.name)
             try:
                 new_thread.start()
             except (KeyboardInterrupt, SystemExit):
@@ -97,6 +124,19 @@ def main(argv=None):
                 sys.exit()
             time.sleep(5)
             run_count += 1
+
+    if email_results: email_logfile(logfile)
+
+def email_results(log_file):
+    # Add the From: and To: headers at the start!
+    msg = "From: azvoleff@mail.sdsu.edu\r\nTo: zvoleff@mail.sdsu.edu\r\n\r\n"
+    file_obj = open(log_file, 'r')
+    for line in file_obj:
+        msg = msg + line
+    server = smtplib.SMTP('smtp.gmail.com')
+    server.set_debuglevel(1)
+    server.sendmail('azvoleff@mail.sdsu.edu', 'azvoleff@mail.sdsu.edu', msg)
+    server.quit()
 
 if __name__ == "__main__":
     sys.exit(main())
