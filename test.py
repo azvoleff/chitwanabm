@@ -20,10 +20,12 @@
 # README.txt file for contact information.
 
 """
-Script to run a test of the Chitwan Valley ABM code, to ensure, for example, 
-that agents are properly initialized, and that demographic processes 
-(marriages, deaths, births, migrations) are all properly represented in the 
-model.
+Script to run a test of the Chitwan Valley ABM code to ensure that agents are 
+properly initialized, and that demographic processes (marriages, deaths, 
+births, migrations) are all properly represented in the model. Also checks the 
+proper functionality of the rcparams code by plotting the probability 
+distributions used in the model so they can be verified to match the intended 
+distributions.
 """
 
 import sys

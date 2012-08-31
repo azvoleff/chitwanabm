@@ -206,6 +206,7 @@ class Person(Agent):
         self._store_list = []
         self._last_migration = {'type':None, 'time':None, 'duration_months':None}
         self._away = False
+        self._perm_away = False
         self._return_timestep = None
 
         self._ever_divorced = False
@@ -226,9 +227,9 @@ class Person(Agent):
         else: 
             father = None
         if self.is_away():
-            household = self._return_household.get_ID()
-            neighborhood = self._return_household.get_parent_agent().get_ID()
-            region = self._return_household.get_parent_agent().get_parent_agent().get_ID()
+            household = self._last_household.get_ID()
+            neighborhood = self._last_household.get_parent_agent().get_ID()
+            region = self._last_household.get_parent_agent().get_parent_agent().get_ID()
         else:
             household = self.get_parent_agent().get_ID()
             neighborhood = self.get_parent_agent().get_parent_agent().get_ID()
@@ -340,7 +341,6 @@ class Person(Agent):
         # the agent from its parent (the household), and adding the agent_store 
         # to the person's store_list
         self._return_timestep = timestep + months_away
-        self._return_household = household
         region._agent_stores['person']['LD_migr'].add_agent(self, self._return_timestep)
         self._last_migration['type'] = 'LD'
         self._last_migration['time'] = time
@@ -367,8 +367,8 @@ class Person(Agent):
         if self.is_away():
             # People who _are_ away need to be removed from their old 
             # household's members away list.
-            self._return_household._members_away.remove(self)
-            self._return_household.destroy_if_empty()
+            self._last_household._members_away.remove(self)
+            self._last_household.destroy_if_empty()
         else:
             # People who are not away need to be removed from their household.
             household = self.get_parent_agent()
@@ -390,13 +390,15 @@ class Person(Agent):
         if not self.is_away():
             # People who are away don't need to be removed from a household.
             logger.debug("Person %s permanently out-migrated (while NOT away)"%self.get_ID())
+            self._away = True
             household = self.get_parent_agent()
             household.remove_agent(self)
         else:
             # If agent is away, then remove then from the returning agents list 
             # of their parent household:
             logger.debug("Person %s permanently out-migrated (while away)"%self.get_ID())
-            self._return_household._members_away.remove(self)
+            self._last_household._members_away.remove(self)
+        self._perm_away = True
         # Remove agents from any agent store if they are in them while in an 
         # agent_store
         if self._store_list != []:
@@ -613,6 +615,14 @@ class Household(Agent_set):
         """
         Agent_set.remove_agent(self, person)
         self.destroy_if_empty()
+
+    def add_agent(self, person):
+        """
+        Add a person to this household. Override the default method for an 
+        Agent_set so that we can also set the _last_household attribute on the new household member.
+        """
+        Agent_set.add_agent(self, person)
+        person._last_household = self
 
     def destroy_if_empty(self):
         """
@@ -1045,7 +1055,7 @@ class Region(Agent_set):
             # which spouse is used to figure out the NID, so we will use the 
             # man.
             if man.is_away():
-                original_nbh = man._return_household.get_parent_agent()
+                original_nbh = man._last_household.get_parent_agent()
             else:
                 original_nbh = man.get_parent_agent().get_parent_agent()
             logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
@@ -1058,9 +1068,15 @@ class Region(Agent_set):
             person.divorce()
             if woman.is_away():
                 # Women who are away when they get divorced are made to 
-                # permanently out migrate.
-                woman.make_permanent_outmigration(timestep)
-                logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
+                # permanently out migrate. Note that some women might have 
+                # already made a permanent outmigration, so check below if they 
+                # are already permanently away before making them permanently 
+                # out-migrate.
+                if not woman._perm_away:
+                    woman.make_permanent_outmigration(timestep)
+                    logger.debug("Woman %s permanently out migrated after divorce"%woman.get_ID())
+                else:
+                    logger.debug("Woman %s (permanent outmigrant) divorced resident husband"%woman.get_ID())
             elif woman.get_mother() == None or \
                     woman.get_mother().get_parent_agent() == None:
                 # Women whose mothers are not in the model (initial agents) 
