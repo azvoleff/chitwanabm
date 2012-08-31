@@ -1,6 +1,6 @@
 The ChitwanABM
 =============================
-'ChitwanABM' is an agent-based model of the Western Chitwan Valley, Nepal.  The 
+ChitwanABM is an agent-based model of the Western Chitwan Valley, Nepal.  The 
 model represents a subset of the population of the Valley using a number of 
 agent types (person, household and neighborhood agents), environmental 
 variables (topography, land use and land cover) and social context variables.
@@ -28,7 +28,7 @@ _________________
 The latest version of the code (unstable) is available as a `zipped snapshot 
 from Github <https://github.com/azvoleff/ChitwanABM/zipball/master>`_.
 
-You can also `browse the source at Github 
+You can also `browse the source at GitHub 
 <https://github.com/azvoleff/ChitwanABM>`_.
 
 Documentation

@@ -30,6 +30,8 @@ require(foreign, quietly=TRUE)
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[2]
 
+#DATA_PATH <- "M:/Data/ChitwanABM_initialization"
+
 if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
 if (is.na(RANDOM_SEED)) stop("Random seed must be supplied")
