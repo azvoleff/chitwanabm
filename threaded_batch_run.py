@@ -42,13 +42,6 @@ root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 
 hostname = socket.gethostname()
-logfile = time.strftime("ChitwanABM_thread_log_%Y%m%d-%H%M%S") + '-' + hostname + '.log'
-fh = logging.FileHandler(logfile)
-fh.setLevel(logging.INFO)
-log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
-        datefmt='%Y/%m/%d %H:%M:%S')
-fh.setFormatter(log_file_formatter)
-root_logger.addHandler(fh)
 # Add a console logger as well - the level will be updated from the command 
 # line parameters later as necessary.
 ch = logging.StreamHandler()
@@ -57,7 +50,14 @@ log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s
         datefmt='%I:%M:%S%p')
 ch.setFormatter(log_console_formatter)
 root_logger.addHandler(ch)
+logfile = time.strftime("ChitwanABM_thread_log_%Y%m%d-%H%M%S") + '-' + hostname + '.log'
 logger.info("Logging to %s"%logfile)
+fh = logging.FileHandler(logfile)
+fh.setLevel(logging.INFO)
+log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+        datefmt='%Y/%m/%d %H:%M:%S')
+fh.setFormatter(log_file_formatter)
+root_logger.addHandler(fh)
 
 def sighandler(num, frame):
   global sigint
