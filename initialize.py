@@ -245,6 +245,7 @@ def assemble_persons(relationshipsFile, model_world):
             try:
                 father_RESPID = SUBJECT_RESPID_map[HHID][father_SUBJECT]
             except KeyError:
+                father_RESPID = None
                 logger.warning("Father of person %s was excluded from the model - father field set to None"%RESPID)
         else:
             father_RESPID = None
@@ -253,6 +254,7 @@ def assemble_persons(relationshipsFile, model_world):
             try:
                 mother_RESPID = SUBJECT_RESPID_map[HHID][mother_SUBJECT]
             except KeyError:
+                mother_RESPID = None
                 logger.warning("Mother of person %s was excluded from the model - mother field set to None"%RESPID)
         else:
             mother_RESPID = None
@@ -261,8 +263,8 @@ def assemble_persons(relationshipsFile, model_world):
             try:
                 spouse_RESPID = SUBJECT_RESPID_map[HHID][spouse_1_SUBJECT]
             except KeyError:
-                logger.warning("Spouse of person %s was excluded from the model - spouse field set to None"%RESPID)
                 spouse_RESPID = None
+                logger.warning("Spouse of person %s was excluded from the model - spouse field set to None"%RESPID)
         else:
             spouse_RESPID = None
 
