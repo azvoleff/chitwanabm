@@ -132,7 +132,7 @@ def email_logfile(log_file):
     for line in file_obj:
         msg = msg + line
     server = smtplib.SMTP(rcParams['email_log.smtp_server'])
-    server.login(rcParams['email_log.username'], rcParams['email_log.password'])
+    server.login(rcParams['email_log.smtp_username'], rcParams['email_log.smtp_password'])
     server.sendmail(rcParams['email_log.from'], rcParams['email_log.to'], msg)
     server.quit()
 
