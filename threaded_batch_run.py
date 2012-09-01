@@ -50,7 +50,8 @@ log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s
         datefmt='%I:%M:%S%p')
 ch.setFormatter(log_console_formatter)
 root_logger.addHandler(ch)
-logfile = time.strftime("ChitwanABM_thread_log_%Y%m%d-%H%M%S") + '-' + hostname + '.log'
+batchrun_name = time.strftime("%Y%m%d-%H%M%S") + '-' + hostname
+logfile = 'ChitwanABM_thread_log_' + batchrun_name + '.log'
 logger.info("Logging to %s"%logfile)
 fh = logging.FileHandler(logfile)
 fh.setLevel(logging.INFO)
@@ -59,23 +60,19 @@ log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
 fh.setFormatter(log_file_formatter)
 root_logger.addHandler(fh)
 
+from ChitwanABM import rc_params
+rc_params.initialize(os.path.dirname(os.path.realpath(__file__)))
+rcParams = rc_params.get_params()
+
 def sighandler(num, frame):
   global sigint
   sigint = True
 
-number_of_runs = 20
-max_threads = 4
-
-email_results = False
-
 time_format = "%m/%d/%Y %I:%M:%S %p"
 
-pool_sema = threading.BoundedSemaphore(value=(max_threads+1))
+pool_sema = threading.BoundedSemaphore(value=(rcParams['batchrun.num_cores'] + 1))
 
-python_path = "C:/Python27_64bit/python.exe"
-script_path = "C:/Users/azvoleff/Code/Python/ChitwanABM/runmodel.py"
-#python_path = "/usr/bin/python"
-#script_path = "/home/azvoleff/Code/Python/ChitwanABM/runmodel.py"
+
 class ChitwanABMThread(threading.Thread):
     def __init__(self, thread_ID, runmodel_args):
         pool_sema.acquire()
@@ -86,7 +83,7 @@ class ChitwanABMThread(threading.Thread):
 
     def run(self):
         dev_null = open(os.devnull, 'w')
-        command = python_path +  ' ' + script_path +  ' ' + self._runmodel_args
+        command = rcParams['batchrun.python_path'] +  ' ' + rcParams['batchrun.runmodel_path'] +  ' ' + self._runmodel_args
         if '--log' not in command:
             command += ' --log=CRITICAL'
         self._modelrun = subprocess.Popen(command, cwd=sys.path[0], stdout=subprocess.PIPE, 
@@ -111,7 +108,7 @@ def main(argv=None):
 
     end_batch = False
     run_count = 1
-    while run_count <= number_of_runs:
+    while run_count <= rcParams['batchrun.num_runs']:
         with pool_sema:
             new_thread = ChitwanABMThread(run_count, runmodel_args)
             start_time = time.strftime(time_format, time.localtime())
@@ -125,17 +122,18 @@ def main(argv=None):
             time.sleep(5)
             run_count += 1
 
-    if email_results: email_logfile(logfile)
+    if rcParams['email_log']: email_logfile(logfile)
 
-def email_results(log_file):
+def email_logfile(log_file):
     # Add the From: and To: headers at the start!
-    msg = "From: azvoleff@mail.sdsu.edu\r\nTo: zvoleff@mail.sdsu.edu\r\n\r\n"
+    msg = "Subject: ChitwanABM batch run %s\r\nFrom: %s\r\nTo: %s\r\n\r\n"%(batchrun_name, rcParams['email_log.from'], 
+            rcParams['email_log.to'])
     file_obj = open(log_file, 'r')
     for line in file_obj:
         msg = msg + line
-    server = smtplib.SMTP('smtp.gmail.com')
-    server.set_debuglevel(1)
-    server.sendmail('azvoleff@mail.sdsu.edu', 'azvoleff@mail.sdsu.edu', msg)
+    server = smtplib.SMTP(rcParams['email_log.smtp_server'])
+    server.login(rcParams['email_log.username'], rcParams['email_log.password'])
+    server.sendmail(rcParams['email_log.from'], rcParams['email_log.to'], msg)
     server.quit()
 
 if __name__ == "__main__":
