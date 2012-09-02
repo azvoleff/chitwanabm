@@ -38,40 +38,18 @@ import smtplib
 
 logger = logging.getLogger(__name__)
 
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-
-hostname = socket.gethostname()
-# Add a console logger as well - the level will be updated from the command 
-# line parameters later as necessary.
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
-        datefmt='%I:%M:%S%p')
-ch.setFormatter(log_console_formatter)
-root_logger.addHandler(ch)
-batchrun_name = time.strftime("%Y%m%d-%H%M%S") + '-' + hostname
-logfile = 'ChitwanABM_thread_log_' + batchrun_name + '.log'
-logger.info("Logging to %s"%logfile)
-fh = logging.FileHandler(logfile)
-fh.setLevel(logging.INFO)
-log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
-        datefmt='%Y/%m/%d %H:%M:%S')
-fh.setFormatter(log_file_formatter)
-root_logger.addHandler(fh)
-
-from ChitwanABM import rc_params
-rc_params.initialize(os.path.dirname(os.path.realpath(__file__)))
-rcParams = rc_params.get_params()
-
+active_threads = []
 def sighandler(num, frame):
-  global sigint
-  sigint = True
+    signal.signal(signal.SIGINT, sighandler)
+    global sigint
+    sigint = True
+    logger.critical("System interrupt captured")
+    for thread in list(active_threads):
+        thread.kill()
+    sys.exit()
 
-time_format = "%m/%d/%Y %I:%M:%S %p"
-
-pool_sema = threading.BoundedSemaphore(value=(rcParams['batchrun.num_cores'] + 1))
-
+sigint = False
+signal.signal(signal.SIGINT, sighandler)
 
 class ChitwanABMThread(threading.Thread):
     def __init__(self, thread_ID, runmodel_args):
@@ -80,6 +58,7 @@ class ChitwanABMThread(threading.Thread):
         self.threadID = thread_ID
         self.name = thread_ID
         self._runmodel_args = runmodel_args
+        active_threads.append(self)
 
     def run(self):
         dev_null = open(os.devnull, 'w')
@@ -90,44 +69,76 @@ class ChitwanABMThread(threading.Thread):
                 stderr=subprocess.STDOUT)
         output, unused_err = self._modelrun.communicate()  # buffers the output
         retcode = self._modelrun.poll() 
-        end_time = time.strftime(time_format, time.localtime())
         logger.info("Finished run %s (return code %s)"%(self.name, retcode))
         pool_sema.release()
+        active_threads.remove(self)
 
     def kill(self):
+        logger.warning("Killed run %s"%self.name)
         self._modelrun.terminate()
-        logger.warning("Killed run %s (return code %s)"%(self.name, retcode))
 
 def main(argv=None):
+    # Save args to pass on to runmodel
     if argv is None:
         argv = sys.argv
     runmodel_args = " ".join(argv[1:])
 
-    sigint = False
-    signal.signal(signal.SIGINT, sighandler)
+    parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
+    parser.add_argument('--rc', dest="rc_file", metavar="RC_FILE", type=str, default=None,
+            help='Path to a rc file to initialize a model run with custom parameters')
+    args = parser.parse_args()
 
-    end_batch = False
+    from ChitwanABM import rc_params
+    rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
+    if not args.rc_file==None and not os.path.exists(args.rc_file):
+        logger.critical('Custom rc file %s does not exist'%args.rc_file)
+    rc_params.initialize(os.path.dirname(os.path.realpath(__file__)), args.rc_file)
+    global rcParams
+    rcParams = rc_params.get_params()
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+            datefmt='%I:%M:%S%p')
+    ch.setFormatter(log_console_formatter)
+    root_logger.addHandler(ch)
+    batchrun_name = time.strftime("Batch_%Y%m%d-%H%M%S") + '_' + socket.gethostname()
+    scenario_path = os.path.join(str(rcParams['model.resultspath']), rcParams['scenario.name'])
+    logfile = os.path.join(scenario_path, 'ChitwanABM_batch_' + batchrun_name + '.log')
+    logger.info("Logging to %s"%logfile)
+    fh = logging.FileHandler(logfile)
+    log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+            datefmt='%Y/%m/%d %H:%M:%S')
+    fh.setFormatter(log_file_formatter)
+    root_logger.addHandler(fh)
+
+    global pool_sema
+    pool_sema = threading.BoundedSemaphore(value=(rcParams['batchrun.num_cores'] + 1))
+
+    logger.info("Starting batch run %s, running '%s' scenario"%(batchrun_name, rcParams['scenario.name']))
     run_count = 1
     while run_count <= rcParams['batchrun.num_runs']:
         with pool_sema:
             new_thread = ChitwanABMThread(run_count, runmodel_args)
-            start_time = time.strftime(time_format, time.localtime())
             logger.info("Starting run %s"%new_thread.name)
-            try:
-                new_thread.start()
-            except (KeyboardInterrupt, SystemExit):
-                new_thread.kill()
-            if sigint:
-                sys.exit()
+            new_thread.start()
             time.sleep(5)
             run_count += 1
 
-    if rcParams['email_log']: email_logfile(logfile)
+    # Wait until all active threads have finished before emailing the log.
+    for thread in list(active_threads):
+        thread.join()
 
-def email_logfile(log_file):
-    # Add the From: and To: headers at the start!
-    msg = "Subject: ChitwanABM batch run %s\r\nFrom: %s\r\nTo: %s\r\n\r\n"%(batchrun_name, rcParams['email_log.from'], 
+    if rcParams['email_log']:
+        logger.info("Emailing log to %s"%rcParams['email_log.to'])
+        msg = "Subject: ChitwanABM batch run - %s - %s\r\nFrom: %s\r\nTo: %s\r\n\r\n"%(
+            rcParams['scenario.name'], batchrun_name, rcParams['email_log.from'], 
             rcParams['email_log.to'])
+        email_logfile(logfile, msg)
+    logger.info("Finished batch run %s"%batchrun_name)
+
+def email_logfile(log_file, msg):
     file_obj = open(log_file, 'r')
     for line in file_obj:
         msg = msg + line
