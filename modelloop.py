@@ -20,7 +20,7 @@
 
 """
 Contains main model loop: Contains the main loop for the model. Takes input 
-parameters read from runModel.py, and passes results of model run back.
+parameters read from runmodel.py, and passes results of model run back.
 """
 
 import os
