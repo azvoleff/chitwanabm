@@ -114,7 +114,7 @@ def main(argv=None):
             return 1
 
     batchrun_name = time.strftime("Batch_%Y%m%d-%H%M%S") + '_' + socket.gethostname()
-    logfile = os.path.join(scenario_path, 'ChitwanABM_batch_' + batchrun_name + '.log')
+    logfile = os.path.join(scenario_path, 'ChitwanABM_' + batchrun_name + '.log')
     logger.info("Logging to %s"%logfile)
     fh = logging.FileHandler(logfile)
     log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
