@@ -553,13 +553,15 @@ class Household(Agent_set):
 
     def get_info(self):
         "Returns basic info about this household for use in logging."
-        # TODO: Complete this function.
-        pass
+        return (str(self.get_ID()), str(self._any_non_wood_fuel), 
+                str(self._own_house_plot), str(self._own_land), 
+                str(self._rented_out_land), str(self._lastmigrant_time), 
+                str(self._hh_area), str(self.num_members()), 
+                str(self.num_away_members()))
 
     def any_non_wood_fuel(self):
         "Boolean for whether household uses any non-wood fuel"
         return self._any_non_wood_fuel
-
 
     def get_away_members(self):
         "Returns any household members that are away (migrants)."
@@ -686,14 +688,14 @@ class Neighborhood(Agent_set):
 
     def get_info(self):
         "Returns basic info about this neighborhood for use in logging."
-        return ([str(self.get_ID()), str(self._land_agveg), 
+        return (str(self.get_ID()), str(self._land_agveg), 
                 str(self._land_nonagveg), str(self._land_privbldg), 
                 str(self._land_pubbldg), str(self._land_other), 
                 str(self._elec_available), str(self._school_min_ft), 
                 str(self._health_min_ft), str(self._bus_min_ft), 
                 str(self._market_min_ft), str(self._employer_min_ft),
                 str(self._forest_dist_BZ_km), str(self._forest_dist_CNP_km),
-                str(self._forest_closest_km), str(self._forest_closest_type)])
+                str(self._forest_closest_km), str(self._forest_closest_type))
 
     def add_agent(self, agent, initializing=False):
         """
