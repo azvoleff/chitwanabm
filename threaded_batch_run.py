@@ -141,7 +141,7 @@ def main(argv=None):
 
     if rcParams['email_log']:
         logger.info("Emailing log to %s"%rcParams['email_log.to'])
-        subject = 'ChitwanABM batch run - %s - %s'%(rcParams['scenario.name'], 
+        subject = 'ChitwanABM Log - %s - %s'%(rcParams['scenario.name'], 
                 batchrun_name)
         email_logfile(logfile, subject)
     logger.info("Finished batch run %s"%batchrun_name)
