@@ -78,6 +78,14 @@ class ChitwanABMThread(threading.Thread):
         self._modelrun.terminate()
 
 def main(argv=None):
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
+            datefmt='%I:%M:%S%p')
+    ch.setFormatter(log_console_formatter)
+    root_logger.addHandler(ch)
+
     # Save args to pass on to runmodel
     if argv is None:
         argv = sys.argv
@@ -96,15 +104,15 @@ def main(argv=None):
     global rcParams
     rcParams = rc_params.get_params()
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    log_console_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
-            datefmt='%I:%M:%S%p')
-    ch.setFormatter(log_console_formatter)
-    root_logger.addHandler(ch)
-    batchrun_name = time.strftime("Batch_%Y%m%d-%H%M%S") + '_' + socket.gethostname()
     scenario_path = os.path.join(str(rcParams['model.resultspath']), rcParams['scenario.name'])
+    if not os.path.exists(scenario_path):
+        try:
+            os.mkdir(scenario_path)
+        except OSError:
+            logger.critical("Could not create scenario directory %s"%scenario_path)
+            return 1
+
+    batchrun_name = time.strftime("Batch_%Y%m%d-%H%M%S") + '_' + socket.gethostname()
     logfile = os.path.join(scenario_path, 'ChitwanABM_batch_' + batchrun_name + '.log')
     logger.info("Logging to %s"%logfile)
     fh = logging.FileHandler(logfile)
