@@ -179,7 +179,7 @@ class Person(Agent):
             # agents that initialize the model.
             if (self._age / 12.) > rcParams['education.start_school_age_years']:
                 self._schooling = np.random.randint(1, 15)
-                #TODO: Fix this to also allow inschool status
+                #TODO: Fix this to also allow in-school status
                 self._school_status == "outofschool"
             self._mother_work = boolean_choice()
             self._father_work = boolean_choice()
@@ -781,17 +781,10 @@ class Region(Agent_set):
         self._agent_stores['person']['LL_migr'] = Agent_Store()
         self._agent_stores['person']['LD_migr'] = Agent_Store()
 
-        # TODO: Demographic variables could be setup here to be specific for 
-        # each region - these could be used to represent different strata.
-        
         # The cemetery stores agents who have died and been removed for the 
-        # model. It isn't accessed while the model is running, but is used for 
+        # model. It isn't accessed while the model is running - it is used for 
         # debugging only.
         self._cemetery = {}
-
-    def __repr__(self):
-        #TODO: Finish this
-        return "__repr__ UNDEFINED"
 
     def __str__(self):
         return "Region(RID: %s, %s neighborhood(s), %s household(s), %s person(s))"%(self.get_ID(), \
