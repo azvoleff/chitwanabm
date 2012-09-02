@@ -34,7 +34,6 @@ import threading
 import subprocess
 import logging
 import socket
-import smtplib
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +96,8 @@ def main(argv=None):
     args = parser.parse_args()
 
     from ChitwanABM import rc_params
+    from PyABM.utility import email_logfile
+
     rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
     if not args.rc_file==None and not os.path.exists(args.rc_file):
         logger.critical('Custom rc file %s does not exist'%args.rc_file)
@@ -140,20 +141,10 @@ def main(argv=None):
 
     if rcParams['email_log']:
         logger.info("Emailing log to %s"%rcParams['email_log.to'])
-        msg = "Subject: ChitwanABM batch run - %s - %s\r\nFrom: %s\r\nTo: %s\r\n\r\n"%(
-            rcParams['scenario.name'], batchrun_name, rcParams['email_log.from'], 
-            rcParams['email_log.to'])
-        email_logfile(logfile, msg)
+        subject = 'ChitwanABM batch run - %s - %s'%(rcParams['scenario.name'], 
+                batchrun_name)
+        email_logfile(logfile, subject)
     logger.info("Finished batch run %s"%batchrun_name)
-
-def email_logfile(log_file, msg):
-    file_obj = open(log_file, 'r')
-    for line in file_obj:
-        msg = msg + line
-    server = smtplib.SMTP(rcParams['email_log.smtp_server'])
-    server.login(rcParams['email_log.smtp_username'], rcParams['email_log.smtp_password'])
-    server.sendmail(rcParams['email_log.from'], rcParams['email_log.to'], msg)
-    server.quit()
 
 if __name__ == "__main__":
     sys.exit(main())
