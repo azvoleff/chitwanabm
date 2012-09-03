@@ -98,7 +98,7 @@ def main(argv=None):
     from chitwanabm import rc_params
     from pyabm.utility import email_logfile
 
-    rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
+    rc_params.load_default_params(__name__)
     if not args.rc_file==None and not os.path.exists(args.rc_file):
         logger.critical('Custom rc file %s does not exist'%args.rc_file)
     rc_params.initialize(os.path.dirname(os.path.realpath(__file__)), args.rc_file)

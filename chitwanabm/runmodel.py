@@ -91,7 +91,7 @@ def main():
     # modules, so that they will all take the default params including any that 
     # might be specified in user_rc_file
     root_logger.handlers[0].setLevel(fh_level)
-    rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
+    rc_params.load_default_params(__name__)
     if not args.rc_file==None and not os.path.exists(args.rc_file):
         logger.critical('Custom rc file %s does not exist'%args.rc_file)
     rc_params.initialize(os.path.dirname(os.path.realpath(__file__)), args.rc_file)
