@@ -34,8 +34,8 @@ from chitwanabm import rc_params, np
 if not rc_params.is_initialized():
     # Load the rc parameters if this module was imported directly (needed for 
     # Sphinx autodoc).
-    rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
-    rc_params.initialize(os.path.dirname(os.path.realpath(__file__)))
+    rc_params.load_default_params('chitwanabm')
+    rc_params.initialize('chitwanabm')
 rcParams = rc_params.get_params()
 
 from pyabm import boolean_choice

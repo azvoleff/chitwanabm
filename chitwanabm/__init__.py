@@ -30,3 +30,7 @@ the Western Chitwan Valley.
 """
 
 from pyabm import rc_params, np
+# Set rcparams._initialized to False as rcparams still need to be initialized 
+# with the chitwanabm specific params - they have only been initialized for 
+# pyabm at this point.
+rc_params._initialized = False

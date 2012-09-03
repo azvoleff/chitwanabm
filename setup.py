@@ -7,26 +7,19 @@ setup(
     name = "chitwanabm",
     version = "1.4dev",
     packages = find_packages(),
-
     include_package_data = True,
-
     exclude_package_data = {'': ['.gitignore']},
-
-    # Project uses reStructuredText, so ensure that the docutils get
-    # installed or upgraded on the target machine
+    zip_safe = True,
     install_requires = ['docutils >= 0.3',
                         'setuptools_git >= 0.3',
                         'numpy >= 1.6.2',
                         'pyabm >= .2'],
-
-    # metadata for upload to PyPI
     author = "Alex Zvoleff",
     author_email = "azvoleff@mail.sdsu.edu",
     description = "Agent-based modeling toolkit",
     license = "GPL v3 or later",
     keywords = "agent-based modeling ABM simulation model",
     url = "http://rohan.sdsu.edu/~zvoleff/ChitwanABM.php",   # project home page, if any
-
     long_description = """
 chitwanabm is an agent-based model of the Western Chitwan Valley, Nepal.  
 The model represents a subset of the population of the Valley using a 

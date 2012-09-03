@@ -101,7 +101,7 @@ def main(argv=None):
     rc_params.load_default_params(__name__)
     if not args.rc_file==None and not os.path.exists(args.rc_file):
         logger.critical('Custom rc file %s does not exist'%args.rc_file)
-    rc_params.initialize(os.path.dirname(os.path.realpath(__file__)), args.rc_file)
+    rc_params.initialize('chitwanabm', args.rc_file)
     global rcParams
     rcParams = rc_params.get_params()
 
