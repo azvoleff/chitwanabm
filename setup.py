@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "chitwanabm",
-    version = "1.4dev",
+    version = "1.4",
     packages = find_packages(),
     include_package_data = True,
     exclude_package_data = {'': ['.gitignore']},
@@ -37,7 +37,7 @@ information on initializing and running the model, and on interpreting the
 model output.
 
 See the `chitwanabm website 
-<http://rohan.sdsu.edu/~zvoleff/research/chitwanabm.php>`_ for more 
+<http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php>`_ for more 
 information, past releases, publications, and recent presentations.
 """,
     classifiers = [
