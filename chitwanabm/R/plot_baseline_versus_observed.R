@@ -9,7 +9,11 @@ DPI = 300
 theme_update(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=.5))
 
-source("calc_NBH_stats.R")
+initial.options <- commandArgs(trailingOnly = FALSE)
+file.arg.name <- "--file="
+script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+script.basename <- dirname(script.name)
+source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 baseline_path <- "/media/Zvoleff_Passport/Data/Nepal/chitwanabm_runs/New_Baseline"
 baseline_name <- "Baseline"

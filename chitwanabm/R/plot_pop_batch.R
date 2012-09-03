@@ -30,7 +30,11 @@ PLOT_HEIGHT = 5.53
 DPI = 300
 theme_update(theme_grey(base_size=18))
 
-source("calc_NBH_stats.R")
+initial.options <- commandArgs(trailingOnly = FALSE)
+file.arg.name <- "--file="
+script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+script.basename <- dirname(script.name)
+source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
