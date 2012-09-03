@@ -27,13 +27,13 @@ with more than one core.
 import sys
 import time
 import os
-
 import argparse # Requires Python 2.7 or above
 import signal
 import threading
 import subprocess
 import logging
 import socket
+from pkg_resources import resource_filename
 
 logger = logging.getLogger(__name__)
 
@@ -61,11 +61,14 @@ class chitwanabmThread(threading.Thread):
 
     def run(self):
         dev_null = open(os.devnull, 'w')
-        command = rcParams['batchrun.python_path'] +  ' ' + rcParams['batchrun.runmodel_path'] +  ' ' + self._runmodel_args
+        runmodel_script = resource_filename(__name__, 'runmodel.py')
+        command = rcParams['batchrun.python_path'] +  ' ' + \
+                  runmodel_script +  ' ' + \
+                  self._runmodel_args
         if '--log' not in command:
             command += ' --log=CRITICAL'
-        self._modelrun = subprocess.Popen(command, cwd=sys.path[0], stdout=subprocess.PIPE, 
-                stderr=subprocess.STDOUT)
+        self._modelrun = subprocess.Popen(command, cwd=sys.path[0], 
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output, unused_err = self._modelrun.communicate()  # buffers the output
         retcode = self._modelrun.poll() 
         logger.info("Finished run %s (return code %s)"%(self.name, retcode))

@@ -26,8 +26,8 @@ and land use using the original CVFS data.
 import os
 import sys
 import logging
-
 import pickle
+from pkg_resources import resource_filename
 from subprocess import check_call, CalledProcessError
 
 import numpy as np
@@ -525,7 +525,8 @@ def generate_world():
         logger.info("Calling R to preprocess CVFS data")
         raw_data_path = rcParams['path.raw_input_data']
         Rscript_binary = rcParams['path.Rscript_binary']
-        check_call([Rscript_binary, "data_preprocess.R", raw_data_path, 
+        preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
+        check_call([Rscript_binary, preprocess_script, raw_data_path, 
             str(rcParams['random_seed'])])
     except CalledProcessError:
         logger.exception("Problem while running data_preprocess.R R script")

@@ -39,6 +39,7 @@ import numpy as np
 import argparse # Requires Python 2.7 or above
 import logging
 import shutil
+from pkg_resources import resource_filename
 
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
@@ -235,8 +236,9 @@ def main():
         Rscript_binary = rcParams['path.Rscript_binary']
         dev_null = open(os.devnull, 'w')
         try:
-            subprocess.check_call([Rscript_binary, 'plot_pop.R', results_path],
-                    cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+            plot_pop_script = resource_filename(__name__, 'R/plot_pop.R')
+            subprocess.check_call([Rscript_binary, plot_pop_script, 
+                results_path], cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
         except:
             logger.exception("Problem running plot_pop.R")
         dev_null.close()
@@ -246,8 +248,10 @@ def main():
             # Make plots of the LULC and population results
             dev_null = open(os.devnull, 'w')
             try:
-                subprocess.check_call([Rscript_binary, 'plot_LULC.R', results_path],
-                        cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+                plot_LULC_script = resource_filename(__name__, 'R/plot_LULC.R')
+                subprocess.check_call([Rscript_binary, plot_LULC_script, 
+                    results_path], cwd=sys.path[0], stdout=dev_null, 
+                    stderr=dev_null)
             except:
                 logger.exception("Problem running plot_LULC.R")
             dev_null.close()
@@ -256,8 +260,11 @@ def main():
             logger.info("Plotting persons results")
             dev_null = open(os.devnull, 'w')
             try:
-                subprocess.check_call([Rscript_binary, 'plot_psns_data.R', results_path],
-                        cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
+                plot_psns_script = resource_filename(__name__, 
+                        'R/plot_psns_data.R')
+                subprocess.check_call([Rscript_binary, plot_psns_script, 
+                    results_path], cwd=sys.path[0], stdout=dev_null, 
+                    stderr=dev_null)
             except:
                 logger.exception("Problem running plot_psns_data.R")
             dev_null.close()
