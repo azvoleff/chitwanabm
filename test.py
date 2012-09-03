@@ -1,19 +1,19 @@
 #!/usr/bin/python
 # Copyright 2008-2012 Alex Zvoleff
 #
-# This file is part of the ChitwanABM agent-based model.
+# This file is part of the chitwanabm agent-based model.
 # 
-# ChitwanABM is free software: you can redistribute it and/or modify it under the
+# chitwanabm is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
 # 
-# ChitwanABM is distributed in the hope that it will be useful, but WITHOUT ANY
+# chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License along with
-# ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
+# chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
@@ -49,7 +49,7 @@ def main(argv=None):
     sample_size = 10000
     
     logger.info("Plotting desired number of children test histogram")
-    from ChitwanABM.statistics import calc_des_num_children
+    from chitwanabm.statistics import calc_des_num_children
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_des_num_children())
@@ -59,7 +59,7 @@ def main(argv=None):
     plt.show()
 
     logger.info("Plotting birth interval test histogram")
-    from ChitwanABM.statistics import calc_birth_interval
+    from chitwanabm.statistics import calc_birth_interval
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_birth_interval())
@@ -69,7 +69,7 @@ def main(argv=None):
     plt.show()
 
     logger.info("Plotting household area test histogram")
-    from ChitwanABM.statistics import calc_hh_area
+    from chitwanabm.statistics import calc_hh_area
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_hh_area())
@@ -79,7 +79,7 @@ def main(argv=None):
     plt.show()
 
     logger.info("Plotting num in migrant households test histogram")
-    from ChitwanABM.statistics import calc_num_inmigrant_households
+    from chitwanabm.statistics import calc_num_inmigrant_households
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_num_inmigrant_households())
@@ -89,7 +89,7 @@ def main(argv=None):
     plt.show()
 
     logger.info("Plotting in migrant household ethnicity test histogram")
-    from ChitwanABM.statistics import calc_inmigrant_household_ethnicity
+    from chitwanabm.statistics import calc_inmigrant_household_ethnicity
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_inmigrant_household_ethnicity(as_integer=True))
@@ -99,7 +99,7 @@ def main(argv=None):
     plt.show()
 
     logger.info("Plotting in migrant household size test histogram")
-    from ChitwanABM.statistics import calc_inmigrant_household_size
+    from chitwanabm.statistics import calc_inmigrant_household_size
     retvalues = []
     for n in xrange(sample_size):
         retvalues.append(calc_inmigrant_household_size())

@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ChitwanABM'
+project = u'chitwanabm'
 copyright = u'2012, Alex Zvoleff'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -84,7 +84,7 @@ exclude_patterns = ['_build']
 pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
-modindex_common_prefix = ['ChitwanABM']
+modindex_common_prefix = ['chitwanabm']
 
 
 # -- Options for HTML output ---------------------------------------------------
@@ -106,7 +106,7 @@ html_theme = 'default'
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = 'ChitwanABM Documentation'
+html_short_title = 'chitwanabm Documentation'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -245,7 +245,7 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'ChitwanABM Documentation'
+epub_title = u'chitwanabm Documentation'
 epub_author = u'Alex Zvoleff'
 epub_publisher = u'San Diego State University'
 epub_copyright = u'2012, Alex Zvoleff'
@@ -301,7 +301,7 @@ epub_copyright = u'2012, Alex Zvoleff'
 # regardless of the global pdf_compressed setting.
 
 pdf_documents = [ 
-    ('index', u'ChitwanABM', u'ChitwanABM', u'Alex Zvoleff'),
+    ('index', u'chitwanabm', u'chitwanabm', u'Alex Zvoleff'),
 ]
 
 # A comma-separated list of custom stylesheets. Example:

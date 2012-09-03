@@ -1,18 +1,18 @@
 # Copyright 2008-2012 Alex Zvoleff
 #
-# This file is part of the ChitwanABM agent-based model.
+# This file is part of the chitwanabm agent-based model.
 # 
-# ChitwanABM is free software: you can redistribute it and/or modify it under 
+# chitwanabm is free software: you can redistribute it and/or modify it under 
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
 # 
-# ChitwanABM is distributed in the hope that it will be useful, but WITHOUT ANY
+# chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License along with
-# ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
+# chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
@@ -30,11 +30,11 @@ import logging
 
 import numpy as np
 
-from PyABM import IDGenerator, boolean_choice
-from PyABM.agents import Agent, Agent_set, Agent_Store
+from pyabm import IDGenerator, boolean_choice
+from pyabm.agents import Agent, Agent_set, Agent_Store
 
-from ChitwanABM import rc_params
-from ChitwanABM.statistics import calc_probability_death, \
+from chitwanabm import rc_params
+from chitwanabm.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
         calc_first_birth_prob_ghimireaxinn2010, calc_first_birth_prob_zvoleff, \
@@ -55,27 +55,27 @@ def log_event_record(message, person, modeltime, **kwargs):
     person_event_logger.info(message, extra=extra, **kwargs)
 
 if rcParams['model.parameterization.marriage'] == 'simple':
-    from ChitwanABM.statistics import calc_probability_marriage_simple as calc_probability_marriage
+    from chitwanabm.statistics import calc_probability_marriage_simple as calc_probability_marriage
 elif rcParams['model.parameterization.marriage'] == 'yabiku2006':
-    from ChitwanABM.statistics import calc_probability_marriage_yabiku2006 as calc_probability_marriage
+    from chitwanabm.statistics import calc_probability_marriage_yabiku2006 as calc_probability_marriage
 elif rcParams['model.parameterization.marriage'] == 'zvoleff':
-    from ChitwanABM.statistics import calc_probability_marriage_zvoleff as calc_probability_marriage
+    from chitwanabm.statistics import calc_probability_marriage_zvoleff as calc_probability_marriage
 else:
     raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['model.parameterization.marriage'])
 
 if rcParams['model.parameterization.migration'] == 'simple':
-    from ChitwanABM.statistics import calc_probability_migration_simple as calc_probability_migration
+    from chitwanabm.statistics import calc_probability_migration_simple as calc_probability_migration
 elif rcParams['model.parameterization.migration'] == 'massey2010':
-    from ChitwanABM.statistics import calc_probability_migration_masseyetal_2010 as calc_probability_migration
+    from chitwanabm.statistics import calc_probability_migration_masseyetal_2010 as calc_probability_migration
 elif rcParams['model.parameterization.migration'] == 'zvoleff':
-    from ChitwanABM.statistics import calc_probability_migration_zvoleff as calc_probability_migration
+    from chitwanabm.statistics import calc_probability_migration_zvoleff as calc_probability_migration
 else:
     raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['model.parameterization.migration'])
 
 if rcParams['model.parameterization.fuelwood_usage'] == 'simple':
-    from ChitwanABM.statistics import calc_daily_fuelwood_usage_simple as calc_daily_fuelwood_usage
+    from chitwanabm.statistics import calc_daily_fuelwood_usage_simple as calc_daily_fuelwood_usage
 elif rcParams['model.parameterization.fuelwood_usage'] == 'migrationfeedback':
-    from ChitwanABM.statistics import calc_daily_fuelwood_usage_migration_feedback as calc_daily_fuelwood_usage
+    from chitwanabm.statistics import calc_daily_fuelwood_usage_migration_feedback as calc_daily_fuelwood_usage
 else:
     raise Exception("Unknown option for fuelwood usage: '%s'"%rcParams['model.parameterization.fuelwood_usage'])
 

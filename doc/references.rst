@@ -1,7 +1,7 @@
 References
 ============
 
-The ChitwanABM is based off of extensive work done as a part of the Chitwan 
+The chitwanabm is based off of extensive work done as a part of the Chitwan 
 Valley Family Study. The Chitwan Valley Family Study dataset can be cited as:
 
 Axinn, William G., Arland Thornton, Jennifer S. Barber, Susan A.  Murphy, 

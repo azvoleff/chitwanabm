@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # Copyright 2008-2012 Alex Zvoleff
 #
-# This file is part of the ChitwanABM agent-based model.
+# This file is part of the chitwanabm agent-based model.
 # 
-# ChitwanABM is free software: you can redistribute it and/or modify it under the
+# chitwanabm is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
 # 
-# ChitwanABM is distributed in the hope that it will be useful, but WITHOUT ANY
+# chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License along with
-# ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
+# chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
@@ -63,7 +63,7 @@ ch.setFormatter(log_console_formatter)
 root_logger.addHandler(ch)
 
 def main():
-    parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
+    parser = argparse.ArgumentParser(description='Run the chitwanabm agent-based model (ABM).')
     parser.add_argument('--rc', dest="rc_file", metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
     parser.add_argument('--log', metavar="LEVEL", type=str, default="info", 
@@ -86,8 +86,8 @@ def main():
 
     # Wait to load rcParams until here as logging statements are often 
     # triggered when the rcParams are loaded.
-    from ChitwanABM import rc_params
-    # Make sure the rc_params are setup before loading any other ChitwanABM 
+    from chitwanabm import rc_params
+    # Make sure the rc_params are setup before loading any other chitwanabm 
     # modules, so that they will all take the default params including any that 
     # might be specified in user_rc_file
     root_logger.handlers[0].setLevel(fh_level)
@@ -98,10 +98,10 @@ def main():
     global rcParams
     rcParams = rc_params.get_params()
 
-    from ChitwanABM.initialize import generate_world
-    from ChitwanABM.modelloop import main_loop
+    from chitwanabm.initialize import generate_world
+    from chitwanabm.modelloop import main_loop
 
-    from PyABM.file_io import write_single_band_raster
+    from pyabm.file_io import write_single_band_raster
 
     # Get machine hostname to print it in the results file and use in the 
     # run_ID_number.
@@ -152,7 +152,7 @@ def main():
     # Now that we know the rcParams and log file path, write the temp_log 
     # stream to the log file in the proper output directory, and direct all 
     # further logging to append to that file.
-    log_file_path = os.path.join(results_path, "ChitwanABM.log")
+    log_file_path = os.path.join(results_path, "chitwanabm.log")
     shutil.copyfile(temp_log_file.name, log_file_path)
     temp_log_file.close()
     root_logger.handlers.remove(temp_log)
@@ -210,16 +210,16 @@ def main():
     # Write out the world file and mask used to run the model. Update the 
     # rcparams to point to these files so they will be reused if this run is 
     # rerun.
-    DEM_data_file = os.path.join(results_path, "ChitwanABM_DEM.tif")
+    DEM_data_file = os.path.join(results_path, "chitwanabm_DEM.tif")
     array, gt, prj = world.get_DEM_data()
     write_single_band_raster(array, gt, prj, DEM_data_file)
-    world_mask_data_file = os.path.join(results_path, "ChitwanABM_world_mask.tif")
+    world_mask_data_file = os.path.join(results_path, "chitwanabm_world_mask.tif")
     array, gt, prj = world.get_world_mask_data()
     write_single_band_raster(array, gt, prj, world_mask_data_file)
 
     # Save the SHA-1 of the commit used to run the model, along with any diffs 
     # from the commit (the output of the git diff command). sys.path[0] gives 
-    # the path of the currently running ChitwanABM code.
+    # the path of the currently running chitwanabm code.
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
 
@@ -272,8 +272,8 @@ def main():
     # After running model, save rcParams to a file, along with the SHA-1 of the 
     # code version used to run it, and the start and finish times of the model 
     # run. Save this file in the same folder as the model output.
-    run_RC_file = os.path.join(results_path, "ChitwanABMrc")
-    RC_file_header = """# This file contains the parameters used for a ChitwanABM model run.
+    run_RC_file = os.path.join(results_path, "chitwanabmrc")
+    RC_file_header = """# This file contains the parameters used for a chitwanabm model run.
 # Model run ID:\t%s
 # Start time:\t%s
 # End time:\t\t%s

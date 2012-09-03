@@ -1,18 +1,18 @@
 # Copyright 2008-2012 Alex Zvoleff
 #
-# This file is part of the ChitwanABM agent-based model.
+# This file is part of the chitwanabm agent-based model.
 # 
-# ChitwanABM is free software: you can redistribute it and/or modify it under the
+# chitwanabm is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
 # 
-# ChitwanABM is distributed in the hope that it will be useful, but WITHOUT ANY
+# chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License along with
-# ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
+# chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
@@ -29,7 +29,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from ChitwanABM import rc_params, np
+from chitwanabm import rc_params, np
 
 if not rc_params.is_initialized():
     # Load the rc parameters if this module was imported directly (needed for 
@@ -38,7 +38,7 @@ if not rc_params.is_initialized():
     rc_params.initialize(os.path.dirname(os.path.realpath(__file__)))
 rcParams = rc_params.get_params()
 
-from PyABM import boolean_choice
+from pyabm import boolean_choice
 
 class UnitsError(Exception):
     pass

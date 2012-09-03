@@ -1,16 +1,16 @@
-ChitwanABM README
+chitwanabm README
 ===============================================================================
 
-ChitwanABM: an agent-based model of the Western Chitwan Valley, Nepal.
+chitwanabm: an agent-based model of the Western Chitwan Valley, Nepal.
  
 Model Description
 _______________________________________________________________________________
-'ChitwanABM' is an agent-based model of the Western Chitwan Valley, Nepal.  The 
+'chitwanabm' is an agent-based model of the Western Chitwan Valley, Nepal.  The 
 model represents a subset of the population of the Valley using a number of 
 agent types (person, household and neighborhood agents), environmental 
 variables (topography, land use and land cover) and social context variables.
 
-The ChitwanABM model relies on restricted access data from the Chitwan Valley 
+The chitwanabm model relies on restricted access data from the Chitwan Valley 
 Family Study (see below) to generate the agents that populate the model. This 
 restricted access data can be obtained by contacting the Inter-university 
 Consortium for Political and Social Research (the datasets can be found online 
@@ -25,14 +25,14 @@ Contact Alex Zvoleff or Prof. Li An at SDSU with any questions.
 Getting the Code
 _______________________________________________________________________________
 
-See the ChitwanABM website at: 
-http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
+See the chitwanabm website at: 
+http://rohan.sdsu.edu/~zvoleff/research/chitwanabm.php
 
 The latest version of the code is available as a zipped snapshot from:
-https://github.com/azvoleff/ChitwanABM/zipball/master
+https://github.com/azvoleff/chitwanabm/zipball/master
 
 You can also browse the source at:
-https://github.com/azvoleff/ChitwanABM
+https://github.com/azvoleff/chitwanabm
 
 Author Contact Information
 _______________________________________________________________________________
@@ -48,7 +48,7 @@ _______________________________________________________________________________
 References
 _______________________________________________________________________________
 
-The ChitwanABM is based off of extensive work done as a part of the Chitwan 
+The chitwanabm is based off of extensive work done as a part of the Chitwan 
 Valley Family Study. The Chitwan Valley Family Study dataset can be cited 
 as:
 

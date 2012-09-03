@@ -1,5 +1,5 @@
 """
-Script used to simplify running the ChitwanABM on SDSU lab computers. Sets up 
+Script used to simplify running the chitwanabm on SDSU lab computers. Sets up 
 the python and system paths so the model can find all the required 
 dependencies.
 """
@@ -17,9 +17,9 @@ def main():
                 "Z:\\Python_Local_64bit\Scripts"]
     sys.path.extend(oldpaths)
 
-    import ChitwanABM.runmodel
+    import chitwanabm.runmodel
 
-    ChitwanABM.runmodel.main()
+    chitwanabm.runmodel.main()
 
 if __name__ == "__main__":
     sys.exit(main())

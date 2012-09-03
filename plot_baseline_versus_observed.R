@@ -11,7 +11,7 @@ update_geom_defaults("line", aes(size=.5))
 
 source("calc_NBH_stats.R")
 
-baseline_path <- "/media/Zvoleff_Passport/Data/Nepal/ChitwanABM_runs/New_Baseline"
+baseline_path <- "/media/Zvoleff_Passport/Data/Nepal/chitwanabm_runs/New_Baseline"
 baseline_name <- "Baseline"
 
 load(paste(baseline_path, "ens_results_pop.Rdata", sep="/"))

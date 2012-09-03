@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # Copyright 2008-2012 Alex Zvoleff
 #
-# This file is part of the ChitwanABM agent-based model.
+# This file is part of the chitwanabm agent-based model.
 # 
-# ChitwanABM is free software: you can redistribute it and/or modify it under the
+# chitwanabm is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
 # 
-# ChitwanABM is distributed in the hope that it will be useful, but WITHOUT ANY
+# chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License along with
-# ChitwanABM.  If not, see <http://www.gnu.org/licenses/>.
+# chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact Alex Zvoleff (azvoleff@mail.sdsu.edu) in the Department of Geography 
 # at San Diego State University with any comments or questions. See the 
@@ -50,7 +50,7 @@ def sighandler(num, frame):
 sigint = False
 signal.signal(signal.SIGINT, sighandler)
 
-class ChitwanABMThread(threading.Thread):
+class chitwanabmThread(threading.Thread):
     def __init__(self, thread_ID, runmodel_args):
         pool_sema.acquire()
         threading.Thread.__init__(self)
@@ -90,13 +90,13 @@ def main(argv=None):
         argv = sys.argv
     runmodel_args = " ".join(argv[1:])
 
-    parser = argparse.ArgumentParser(description='Run the ChitwanABM agent-based model (ABM).')
+    parser = argparse.ArgumentParser(description='Run the chitwanabm agent-based model (ABM).')
     parser.add_argument('--rc', dest="rc_file", metavar="RC_FILE", type=str, default=None,
             help='Path to a rc file to initialize a model run with custom parameters')
     args = parser.parse_args()
 
-    from ChitwanABM import rc_params
-    from PyABM.utility import email_logfile
+    from chitwanabm import rc_params
+    from pyabm.utility import email_logfile
 
     rc_params.load_default_params(os.path.dirname(os.path.realpath(__file__)))
     if not args.rc_file==None and not os.path.exists(args.rc_file):
@@ -114,7 +114,7 @@ def main(argv=None):
             return 1
 
     batchrun_name = time.strftime("Batch_%Y%m%d-%H%M%S") + '_' + socket.gethostname()
-    logfile = os.path.join(scenario_path, 'ChitwanABM_' + batchrun_name + '.log')
+    logfile = os.path.join(scenario_path, 'chitwanabm_' + batchrun_name + '.log')
     logger.info("Logging to %s"%logfile)
     fh = logging.FileHandler(logfile)
     log_file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s',
@@ -129,7 +129,7 @@ def main(argv=None):
     run_count = 1
     while run_count <= rcParams['batchrun.num_runs']:
         with pool_sema:
-            new_thread = ChitwanABMThread(run_count, runmodel_args)
+            new_thread = chitwanabmThread(run_count, runmodel_args)
             logger.info("Starting run %s"%new_thread.name)
             new_thread.start()
             time.sleep(5)
@@ -141,7 +141,7 @@ def main(argv=None):
 
     if rcParams['email_log']:
         logger.info("Emailing log to %s"%rcParams['email_log.to'])
-        subject = 'ChitwanABM Log - %s - %s'%(rcParams['scenario.name'], 
+        subject = 'chitwanabm Log - %s - %s'%(rcParams['scenario.name'], 
                 batchrun_name)
         email_logfile(logfile, subject)
     logger.info("Finished batch run %s"%batchrun_name)

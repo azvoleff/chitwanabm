@@ -1,22 +1,22 @@
-ChitwanABM Model Code
+chitwanabm Model Code
 ======================
 
 Overview
 _________
 
-The ChitwanABM represents the population of the Chitwan Valley Family Study 
+The chitwanabm represents the population of the Chitwan Valley Family Study 
 sample using a hierarchical structure of agents. Person agents are nested 
 within household agents, which are nested within neighborhood agents.
 
-The ChitwanABM model code uses two primary classes (which are found in the 
-PyABM package) to represent these agents: the ``Agent`` class, and the 
+The chitwanabm model code uses two primary classes (which are found in the 
+pyabm package) to represent these agents: the ``Agent`` class, and the 
 ``Agent-set`` class.  The ``Agent-set`` class is a subclass of the ``Agent`` 
 class, which is used to represent agents that are 'sets' of other, lower-level 
-agents. For example, the ``Household`` class in the ChitwanABM is a subclass of 
+agents. For example, the ``Household`` class in the chitwanabm is a subclass of 
 the ``Agent-set`` class, which contains a set of ``Person`` class instances.  
 The ``Person`` class is a subclass of the ``Agent`` class - not of the 
 ``Agent-set`` class, because person agents are the lowest level agent 
-represented in the ChitwanABM.
+represented in the chitwanabm.
 
 Code Reference
 _____________________
@@ -24,7 +24,7 @@ _____________________
 :mod:`agents` Module
 --------------------
 
-.. automodule:: ChitwanABM.agents
+.. automodule:: chitwanabm.agents
     :members:
     :undoc-members:
     :show-inheritance:
@@ -32,7 +32,7 @@ _____________________
 :mod:`initialize` Module
 ------------------------
 
-.. automodule:: ChitwanABM.initialize
+.. automodule:: chitwanabm.initialize
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,7 +40,7 @@ _____________________
 :mod:`modelloop` Module
 -----------------------
 
-.. automodule:: ChitwanABM.modelloop
+.. automodule:: chitwanabm.modelloop
     :members:
     :undoc-members:
     :show-inheritance:
@@ -48,7 +48,7 @@ _____________________
 :mod:`runmodel` Module
 ----------------------
 
-.. automodule:: ChitwanABM.runmodel
+.. automodule:: chitwanabm.runmodel
     :members:
     :undoc-members:
     :show-inheritance:
@@ -56,7 +56,7 @@ _____________________
 :mod:`statistics` Module
 ------------------------
 
-.. automodule:: ChitwanABM.statistics
+.. automodule:: chitwanabm.statistics
     :members:
     :undoc-members:
     :show-inheritance:
@@ -64,7 +64,7 @@ _____________________
 :mod:`test` Module
 ------------------
 
-.. automodule:: ChitwanABM.test
+.. automodule:: chitwanabm.test
     :members:
     :undoc-members:
     :show-inheritance:
@@ -72,7 +72,7 @@ _____________________
 :mod:`threaded_batch_run` Module
 --------------------------------
 
-.. automodule:: ChitwanABM.threaded_batch_run
+.. automodule:: chitwanabm.threaded_batch_run
     :members:
     :undoc-members:
     :show-inheritance:

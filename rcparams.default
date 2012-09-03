@@ -1,9 +1,9 @@
 # Copyright 2008-2012 Alex Zvoleff)
 #
-# This file is part of the ChitwanABM agent-based model.
+# This file is part of the chitwanabm agent-based model.
 #
-# rcparams.default provides the default values that are used for the ChitwanABM 
-# if no local ChitwanABMrc file is provided when the model is run, or that are 
+# rcparams.default provides the default values that are used for the chitwanabm 
+# if no local chitwanabmrc file is provided when the model is run, or that are 
 # used if any parameters are missing from it.
 # 
 # Parameters are specifed in the following format:
@@ -41,7 +41,7 @@
 'model.burnin_timesteps' : [36 | validate_int]
 # Whether to reinitialize a new world from scratch for each model run
 'model.reinitialize' : [True | validate_boolean] 
-'model.resultspath' : ["M:/Data/Nepal/ChitwanABM_runs" | validate_writable_dir]
+'model.resultspath' : ["M:/Data/Nepal/chitwanabm_runs" | validate_writable_dir]
 # Whether to produce summary plots for the model run after the run is 
 # completed. Requires a working R installation, and some of the plots require 
 # the psn and NBH CSV files to be produced for every timestep (see these rc 
@@ -70,17 +70,17 @@
 ###############################################################################
 # This is the path to the processed data file containing the final output file 
 # from the "initialize.py" script.
-'path.input_data_file' : ["V:/Nepal/ChitwanABM_Initialization/init_data.pickle" | validate_readable_file_warning]
+'path.input_data_file' : ["V:/Nepal/chitwanabm_Initialization/init_data.pickle" | validate_readable_file_warning]
 # The following is the path to the original restricted CVFS data as received 
 # from the ICPSR (to be used when running the "initialize.py" script. The
 # data_preprocess.R script will output several new files here when it is
 # run, so this directory must be writeable.
-'path.raw_input_data' : ["V:/Nepal/ChitwanABM_Initialization" | validate_writable_dir]
+'path.raw_input_data' : ["V:/Nepal/chitwanabm_Initialization" | validate_writable_dir]
 # The world_mask is a binary GeoTIFF (zeros and ones), indicating the land area 
 # represented within the model.
-'path.world_mask' : ["V:/Nepal/ChitwanABM_Initialization/CVFS_Study_Area_Raster_30m.tif" | validate_readable_file]
+'path.world_mask' : ["V:/Nepal/chitwanabm_Initialization/CVFS_Study_Area_Raster_30m.tif" | validate_readable_file]
 # The DEM_file is a GeoTIFF digital elevation model of the study area.
-'path.DEM_file' : ["V:/Nepal/ChitwanABM_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif" | validate_readable_file]
+'path.DEM_file' : ["V:/Nepal/chitwanabm_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif" | validate_readable_file]
 # Set the level of verbosity for console output while the model is running:
 'loglevel.console' : ["info" | validate_string]
 # Set the level of verbosity for logging messages to a file while the model is 
