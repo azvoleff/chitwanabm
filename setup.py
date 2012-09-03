@@ -46,7 +46,7 @@ model output.
 See the `chitwanabm website 
 <http://rohan.sdsu.edu/~zvoleff/research/chitwanabm.php>`_ for more 
 information, past releases, publications, and recent presentations.
-"""
+""",
     classifiers = [
         "Development Status :: 4 - Beta",
         "Natural Language :: English",
@@ -57,5 +57,5 @@ information, past releases, publications, and recent presentations.
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 2.7"]
 )
