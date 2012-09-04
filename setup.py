@@ -19,7 +19,7 @@ setup(
     description = "An agent-based model of the Chitwan Valley, Nepal",
     license = "GPL v3 or later",
     keywords = "agent-based modeling ABM simulation model",
-    url = "http://rohan.sdsu.edu/~zvoleff/ChitwanABM.php",   # project home page, if any
+    url = "http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php",   # project home page, if any
     long_description = """
 chitwanabm is an agent-based model of the Western Chitwan Valley, Nepal.  
 The model represents a subset of the population of the Valley using a 
