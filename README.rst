@@ -26,7 +26,7 @@ Getting the Code
 _______________________________________________________________________________
 
 See the chitwanabm website at: 
-http://rohan.sdsu.edu/~zvoleff/research/chitwanabm.php
+http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
 
 The latest version of the code is available as a zipped snapshot from:
 https://github.com/azvoleff/chitwanabm/zipball/master

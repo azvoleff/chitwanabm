@@ -14,7 +14,7 @@ continues, this page will be updated with more information on initializing and
 running the model, and on interpreting the model output.
 
 See the `chitwanabm website 
-<http://rohan.sdsu.edu/~zvoleff/research/chitwanabm.php>`_ for more 
+<http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php>`_ for more 
 information, past releases, publications, and recent presentations.
 
 .. note:: The model requires restricted access survey data from the
