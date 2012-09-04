@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "chitwanabm",
-    version = "1.5dev",
+    version = "1.4.2",
     packages = find_packages(),
     include_package_data = True,
     exclude_package_data = {'': ['.gitignore']},
@@ -20,7 +20,7 @@ setup(
     keywords = "agent-based modeling ABM simulation model",
     license = "GPL v3 or later",
     url = "http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php",   # project home page, if any
-    long_description = open('README.rst').readlines()[6:],
+    long_description = ''.join(open('README.rst').readlines()[6:]),
     classifiers = [
         "Development Status :: 4 - Beta",
         "Natural Language :: English",
