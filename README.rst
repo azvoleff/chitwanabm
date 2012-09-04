@@ -39,6 +39,10 @@ from Github <https://github.com/azvoleff/chitwanabm/zipball/master>`_.
 You can also `browse the source at GitHub 
 <https://github.com/azvoleff/chitwanabm>`_.
 
+The source can also be downloaded via git from::
+    git://github.com/azvoleff/chitwanabm.git
+
+
 Author Contact Information
 _______________________________________________________________________________
 
