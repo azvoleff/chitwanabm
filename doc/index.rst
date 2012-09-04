@@ -25,6 +25,9 @@ information, past releases, publications, and recent presentations.
 Getting the Code
 _________________
 
+Stable releases of chitwanabm are available from the `Python Package Index 
+(PyPI) <http://pypi.python.org/pypi/chitwanabm>`.
+
 The latest version of the code (unstable) is available as a `zipped snapshot 
 from Github <https://github.com/azvoleff/chitwanabm/zipball/master>`_.
 
