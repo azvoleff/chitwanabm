@@ -39,7 +39,7 @@ source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
-directories <- list.files(DATA_PATH)
+directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # Only match the model results folders - don't match any other folders or files 
 # in the directory, as trying to read results from these other files/folders 
 # would lead to an error.
@@ -49,8 +49,14 @@ if (length(directories)<5) warning(paste("Only", length(directories), "model run
 
 n <- 1
 for (directory in directories) {
-    full_directory_path <- paste(DATA_PATH, directory, sep="/") 
-    lulc.new <- calc_agg_LULC(full_directory_path)
+    possible_error <- tryCatch(lulc.new <- calc_agg_LULC(directory), 
+                               error=function(e) e)
+    # Catch cases where results file does not exist (because run was 
+    # interrupted, run is not yet finished, etc.)
+    if (inherits(possible_error, "error")) {
+        warning(paste("Error reading", directory))
+        next
+    }
     runname <- paste("run", n, sep="")
     names(lulc.new) <- paste(names(lulc.new), runname, sep=".")
     if (n==1) lulc.agg <- lulc.new 
@@ -81,8 +87,14 @@ kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
 
 n <- 1
 for (directory in directories) {
-    full_directory_path <- paste(DATA_PATH, directory, sep="/") 
-    lulc.new <- calc_NBH_LULC(full_directory_path, "END")
+    possible_error <- tryCatch(lulc.new <- calc_NBH_LULC(directory, "END"),
+                               error=function(e) e)
+    # Catch cases where results file does not exist (because run was 
+    # interrupted, run is not yet finished, etc.)
+    if (inherits(possible_error, "error")) {
+        warning(paste("Error reading", directory))
+        next
+    }
     vars <- !grepl('^(nid|x|y)$', names(lulc.new))
     runname <- paste("run", n, sep="")
     names(lulc.new)[vars]<- paste(names(lulc.new)[vars], runname, sep=".")

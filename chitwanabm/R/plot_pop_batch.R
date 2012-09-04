@@ -38,7 +38,7 @@ source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
-directories <- list.files(DATA_PATH)
+directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # Only match the model results folders - don't match any other folders or files 
 # in the directory, as trying to read results from these other files/folders 
 # would lead to an error.
@@ -47,8 +47,14 @@ directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
 pop.results <- list()
 n <- 1
 for (directory in directories) {
-    full_directory_path <- paste(DATA_PATH, directory, sep="/") 
-    pop.results.new <- calc_NBH_pop(full_directory_path)
+    possible_error <- tryCatch(pop.results.new <- calc_NBH_pop(directory), 
+                               error=function(e) e)
+    # Catch cases where results file does not exist (because run was 
+    # interrupted, run is not yet finished, etc.)
+    if (inherits(possible_error, "error")) {
+        warning(paste("Error reading", directory))
+        next
+    }
     runname <- paste("run", n, sep="")
     names(pop.results.new) <- paste(names(pop.results.new), runname, sep=".")
     if (n==1) pop.results <- pop.results.new 
