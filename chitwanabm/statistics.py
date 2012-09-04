@@ -39,60 +39,19 @@ if not rc_params.is_initialized():
 rcParams = rc_params.get_params()
 
 from pyabm import boolean_choice
+from pyabm.statistics import convert_probability_units, get_probability_index, \
+        draw_from_prob_dist, calc_prob_from_prob_dist, UnitsError, \
+        StatisticsError
 
-class UnitsError(Exception):
-    pass
-
-class StatisticsError(Exception):
-    pass
-
-def convert_probability_units(probability):
-    """
-    Converts probability so units match timestep used in the model, assuming probability 
-    function is uniform across the interval.
-
-    Conversions are made accordingly using conditional probability.
-    """
-    # If the probability time units don't match the model timestep units, then the 
-    # probabilities need to be converted.
-    probability_time_units = rcParams['probability.time_units']
-    if probability_time_units == 'months':
-        pass
-    elif probability_time_units == 'years':
-        for key, value in probability.iteritems():
-            probability[key] = 1 - (1 - value)**(1/12.)
-    elif probability_time_units == 'decades':
-        for key, value in probability.iteritems():
-            probability[key] = 1 - (1 - value)**(1/120.)
-    else:
-        raise UnitsError("unhandled probability_time_units")
-    return probability
+prob_time_units = rcParams['probability.time_units']
 
 #TODO: these probabilities should be derived from the region, not directly from rcParams
-death_probabilities_male = convert_probability_units(rcParams['probability.death.male'])
-death_probabilities_female = convert_probability_units(rcParams['probability.death.female'])
-marriage_probabilities_male = convert_probability_units(rcParams['probability.marriage.male'])
-marriage_probabilities_female = convert_probability_units(rcParams['probability.marriage.female'])
-migration_probabilities_male = convert_probability_units(rcParams['probability.migration.male'])
-migration_probabilities_female = convert_probability_units(rcParams['probability.migration.female'])
-
-def __probability_index__(t):
-    """
-    Matches units of time in model to those the probability is expressed in. For 
-    instance: if probabilities are specified for decades, whereas the model runs in 
-    months, __probability_index__, when provided with an age in months, will convert 
-    it to decades, rounding down. NOTE: all probabilities must be expressed with the 
-    same time units.
-    """
-    probability_time_units = rcParams['probability.time_units']
-    if probability_time_units == 'months':
-        return t
-    elif probability_time_units == 'years':
-        return int(round(t / 12.))
-    elif probability_time_units == 'decades':
-        return int(round(t / 120.))
-    else:
-        raise UnitsError("unhandled probability_time_units")
+death_probabilities_male = convert_probability_units(rcParams['probability.death.male'], prob_time_units)
+death_probabilities_female = convert_probability_units(rcParams['probability.death.female'], prob_time_units)
+marriage_probabilities_male = convert_probability_units(rcParams['probability.marriage.male'], prob_time_units)
+marriage_probabilities_female = convert_probability_units(rcParams['probability.marriage.female'], prob_time_units)
+migration_probabilities_male = convert_probability_units(rcParams['probability.migration.male'], prob_time_units)
+migration_probabilities_female = convert_probability_units(rcParams['probability.migration.female'], prob_time_units)
 
 def calc_first_birth_prob_ghimireaxinn2010(person, time):
     """
@@ -375,7 +334,7 @@ def calc_probability_marriage_simple(person):
     probability distribution.
     """
     age = person.get_age_months()
-    probability_index = __probability_index__(age)
+    probability_index = get_probability_index(age, prob_time_units)
     if person.get_sex() == 'female':
         return marriage_probabilities_female[probability_index]
     elif person.get_sex() == 'male':
@@ -432,7 +391,7 @@ def calc_spouse_age_diff(person):
 def calc_probability_death(person):
     "Calculates the probability of death for an agent."
     age = person.get_age_months()
-    probability_index = __probability_index__(age)
+    probability_index = get_probability_index(age, prob_time_units)
     try:
         if person.get_sex() == 'female':
             return death_probabilities_female[probability_index]
@@ -444,7 +403,7 @@ def calc_probability_death(person):
 def calc_probability_migration_simple(person):
     "Calculates the probability of migration for an agent."
     age = person.get_age_months()
-    probability_index = __probability_index__(age)
+    probability_index = get_probability_index(age, prob_time_units)
     if person.get_sex() == 'female':
         return migration_probabilities_female[probability_index]
     elif person.get_sex() == 'male':
@@ -633,63 +592,6 @@ def calc_hh_area():
     "Calculates the area of this household."
     hh_area_prob_dist = rcParams['lulc.area.hh']
     return draw_from_prob_dist(hh_area_prob_dist)
-
-def draw_from_prob_dist(prob_dist):
-    """
-    Draws a random number from a manually specified probability distribution,
-    where the probability distribution is a tuple specified as::
-
-        ([a, b, c, d], [1, 2, 3])
-
-    where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
-    assigned to each bin. Notice one more bin limit must be specified than the 
-    number of probabilities given (to close the interval).
-    """
-    # First randomly choose the bin, with the bins chosen according to their 
-    # probability.
-    binlims, probs = prob_dist
-    num = np.random.rand() * np.sum(probs)
-    n = 0
-    probcumsums = np.cumsum(probs)
-    for problim in probcumsums[0:-1]:
-        if num < problim:
-            break
-        n += 1
-    upbinlim = binlims[n+1]
-    lowbinlim = binlims[n]
-    # Now we know the bin lims, so draw a random number evenly distributed 
-    # between those two limits.
-    return np.random.uniform(lowbinlim, upbinlim)
-
-def calc_prob_from_prob_dist(prob_dist, attribute):
-    """
-    Calculated the probability of something based on a manually specified 
-    probability distribution, where the probability distribution is a tuple 
-    specified as::
-
-        ([a, b, c, d], [1, 2, 3])
-
-    where a, b, c, and d are bin limits, and 1, 2, and 3 are the probabilities 
-    assigned to each bin. Notice one more bin limit must be specified than the 
-    number of probabilities given (to close the interval). The bin limits are 
-    closed on the right, open on the left.
-
-    The correct probability to draw is based on the bin that the 'attribute' 
-    parameter falls into. For example, to draw the probability of marrying a 
-    spouse based on the difference in age between the spouse and a particular 
-    agent, 'attribute' should be the age difference. This function will then 
-    return the probability of marrying that spouse based on the bin that the 
-    spouse age difference falls into.
-    """
-    binlims, probs = prob_dist
-    n = 0
-    for uplim in binlims[1:]:
-        if attribute <= uplim:
-            break
-        n += 1
-    # Now we know the bin lims, so draw a random number evenly distributed 
-    # between those two limits.
-    return probs[n]
 
 def calc_fuelwood_usage_probability(household, time):
     """
