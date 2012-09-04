@@ -42,20 +42,20 @@ model results at the end of each model run.
 Initial Setup
 _____________
 
-To get the model, download the latest stable version of the code from 
-http://rohan.sdsu.edu/~zvoleff/research/chitwanabm.php.
+To install the model, download the stable version of the code from the `Python 
+Package Index (PyPI) <http://pypi.python.org/pypi/chitwanabm>`_.
 
-The development snapshot (the latest version of the code, but it may not always 
-be working correctly) can be downloaded from: 
-https://github.com/azvoleff/chitwanabm/zipball/master.
+The development snapshot (unstable) is available as a `zipped snapshot from 
+Github <https://github.com/azvoleff/chitwanabm/zipball/master>`_.
 
-The development source can also be downloaded via git from 
-git://github.com/azvoleff/chitwanabm.git.
 
-To install the model, simply unzip the code into a folder on your 
-computer.  After installing Python and the dependencies listed above, you 
-will need to add the folder containing the model to your computer's Python 
-path so that the code modules will load correctly.
+You can also `browse the source at GitHub 
+<https://github.com/azvoleff/chitwanabm>`_.
+
+To install the model, unzip the code into a folder on your computer.  After 
+installing Python and the dependencies listed above, you will need to add the 
+folder containing the model to your computer's Python path so that the code 
+modules will load correctly.
 
 Setup on Windows
 ----------------
