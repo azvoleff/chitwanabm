@@ -17,29 +17,10 @@ setup(
     author = "Alex Zvoleff",
     author_email = "azvoleff@mail.sdsu.edu",
     description = "An agent-based model of the Chitwan Valley, Nepal",
-    license = "GPL v3 or later",
     keywords = "agent-based modeling ABM simulation model",
+    license = "GPL v3 or later",
     url = "http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php",   # project home page, if any
-    long_description = """
-chitwanabm is an agent-based model of the Western Chitwan Valley, Nepal.  
-The model represents a subset of the population of the Valley using a 
-number of agent types (person, household and neighborhood agents), 
-environmental variables (topography, land use and land cover) and social 
-context variables.
-
-Construction of the model is supported as part of an ongoing National 
-Science Foundation Partnerships for International Research and Education 
-(NSF PIRE) project `(grant OISE 0729709) <http://pire.psc.isr.umich.edu>`_ 
-investigating human-environment interactions in the Western Chitwan Valley. 
-Development of the model is in progress, and model documentation is still 
-incomplete.  As work continues, this page will be updated with more 
-information on initializing and running the model, and on interpreting the 
-model output.
-
-See the `chitwanabm website 
-<http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php>`_ for more 
-information, past releases, publications, and recent presentations.
-""",
+    long_description = open('README.rst').readlines()[6:],
     classifiers = [
         "Development Status :: 4 - Beta",
         "Natural Language :: English",

@@ -1,5 +1,7 @@
+===============
 The chitwanabm
-=============================
+===============
+
 chitwanabm is an agent-based model of the Western Chitwan Valley, Nepal.  The 
 model represents a subset of the population of the Valley using a number of 
 agent types (person, household and neighborhood agents), environmental 

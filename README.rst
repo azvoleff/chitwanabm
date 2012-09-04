@@ -1,38 +1,43 @@
+=================
 chitwanabm README
-===============================================================================
+=================
 
-chitwanabm: an agent-based model of the Western Chitwan Valley, Nepal.
+chitwanabm: an agent-based model of the western Chitwan Valley, Nepal.
  
 Model Description
 _______________________________________________________________________________
-'chitwanabm' is an agent-based model of the Western Chitwan Valley, Nepal.  The 
+
+chitwanabm is an agent-based model of the Western Chitwan Valley, Nepal.  The 
 model represents a subset of the population of the Valley using a number of 
 agent types (person, household and neighborhood agents), environmental 
 variables (topography, land use and land cover) and social context variables.
 
-The chitwanabm model relies on restricted access data from the Chitwan Valley 
-Family Study (see below) to generate the agents that populate the model. This 
-restricted access data can be obtained by contacting the Inter-university 
-Consortium for Political and Social Research (the datasets can be found online 
-at: http://dx.doi.org/10.3886/ICPSR04538.v7).
+Construction of the model is supported as part of an ongoing National Science 
+Foundation Partnerships for International Research and Education (NSF PIRE) 
+project `(grant OISE 0729709) <http://pire.psc.isr.umich.edu>`_ investigating 
+human-environment interactions in the Western Chitwan Valley. Development of 
+the model is in progress, and model documentation is still incomplete.
 
-The model was constructed with the support of the National Science Foundation 
-Partnerships for International Research and Education program (NSF-PIRE, grant 
-OISE 0729709). The code was written by Alex Zvoleff as part of his dissertation 
-research at San Diego State University (SDSU) in the Department of Geography. 
-Contact Alex Zvoleff or Prof. Li An at SDSU with any questions.
+See the `chitwanabm website 
+<http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php>`_ for more 
+information, past releases, publications, and recent presentations.
+
+.. note:: The model requires restricted access survey data from the
+    Chitwan Valley Family Study (CVFS) to run. See the  `Interuniversity 
+    Consortium for Political and Social Research (ICPSR) page on the CVFS 
+    <http://dx.doi.org/10.3886/ICPSR04538>`_ for more information.
 
 Getting the Code
 _______________________________________________________________________________
 
-See the chitwanabm website at: 
-http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php
+Stable releases of chitwanabm are available from the `Python Package Index 
+(PyPI) <http://pypi.python.org/pypi/chitwanabm>`_.
 
-The latest version of the code is available as a zipped snapshot from:
-https://github.com/azvoleff/chitwanabm/zipball/master
+The latest version of the code (unstable) is available as a `zipped snapshot 
+from Github <https://github.com/azvoleff/chitwanabm/zipball/master>`_.
 
-You can also browse the source at:
-https://github.com/azvoleff/chitwanabm
+You can also `browse the source at GitHub 
+<https://github.com/azvoleff/chitwanabm>`_.
 
 Author Contact Information
 _______________________________________________________________________________
