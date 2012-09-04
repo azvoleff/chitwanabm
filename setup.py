@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "chitwanabm",
-    version = "1.4.2",
+    version = "1.5dev",
     packages = find_packages(),
     include_package_data = True,
     exclude_package_data = {'': ['.gitignore']},
