@@ -15,7 +15,7 @@ script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initia
 script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
-baseline_path <- "/media/Zvoleff_Passport/Data/Nepal/chitwanabm_runs/New_Baseline"
+baseline_path <- "M:/Data/Nepal/chitwanabm_runs/New_Baseline"
 baseline_name <- "Baseline"
 
 load(paste(baseline_path, "ens_results_pop.Rdata", sep="/"))
@@ -23,7 +23,7 @@ names(ens_results)[names(ens_results) == "time.Robj"] <- "time_Robj"
 ens_results <- ens_results[ens_results$time_Robj >= "1997-2-1" &
                  ens_results$time_Robj <= "2007-7-1", ]
 
-load("/media/truecrypt1/Nepal/CVFS_HHReg/hhreg126.Rdata")
+load("V:/Nepal/CVFS_HHReg/hhreg126.Rdata")
 
 ###############################################################################
 # Plot events comparison:
