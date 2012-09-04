@@ -23,7 +23,7 @@ listed below:
   people in less developed settings approach environmental issues', Population 
   & Environment 27(1), 29-61.
 - Ghimire, D. J., and W. G. Axinn. 2010. Community context, land use, and first 
-  birth. Rural Sociology 75 (3):478–513.
+  birth. Rural Sociology 75 (3):478-513.
 - Ghimire, D. J. & Hoelter, L. F. (2007), 'Land use and first birth timing in 
   an agricultural setting', Population & Environment 28, 289-320.
 - Massey, D. S., W. G. Axinn, and D. J. Ghimire. 2010. Environmental change and 

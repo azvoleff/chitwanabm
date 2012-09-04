@@ -13,10 +13,10 @@ setup(
     install_requires = ['docutils >= 0.3',
                         'setuptools_git >= 0.3',
                         'numpy >= 1.6.2',
-                        'pyabm >= .2'],
+                        'pyabm >= .3'],
     author = "Alex Zvoleff",
     author_email = "azvoleff@mail.sdsu.edu",
-    description = "Agent-based modeling toolkit",
+    description = "An agent-based model of the Chitwan Valley, Nepal",
     license = "GPL v3 or later",
     keywords = "agent-based modeling ABM simulation model",
     url = "http://rohan.sdsu.edu/~zvoleff/ChitwanABM.php",   # project home page, if any
