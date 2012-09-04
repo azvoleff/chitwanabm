@@ -135,7 +135,7 @@ def main(argv=None):
             new_thread = chitwanabmThread(run_count, runmodel_args)
             logger.info("Starting run %s"%new_thread.name)
             new_thread.start()
-            time.sleep(5)
+            time.sleep(10)
             run_count += 1
 
     # Wait until all active threads have finished before emailing the log.
