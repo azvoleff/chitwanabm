@@ -862,7 +862,7 @@ class Region(Agent_set):
                             neighborhood._land_other += rcParams['feedback.birth.nonagveg.area']
                     # Track the total number of births for each 
                     # timestep by neighborhood.
-                    if not births.has_key(neighborhood.get_ID()):
+                    if not neighborhood.get_ID() in births:
                         births[neighborhood.get_ID()] = 0
                     births[neighborhood.get_ID()] += 1
         return births
@@ -880,7 +880,7 @@ class Region(Agent_set):
                     # People who in Chitwan need to have their deaths tracked 
                     # as coming from a Chitwan neighborhood.
                     neighborhood = person.get_parent_agent().get_parent_agent()
-                    if not deaths.has_key(neighborhood.get_ID()):
+                    if not neighborhood.get_ID() in deaths:
                         deaths[neighborhood.get_ID()] = 0
                     deaths[neighborhood.get_ID()] += 1
                 person.kill(time)
@@ -1016,7 +1016,7 @@ class Region(Agent_set):
                 male_household = male.get_parent_agent()
                 male_household.add_agent(female)
                 neighborhood = male.get_parent_agent().get_parent_agent()
-            if not marriages.has_key(neighborhood.get_ID()):
+            if not neighborhood.get_ID() in marriages:
                 marriages[neighborhood.get_ID()] = 0
             marriages[neighborhood.get_ID()] += 1
             log_event_record("Marriage", male, time)
@@ -1096,7 +1096,7 @@ class Region(Agent_set):
                 new_home.add_agent(woman)
             # People who in Chitwan need to have their deaths tracked as coming 
             # from a Chitwan neighborhood.
-            if not divorces.has_key(original_nbh.get_ID()):
+            if not original_nbh.get_ID() in divorces:
                 divorces[original_nbh.get_ID()] = 0
             divorces[original_nbh.get_ID()] += 1
         return divorces
@@ -1134,7 +1134,7 @@ class Region(Agent_set):
                 else:
                     person._schooling += timestep / 12
             neighborhood = person.get_parent_agent().get_parent_agent()
-            #if not schooling.has_key(neighborhood.get_ID()):
+            #if not neighborhood.get_ID() in schooling:
             #    schooling[neighborhood.get_ID()] = person._schooling
             #schooling[neighborhood.get_ID()] += 1
         return schooling
@@ -1152,7 +1152,7 @@ class Region(Agent_set):
                 if np.random.rand() < calc_probability_migration(person):
                     person.make_individual_LD_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
-                    if not n_outmigr_indiv.has_key(neighborhood.get_ID()):
+                    if not neighborhood.get_ID() in n_outmigr_indiv:
                         n_outmigr_indiv[neighborhood.get_ID()] = 0
                     n_outmigr_indiv[neighborhood.get_ID()] += 1
 
@@ -1229,7 +1229,7 @@ class Region(Agent_set):
             while neighborhood.add_agent(new_household) == False:
                 neighborhood = neighborhood._neighborhoods_by_distance[n]
                 n += 1
-            if not n_inmigr_hh.has_key(neighborhood.get_ID()):
+            if not neighborhood.get_ID() in n_inmigr_hh:
                 n_inmigr_hh[neighborhood.get_ID()] = 0
             n_inmigr_hh[neighborhood.get_ID()] += 1
             logger.debug("New in-migrant household %s added to neighborhood %s (%s members)"%(
@@ -1242,7 +1242,7 @@ class Region(Agent_set):
                     timestep):
                 neighborhood = household.get_parent_agent()
                 household.out_migrate(timestep)
-                if not n_outmigr_hh.has_key(neighborhood.get_ID()):
+                if not neighborhood.get_ID() in n_outmigr_hh:
                     n_outmigr_hh[neighborhood.get_ID()] = 0
                 n_outmigr_hh[neighborhood.get_ID()] += 1
         return n_inmigr_hh, n_outmigr_hh

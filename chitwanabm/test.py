@@ -138,11 +138,11 @@ def validate_person_attributes(world):
             logger.warning("Person %s is not a member of any household %s"%(
                 person.get_ID(), person_info))
             all_agents_valid = False
-        if person.get_spouse() != None and spouse_count_dict.has_key(person.get_spouse().get_ID()):
+        if person.get_spouse() != None and person.get_spouse().get_ID() in spouse_count_dict:
             spouse_count_dict[person.get_spouse().get_ID()] += 1
             logger.warning("Person %s has %s spouses"%(person.get_spouse().get_ID(), spouse_count_dict[person.get_spouse().get_ID()]))
             all_agents_valid = False
-        elif person.get_spouse() != None and not spouse_count_dict.has_key(person.get_spouse().get_ID()):
+        elif person.get_spouse() != None and not person.get_spouse().get_ID() in spouse_count_dict:
             spouse_count_dict[person.get_spouse().get_ID()] = 1
         if person in checked_person_list:
             logger.warning("Person %s is a member of more than one household"%(

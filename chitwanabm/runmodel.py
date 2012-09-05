@@ -333,7 +333,7 @@ def reformat_run_results(run_results):
         run_results_fixed[timestep] = {}
         for variable in run_results[timestep].keys():
             for ID in run_results[timestep][variable]:
-                if not run_results_fixed[timestep].has_key(ID):
+                if not ID in run_results_fixed[timestep]:
                     run_results_fixed[timestep][ID] = {}
                 run_results_fixed[timestep][ID][variable] = run_results[timestep][variable][ID]
     return run_results_fixed
@@ -395,8 +395,8 @@ def write_results_csv(results, csv_file, ID_col_name):
         row = [ID]
         for category in categories:
             for timestep in timesteps:
-                if results[timestep].has_key(ID):
-                    if results[timestep][ID].has_key(category):
+                if ID in results[timestep]:
+                    if category in results[timestep][ID]:
                         row.append(results[timestep][ID][category])
                     else:
                         row.append(0)

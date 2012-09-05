@@ -87,7 +87,7 @@ def read_CVFS_data(textfile, key_field):
             new_data[column_name] = field
 
         data_key = int(new_data[key_field])
-        if new_data.has_key(data_key):
+        if data_key in new_data:
             logger.critical("Error reading %s: key %s is already in use"%(textfile, data_key))
             return 1
         data[data_key] = new_data
@@ -200,7 +200,7 @@ def assemble_persons(relationshipsFile, model_world):
         RESPID = int(relation['RESPID'])
         SUBJECT = int(relation['SUBJECT'])
         HHID = int(relation['HHID'])
-        if SUBJECT_RESPID_map.has_key(HHID):
+        if HHID in SUBJECT_RESPID_map:
             SUBJECT_RESPID_map[HHID][SUBJECT] = RESPID
         else:
             SUBJECT_RESPID_map[HHID] = {}
