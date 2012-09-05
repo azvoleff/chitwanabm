@@ -23,6 +23,8 @@ Contains main model loop: Contains the main loop for the model. Takes input
 parameters read from runmodel.py, and passes results of model run back.
 """
 
+from __future__ import division
+
 import os
 import time
 import copy
@@ -254,7 +256,7 @@ def main_loop(world, results_path):
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)
-    hours = elapsed / 3600
-    minutes = (elapsed - hours * 3600) / 60
-    seconds = elapsed - hours * 3600 - minutes * 60
+    hours = int(elapsed / 3600)
+    minutes = int((elapsed - hours * 3600) / 60)
+    seconds = int(elapsed - hours * 3600 - minutes * 60)
     return "%ih %im %is" %(hours, minutes, seconds)

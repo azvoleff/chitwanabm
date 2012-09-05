@@ -23,6 +23,8 @@ Sets up a chitwanabm model run: Initializes neighborhood/household/person agents
 and land use using the original CVFS data.
 """
 
+from __future__ import division
+
 import os
 import sys
 import logging

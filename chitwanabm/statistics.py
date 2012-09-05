@@ -23,6 +23,8 @@ Contains statistical models to calculate probabilities (such as of birth, and of
 marriage).
 """
 
+from __future__ import division
+
 import os
 
 import logging

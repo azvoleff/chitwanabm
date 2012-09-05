@@ -24,6 +24,8 @@ Person agents are subclasses of the Agent class, while Household, Neighborhood,
 and Region agents are all subclasses of the Agent_set object.
 """
 
+from __future__ import division
+
 import os
 import csv
 import logging
@@ -576,7 +578,7 @@ class Household(Agent_set):
         return self.get_agents() + self.get_away_members()
     
     def get_hh_head(self):
-        max_age = None
+        max_age = -1
         if self.num_members() == 0:
             raise Exception("No household head for household %s. Household has no members"%self.get_ID())
         for person in self.get_agents():
@@ -1127,12 +1129,12 @@ class Region(Agent_set):
             elif (person._school_status == "undetermined") & (person.get_age_years() >= start_school_age):
                 person._school_status = "inschool"
                 person._final_schooling_level = calc_education_level(person)
-                person._schooling = timestep / 12
+                person._schooling = timestep / 12.
             elif person._school_status == "inschool":
                 if person._schooling >= person._final_schooling_level:
                     person._school_status = "outofschool"
                 else:
-                    person._schooling += timestep / 12
+                    person._schooling += timestep / 12.
             neighborhood = person.get_parent_agent().get_parent_agent()
             #if not neighborhood.get_ID() in schooling:
             #    schooling[neighborhood.get_ID()] = person._schooling
