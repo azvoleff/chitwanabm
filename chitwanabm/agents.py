@@ -105,13 +105,13 @@ class Person(Agent):
 
         self._in_migrant = in_migrant
 
-        # self._age is used as a convenience to avoid the need to calculate the 
+        # self._agemonths is used as a convenience to avoid the need to calculate the 
         # agent's age from self._birthdate each time it is needed. It is         
         # important to remember though that all agent's ages must be 
         # incremented with each model timestep, and are expressed in months.
         # The age starts at 0 (it is zero for the entire first timestep of the 
         # model).
-        self._age = age
+        self._agemonths = age
 
         # Also need to store information on the agent's parents. For agents 
         # used to initialize the model both parent fields are set to "None"
@@ -168,7 +168,10 @@ class Person(Agent):
 
         self._schooling = 0
         self._final_schooling_level = None
-        self._school_status = "undetermined"
+        if self._agemonths > 12*22:
+            self._school_status = "outofschool"
+        else:
+            self._school_status = "undetermined"
 
         #TODO: fix this value elsewhere according to empirical probability
         self._work = boolean_choice(.1)
@@ -179,7 +182,7 @@ class Person(Agent):
             # These values are set in the give_birth method of mother agents 
             # for agents born within the model run, and in initialize.py for 
             # agents that initialize the model.
-            if (self._age / 12.) > rcParams['education.start_school_age_years']:
+            if (self._agemonths / 12.) > rcParams['education.start_school_age_years']:
                 self._schooling = np.random.randint(1, 15)
                 #TODO: Fix this to also allow in-school status
                 self._school_status == "outofschool"
@@ -259,10 +262,10 @@ class Person(Agent):
         return self._sex
 
     def get_age_months(self):
-        return self._age
+        return self._agemonths
 
     def get_age_years(self):
-        return self._age / 12.
+        return self._agemonths / 12.
 
     def get_ethnicity(self):
         return self._ethnicity
@@ -456,8 +459,8 @@ class Person(Agent):
         if (not (self.get_sex() == 'female')) or (not self.is_married()):
             return False
 
-        if (self._age > (rcParams['birth.max_age.years'] * 12)) | \
-                (self._age < (rcParams['birth.min_age.years'] * 12)):
+        if (self._agemonths > (rcParams['birth.max_age.years'] * 12)) | \
+                (self._agemonths < (rcParams['birth.min_age.years'] * 12)):
             return False
 
         # Handle first births using the appropriate first birth timing 
@@ -1270,7 +1273,7 @@ class Region(Agent_set):
             assert (person.get_ID() not in person_IDs), ("Age of person %s incremented twice"%person.get_ID())
             person_IDs.append(person.get_ID())
             timestep = rcParams['model.timestep']
-            person._age += timestep
+            person._agemonths += timestep
             # Track some extra information for logging
             if person.get_sex() == 'female':
                 n_female += 1
