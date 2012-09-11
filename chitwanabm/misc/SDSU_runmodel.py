@@ -13,8 +13,8 @@ def main():
 
     # Now setup python path
     oldpaths = sys.path
-    sys.path = ["Z:\\Python_Local_64bit\site-packages", "Z:\\Code", 
-                "Z:\\Python_Local_64bit\Scripts"]
+    sys.path = ["Z:\\Python_Local_64bit\site-packages", "Z:\\Code\\chitwanabm", 
+                "Z:\\Code\\pyabm", "Z:\\Python_Local_64bit\Scripts"]
     sys.path.extend(oldpaths)
 
     import chitwanabm.runmodel
