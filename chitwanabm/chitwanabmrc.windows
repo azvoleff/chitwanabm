@@ -1,0 +1,324 @@
+###############################################################################
+# Copyright 2008-2012 Alex Zvoleff)
+#
+# This file is part of the chitwanabm agent-based model.
+#
+# This file is an example chitwanabmrc file for chitwanabm configuration. chitwanabm is 
+# configured using a 'chitwanabmrc' text file.  When chitwanabm is imported in Python, 
+# using:
+#
+#   import chitwanabm
+#
+# chitwanabm will search for a chitwanabmrc file. chitwanabm will search in three locations, 
+# in order:
+#
+#	1) the current working directory
+#	2) the current user's home directory
+#	3) the chitwanabm module directory
+#
+# chitwanabm will use the first chitwanabmrc file it finds, ignoring any others. To set 
+# custom values for any of the chitwanabmrc parameters, rename this file to 
+# 'chitwanabmrc' and move it to one three above locations.  Changes can also be made 
+# in the rcparams.defaults file in the chitwanabm module directory, but this is not 
+# recommended as these values will be overwritten when chitwanabm is upgraded.
+#
+# Parameters are specified in the following format:
+#
+# 	parameter_name : value
+#
+# where 'parameter_name' is the name of the parameter, and 'value' is the 
+# value. Parameters will be validated using the validation functions assigned 
+# in the rcparams.defaults file. To add a new parameter to chitwanabm, the parameter 
+# must first be defined in rcparams.defaults.
+#
+# Contact Alex Zvoleff in the Department of Geography at San Diego State 
+# University with any comments or questions. See the README.txt file for 
+# contact information.
+###############################################################################
+
+###############################################################################
+# Model-wide parameters
+###############################################################################
+# A string naming the scenario - for convenience only. Has no direct impact on 
+# the model parameters
+scenario.name : Default
+# The year and month the model starts and ends. Use 1 for January, and 12 for 
+# December.
+model.timebounds : ((1997, 1), (2020,1))
+ # The size of each timestep (in months)
+model.timestep : 1
+model.burnin_timesteps : 36
+# Whether to reinitialize a new world from scratch for each model run
+model.reinitialize : True
+model.resultspath : M:/Data/Nepal/chitwanabm_runs
+# Whether to produce summary plots for the model run after the run is 
+# completed. Requires a working R installation, and some of the plots require 
+# the psn and NBH CSV files to be produced for every timestep (see these rc 
+# params below).
+model.make_plots : True
+# Whether to save psn data to CSV periodically while running the model. This 
+# will slow down the model slightly.
+save_psn_data : True
+# Whether to save NBH data to CSV periodically while running the model. This 
+# will slow down the model slightly.
+save_NBH_data : True
+# Whether to save shapefiles of LULC periodically while running the model. This 
+# will slow down the model considerably.
+save_LULC_shapefiles : False
+# Whether to run the functions in test.py to check proper functioning of the 
+# model code. This will slow down the model considerably.
+run_validation_checks : False
+
+model.parameterization.marriage: zvoleff
+model.parameterization.firstbirthtiming: zvoleff
+model.parameterization.migration : zvoleff
+model.parameterization.fuelwood_usage : simple
+
+###############################################################################
+# Location of input data (these are restricted data)
+###############################################################################
+# This is the path to the processed data file containing the final output file 
+# from the initialize.py script.
+path.input_data_file : V:/Nepal/chitwanabm_Initialization/init_data.pickle
+# The following is the path to the original restricted CVFS data as received 
+# from the ICPSR (to be used when running the initialize.py script. The
+# data_preprocess.R script will output several new files here when it is
+# run, so this directory must be writeable.
+path.raw_input_data : V:/Nepal/chitwanabm_Initialization
+# The world_mask is a binary GeoTIFF (zeros and ones), indicating the land area 
+# represented within the model.
+path.world_mask : V:/Nepal/chitwanabm_Initialization/CVFS_Study_Area_Raster_30m.tif
+# The DEM_file is a GeoTIFF digital elevation model of the study area.
+path.DEM_file : V:/Nepal/chitwanabm_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif
+# Set the level of verbosity for console output while the model is running:
+loglevel.console : info
+# Set the level of verbosity for logging messages to a file while the model is 
+# running (note this does not affect results output):
+loglevel.file : warning
+# The next option will cause every calculated probability for the marriage, 
+# migration, and first birth timing models to be printed in the log file. This 
+# will slow down the model considerably, and the log files will be several 
+# hundred megabytes.
+log_stats_probabilities : False
+
+###############################################################################
+# Person agent parameters
+###############################################################################
+# probability.time_units specifies the time period for which precalculated 
+# probabilities are specified.
+probability.time_units : years
+# birth.max_age.years is the maximum age a woman can give birth in years.
+birth.min_age.years : 15
+birth.max_age.years : 45
+prob.birth.intervals : ((9, 12, 18, 24, 30, 36, 42, 48, 54), (0.046053, 0.194079, 0.266447, 0.236842, 0.148026, 0.042763, 0.042763, 0.023026))]
+probability.death.male : {(0, 3):0.010903, (3, 6):0.00093, (6, 12):0.00061, (12, 20):0.001144, (20, 40):0.003045, (40, 60):0.009662, (60, 80):0.034247, (80, 90):0.14876, (90, 199):0.302326}
+probability.death.female : {(0, 3):0.013335, (3, 6):0.00093, (6, 12):0.00061, (12, 20):0.001144, (20, 40):0.002016, (40, 60):0.004577, (60, 80):0.032828, (80, 90):0.140105, (90, 199):0.302326}
+probability.marriage.male : {(15, 18):0.031023, (18, 22):0.114269, (22, 30):0.231391, (30, 40):0.118592, (40, 60):0.049346, (60, 199):0.004103}
+probability.marriage.female : {(15, 18):0.108413, (18, 22):0.198113, (22, 30):0.168199, (30, 40):0.095898, (40, 60):0.005689, (60, 199):0}
+# prob.marriage.moveout is the household fission rate
+prob.marriage.moveout : .30
+# prob.marriage.divorce is the monthly probability of divorce (monthly 
+# probability given per marriage per month).
+prob.marriage.divorce : .0002
+marriage.minimum_age_years : 15
+marriage.maximum_age_years : 35
+migration.minimum_age_years : 15
+prob.firstbirth.times : ((0, 6, 9, 12, 17, 22, 30, 40), (0.052632, 0.127193, 0.337719, 0.263158, 0.140351, 0.048246, 0.030702))]
+prob.num.children.desired : ((-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), (0.0144, 8e-04, 0.0317, 0.5891, 0.2709, 0.0656, 0.0146, 0.0055, 0.0044, 0.0017, 0.0013))]
+prob.migration.lengths : ((0, 1, 2, 4, 8, 12, 18, 24, 30, 36), (.4361, .2369, .1505, .0769, .0545, .0238, .0154, .0056, .0056))]
+prob.migration.length.permanent : .0790
+probability.migration.male : {(0, 10):0, (10, 14):0.0029, (14, 18):0.0177, (18, 22):0.0296, (22, 30):0.054, (30, 40):0.02, (40, 60):0, (60, 199):0}
+probability.migration.female : {(0, 10):0, (10, 14):0.0019, (14, 18):0.0087, (18, 22):0.0136, (22, 30):0.020, (30, 40):0.01, (40, 60):0, (60, 199):0}
+inmigrant_HH.prob.ethnicity : ((1, 2, 3, 4, 5, 6), (.43881, .23222, .14226, .06224, .12448))
+inmigrant_HH.prob.hh_size : ((1, 2, 3, 4, 5, 6, 7), (.09559, .22108, .28627, .22108, .12059, .05539))
+inmigrant_HH.prob.hh_head_age : ((15, 25, 35, 45, 55), (.2997, .4274, .1720, .1008))
+inmigrant_HH.prob.num_HHs : ((0, 5, 10), (.6, .4))
+
+outmigrant_HH.prob : .001
+
+# Coefficients for marriage timing from Yabiku (2006).
+marrtime.coef.intercept : -15.6
+marrtime.coef.logpercagveg : 0.10346
+marrtime.coef.school_minft_1996 : 0.003
+marrtime.coef.health_minft_1996 : -0.00401
+marrtime.coef.bus_minft_1996 : 0.00698
+marrtime.coef.market_minft_1996 : -0.002
+marrtime.coef.emp_minft_1996 : 0.00698
+marrtime.coef.bornin1996_nbh : -0.03046
+marrtime.coef.outside1996_nbh : -0.14734
+marrtime.coef.female : 0.8670
+marrtime.coef.ethnicLowHindu : 0.23191
+marrtime.coef.ethnicNewar : -0.11653
+marrtime.coef.ethnicHillTibeto : 0.28743
+marrtime.coef.ethnicTeraiTibeto : 0.06485
+marrtime.coef.age : 0.85058
+marrtime.coef.age_squared : -0.01613
+
+# Coefficients for marriage timing from Zvoleffs analysis of CVFS 
+# household registry, following Yabiku (2006) findings.
+marrtime.zv.coef.logpercagveg : .129
+marrtime.zv.coef.school_min_ft : .012
+marrtime.zv.coef.hlth_min_ft : -.001
+marrtime.zv.coef.bus_min_ft : .005
+marrtime.zv.coef.market_min_ft : -.001
+marrtime.zv.coef.employer_min_ft : .003
+marrtime.zv.coef.schooling_yrs : -.003
+marrtime.zv.coef.in_school : -.403
+marrtime.zv.coef.female : .809
+marrtime.zv.coef.ethnicLowHindu : .014
+marrtime.zv.coef.ethnicNewar : -.241
+marrtime.zv.coef.ethnicHillTibeto : .171
+marrtime.zv.coef.ethnicTeraiTibeto : -.099
+marrtime.zv.coef.age : .745
+marrtime.zv.coef.age_squared : -.015
+marrtime.zv.coef.intercept : -15.160
+
+# Coefficients for marriage timing from Ghimire and Axinn (2010).
+firstbirth.coef.intercept : -3.58
+firstbirth.coef.percagveg : 0.00995
+firstbirth.coef.avgyrsnonfam : -0.0202
+firstbirth.coef.child_school_1hr : -0.41552
+firstbirth.coef.child_health_1hr : 0.21511
+firstbirth.coef.child_bus_1hr : -0.41552
+firstbirth.coef.child_emp_1hr : 0.06766
+firstbirth.coef.distnara : -0.0202
+firstbirth.coef.elec_avail : 0.04879
+firstbirth.coef.NBH_wealth_index : 0.00995
+firstbirth.coef.age_1st_marr : 0.02956
+firstbirth.coef.marr_dur_pre_1997 : -0.0202
+firstbirth.coef.ethnicLowHindu : 0.07696
+firstbirth.coef.ethnicHillTibeto : -0.08338
+firstbirth.coef.ethnicNewar : 0.07696
+firstbirth.coef.ethnicTeraiTibeto : 0.28518
+firstbirth.coef.schooling4 : 0.36464
+firstbirth.coef.schooling8 : 0.36464
+firstbirth.coef.schooling11 : 0.72755
+firstbirth.coef.parents_contracep_ever : -0.37106
+firstbirth.coef.father_work : -0.34249
+firstbirth.coef.father_school : 0.20701
+firstbirth.coef.mother_work : 0.10436
+firstbirth.coef.mother_school : 0.37156
+firstbirth.coef.mother_num_children : -0.05129
+firstbirth.coef.hazdur_6 : 0.58222
+firstbirth.coef.hazdur_12 : 0.45108
+firstbirth.coef.hazdur_18 : 0.56531
+firstbirth.coef.hazdur_24 : 0.05827
+firstbirth.coef.hazdur_30 : -0.31471
+firstbirth.coef.hazdur_36 : 0.22314
+firstbirth.coef.hazdur_42 : -0.44629
+
+# Coefficients for marriage timing from Zvoleffs analysis of CVFS household 
+# registry, following Ghimire and Axinn (2010).
+firstbirth.zv.coef.percagveg : -0.003
+firstbirth.zv.coef.nbh_area : -0.867
+firstbirth.zv.coef.distnara : .007
+firstbirth.zv.coef.elec_avail : 0.261
+firstbirth.zv.coef.avgyrsnonfam : -0.004
+firstbirth.zv.coef.mother_num_children : -0.023
+firstbirth.zv.coef.mother_school : -0.081
+firstbirth.zv.coef.mother_work : -0.073
+firstbirth.zv.coef.father_school : -0.134
+firstbirth.zv.coef.father_work : -0.327
+firstbirth.zv.coef.parents_contracep_ever : -0.032
+firstbirth.zv.coef.ethnicLowHindu : 0.026
+firstbirth.zv.coef.ethnicHillTibeto : -0.618
+firstbirth.zv.coef.ethnicNewar : -0.480
+firstbirth.zv.coef.ethnicTeraiTibeto : -0.043
+firstbirth.zv.coef.age_1st_marr : -0.032
+firstbirth.zv.coef.marr_dur_pre_1997 : -0.006
+firstbirth.zv.coef.hazdur_6 : 2.425
+firstbirth.zv.coef.hazdur_12 : 1.963
+firstbirth.zv.coef.hazdur_18 : 1.684
+firstbirth.zv.coef.hazdur_24 : 1.149
+firstbirth.zv.coef.hazdur_30 : .421
+firstbirth.zv.coef.hazdur_36 : .823
+firstbirth.zv.coef.hazdur_42 : .262
+firstbirth.zv.coef.schooling4 : .483
+firstbirth.zv.coef.schooling8 : .852
+firstbirth.zv.coef.schooling11 : 1.305
+firstbirth.zv.coef.intercept : -3.561
+
+# Migration coefficents from Massey, Axinn, and Ghimire (2010).
+migration.coef.intercept : -7.3658
+migration.coef.female : -0.46204
+migration.coef.ethnicLowHindu : 0.12222
+migration.coef.ethnicNewar : 0.05827
+migration.coef.ethnicHillTibeto : 2.37862
+migration.coef.ethnicTeraiTibeto : 0.36464
+migration.coef.age15-24 : 1.80665
+migration.coef.age24-34 : 1.36864
+migration.coef.age34-44 : 0.75142
+
+# Migration coefficents from Zvoleffs analysis of CVFS household registry, 
+# following Massey, Axinn, and Ghimire (2010).
+migration.zv.coef.in_school : -.198
+migration.zv.coef.years_schooling : .072
+migration.zv.coef.log_market_min_ft : .025
+migration.zv.coef.own_farmland : -.073
+migration.zv.coef.female : -0.472
+migration.zv.coef.age15-24 : 1.029
+migration.zv.coef.age24-34 : .434
+migration.zv.coef.age34-44 : -.062
+migration.zv.coef.age45-55 : .049
+migration.zv.coef.ethnicLowHindu : .104
+migration.zv.coef.ethnicNewar : -.158
+migration.zv.coef.ethnicHillTibeto : .201
+migration.zv.coef.ethnicTeraiTibeto : -.484
+migration.zv.coef.intercept : -4.903
+
+###############################################################################
+# Household agent parameters
+###############################################################################
+fw_usageprob.coef.intercept : 1.0346
+fw_usageprob.coef.hhsize : .3320
+fw_usageprob.coef.ethnicLowHindu : 1.0965
+fw_usageprob.coef.ethnicNewar : -.7423
+fw_usageprob.coef.ethnicHillTibeto : -.0037
+fw_usageprob.coef.ethnicTeraiTibeto : 2.5426
+fw_usageprob.coef.meangender : .9869
+fw_usageprob.coef.elecavail : -1.3013
+fw_usageprob.coef.distnara_km : .0949
+fw_usageprob.coef.closest_typeCNP : -0.4760
+
+fw_demand.simple.coef.intercept : 1.816
+fw_demand.simple.coef.hhsize : -.408
+fw_demand.simple.coef.hhsize_squared : .034
+fw_demand.simple.coef.upper_caste_hindu : -.051
+fw_demand.simple.coef.own_non_wood_stove : -.0255
+fw_demand.simple.residvariance : .0842
+
+fw_demand.migfeedback.coef.intercept : 1.816
+fw_demand.migfeedback.coef.hhsize : -.408
+fw_demand.migfeedback.coef.hhsize_squared : .034
+fw_demand.migfeedback.coef.upper_caste_hindu : -.051
+fw_demand.migfeedback.coef.own_non_wood_stove : -.0255
+fw_demand.migfeedback.coef.anyLDmigr : -.943
+#fw_demand.migfeedback.coef.anyLDmigr : -.25
+#fw_demand.migfeedback.coef.anyLDmigr : -1.636
+fw_demand.migfeedback.residvariance : .0842
+
+# Education OLR results
+education.start_school_age_years : 6
+education.depvar_levels : (0, 4, 8, 11, 15)
+education.coef.intercepts : (2.0783, 1.3574, -.0135, -1.6826)
+education.coef.female : -2.0839
+education.coef.ethnicLowHindu : -2.0151
+education.coef.ethnicHillTibeto : -1.4839
+education.coef.ethnicNewar : -0.0171
+education.coef.ethnicTeraiTibeto : -2.4833
+education.coef.avg_yrs_services_lt15 : 0.0485
+
+# Spouse choice (dependent on age) parameters
+spousechoice.male.agediff : ((20, -15, -10, -5, -2, -1, 0, 1, 2, 5, 10, 15, 30), (.0005411, .0032468, .0075758, .0205628, .0178571, .0524892, .0703463, .1049784, .3019481, .2732684, .0963203, .0508658))
+
+###############################################################################
+# Landscape parameters
+###############################################################################
+lulc.area.hh : ((30, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000), (0.0544, 0.0862, 0.1111, 0.1361, 0.1429, 0.1361, 0.0907, 0.1088, 0.0907, 0.0431))
+
+###############################################################################
+# Landscape parameters
+###############################################################################
+# Feedback parameters are named so that, for example: 
+feedback.birth.nonagveg : True
+feedback.birth.nonagveg.area : 10
