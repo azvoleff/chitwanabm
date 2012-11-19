@@ -59,7 +59,7 @@ num.hs.marr <- melt(num.hs.marr, id.vars="time.Robj")
 names(num.hs.marr)[2:3] <- c("Pop_type", "num")
 
 # First plot monthly event data
-theme_update(theme_grey(base_size=18))
+theme_set(theme_grey(base_size=18))
 # Plot thinner lines so this busy plot is easier to read.
 update_geom_defaults("line", aes(size=.75))
 # Plot vital events

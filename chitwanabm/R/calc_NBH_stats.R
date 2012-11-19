@@ -129,7 +129,7 @@ make_shaded_error_plot <- function(ens_res, ylabel, typelabel) {
     # For each variable listed in "variable_names", there should be two columns,
     # one of means, named "variable_name.mean" and one of standard deviations,
     # named "variable_name.sd"
-    theme_update(theme_grey(base_size=18))
+    theme_set(theme_grey(base_size=18))
     update_geom_defaults("line", aes(size=1))
 
     # Ignore column one in code in next line since it is only the time

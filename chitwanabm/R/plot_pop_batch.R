@@ -28,7 +28,7 @@ require(ggplot2, quietly=TRUE)
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
 DPI = 300
-theme_update(theme_grey(base_size=18))
+theme_set(theme_grey(base_size=18))
 
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="

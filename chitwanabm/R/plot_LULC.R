@@ -47,7 +47,7 @@ lulc.sd.mean <- melt(lulc.sd.mean, id.vars="time.Robj")
 names(lulc.sd.mean)[2:3] <- c("LULC_type", "area")
 
 # Now actually make the plots
-theme_update(theme_grey(base_size=16))
+theme_set(theme_grey(base_size=16))
 update_geom_defaults("line", aes(size=1))
 
 p <- qplot(time.Robj, area, geom="line", colour=LULC_type, linetype=LULC_type, 

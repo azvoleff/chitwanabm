@@ -6,7 +6,7 @@ require(ggplot2, quietly=TRUE)
 WIDTH = 8.33
 HEIGHT = 5.53
 DPI = 300
-theme_update(theme_grey(base_size=18))
+theme_set(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
 
 # low_scenario_path  <- "M:/Data/Nepal/chitwanabm_runs/225_fission"
