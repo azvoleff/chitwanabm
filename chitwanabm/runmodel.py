@@ -103,6 +103,9 @@ def main():
     from chitwanabm.modelloop import main_loop
 
     from pyabm.file_io import write_single_band_raster
+    from pyabm.utility import save_git_diff
+    from pyabm import __version__ as pyabm_version
+    from chitwanabm import __version__ as chitwanabm_version
 
     # Get machine hostname to print it in the results file and use in the 
     # run_ID_number.
@@ -172,7 +175,10 @@ def main():
         handler.addFilter(DontPassEventFilter())
 
     if args.tail:
-        subprocess.Popen([rcParams['path.tail_binary'], log_file_path], cwd=results_path)
+        try:
+            subprocess.Popen([rcParams['path.tail_binary'], log_file_path], cwd=results_path)
+        except:
+            logger.warning('Error tailing model log file: %s'%sys.exc_info()[1])
 
     if rcParams['model.reinitialize']:
         # Generate a new world (with new resampling, etc.)
@@ -234,40 +240,31 @@ def main():
     if rcParams['model.make_plots']:
         logger.info("Plotting population results")
         Rscript_binary = rcParams['path.Rscript_binary']
-        dev_null = open(os.devnull, 'w')
+        plot_pop_script = resource_filename(__name__, 'R/plot_pop.R')
         try:
-            plot_pop_script = resource_filename(__name__, 'R/plot_pop.R')
-            subprocess.check_call([Rscript_binary, plot_pop_script, 
-                results_path], cwd=sys.path[0], stdout=dev_null, stderr=dev_null)
-        except:
-            logger.exception("Problem running plot_pop.R")
-        dev_null.close()
+            output = subprocess.check_output([Rscript_binary, plot_pop_script, 
+                results_path], cwd=sys.path[0], stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError, e:
+            logger.exception("Problem running plot_pop.R. R output: %s"%e.output)
 
         if rcParams['save_NBH_data']:
             logger.info("Plotting LULC results")
-            # Make plots of the LULC and population results
-            dev_null = open(os.devnull, 'w')
+            plot_LULC_script = resource_filename(__name__, 'R/plot_LULC.R')
             try:
-                plot_LULC_script = resource_filename(__name__, 'R/plot_LULC.R')
-                subprocess.check_call([Rscript_binary, plot_LULC_script, 
-                    results_path], cwd=sys.path[0], stdout=dev_null, 
-                    stderr=dev_null)
-            except:
-                logger.exception("Problem running plot_LULC.R")
-            dev_null.close()
+                output = subprocess.check_output([Rscript_binary, plot_LULC_script, 
+                    results_path], cwd=sys.path[0], stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError, e:
+                logger.exception("Problem running plot_LULC.R. R output: %s"%e.output)
 
         if rcParams['save_psn_data']:
             logger.info("Plotting persons results")
-            dev_null = open(os.devnull, 'w')
+            plot_psns_script = resource_filename(__name__, 
+                    'R/plot_psns_data.R')
             try:
-                plot_psns_script = resource_filename(__name__, 
-                        'R/plot_psns_data.R')
-                subprocess.check_call([Rscript_binary, plot_psns_script, 
-                    results_path], cwd=sys.path[0], stdout=dev_null, 
-                    stderr=dev_null)
-            except:
-                logger.exception("Problem running plot_psns_data.R")
-            dev_null.close()
+                output = subprocess.check_output([Rscript_binary, plot_psns_script, 
+                    results_path], cwd=sys.path[0], stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError, e:
+                logger.exception("Problem running plot_psns_data.R. R output: %s"%e.output)
 
     # Calculate the number of seconds per month the model took to run (to 
     # simplify choosing what machine to do model runs on). This is equal to the 
@@ -281,42 +278,19 @@ def main():
     # run. Save this file in the same folder as the model output.
     run_RC_file = os.path.join(results_path, "chitwanabmrc")
     RC_file_header = """# This file contains the parameters used for a chitwanabm model run.
-# Model run ID:\t%s
-# Start time:\t%s
-# End time:\t\t%s
-# Run speed:\t%.4f
-# Code version:\t%s"""%(run_ID_number, start_time_string, end_time_string, 
-        speed, commit_hash)
+# Model run ID:\t\t%s
+# Start time:\t\t%s
+# End time:\t\t\t%s
+# Run speed:\t\t%.4f
+# Code SHA:\t\t\t%s
+# Code version:\t\t%s
+# PyABM version:\t%s"""%(run_ID_number, start_time_string, end_time_string, 
+        speed, commit_hash, chitwanabm_version, pyabm_version)
     rc_params.write_RC_file(run_RC_file, RC_file_header)
 
     logger.info("Finished saving results for model run %s"%run_ID_number)
 
     return 0
-
-def save_git_diff(code_path, git_diff_file):
-    # First get commit hash from git show
-    temp_file_fd, temp_file_path = tempfile.mkstemp()
-    try:
-        git_binary = rcParams['path.git_binary']
-        subprocess.check_call([git_binary, 'show','--pretty=format:%H'], stdout=temp_file_fd, cwd=code_path)
-    except:
-        logger.exception("Problem running git. Skipping git-diff patch output.")
-        return 1
-    os.close(temp_file_fd)
-    temp_file = open(temp_file_path, 'r')
-    commit_hash = temp_file.readline().strip('\n')
-    temp_file.close()
-    os.remove(temp_file_path)
-
-    # Now write output of git diff to a file.
-    try:
-        out_file = open(git_diff_file, "w")
-        git_binary = rcParams['path.git_binary']
-        subprocess.check_call([git_binary, 'diff'], stdout=out_file, cwd=code_path)
-        out_file.close()
-    except IOError:
-        logger.exception("Problem writing to git diff output file %s"%git_diff_file)
-    return commit_hash
 
 def reformat_run_results(run_results):
     """
