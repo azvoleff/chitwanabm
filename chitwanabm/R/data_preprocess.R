@@ -8,7 +8,7 @@
 # terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
-# 
+d# 
 # chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
@@ -59,6 +59,8 @@ census$RESPID <- paste(census$HHID, SUBJID_census, sep="")
 census$CENAGE[census$CENAGE==-3] <- NA
 # The model runs in months. So convert ages from years to months
 AGEMNTHS <- census$CENAGE*12
+# Randomize ages so birthdates are evenly distributed throughout the year:
+AGEMNTHS <- AGEMNTHS + floor(runif(length(AGEMNTHS), -11, 0))
 census.processed <- with(census, data.frame(RESPID, AGEMNTHS, CENGENDR))
 census.processed$CENGENDR[census.processed$CENGENDR==1] <- "male"
 census.processed$CENGENDR[census.processed$CENGENDR==2] <- "female"
