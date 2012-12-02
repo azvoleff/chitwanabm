@@ -32,7 +32,7 @@ import logging
 
 import numpy as np
 
-from pyabm import IDGenerator, boolean_choice
+from pyabm import IDGenerator, boolean_choice, draw_from_prob_dist
 from pyabm.agents import Agent, Agent_set, Agent_Store
 
 from chitwanabm import rc_params
@@ -1168,6 +1168,23 @@ class Region(Agent_set):
             # Last housekeeping to return agent to model.
             person.return_from_LD_migration()
         return n_outmigr_indiv, n_ret_migr_indiv
+
+    def get_rand_NBH_inv_dist(self, prob_by):
+        # Returns a random neighborhood, chosen from a sorted list of all 
+        # neighborhoods with probability assigned to each neighborhood 
+        # according to the chosen 'prob_by'.
+        if prob_by == 'inv_dist_forest_closest_km':
+            probs = 1 / NBH._forest_closest_km for NBH in self.get_agents()
+        if prob_by == 'inv_dist_CNP_km':
+            probs = 1 / NBH._forest_dist_CNP_km for NBH in self.get_agents()
+        if prob_by == 'inv_dist_BZ_km':
+            probs = 1 / NBH._forest_dist_BZ_km for NBH in self.get_agents()
+        if prob_by == 'inv_dist_narayangar_km':
+            probs = 1 / NBH._distnara for NBH in self.get_agents()
+        else:
+            raise Exception("Unknown option %s for 'prob_by' in get_rand_NBH_inv_dist"%prob_by)
+        probs = np.cumsum(probs) / np.sum(probs)
+        return self.get_agents[sum(np.random.rand() < probs)]
 
     def household_migrations(self, time_float, timestep):
         """
