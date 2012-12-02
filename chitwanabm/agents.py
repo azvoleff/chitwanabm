@@ -32,7 +32,8 @@ import logging
 
 import numpy as np
 
-from pyabm import IDGenerator, boolean_choice, draw_from_prob_dist
+from pyabm import IDGenerator, boolean_choice
+from pyabm.statistics import draw_from_prob_dist
 from pyabm.agents import Agent, Agent_set, Agent_Store
 
 from chitwanabm import rc_params
@@ -1169,22 +1170,26 @@ class Region(Agent_set):
             person.return_from_LD_migration()
         return n_outmigr_indiv, n_ret_migr_indiv
 
-    def get_rand_NBH_inv_dist(self, prob_by):
+    def get_rand_NBH(self, rand_NBH_type):
         # Returns a random neighborhood, chosen from a sorted list of all 
         # neighborhoods with probability assigned to each neighborhood 
-        # according to the chosen 'prob_by'.
-        if prob_by == 'inv_dist_forest_closest_km':
-            probs = 1 / NBH._forest_closest_km for NBH in self.get_agents()
-        if prob_by == 'inv_dist_CNP_km':
-            probs = 1 / NBH._forest_dist_CNP_km for NBH in self.get_agents()
-        if prob_by == 'inv_dist_BZ_km':
-            probs = 1 / NBH._forest_dist_BZ_km for NBH in self.get_agents()
-        if prob_by == 'inv_dist_narayangar_km':
-            probs = 1 / NBH._distnara for NBH in self.get_agents()
+        # according to the chosen 'rand_NBH_type', which could be purely 
+        # random, or based on an inverse distance or other weighting function.
+        if rand_NBH_type == 'inv_dist_forest_closest_km':
+            probs = [1 / NBH._forest_closest_km for NBH in self.get_agents()]
+        elif rand_NBH_type == 'inv_dist_CNP_km':
+            probs = [1 / NBH._forest_dist_CNP_km for NBH in self.get_agents()]
+        elif rand_NBH_type == 'inv_dist_BZ_km':
+            probs = [1 / NBH._forest_dist_BZ_km for NBH in self.get_agents()]
+        elif rand_NBH_type == 'inv_dist_narayangar_km':
+            probs = [1 / NBH._distnara for NBH in self.get_agents()]
+        elif rand_NBH_type == 'random':
+            probs = np.ones(len(self.get_agents()))
         else:
-            raise Exception("Unknown option %s for 'prob_by' in get_rand_NBH_inv_dist"%prob_by)
+            raise Exception("Unknown option %s for 'rand_NBH_type' in get_rand_NBH"%rand_NBH_type)
         probs = np.cumsum(probs) / np.sum(probs)
-        return self.get_agents[sum(np.random.rand() < probs)]
+        index = sum(np.random.rand() > probs)
+        return self.get_agents()[index]
 
     def household_migrations(self, time_float, timestep):
         """
@@ -1309,6 +1314,56 @@ class Region(Agent_set):
         logger.debug('Oldest female is %.2f, oldest male is %.2f'%(max_age_female, max_age_male))
         logger.debug('Mean age of women is %.2f, mean age of men is %.2f'%((age_sum_male/n_male), (age_sum_female/n_female)))
         logger.debug('%s LL migrants away, %s LD migrants away'%(n_LL_migrants_away, n_LD_migrants_away))
+
+    def establish_NFOs(self):
+        # First decide on how many neighborhoods will have NFO changes occur.
+        NFO_types = rcParams['NFOs.change.type']
+        new_NFOs = []
+        if 'All' in NFO_types or 'school' in NFO_types:
+            # Not that the random numbers from draw_from_prob_dist are 
+            # converted to ints so that the minimum number of NFOs that may be 
+            # be established is zero.
+            new_NFOs.append(('school', 
+                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_school']))))
+        if 'All' in NFO_types or 'health' in NFO_types:
+            new_NFOs.append(('health', 
+                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_health']))))
+        if 'All' in NFO_types or 'bus' in NFO_types:
+            new_NFOs.append(('bus', 
+                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_bus']))))
+        if 'All' in NFO_types or 'market' in NFO_types:
+            new_NFOs.append(('market', 
+                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_market']))))
+        if 'All' in NFO_types or 'employer' in NFO_types:
+            new_NFOs.append(('employer', 
+                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_employer']))))
+
+        # Now actually make the NFO changes happen, according the
+        # rand_NBH_type chosen in the rcparams
+        for change_tuple in new_NFOs:
+            NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type']) for n in xrange(change_tuple[1])]
+            for NBH in NBHs:
+                if change_tuple[0] == 'school':
+                    initial = NBH._school_min_ft
+                    NBH._school_min_ft = NBH._school_min_ft / 2
+                    final = NBH._school_min_ft
+                elif change_tuple[0] == 'health':
+                    initial = NBH._health_min_ft
+                    NBH._health_min_ft = NBH._health_min_ft / 2
+                    final = NBH._health_min_ft
+                elif change_tuple[0] == 'bus':
+                    initial = NBH._bus_min_ft
+                    NBH._bus_min_ft = NBH._bus_min_ft / 2
+                    final = NBH._bus_min_ft
+                elif change_tuple[0] == 'market':
+                    initial = NBH._market_min_ft
+                    NBH._market_min_ft = NBH._market_min_ft / 2
+                    final = NBH._market_min_ft
+                elif change_tuple[0] == 'employer':
+                    initial = NBH._employer_min_ft
+                    NBH._employer_min_ft = NBH._employer_min_ft / 2
+                    final = NBH._employer_min_ft
+                logger.debug('New %s established in NBH %s. Distance in min. on foot reduced from %s to %s'%(change_tuple[0], NBH.get_ID(), initial, final))
 
     def get_neighborhood_fw_usage(self, time):
         fw_usage = {}

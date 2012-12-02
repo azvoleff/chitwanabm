@@ -166,7 +166,10 @@ def main_loop(world, results_path):
             schooling = region.education(model_time.get_cur_date_float())
 
             region.increment_age()
-                
+
+            # Now account for changing NFOs (if desired)
+            if rcParams['NFOs.change.type'] != ['None']:
+                region.establish_NFOs()
 
         # Save event, LULC, and population data in the saved_data dictionary 
         # for later output to CSV.
