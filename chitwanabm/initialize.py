@@ -380,7 +380,7 @@ def assemble_persons(relationshipsFile, model_world):
                     # Set marriage time based on the youngest spouse's age, as 
                     # a random age (for the youngest spouse) between 15 - and 
                     # the youngest spouse age or 27 (whichever is smaller).
-                    if youngests_age_mnths/12. < 15:
+                    if youngests_age_mnths/12. < 16:
                         marriage_time = model_start_time
                     else:
                         if youngests_age_mnths/12. < 27:
