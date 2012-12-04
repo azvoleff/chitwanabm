@@ -2,6 +2,7 @@
 
 require(reshape) # For 'melt' command
 require(ggplot2, quietly=TRUE)
+require(zoo)
 
 WIDTH = 8.33
 HEIGHT = 5.53
@@ -15,7 +16,8 @@ script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initia
 script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
-baseline_path <- "M:/Data/Nepal/chitwanabm_runs/New_Baseline"
+#baseline_path <- "M:/Data/Nepal/chitwanabm_runs/New_Baseline"
+baseline_path <- "M:/Data/Nepal/chitwanabm_runs_Archives/2012_PIRE/Baseline"
 baseline_name <- "Baseline"
 
 load(paste(baseline_path, "ens_results_pop.Rdata", sep="/"))
@@ -29,7 +31,7 @@ load("V:/Nepal/CVFS_HHReg/hhreg126.Rdata")
 # Plot events comparison:
 
 # First load CVFS events data
-load("CVFS_monthly_events.Rdata")
+load("C:/Users/azvoleff/Code/R/Chitwan_R_files/HHReg_Monthly/CVFS_monthly_events.Rdata")
 CVFS_events <- melt(monthly, id.vars="time_Robj")
 names(CVFS_events)[2:3] <- c("Event_type", "events")
 
@@ -58,6 +60,14 @@ baseline_events.sds$lim.up <- baseline_events.means$events -
         2*baseline_events.sds$events
 
 all_events <- rbind(baseline_events.means, CVFS_events)
+
+# Calculate a running average for the events (to show trend rather than monthly 
+# variations in the data).
+for (event_type in unique(all_events$Event_type)) {
+    this_event <- all_events$events[(all_events$Event_type == event_type) & (all_events$Data_type == "CVFS")]
+    this_event <- rollmean(this_event, 13, na.pad=TRUE)
+    all_events$events[(all_events$Event_type == event_type) & (all_events$Data_type == "CVFS")] <- this_event
+}
 
 p <- ggplot()
 p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type), 
@@ -153,6 +163,7 @@ baseline_num_psn.sds$lim.up <- baseline_num_psn.means$num_psn -
         2*baseline_num_psn.sds$num_psn
 
 all_num_psn <- rbind(baseline_num_psn.means, CVFS_num_psn)
+#all_num_psn[all_num_psn$Data_type == "CVFS", ]$num_psn <- rollmean(all_num_psn[all_num_psn$Data_type == "CVFS", ]$num_psn, 13, na.pad=TRUE)
 
 p <- ggplot()
 p + geom_line(aes(time_Robj, num_psn, linetype=Data_type), 
@@ -190,6 +201,7 @@ baseline_num_HH.sds$lim.up <- baseline_num_HH.means$num_hs -
         2*baseline_num_HH.sds$num_hs
 
 all_num_HH <- rbind(baseline_num_HH.means, CVFS_num_HH)
+#all_num_HH[all_num_HH$Data_type == "CVFS", ]$num_hs <- rollmean(all_num_HH[all_num_HH$Data_type == "CVFS", ]$num_hs, 13, na.pad=TRUE)
 
 p <- ggplot()
 p + geom_line(aes(time_Robj, num_hs, linetype=Data_type), 
