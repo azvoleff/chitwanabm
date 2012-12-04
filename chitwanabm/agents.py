@@ -852,6 +852,7 @@ class Region(Agent_set):
         logger.debug("Processing births")
         births = {}
         for household in self.iter_households():
+            neighborhood = household.get_parent_agent()
             for person in household.iter_agents():
                 if person.is_eligible_for_birth(time):
                     # Agent gives birth. First find the father (assumed to be 
@@ -862,7 +863,6 @@ class Region(Agent_set):
                     household.add_agent(person.give_birth(time,
                         father=father, simulate=simulate))
                     if rcParams['feedback.birth.nonagveg']:
-                        neighborhood = household.get_parent_agent()
                         if (neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area']) >= 0:
                             neighborhood._land_nonagveg -= rcParams['feedback.birth.nonagveg.area']
                             neighborhood._land_other += rcParams['feedback.birth.nonagveg.area']
