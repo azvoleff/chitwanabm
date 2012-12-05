@@ -79,7 +79,7 @@ ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
 # the final kriging results. The world mask can be loaded from any of the 
 # chitwanabm model output folders (they all should match since they all should 
 # represent the same scenario).
-world_mask_file <- paste(DATA_PATH, directories[1], "chitwanabm_world_mask.tif", sep="/") 
+world_mask_file <- paste(directories[1], "chitwanabm_world_mask.tif", sep="/") 
 kriglocations <- readGDAL(world_mask_file)
 if (length(unique(kriglocations$band1)) != 2) stop("ERROR: chitwanabm_world_mask.tif is not a binary raster")
 kriglocations$band1[kriglocations$band1==min(kriglocations$band1)] <- 0
