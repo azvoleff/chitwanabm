@@ -9,6 +9,13 @@ DPI = 300
 theme_set(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
 
+low_scenario_path  <- "M:/Data/Nepal/chitwanabm_runs/No_Feedbacks"
+mid_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/Baseline"
+high_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/Double_Feedbacks"
+low_scenario_name <- "No feedback"
+mid_scenario_name <- "Baseline feedback"
+high_scenario_name <- "Double feedback"
+
 # low_scenario_path  <- "M:/Data/Nepal/chitwanabm_runs/225_fission"
 # mid_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/Baseline"
 # high_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/375_fission"
@@ -30,13 +37,13 @@ update_geom_defaults("line", aes(size=1))
 # mid_scenario_name <- ".0795 Perm. Outmig. Rate"
 # high_scenario_name <- ".1185 Perm. Outmig. Rate"
 
-low_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/low_des_num_child"
-mid_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/Baseline"
-high_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/high_des_num_child"
-low_scenario_name <- "Fewer Children"
-mid_scenario_name <- "Baseline"
-high_scenario_name <- "More Children"
- 
+# low_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/low_des_num_child"
+# mid_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/Baseline"
+# high_scenario_path <- "M:/Data/Nepal/chitwanabm_runs/high_des_num_child"
+# low_scenario_name <- "Fewer Children"
+# mid_scenario_name <- "Baseline"
+# high_scenario_name <- "More Children"
+  
 plot_scenario_comparison <- function(result_file_name, low_name, mid_name, 
                                      high_name, var_name, ylabel) {
     low_scenario <- read.csv(paste(low_scenario_path, result_file_name, 

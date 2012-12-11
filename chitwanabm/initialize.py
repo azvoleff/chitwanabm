@@ -520,7 +520,7 @@ def generate_world():
         World class to be used in the model.
 
         3) Saves this World instance in the specified location. NOTE: This must 
-        be an encrypted directory that is not publically accessible to conform 
+        be an encrypted directory that is not publicly accessible to conform 
         to ICPSR and IRB requirements.
     """
     try:
