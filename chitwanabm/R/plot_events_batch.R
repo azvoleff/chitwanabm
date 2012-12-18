@@ -37,15 +37,10 @@ theme_set(theme_grey(base_size=16))
 update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-
-time_values <- read.csv(paste(directories[1], "time.csv", sep="/"))
-time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
-        format="%m/%Y,%d")
-time_values <- cbind(time_values, time.Robj=time.Robj)
-time_values$year <- floor(time_values$time_float)
+DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/Double_Feedbacks"
 
 calc_event_data <- function(event_type, run_path) {
-    events_data <- read.csv(paste(run_path, "person_events.log", sep="/"))
+    events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
     events <- events_data[grep('^(nid|time|event)$', names(events_data))]
     events <- events[events$event == event_type, ]
     events <- cbind(events, ones=rep(1, nrow(events)))
@@ -84,6 +79,12 @@ directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
 if (length(directories)<1) stop(paste("can't run plot_events_batch with", length(directories), "model runs."))
 if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
 
+time_values <- read.csv(paste(directories[1], "time.csv", sep="/"))
+time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
+        format="%m/%Y,%d")
+time_values <- cbind(time_values, time.Robj=time.Robj)
+time_values$year <- floor(time_values$time_float)
+
 event_type <- "Marriage"
 n <- 1
 for (directory in directories) {
@@ -114,6 +115,7 @@ events <- merge(events, all_nbhs_timsteps, all=TRUE)
 events[is.na(events)] <- 0
 
 # Merge the initial cover types so results can be plotted by cover class
+results <- read.csv(paste(directories[1], "run_results.csv", sep="/"))
 nbh.area <- apply(cbind(results$agveg.1, results$nonagveg.1, results$pubbldg.1,
             results$privbldg.1, results$other.1), 1, sum)
 results$pctagveg.1 <- (results$agveg.1 / nbh.area) * 100
