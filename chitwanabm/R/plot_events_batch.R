@@ -20,10 +20,6 @@
 # University with any comments or questions. See the README.txt file for 
 # contact information.
 
-###############################################################################
-# Plots the LULC data from a model run.
-###############################################################################
-
 library(ggplot2, quietly=TRUE)
 library(gstat)
 library(rgdal)
@@ -38,6 +34,7 @@ update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/Double_Feedbacks"
+#DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/No_Feedbacks"
 
 calc_event_data <- function(event_type, run_path) {
     events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
@@ -130,6 +127,7 @@ num_events_cols <- grep('num_events[.]', names(events))
 num_marr <- aggregate(events[num_events_cols], by=list(neighid=events$neighid), sum)
 num_marr <- data.frame(neighid=num_marr$neighid, num_marr=apply(num_marr[-1], 1, mean))
 
+crude_rate_cols <- grep('num_events_crude_rate.', names(events))
 run_means <- aggregate(events[crude_rate_cols], by=list(year=events$year, lctype=events$lctype), mean)
 mean_cols <- grep('num_events_crude_rate.', names(run_means))
 means <- data.frame(year=run_means$year, lctype=run_means$lctype, 
@@ -145,7 +143,7 @@ p + geom_line(aes(year, mean, colour=lctype), data=means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=sds) +
     scale_fill_discrete(legend=F) +
-    labs(x="Years", y='Number of events', colour="Cover class")
+    labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "num_marriage_events.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
 
@@ -157,7 +155,7 @@ p + geom_line(aes(year, mean, colour=lctype), data=means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=sds) +
     scale_fill_discrete(legend=F) +
-    labs(x="Years", y='Number of events', colour="Cover class")
+    labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "num_marriage_events_2_class.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
 
