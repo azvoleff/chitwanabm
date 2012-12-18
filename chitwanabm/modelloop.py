@@ -157,9 +157,9 @@ def main_loop(world, results_path):
             logger.debug('processing region %s'%region.get_ID())
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
-            new_births = region.births(model_time.get_cur_date_float())
-            new_deaths = region.deaths(model_time.get_cur_date_float())
-            new_marr = region.marriages(model_time.get_cur_date_float())
+            new_births = region.births(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
+            new_deaths = region.deaths(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
+            new_marr = region.marriages(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             new_divo = region.divorces(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())

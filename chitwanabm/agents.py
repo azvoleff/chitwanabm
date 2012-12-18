@@ -337,7 +337,7 @@ class Person(Agent):
         return self._in_migrant
 
     def make_individual_LD_migration(self, time, timestep, region, BURN_IN=False):
-        log_event_record("LD_migration", self, time)
+        log_event_record("LD_migration", self, timestep)
         household = self.get_parent_agent()
         household._lastmigrant_time = time
         household._members_away.append(self)
@@ -361,8 +361,8 @@ class Person(Agent):
         self._return_timestep = None
         self._away = False
 
-    def kill(self, time):
-        log_event_record("Death", self, time)
+    def kill(self, time, timestep):
+        log_event_record("Death", self, timestep)
         self._alive = False
         self._deathdate = time
         if self.is_married():
@@ -446,7 +446,7 @@ class Person(Agent):
         self._marriage_time = None
         spouse._marriage_time = None
 
-    def is_eligible_for_birth(self, time):
+    def is_eligible_for_birth(self, time, timestep):
         """
         Check birth timing using Ghimire and Axinn, 2010 first birth timing 
         results or simple probability distribution for first birth timing, 
@@ -485,7 +485,7 @@ class Person(Agent):
                 raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
             if first_birth_flag == True:
                 logger.debug("First birth to agent %s (age %.2f, marriage time %.2f)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
-                log_event_record("First birth", self, time)
+                log_event_record("First birth", self, timestep)
                 return True
             else: return False
         else:
@@ -498,7 +498,7 @@ class Person(Agent):
                 return True
             else: return False
 
-    def give_birth(self, time, father, simulate=False):
+    def give_birth(self, time, timestep, father, simulate=False):
         "Agent gives birth. New agent inherits characterists of parents."
         assert self.get_sex() == 'female', "Men can't give birth"
         assert self.get_spouse().get_ID() == father.get_ID(), "All births must be in marriages"
@@ -524,7 +524,7 @@ class Person(Agent):
 
             logger.debug('New birth to %s, (age %.2f, %s total children, %s desired, next birth %.2f)'%(self.get_ID(), self.get_age_years(), self._number_of_children, self._des_num_children, self._birth_interval))
 
-            log_event_record("Birth", self, time)
+            log_event_record("Birth", self, timestep)
 
         self._last_birth_time = time
 
@@ -840,7 +840,7 @@ class Region(Agent_set):
         for agent_store_name in self._agent_stores['person'].keys():
             yield self._agent_stores['person'][agent_store_name]
 
-    def births(self, time, simulate=False):
+    def births(self, time, timestep, simulate=False):
         """
         Runs through the population and agents give birth probabilistically 
         based on their birth interval and desired family size, and the first 
@@ -854,13 +854,13 @@ class Region(Agent_set):
         for household in self.iter_households():
             neighborhood = household.get_parent_agent()
             for person in household.iter_agents():
-                if person.is_eligible_for_birth(time):
+                if person.is_eligible_for_birth(time, timestep):
                     # Agent gives birth. First find the father (assumed to be 
                     # the spouse of the person giving birth).
                     father = person.get_spouse()
                     # Now have the mother give birth, and add the 
                     # new person to the mother's household.
-                    household.add_agent(person.give_birth(time,
+                    household.add_agent(person.give_birth(time, timestep,
                         father=father, simulate=simulate))
                     if rcParams['feedback.birth.nonagveg']:
                         if (neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area']) >= 0:
@@ -873,7 +873,7 @@ class Region(Agent_set):
                     births[neighborhood.get_ID()] += 1
         return births
                         
-    def deaths(self, time):
+    def deaths(self, time, timestep):
         """
         Runs through the population and kills agents probabilistically based on 
         their age and sex and the probability.death for this population.
@@ -889,13 +889,13 @@ class Region(Agent_set):
                     if not neighborhood.get_ID() in deaths:
                         deaths[neighborhood.get_ID()] = 0
                     deaths[neighborhood.get_ID()] += 1
-                person.kill(time)
+                person.kill(time, timestep)
                 # Add the agent to the cemetery, for later access during 
                 # debugging.
                 self._cemetery[self.get_ID()] = self
         return deaths
                         
-    def marriages(self, time):
+    def marriages(self, time, timestep):
         """
         Runs through the population and marries agents probabilistically based 
         on their age and the probability_marriage for this population
@@ -1025,8 +1025,8 @@ class Region(Agent_set):
             if not neighborhood.get_ID() in marriages:
                 marriages[neighborhood.get_ID()] = 0
             marriages[neighborhood.get_ID()] += 1
-            log_event_record("Marriage", male, time)
-            log_event_record("Marriage", female, time)
+            log_event_record("Marriage", male, timestep)
+            log_event_record("Marriage", female, timestep)
         return marriages
 
     def divorces(self, time_float, timestep):
@@ -1061,8 +1061,8 @@ class Region(Agent_set):
             else:
                 original_nbh = man.get_parent_agent().get_parent_agent()
             logger.debug("Agent %s divorced agent %s (marriage time %.2f)"%(woman.get_ID(), man.get_ID(), person._marriage_time))
-            log_event_record("Divorce", man, time_float)
-            log_event_record("Divorce", woman, time_float)
+            log_event_record("Divorce", man, timestep)
+            log_event_record("Divorce", woman, timestep)
             # Make the woman move out and either:
             # 	- return to her parental home if it still exists
             # 	- establish a new household in a randomly selected              
