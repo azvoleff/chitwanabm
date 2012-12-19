@@ -491,10 +491,10 @@ class Person(Agent):
         else:
             # Handle births to mothers who have already given birth in the 
             # past:
-            if self._last_birth_time >= (time - self._birth_interval/12.):
-                return False
-            elif (num_children < self._des_num_children) or (self._des_num_children == -1):
+            if (time > (self._last_birth_time + self._birth_interval/12.)) and \
+                ((num_children < self._des_num_children) or (self._des_num_children == -1)):
                 # self._des_num_children = -1 means no preference
+                log_event_record("Subsequent birth", self, timestep)
                 return True
             else: return False
 
