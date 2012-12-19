@@ -148,7 +148,7 @@ class Person(Agent):
         # women) at marriage in the "marry" function.
         self._des_num_children = None
 
-        if self._sex=="female":
+        if self._sex == "female":
             # For initial agents, birth interval is set in initialize.py.
             self._birth_interval = calc_birth_interval()
             self._last_birth_time = None
@@ -457,22 +457,21 @@ class Person(Agent):
         # interval and does not already have greater than their desired family 
         # size.  Note that des_num_children=-1 means no preference ("god's 
         # will").
-        if (not (self.get_sex() == 'female')) or (not self.is_married()):
-            return False
-
-        if (self._agemonths > (rcParams['birth.max_age.years'] * 12)) | \
+        num_children = self.get_num_children()
+        if (not (self.get_sex() == 'female')) or (not self.is_married()) or \
+                ((num_children > self._des_num_children) and (self._des_num_children != -1)) or \
+                (self._agemonths > (rcParams['birth.max_age.years'] * 12)) or \
                 (self._agemonths < (rcParams['birth.min_age.years'] * 12)):
+                # self._des_num_children = -1 means no preference
             return False
 
         # Handle first births using the appropriate first birth timing 
         # parameterization:
-        num_children = self.get_num_children()
         if (num_children) == 0:
             first_birth_flag = False
-            #TODO: Remove this line after debugging.
             if ((time - self._marriage_time) >= 6.):
                 return False
-            if rcParams['model.parameterization.firstbirthtiming'] == 'simple':
+            elif rcParams['model.parameterization.firstbirthtiming'] == 'simple':
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
                     first_birth_flag = True
             elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
@@ -491,9 +490,7 @@ class Person(Agent):
         else:
             # Handle births to mothers who have already given birth in the 
             # past:
-            if (time > (self._last_birth_time + self._birth_interval/12.)) and \
-                ((num_children < self._des_num_children) or (self._des_num_children == -1)):
-                # self._des_num_children = -1 means no preference
+            if (time > (self._last_birth_time + self._birth_interval/12.)):
                 log_event_record("Subsequent birth", self, timestep)
                 return True
             else: return False
