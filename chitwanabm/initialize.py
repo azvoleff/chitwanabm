@@ -338,9 +338,9 @@ def assemble_persons(relationshipsFile, model_world):
         if recent_birth == 1:
             person._last_birth_time = model_start_time + np.random.randint(-12, 0)/12.
         else:
-            # Otherwise, randomly set person._last_birth_time anywhere from 24  
+            # Otherwise, randomly set person._last_birth_time anywhere from 48
             # to 12 months prior to the initial timestep of the model:
-            person._last_birth_time = model_start_time + np.random.randint(-24, -12)/12.
+            person._last_birth_time = model_start_time + np.random.randint(-24, 0)/12.
         personsDict[RESPID] = person
 
         n_children = int(relation['n_children'])
@@ -381,7 +381,7 @@ def assemble_persons(relationshipsFile, model_world):
                     # a random age (for the youngest spouse) between 15 - and 
                     # the youngest spouse age or 27 (whichever is smaller).
                     if youngests_age_mnths/12. < 16:
-                        marriage_time = model_start_time
+                        marriage_time = model_start_time + np.random.randint(-12, 0)/12.
                     else:
                         if youngests_age_mnths/12. < 27:
                             max_marr_age = youngests_age_mnths/12.
