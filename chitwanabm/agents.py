@@ -218,6 +218,8 @@ class Person(Agent):
         self._ever_divorced = False
         self._ever_widowed = False
 
+        self._last_divorce_check = -9999
+
     def get_info(self):
         "Returns basic info about this person for use in logging."
         if self._spouse != None:
@@ -1036,16 +1038,15 @@ class Region(Agent_set):
         """
         logger.debug("Processing divorces")
         # First find the divorcing agents
-        checked_spouses = []
         divorces = {}
         for person in self.iter_all_persons():
             if (not person.is_married()) or \
-                    (person in checked_spouses) or \
+                    (person._last_divorce_check == timestep) or \
                     (np.random.rand() >= calc_probability_divorce(person)):
                 # Person does NOT get divorced
-                checked_spouses.append(person)
+                person._last_divorce_check = timestep
                 continue
-            checked_spouses.append(person)
+            person._last_divorce_check = timestep
             if person.get_sex() == "female":
                 woman = person
                 man = woman.get_spouse()
@@ -1109,13 +1110,11 @@ class Region(Agent_set):
 
     def get_num_marriages(self):
         "Returns the total number of marriages in this region."
-        num_marr = 0
-        spouses = []
-        for person in self.iter_persons():
-            if person.is_married() and (person.get_spouse() not in spouses):
-                    num_marr += 1
-                    spouses.append(person)
-        return num_marr
+        num_spouses = 0
+        for person in self.iter_all_persons():
+            if person.is_married(): num_spouses += 1
+        # Number of marriages is equal to number of spouses / 2
+        return num_spouses / 2
 
     def education(self, time):
         """
@@ -1280,40 +1279,9 @@ class Region(Agent_set):
         the units of the input rc parameters.
         """
         logger.debug("Incrementing ages")
-        n_LL_migrants_away = 0
-        n_LD_migrants_away = 0
-        unmarr_females = 0
-        unmarr_males = 0
-        max_age_male = 0.
-        max_age_female = 0.
-        age_sum_female = 0.
-        age_sum_male = 0.
-        n_female = 0.
-        n_male = 0.
-        person_IDs = []
         for person in self.iter_all_persons():
-            assert (person.get_ID() not in person_IDs), ("Age of person %s incremented twice"%person.get_ID())
-            person_IDs.append(person.get_ID())
             timestep = rcParams['model.timestep']
             person._agemonths += timestep
-            # Track some extra information for logging
-            if person.get_sex() == 'female':
-                n_female += 1
-                age_sum_female += person.get_age_years()
-                if person.get_age_years() > max_age_female: max_age_female = person.get_age_years()
-            else:
-                n_male += 1
-                age_sum_male += person.get_age_years()
-                if person.get_age_years() > max_age_male: max_age_male = person.get_age_years()
-            if (person._spouse != None):
-                if person.get_sex() == 'female': unmarr_females += 1
-                else: unmarr_males += 1
-            if self._agent_stores['person']['LD_migr'] in person._store_list: n_LD_migrants_away += 1
-            elif self._agent_stores['person']['LL_migr'] in person._store_list: n_LL_migrants_away += 1
-        logger.debug('%s unmarried females, %s unmarried males'%(unmarr_males, unmarr_females))
-        logger.debug('Oldest female is %.2f, oldest male is %.2f'%(max_age_female, max_age_male))
-        logger.debug('Mean age of women is %.2f, mean age of men is %.2f'%((age_sum_male/n_male), (age_sum_female/n_female)))
-        logger.debug('%s LL migrants away, %s LD migrants away'%(n_LL_migrants_away, n_LD_migrants_away))
 
     def establish_NFOs(self):
         # First decide on how many neighborhoods will have NFO changes occur.
