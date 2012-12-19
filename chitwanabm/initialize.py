@@ -336,11 +336,11 @@ def assemble_persons(relationshipsFile, model_world):
         # birth interval has passed.
         recent_birth = int(relation['recent_birth'])
         if recent_birth == 1:
-            person._last_birth_time = model_start_time
+            person._last_birth_time = model_start_time + np.random.randint(-12, 0)/12.
         else:
-            # Otherwise, randomly set person._last_birth_time anywhere from 18
-            # months prior to the initial timestep of the model:
-            person._last_birth_time = model_start_time + np.random.randint(-24, 0)/12.
+            # Otherwise, randomly set person._last_birth_time anywhere from 24  
+            # to 12 months prior to the initial timestep of the model:
+            person._last_birth_time = model_start_time + np.random.randint(-24, -12)/12.
         personsDict[RESPID] = person
 
         n_children = int(relation['n_children'])

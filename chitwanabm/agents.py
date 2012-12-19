@@ -149,9 +149,7 @@ class Person(Agent):
         self._des_num_children = None
 
         if self._sex=="female":
-            # TODO: For initial agents, set birth interval to start as of the 
-            # date of their last birth, and initialize first birth interval for 
-            # these agents in initialization code.
+            # For initial agents, birth interval is set in initialize.py.
             self._birth_interval = calc_birth_interval()
             self._last_birth_time = None
         
@@ -495,7 +493,7 @@ class Person(Agent):
             # past:
             if self._last_birth_time >= (time - self._birth_interval/12.):
                 return False
-            elif (num_children < self._des_num_children) or (self._des_num_children==-1):
+            elif (num_children < self._des_num_children) or (self._des_num_children == -1):
                 # self._des_num_children = -1 means no preference
                 return True
             else: return False
