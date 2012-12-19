@@ -50,21 +50,21 @@ def sighandler(num, frame):
 sigint = False
 signal.signal(signal.SIGINT, sighandler)
 
-class chitwanabmThread(threading.Thread):
-    def __init__(self, thread_ID, runmodel_args):
+class ProcessThread(threading.Thread):
+    def __init__(self, thread_ID, script_path, process_args):
         pool_sema.acquire()
         threading.Thread.__init__(self)
         self.threadID = thread_ID
         self.name = thread_ID
-        self._runmodel_args = runmodel_args
+        self._script_path = script_path
+        self._process_args = process_args
         active_threads.append(self)
 
     def run(self):
         dev_null = open(os.devnull, 'w')
-        runmodel_script = resource_filename(__name__, 'runmodel.py')
         command = rcParams['batchrun.python_path'] +  ' ' + \
-                  runmodel_script +  ' ' + \
-                  self._runmodel_args
+                  self._script_path +  ' ' + \
+                  self._process_args
         if '--log' not in command:
             command += ' --log=CRITICAL'
         self._modelrun = subprocess.Popen(command, cwd=sys.path[0], 
@@ -91,7 +91,7 @@ def main(argv=None):
     # Save args to pass on to runmodel
     if argv is None:
         argv = sys.argv
-    runmodel_args = " ".join(argv[1:])
+    process_args = " ".join(argv[1:])
 
     parser = argparse.ArgumentParser(description='Run the chitwanabm agent-based model (ABM).')
     parser.add_argument('--rc', dest="rc_file", metavar="RC_FILE", type=str, default=None,
@@ -132,7 +132,8 @@ def main(argv=None):
     run_count = 1
     while run_count <= rcParams['batchrun.num_runs']:
         with pool_sema:
-            new_thread = chitwanabmThread(run_count, runmodel_args)
+            script_path = resource_filename(__name__, 'runmodel.py')
+            new_thread = ProcessThread(run_count, script_path, process_args)
             logger.info("Starting run %s"%new_thread.name)
             new_thread.start()
             time.sleep(30)
