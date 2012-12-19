@@ -134,11 +134,12 @@ def main_loop(world, results_path):
     for neg_timestep in xrange(-rcParams['model.burnin_timesteps'], 0):
         for region in world.iter_regions():
             new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
-
+            new_births = region.births(model_time.get_cur_date_float(), model_time.get_cur_int_timestep(), simulate=True)
+            num_new_births = sum(new_births.values())
             num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
             num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
 
-            logger.info("Burn in %3s: P: %5s NOM: %3s NRM: %3s"%(neg_timestep, region.num_persons(), num_new_out_migr_indiv, num_new_ret_migr_indiv))
+            logger.info("Burn in %3s: P: %5s NOM: %3s NRM: %3s NB: %3s"%(neg_timestep, region.num_persons(), num_new_out_migr_indiv, num_new_ret_migr_indiv, num_new_births))
 
     while model_time.in_bounds():
         timestep = model_time.get_cur_int_timestep()

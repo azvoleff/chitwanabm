@@ -500,7 +500,9 @@ class Person(Agent):
         assert self.get_sex() == 'female', "Men can't give birth"
         assert self.get_spouse().get_ID() == father.get_ID(), "All births must be in marriages"
         assert self.get_ID() != father.get_ID(), "No immaculate conception (agent: %s)"%(self.get_ID())
-        if not simulate:
+        if simulate:
+            baby = None
+        else:
             baby = self._world.new_person(birthdate=time, age=0, mother=self, father=father, ethnicity=self.get_ethnicity())
 
             neighborhood = self.get_parent_agent().get_parent_agent()
@@ -857,14 +859,16 @@ class Region(Agent_set):
                     father = person.get_spouse()
                     # Now have the mother give birth, and add the 
                     # new person to the mother's household.
-                    household.add_agent(person.give_birth(time, timestep,
-                        father=father, simulate=simulate))
-                    if rcParams['feedback.birth.nonagveg']:
-                        if (neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area']) >= 0:
-                            neighborhood._land_nonagveg -= rcParams['feedback.birth.nonagveg.area']
-                            neighborhood._land_other += rcParams['feedback.birth.nonagveg.area']
-                    # Track the total number of births for each 
-                    # timestep by neighborhood.
+                    baby = person.give_birth(time, timestep, father=father, 
+                            simulate=simulate)
+                    if not simulate:
+                        household.add_agent(baby)
+                        if rcParams['feedback.birth.nonagveg']:
+                            if (neighborhood._land_nonagveg - rcParams['feedback.birth.nonagveg.area']) >= 0:
+                                neighborhood._land_nonagveg -= rcParams['feedback.birth.nonagveg.area']
+                                neighborhood._land_other += rcParams['feedback.birth.nonagveg.area']
+                    # Track the total number of births for each timestep by 
+                    # neighborhood.
                     if not neighborhood.get_ID() in births:
                         births[neighborhood.get_ID()] = 0
                     births[neighborhood.get_ID()] += 1
