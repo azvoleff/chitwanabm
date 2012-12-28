@@ -59,8 +59,6 @@ def log_event_record(message, person, modeltime, **kwargs):
 
 if rcParams['model.parameterization.marriage'] == 'simple':
     from chitwanabm.statistics import calc_probability_marriage_simple as calc_probability_marriage
-elif rcParams['model.parameterization.marriage'] == 'yabiku2006':
-    from chitwanabm.statistics import calc_probability_marriage_yabiku2006 as calc_probability_marriage
 elif rcParams['model.parameterization.marriage'] == 'zvoleff':
     from chitwanabm.statistics import calc_probability_marriage_zvoleff as calc_probability_marriage
 else:
@@ -68,8 +66,6 @@ else:
 
 if rcParams['model.parameterization.migration'] == 'simple':
     from chitwanabm.statistics import calc_probability_migration_simple as calc_probability_migration
-elif rcParams['model.parameterization.migration'] == 'massey2010':
-    from chitwanabm.statistics import calc_probability_migration_masseyetal_2010 as calc_probability_migration
 elif rcParams['model.parameterization.migration'] == 'zvoleff':
     from chitwanabm.statistics import calc_probability_migration_zvoleff as calc_probability_migration
 else:
