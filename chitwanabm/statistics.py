@@ -157,8 +157,6 @@ def calc_probability_marriage_zvoleff(person, time):
         log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
     inner += rcParams['marrtime.zv.coef.interp_logpercagveg'] * log_percent_agveg
 
-    inner += rcParams['migration.zv.coef.log_market_min_ft'] * np.log(neighborhood._market_min_ft + 1)
-
     # Schooling
     inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
     if person.is_in_school():
