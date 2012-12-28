@@ -127,26 +127,8 @@
 
 'outmigrant_HH.prob' : [.001 | validate_float]
 
-# Coefficients for marriage timing from Yabiku (2006).
-'marrtime.coef.intercept' : [-15.6 | validate_float]
-'marrtime.coef.logpercagveg' : [0.10346 | validate_float]
-'marrtime.coef.school_minft_1996' : [0.003 | validate_float]
-'marrtime.coef.health_minft_1996' : [-0.00401 | validate_float]
-'marrtime.coef.bus_minft_1996' : [0.00698 | validate_float]
-'marrtime.coef.market_minft_1996' : [-0.002 | validate_float]
-'marrtime.coef.emp_minft_1996' : [0.00698 | validate_float]
-'marrtime.coef.bornin1996_nbh' : [-0.03046 | validate_float]
-'marrtime.coef.outside1996_nbh' : [-0.14734 | validate_float]
-'marrtime.coef.female' : [0.8670 | validate_float]
-'marrtime.coef.ethnicLowHindu' : [0.23191 | validate_float]
-'marrtime.coef.ethnicNewar' : [-0.11653 | validate_float]
-'marrtime.coef.ethnicHillTibeto' : [0.28743 | validate_float]
-'marrtime.coef.ethnicTeraiTibeto' : [0.06485 | validate_float]
-'marrtime.coef.age' : [0.85058 | validate_float]
-'marrtime.coef.age_squared' : [-0.01613 | validate_float]
-
-# Coefficients for marriage timing from Zvoleff's analysis of CVFS 
-# household registry, following Yabiku (2006) findings.
+# Coefficients for marriage timing from Zvoleff's analysis of CVFS household 
+# registry, following Yabiku (2006) findings.
 'marrtime.zv.coef.logpercagveg' : [.129 | validate_float]
 'marrtime.zv.coef.school_min_ft' : [.012 | validate_float]
 'marrtime.zv.coef.hlth_min_ft' : [-.001 | validate_float]

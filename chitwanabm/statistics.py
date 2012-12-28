@@ -233,53 +233,6 @@ def calc_first_birth_prob_zvoleff(person, time):
         logger.debug("Person %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob,  person._marriage_time))
     return prob
 
-def calc_probability_marriage_yabiku2006(person):
-    """
-    Calculates the probability of marriage for an agent, using the results of 
-    Yabiku, 2006.
-    """
-    neighborhood = person.get_parent_agent().get_parent_agent()
-
-    inner = rcParams['marrtime.coef.intercept']
-
-    # Neighborhood characteristics
-    if neighborhood._land_agveg == 0:
-        log_percent_agveg = 0
-    else:
-        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
-    inner += rcParams['marrtime.coef.logpercagveg'] * log_percent_agveg
-    inner += rcParams['marrtime.coef.school_minft_1996'] * neighborhood._school_min_ft
-    inner += rcParams['marrtime.coef.health_minft_1996'] * neighborhood._health_min_ft
-    inner += rcParams['marrtime.coef.bus_minft_1996'] * neighborhood._bus_min_ft
-    inner += rcParams['marrtime.coef.market_minft_1996'] * neighborhood._market_min_ft
-    inner += rcParams['marrtime.coef.emp_minft_1996'] * neighborhood._employer_min_ft
-
-    if person.get_sex() == "female":
-        inner += rcParams['marrtime.coef.female']
-
-    ethnicity = person.get_ethnicity()
-    assert ethnicity!=None, "Ethnicity must be defined"
-    if ethnicity == "HighHindu":
-        # This was the reference level
-        pass
-    elif ethnicity == "HillTibeto":
-        inner += rcParams['marrtime.coef.ethnicHillTibeto']
-    elif ethnicity == "LowHindu":
-        inner += rcParams['marrtime.coef.ethnicLowHindu']
-    elif ethnicity == "Newar":
-        inner += rcParams['marrtime.coef.ethnicNewar']
-    elif ethnicity == "TeraiTibeto":
-        inner += rcParams['marrtime.coef.ethnicTeraiTibeto']
-
-    age = person.get_age_years()
-    inner += rcParams['marrtime.coef.age'] * age
-    inner += rcParams['marrtime.coef.age_squared'] * (age**2)
-    
-    prob = 1./(1 + np.exp(-inner))
-    if rcParams['log_stats_probabilities']:
-        logger.debug("Person %s marriage probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
-    return prob
-
 def calc_probability_marriage_zvoleff(person):
     """
     Calculates the probability of marriage for an agent, using the results of 
