@@ -70,9 +70,9 @@ def calc_first_birth_prob_zvoleff(person, time):
     neighborhood = person.get_parent_agent().get_parent_agent()
     # Convert nbh_area form square meters to square kilometers
     nbh_area = neighborhood._land_total / 1000000
+    inner += rcParams['firstbirth.zv.coef.total_t1'] * nbh_area
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
     inner += rcParams['firstbirth.zv.coef.percagveg_t1'] * percent_agveg
-    inner += rcParams['firstbirth.zv.coef.total_t1'] * nbh_area
     inner += rcParams['firstbirth.zv.coef.dist_nara'] * neighborhood._distnara
     inner += rcParams['firstbirth.zv.coef.elec_avail'] * neighborhood._elec_available
     inner += rcParams['firstbirth.zv.coef.avg_yrs_services_lt15'] * neighborhood._avg_yrs_services_lt15
@@ -149,23 +149,6 @@ def calc_probability_marriage_zvoleff(person, time):
     """
     inner = rcParams['marrtime.zv.coef.(Intercept)']
 
-    # Neighborhood characteristics
-    neighborhood = person.get_parent_agent().get_parent_agent()
-    if neighborhood._land_agveg == 0:
-        log_percent_agveg = 0
-    else:
-        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
-    inner += rcParams['marrtime.zv.coef.interp_logpercagveg'] * log_percent_agveg
-
-    # Schooling
-    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
-    if person.is_in_school():
-        inner += rcParams['marrtime.zv.coef.in_school_1996']
-
-    # Gender
-    if person.get_sex() == "female":
-        inner += rcParams['marrtime.zv.coef.genderfemale']
-
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
     if ethnicity == "HighHindu":
@@ -180,9 +163,32 @@ def calc_probability_marriage_zvoleff(person, time):
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['marrtime.zv.coef.ethnicTeraiTibeto']
 
+    # Gender
+    if person.get_sex() == "female":
+        inner += rcParams['marrtime.zv.coef.genderfemale']
+
     age = person.get_age_years()
     inner += rcParams['marrtime.zv.coef.age'] * age
     inner += rcParams['marrtime.zv.coef.I(age^2)'] * (age ** 2)
+
+    # Neighborhood characteristics
+    neighborhood = person.get_parent_agent().get_parent_agent()
+    if neighborhood._land_agveg == 0:
+        log_percent_agveg = 0
+    else:
+        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+    inner += rcParams['marrtime.zv.coef.interp_logpercagveg'] * log_percent_agveg
+
+    inner += rcParams['marrtime.zv.coef.SCHLFT_1996'] * neighborhood._school_min_ft
+    inner += rcParams['marrtime.zv.coef.HLTHFT_1996'] * neighborhood._health_min_ft
+    inner += rcParams['marrtime.zv.coef.BUSFT_1996'] * neighborhood._bus_min_ft
+    inner += rcParams['marrtime.zv.coef.MARFT_1996'] * neighborhood._market_min_ft
+    inner += rcParams['marrtime.zv.coef.EMPFT_1996'] * neighborhood._employer_min_ft
+
+    # Schooling
+    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
+    if person.is_in_school():
+        inner += rcParams['marrtime.zv.coef.in_school_1996']
 
     # Account for monthly differences in marriage rates - some days (and 
     # months) are more auspicious for marriage than others.
