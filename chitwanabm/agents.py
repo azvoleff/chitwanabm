@@ -907,7 +907,7 @@ class Region(Agent_set):
                 if (not person.is_married()) and \
                         (person.get_age_years() >= minimum_age) and \
                         (person.get_age_years() <= maximum_age) and \
-                        (np.random.rand() < calc_probability_marriage(person)):
+                        (np.random.rand() < calc_probability_marriage(person, time)):
                     # Agent is eligible to marry.
                     if person.get_sex() == "female": eligible_females.append(person)
                     if person.get_sex() == "male": eligible_males.append(person)

@@ -141,7 +141,7 @@ def calc_first_birth_prob_zvoleff(person, time):
         logger.debug("Person %s first birth probability %.6f (marriage_time: %s)"%(person.get_ID(), prob,  person._marriage_time))
     return prob
 
-def calc_probability_marriage_zvoleff(person):
+def calc_probability_marriage_zvoleff(person, time):
     """
     Calculates the probability of marriage for an agent, using the results of 
     Alex Zvoleff's empirical analysis of the CVFS data, following the results 
@@ -185,6 +185,35 @@ def calc_probability_marriage_zvoleff(person):
     age = person.get_age_years()
     inner += rcParams['marrtime.zv.coef.age'] * age
     inner += rcParams['marrtime.zv.coef.I(age^2)'] * (age ** 2)
+
+    # Account for monthly differences in marriage rates - some days (and 
+    # months) are more auspicious for marriage than others.
+    month_num = int(np.mod(np.round(time*12, 0), 12) + 1)
+    if month_num == 1:
+        # This was the reference level
+        pass
+    elif month_num == 2:
+        inner += rcParams['marrtime.zv.coef.month2']
+    elif month_num == 3:
+        inner += rcParams['marrtime.zv.coef.month3']
+    elif month_num == 4:
+        inner += rcParams['marrtime.zv.coef.month4']
+    elif month_num == 5:
+        inner += rcParams['marrtime.zv.coef.month5']
+    elif month_num == 6:
+        inner += rcParams['marrtime.zv.coef.month6']
+    elif month_num == 7:
+        inner += rcParams['marrtime.zv.coef.month7']
+    elif month_num == 8:
+        inner += rcParams['marrtime.zv.coef.month8']
+    elif month_num == 9:
+        inner += rcParams['marrtime.zv.coef.month9']
+    elif month_num == 10:
+        inner += rcParams['marrtime.zv.coef.month10']
+    elif month_num == 11:
+        inner += rcParams['marrtime.zv.coef.month11']
+    elif month_num == 12:
+        inner += rcParams['marrtime.zv.coef.month12']
     
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
