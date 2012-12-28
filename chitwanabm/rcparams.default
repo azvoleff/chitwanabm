@@ -211,17 +211,6 @@
 'firstbirth.zv.coef.schooling11' : [1.305 | validate_float]
 'firstbirth.zv.coef.intercept' : [-3.561 | validate_float]
 
-# Migration coefficents from Massey, Axinn, and Ghimire (2010).
-'migration.coef.intercept' : [-7.3658 | validate_float]
-'migration.coef.female' : [-0.46204 | validate_float]
-'migration.coef.ethnicLowHindu' : [0.12222 | validate_float]
-'migration.coef.ethnicNewar' : [0.05827 | validate_float]
-'migration.coef.ethnicHillTibeto' : [2.37862 | validate_float]
-'migration.coef.ethnicTeraiTibeto' : [0.36464 | validate_float]
-'migration.coef.age15-24' : [1.80665 | validate_float]
-'migration.coef.age24-34' : [1.36864 | validate_float]
-'migration.coef.age34-44' : [0.75142 | validate_float]
-
 # Migration coefficents from Zvoleff's analysis of CVFS household registry, 
 # following Massey, Axinn, and Ghimire (2010).
 'migration.zv.coef.in_school' : [-.198 | validate_float]

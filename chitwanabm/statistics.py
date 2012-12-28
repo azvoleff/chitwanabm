@@ -364,48 +364,6 @@ def calc_probability_migration_simple(person):
     elif person.get_sex() == 'male':
         return migration_probabilities_male[probability_index]
 
-def calc_probability_migration_masseyetal_2010(person):
-    """
-    Calculates the probability of long-distance migration in a given month for 
-    an agent, using the results of my empirical analysis drawing on the results 
-    of Massey, Axinn, and Ghimire (2010) Pop. and Environment paper.
-    """
-    #########################################################################
-    # Intercept
-    inner = rcParams['migration.coef.intercept']
-
-    if person.get_sex() == "female":
-        inner += rcParams['migration.coef.female']
-
-    #########################################################################
-    # Ethnicity (high caste hindu as reference case)
-    ethnicity = person.get_ethnicity()
-    assert ethnicity!=None, "Ethnicity must be defined"
-    if ethnicity == "HighHindu":
-        # This was the reference level
-        pass
-    elif ethnicity == "HillTibeto":
-        inner += rcParams['migration.coef.ethnicHillTibeto']
-    elif ethnicity == "LowHindu":
-        inner += rcParams['migration.coef.ethnicLowHindu']
-    elif ethnicity == "Newar":
-        inner += rcParams['migration.coef.ethnicNewar']
-    elif ethnicity == "TeraiTibeto":
-        inner += rcParams['migration.coef.ethnicTeraiTibeto']
-
-    age = person.get_age_years()
-    if (age >= 15) & (age <= 24):
-        inner += rcParams['migration.coef.age15-24']
-    elif (age > 24) & (age <= 34):
-        inner += rcParams['migration.coef.age24-34']
-    elif (age > 34) & (age <= 44):
-        inner += rcParams['migration.coef.age34-44']
-
-    prob = 1./(1 + np.exp(-inner))
-    if rcParams['log_stats_probabilities']:
-        logger.debug("Person %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
-    return prob
-
 def calc_probability_migration_zvoleff(person):
     """
     Calculates the probability of local-distant migration for an agent, using 
