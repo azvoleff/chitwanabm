@@ -160,7 +160,7 @@
 # Coefficients for first birth timing from Zvoleff's analysis of CVFS household 
 # registry, following Ghimire and Axinn (2010).
 'firstbirth.zv.coef.(Intercept)' : [-3.560683 | validate_float]
-'firstbirth.zv.coef.percagveg_t1' : [-0.003353 | validate_float]
+'firstbirth.zv.coef.percagveg_t1' : [0.005667 | validate_float]
 'firstbirth.zv.coef.elec_avail' : [0.260844 | validate_float]
 'firstbirth.zv.coef.avg_yrs_services_lt15' : [-0.004098 | validate_float]
 'firstbirth.zv.coef.dist_nara' : [0.007021 | validate_float]
