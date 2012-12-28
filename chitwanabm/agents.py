@@ -40,8 +40,7 @@ from chitwanabm import rc_params
 from chitwanabm.statistics import calc_probability_death, \
         calc_probability_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
-        calc_first_birth_prob_ghimireaxinn2010, calc_first_birth_prob_zvoleff, \
-        calc_probability_migration_masseyetal_2010, calc_migration_length, \
+        calc_first_birth_prob_zvoleff, calc_migration_length, \
         calc_education_level, calc_spouse_age_diff, choose_spouse, \
         calc_num_inmigrant_households, calc_inmigrant_household_ethnicity, \
         calc_inmigrant_household_size, calc_probability_HH_outmigration, \
