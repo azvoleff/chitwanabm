@@ -53,6 +53,9 @@
 # Whether to save NBH data to CSV periodically while running the model. This 
 # will slow down the model slightly.
 'save_NBH_data' : [True | validate_boolean]
+# Whether to save the model results to a pickled file at the end of the model 
+# (they will be saved to CSV either way).
+'save_pickled_end_results' : [False | validate_boolean]
 # Whether to save shapefiles of LULC periodically while running the model. This 
 # will slow down the model considerably.
 'save_LULC_shapefiles' : [False | validate_boolean]

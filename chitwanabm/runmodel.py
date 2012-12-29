@@ -203,12 +203,17 @@ def main():
     end_time = time.localtime()
     logger.info('Finished model run number %s'%run_ID_number)
     
-    # Save the results
-    logger.info("Saving results")
-    pop_data_file = os.path.join(results_path, "run_results.P")
-    output = open(pop_data_file, 'w')
-    pickle.dump(run_results, output)
-    output.close()
+    # Save the results to a pickled file
+    if rcParams['save_pickled_end_results']:
+        logger.info("Saving results")
+        pop_data_file = os.path.join(results_path, "run_results.P")
+        output = open(pop_data_file, 'w')
+        pickle.dump(run_results, output)
+        output.close()
+    # Save the results to a CSV
+    run_results = reformat_run_results(run_results)
+    run_results_csv_file = os.path.join(results_path, "run_results.csv")
+    write_results_csv(run_results, run_results_csv_file, "neighid")
 
     # Write neighborhood LULC, pop, x, y coordinates, etc. for the last 
     # timestep.
@@ -229,10 +234,6 @@ def main():
     # the path of the currently running chitwanabm code.
     git_diff_file = os.path.join(results_path, "git_diff.patch")
     commit_hash = save_git_diff(sys.path[0], git_diff_file)
-
-    run_results = reformat_run_results(run_results)
-    run_results_csv_file = os.path.join(results_path, "run_results.csv")
-    write_results_csv(run_results, run_results_csv_file, "neighid")
 
     time_csv_file = os.path.join(results_path, "time.csv")
     write_time_csv(time_strings, time_csv_file)
