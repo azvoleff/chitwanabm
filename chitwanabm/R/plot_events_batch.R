@@ -33,8 +33,6 @@ theme_set(theme_grey(base_size=16))
 update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/Double_Feedbacks"
-#DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/No_Feedbacks"
 
 calc_event_data <- function(event_type, run_path) {
     events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
