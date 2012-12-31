@@ -162,14 +162,14 @@ make_shaded_error_plot <- function(ens_res, ylabel, typelabel) {
         p + geom_line(aes(time.Robj, mean), data=ens_res.mean) +
             geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up),
                 alpha=.2, data=ens_res.sd) +
-            scale_fill_discrete(legend=F) +
+            scale_fill_discrete(guide='none') +
             labs(x="Years", y=ylabel)
     }
     else {
         p + geom_line(aes(time.Robj, mean, colour=Type), data=ens_res.mean) +
             geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up, fill=Type),
                 alpha=.2, data=ens_res.sd) +
-            scale_fill_discrete(legend=F) +
+            scale_fill_discrete(guide='none') +
             labs(x="Years", y=ylabel, colour=typelabel)
     }
 }

@@ -74,7 +74,7 @@ p + geom_line(aes(time_Robj, events, colour=Event_type, linetype=Data_type),
               data=all_events) +
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up, fill=Event_type),
                 alpha=.2, data=baseline_events.sds) +
-    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Events") +
+    scale_fill_discrete(guide='none') + labs(x="Year", y="Number of Events") +
     scale_color_discrete(name="Event Type",
                          breaks=c("births", "deaths", "marriages"),
                          labels=c("Births", "Deaths", "Marriages")) + 
@@ -89,7 +89,7 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
               data=all_events[all_events$Event_type=="marriages", ]) +
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up), alpha=.2, 
                 data=baseline_events.sds[all_events$Event_type=="marriages", ]) +
-    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Marriages") +
+    scale_fill_discrete(guide='none') + labs(x="Year", y="Number of Marriages") +
     scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
@@ -101,7 +101,7 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
               data=all_events[all_events$Event_type=="births", ]) +
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up), alpha=.2, 
                 data=baseline_events.sds[all_events$Event_type=="births", ]) +
-    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Births") +
+    scale_fill_discrete(guide='none') + labs(x="Year", y="Number of Births") +
     scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
@@ -114,7 +114,7 @@ p + geom_line(aes(time_Robj, events, linetype=Data_type),
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up),
                 alpha=.2, 
                 data=baseline_events.sds[all_events$Event_type=="deaths", ]) +
-    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Deaths") +
+    scale_fill_discrete(guide='none') + labs(x="Year", y="Number of Deaths") +
     scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
@@ -171,7 +171,7 @@ p + geom_line(aes(time_Robj, num_psn, linetype=Data_type),
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up),
                 alpha=.2, 
                 data=baseline_num_psn.sds) +
-    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Sample Population") +
+    scale_fill_discrete(guide='none') + labs(x="Year", y="Sample Population") +
     scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))
@@ -209,7 +209,7 @@ p + geom_line(aes(time_Robj, num_hs, linetype=Data_type),
     geom_ribbon(aes(x=time_Robj, ymin=lim.low, ymax=lim.up),
                 alpha=.2, 
                 data=baseline_num_HH.sds) +
-    scale_fill_discrete(legend=FALSE) + labs(x="Year", y="Number of Households") +
+    scale_fill_discrete(guide='none') + labs(x="Year", y="Number of Households") +
     scale_linetype_discrete(name="Data Source",
                             breaks=c("ABM", "CVFS"),
                             labels=c("ABM", "Observed"))

@@ -140,7 +140,7 @@ p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=sds) +
-    scale_fill_discrete(legend=F) +
+    scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "num_marriage_events.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
@@ -152,7 +152,7 @@ p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=sds) +
-    scale_fill_discrete(legend=F) +
+    scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "num_marriage_events_2_class.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)

@@ -110,7 +110,7 @@ p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=fb_int_means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=fb_int_sds) +
-    scale_fill_discrete(legend=F) +
+    scale_fill_discrete(guide='none') +
     labs(x="Years", y='Time to First Birth (months)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "first_birth_intervals.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
@@ -122,7 +122,7 @@ p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=fb_int_means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=fb_int_sds) +
-    scale_fill_discrete(legend=F) +
+    scale_fill_discrete(guide='none') +
     labs(x="Years", y='Time to First Birth (months)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "first_birth_intervals_2_class.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
@@ -152,7 +152,7 @@ p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=marr_age_means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=marr_age_sds) +
-    scale_fill_discrete(legend=F) +
+    scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Age (years)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "marriage_age.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
@@ -164,7 +164,7 @@ p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=marr_age_means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
         alpha=.2, data=marr_age_sds) +
-    scale_fill_discrete(legend=F) +
+    scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Age (years)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "marriage_age_2_class.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
