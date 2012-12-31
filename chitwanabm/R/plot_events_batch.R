@@ -34,15 +34,26 @@ update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
+directories <- list.dirs(DATA_PATH, recursive=FALSE)
+# Only match the model results folders - don't match any other folders or files 
+# in the directory, as trying to read results from these other files/folders 
+# would lead to an error.
+directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
+if (length(directories)<1) stop(paste("can't run plot_events_batch with", length(directories), "model runs."))
+if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
+
+time_values <- read.csv(paste(directories[1], "time.csv", sep="/"))
+time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
+        format="%m/%Y,%d")
+time_values <- cbind(time_values, time.Robj=time.Robj)
+time_values$year <- floor(time_values$time_float)
+
 calc_event_data <- function(event_type, run_path) {
     events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
     events <- events_data[grep('^(nid|time|event)$', names(events_data))]
     events <- events[events$event == event_type, ]
+    events <- merge(events, time_values, by.x="time", by.y="timestep")
     events <- cbind(events, ones=rep(1, nrow(events)))
-    # Below line is a kludge to work around times being stored in the results 
-    # as floats - they should really be stored as timesteps. TODO: Fix this in 
-    # the agent.py file.
-    events$year <- floor(events$time)
     event_count <- aggregate(events$ones, by=list(neighid=events$nid, year=events$year), sum)
     names(event_count)[grep('^x$', names(event_count))] <- 'num_events'
     # If event_type is Marriage, there is one row per new spouse, so the number 
@@ -65,20 +76,6 @@ calc_event_data <- function(event_type, run_path) {
 
     return(event_count)
 }
-
-directories <- list.dirs(DATA_PATH, recursive=FALSE)
-# Only match the model results folders - don't match any other folders or files 
-# in the directory, as trying to read results from these other files/folders 
-# would lead to an error.
-directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
-if (length(directories)<1) stop(paste("can't run plot_events_batch with", length(directories), "model runs."))
-if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
-
-time_values <- read.csv(paste(directories[1], "time.csv", sep="/"))
-time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
-        format="%m/%Y,%d")
-time_values <- cbind(time_values, time.Robj=time.Robj)
-time_values$year <- floor(time_values$time_float)
 
 event_type <- "Marriage"
 n <- 1

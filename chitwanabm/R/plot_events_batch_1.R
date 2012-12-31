@@ -30,18 +30,6 @@ update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
-calc_event_data <- function(event_type, run_path) {
-    events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
-    events <- events_data[grep('^(nid|age|time|event|marrtime)$', names(events_data))]
-    events <- events[events$event %in% event_type, ]
-    # Below line is a kludge to work around times being stored in the results 
-    # as floats - they should really be stored as timesteps. TODO: Fix this in 
-    # the agent.py file.
-    events$year <- floor(events$time)
-    events$fb_int <- (events$time - events$marrtime) * 12
-    return(events)
-}
-
 directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # Only match the model results folders - don't match any other folders or files 
 # in the directory, as trying to read results from these other files/folders 
@@ -55,6 +43,15 @@ time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
         format="%m/%Y,%d")
 time_values <- cbind(time_values, time.Robj=time.Robj)
 time_values$year <- floor(time_values$time_float)
+
+calc_event_data <- function(event_type, run_path) {
+    events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
+    events <- events_data[grep('^(nid|age|time|event|marrtime)$', names(events_data))]
+    events <- merge(events, time_values, by.x="time", by.y="timestep")
+    events <- events[events$event %in% event_type, ]
+    events$fb_int <- (events$time - events$marrtime) * 12
+    return(events)
+}
 
 event_type <- c("First birth", "Marriage")
 n <- 1
