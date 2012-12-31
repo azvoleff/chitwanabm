@@ -111,9 +111,12 @@ results <- read.csv(paste(directories[1], "run_results.csv", sep="/"))
 nbh.area <- apply(cbind(results$agveg.1, results$nonagveg.1, results$pubbldg.1,
             results$privbldg.1, results$other.1), 1, sum)
 results$pctagveg.1 <- (results$agveg.1 / nbh.area) * 100
-results$lctype <- cut(results$pctagveg.1, c(-.01, 25, 50, 75, 100), 
-                      labels=c('Urban', 'Mixed Urban', 'Mixed Agriculture', 
-                               'Agriculture'))
+#results$lctype <- cut(results$pctagveg.1, c(-.01, 25, 50, 75, 100), 
+#                      labels=c('Urban', 'Mixed Urban', 'Mixed Agriculture', 
+#                      'Agriculture'))
+results$lctype <- cut(results$pctagveg.1, quantile(results$pctagveg.1), 
+                      labels=c('1st quartile', '2nd quartile', '3rd quartile', 
+                               '4th quartile'))
 cover_types <- data.frame(neighid=results$neighid, lctype=results$lctype)
 events <- merge(events, cover_types)
 
@@ -132,7 +135,6 @@ sds <- data.frame(year=run_means$year, lctype=run_means$lctype,
 sds$lower_lim <- means$mean - (2 * sds$sd)
 sds$upper_lim <- means$mean + (2 * sds$sd)
 
-# Drop mixed classes:
 p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
@@ -143,8 +145,8 @@ ggsave(paste(DATA_PATH, "num_marriage_events.png", sep="/"), width=PLOT_WIDTH,
        height=PLOT_HEIGHT, dpi=300)
 
 # Drop mixed classes:
-sds <- sds[!grepl('Mixed', sds$lctype), ]
-means <- means[!grepl('Mixed', means$lctype), ]
+sds <- sds[!grepl('(2nd|3rd)', sds$lctype), ]
+means <- means[!grepl('(2nd|3rd)', means$lctype), ]
 p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),

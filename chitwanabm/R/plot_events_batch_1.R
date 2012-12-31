@@ -44,19 +44,19 @@ time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
 time_values <- cbind(time_values, time.Robj=time.Robj)
 time_values$year <- floor(time_values$time_float)
 
-calc_event_data <- function(event_type, run_path) {
+calc_first_birth_time <- function(event_type, run_path) {
     events_data <- read.csv(paste(run_path, "person_events.log", sep="/"), na.strings=c("NA", "None"))
     events <- events_data[grep('^(nid|age|time|event|marrtime)$', names(events_data))]
     events <- merge(events, time_values, by.x="time", by.y="timestep")
     events <- events[events$event %in% event_type, ]
-    events$fb_int <- (events$time - events$marrtime) * 12
+    events$fb_int <- round((events$time_float - events$marrtime) * 12, digits=0) 
     return(events)
 }
 
 event_type <- c("First birth", "Marriage")
 n <- 1
 for (directory in directories) {
-    possible_error <- tryCatch(events.new <- calc_event_data(event_type, directory), 
+    possible_error <- tryCatch(events.new <- calc_first_birth_time(event_type, directory), 
                                error=function(e) e)
     # Catch cases where results file does not exist (because run was 
     # interrupted, run is not yet finished, etc.)
@@ -76,9 +76,12 @@ results <- read.csv(paste(directories[1], "run_results.csv", sep="/"))
 nbh.area <- apply(cbind(results$agveg.1, results$nonagveg.1, results$pubbldg.1,
             results$privbldg.1, results$other.1), 1, sum)
 results$pctagveg.1 <- (results$agveg.1 / nbh.area) * 100
-results$lctype <- cut(results$pctagveg.1, c(-.01, 25, 50, 75, 100), 
-                      labels=c('Urban', 'Mixed Urban', 'Mixed Agriculture', 
-                               'Agriculture'))
+#results$lctype <- cut(results$pctagveg.1, c(-.01, 25, 50, 75, 100), 
+#                      labels=c('Urban', 'Mixed Urban', 'Mixed Agriculture', 
+#                      'Agriculture'))
+results$lctype <- cut(results$pctagveg.1, quantile(results$pctagveg.1), 
+                      labels=c('1st quartile', '2nd quartile', '3rd quartile', 
+                               '4th quartile'))
 cover_types <- data.frame(neighid=results$neighid, lctype=results$lctype)
 events <- merge(events, cover_types, by.x="nid", by.y="neighid")
 
@@ -113,8 +116,8 @@ ggsave(paste(DATA_PATH, "first_birth_intervals.png", sep="/"), width=PLOT_WIDTH,
        height=PLOT_HEIGHT, dpi=300)
 
 # Drop mixed classes:
-fb_int_sds <- fb_int_sds[!grepl('Mixed', fb_int_sds$lctype), ]
-fb_int_means <- fb_int_means[!grepl('Mixed', fb_int_means$lctype), ]
+fb_int_sds <- fb_int_sds[!grepl('(2nd|3rd)', fb_int_sds$lctype), ]
+fb_int_means <- fb_int_means[!grepl('(2nd|3rd)', fb_int_means$lctype), ]
 p <- ggplot()
 p + geom_line(aes(year, mean, colour=lctype), data=fb_int_means) +
     geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
