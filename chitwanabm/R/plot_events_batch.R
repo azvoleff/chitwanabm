@@ -115,8 +115,8 @@ results$pctagveg.1 <- (results$agveg.1 / nbh.area) * 100
 #                      labels=c('Urban', 'Mixed Urban', 'Mixed Agriculture', 
 #                      'Agriculture'))
 results$lctype <- cut(results$pctagveg.1, quantile(results$pctagveg.1), 
-                      labels=c('1st quartile', '2nd quartile', '3rd quartile', 
-                               '4th quartile'))
+                      labels=c('Urban', 'Semi-urban', 'Semi-agricultural', 
+                               'Agricultural'))
 cover_types <- data.frame(neighid=results$neighid, lctype=results$lctype)
 events <- merge(events, cover_types)
 
@@ -129,28 +129,30 @@ crude_rate_cols <- grep('num_events_crude_rate.', names(events))
 run_means <- aggregate(events[crude_rate_cols], by=list(year=events$year, lctype=events$lctype), mean)
 mean_cols <- grep('num_events_crude_rate.', names(run_means))
 means <- data.frame(year=run_means$year, lctype=run_means$lctype, 
-                    mean=apply(run_means[mean_cols], 1, mean))
-sds <- data.frame(year=run_means$year, lctype=run_means$lctype, 
-                  sd=apply(run_means[mean_cols], 1, sd))
-sds$lower_lim <- means$mean - (2 * sds$sd)
-sds$upper_lim <- means$mean + (2 * sds$sd)
+                    marriages.mean=apply(run_means[mean_cols], 1, mean))
+                  
+means$marriages.sd <- apply(run_means[mean_cols], 1, sd)
+means$year <- as.Date(as.character(means$year), format="%Y")
+
+write.csv(means, file=paste(DATA_PATH, "ens_results_marriage_rates.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
-p + geom_line(aes(year, mean, colour=lctype), data=means) +
-    geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
-        alpha=.2, data=sds) +
+p + geom_line(aes(year, marriages.mean, colour=lctype), data=means) +
+    geom_ribbon(aes(x=year, ymin=(marriages.mean - marriages.sd *2 ), 
+                    ymax=(marriages.mean + marriages.sd * 2), fill=lctype), 
+                alpha=.2, data=means) +
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "num_marriage_events.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
 
 # Drop mixed classes:
-sds <- sds[!grepl('(2nd|3rd)', sds$lctype), ]
-means <- means[!grepl('(2nd|3rd)', means$lctype), ]
+means <- means[!grepl('(Semi-urban|Semi-agricultural)', means$lctype), ]
 p <- ggplot()
-p + geom_line(aes(year, mean, colour=lctype), data=means) +
-    geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
-        alpha=.2, data=sds) +
+p + geom_line(aes(year, marriages.mean, colour=lctype), data=means) +
+    geom_ribbon(aes(x=year, ymin=(marriages.mean - marriages.sd *2 ), 
+                    ymax=(marriages.mean + marriages.sd * 2), fill=lctype), 
+                alpha=.2, data=means) +
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "num_marriage_events_2_class.png", sep="/"), width=PLOT_WIDTH, 
