@@ -64,7 +64,7 @@ for (directory in directories) {
 
 ens_results <- calc_ensemble_results(pop.results)
 save(ens_results, file=paste(DATA_PATH, "ens_results_pop.Rdata", sep="/"))
-write.csv(ens_results, file=paste(DATA_PATH, "ens_results_pop.csv", sep="/"))
+write.csv(ens_results, file=paste(DATA_PATH, "ens_results_pop.csv", sep="/"), row.names=FALSE)
 
 # First plot monthly event data
 # Column 1 is times, so that column is always needed
@@ -94,4 +94,4 @@ fw_usage <- fw_usage[!grepl("kg", names(fw_usage))]
 make_shaded_error_plot(fw_usage, "Metric Tons of Fuelwood", NA)
 ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
-write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"), row.names=F)
+write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"), row.names=FALSE)
