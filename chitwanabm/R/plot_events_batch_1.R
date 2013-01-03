@@ -80,13 +80,17 @@ results$pctagveg.1 <- (results$agveg.1 / nbh.area) * 100
 #                      labels=c('Urban', 'Mixed Urban', 'Mixed Agriculture', 
 #                      'Agriculture'))
 results$lctype <- cut(results$pctagveg.1, quantile(results$pctagveg.1), 
-                      labels=c('1st quartile', '2nd quartile', '3rd quartile', 
-                               '4th quartile'))
+                      labels=c('Urban', 'Semi-urban', 'Semi-agricultural', 
+                               'Agricultural'))
 cover_types <- data.frame(neighid=results$neighid, lctype=results$lctype)
 events <- merge(events, cover_types, by.x="nid", by.y="neighid")
 
 # First analyze first birth intervals:
 first_births <- events[events$event == "First birth", ]
+# Can't accurately calculate first birth time for women at beginning of the 
+# model, since their month of marriage is unknown (not included in the CVFS 
+# survey).
+first_births <- first_births[first_births$time_float >= 1999, ]
 mean_fb_int_allruns <- aggregate(first_births$fb_int, by=list(year=first_births$year, 
                                                         runname=first_births$runname, 
                                                         lctype=first_births$lctype), 
@@ -97,31 +101,31 @@ names(mean_fb_int_allruns)[grep('^x$', names(mean_fb_int_allruns))] <-
 fb_int_means <- aggregate(mean_fb_int_allruns$mean_fb_int, 
                           by=list(year=mean_fb_int_allruns$year, 
                                   lctype=mean_fb_int_allruns$lctype), mean)
-names(fb_int_means)[grep('^x$', names(fb_int_means))] <- 'mean'
+names(fb_int_means)[grep('^x$', names(fb_int_means))] <- 'fb_int.mean'
 fb_int_sds <- aggregate(mean_fb_int_allruns$mean_fb_int, 
                         by=list(year=mean_fb_int_allruns$year, 
                                 lctype=mean_fb_int_allruns$lctype), sd)
-names(fb_int_sds)[grep('^x$', names(fb_int_sds))] <- 'sd'
-fb_int_sds$lower_lim <- fb_int_means$mean - (2 * fb_int_sds$sd)
-fb_int_sds$upper_lim <- fb_int_means$mean + (2 * fb_int_sds$sd)
+fb_int_means$fb_int.sd <- fb_int_sds$x
+fb_int_means$year <- as.Date(as.character(fb_int_means$year), format="%Y")
+write.csv(fb_int_means, file=paste(DATA_PATH, "ens_results_marriage_fb_ints.csv", sep="/"), row.names=FALSE)
 
-# Drop mixed classes:
 p <- ggplot()
-p + geom_line(aes(year, mean, colour=lctype), data=fb_int_means) +
-    geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
-        alpha=.2, data=fb_int_sds) +
+p + geom_line(aes(year, fb_int.mean, colour=lctype), data=fb_int_means) +
+    geom_ribbon(aes(x=year, ymin=(fb_int.mean - 2 * fb_int.sd), 
+                    ymax=(fb_int.mean + 2 * fb_int.sd), fill=lctype),
+        alpha=.2, data=fb_int_means) +
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Time to First Birth (months)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "first_birth_intervals.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
 
 # Drop mixed classes:
-fb_int_sds <- fb_int_sds[!grepl('(2nd|3rd)', fb_int_sds$lctype), ]
-fb_int_means <- fb_int_means[!grepl('(2nd|3rd)', fb_int_means$lctype), ]
+fb_int_means_2class <- fb_int_means[!grepl('(Semi-urban|Semi-agricultural)', fb_int_means$lctype), ]
 p <- ggplot()
-p + geom_line(aes(year, mean, colour=lctype), data=fb_int_means) +
-    geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
-        alpha=.2, data=fb_int_sds) +
+p + geom_line(aes(year, fb_int.mean, colour=lctype), data=fb_int_means_2class) +
+    geom_ribbon(aes(x=year, ymin=(fb_int.mean - 2 * fb_int.sd), 
+                    ymax=(fb_int.mean + 2 * fb_int.sd), fill=lctype),
+        alpha=.2, data=fb_int_means_2class) +
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Time to First Birth (months)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "first_birth_intervals_2_class.png", sep="/"), width=PLOT_WIDTH, 
@@ -129,6 +133,7 @@ ggsave(paste(DATA_PATH, "first_birth_intervals_2_class.png", sep="/"), width=PLO
 
 # Now analyze marriage times
 marriages <- events[events$event == "Marriage", ]
+marriages <- marriages[marriages$time_float >= 1999, ]
 mean_marr_age_allruns <- aggregate(marriages$age, by=list(year=marriages$year, 
                                                         runname=marriages$runname, 
                                                         lctype=marriages$lctype), 
@@ -139,31 +144,31 @@ names(mean_marr_age_allruns)[grep('^x$', names(mean_marr_age_allruns))] <-
 marr_age_means <- aggregate(mean_marr_age_allruns$mean_marr_age, 
                           by=list(year=mean_marr_age_allruns$year, 
                                   lctype=mean_marr_age_allruns$lctype), mean)
-names(marr_age_means)[grep('^x$', names(marr_age_means))] <- 'mean'
+names(marr_age_means)[grep('^x$', names(marr_age_means))] <- 'marr_age.mean'
 marr_age_sds <- aggregate(mean_marr_age_allruns$mean_marr_age, 
                         by=list(year=mean_marr_age_allruns$year, 
                                 lctype=mean_marr_age_allruns$lctype), sd)
-names(marr_age_sds)[grep('^x$', names(marr_age_sds))] <- 'sd'
-marr_age_sds$lower_lim <- marr_age_means$mean - (2 * marr_age_sds$sd)
-marr_age_sds$upper_lim <- marr_age_means$mean + (2 * marr_age_sds$sd)
+marr_age_means$marr_age.sd <- marr_age_sds$x
+marr_age_means$year <- as.Date(as.character(marr_age_means$year), format="%Y")
+write.csv(marr_age_means, file=paste(DATA_PATH, "ens_results_marriage_ages.csv", sep="/"), row.names=FALSE)
 
-# Drop mixed classes:
 p <- ggplot()
-p + geom_line(aes(year, mean, colour=lctype), data=marr_age_means) +
-    geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
-        alpha=.2, data=marr_age_sds) +
+p + geom_line(aes(year, marr_age.mean, colour=lctype), data=marr_age_means) +
+    geom_ribbon(aes(x=year, ymin=(marr_age.mean - 2 * marr_age.sd), 
+                    ymax=(marr_age.mean + 2 * marr_age.sd), fill=lctype),
+        alpha=.2, data=marr_age_means) +
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Age (years)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "marriage_age.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=300)
 
 # Drop mixed classes:
-marr_age_sds <- marr_age_sds[!grepl('Mixed', marr_age_sds$lctype), ]
-marr_age_means <- marr_age_means[!grepl('Mixed', marr_age_means$lctype), ]
+marr_age_means_2class <- marr_age_means[!grepl('(Semi-urban|Semi-agricultural)', marr_age_means$lctype), ]
 p <- ggplot()
-p + geom_line(aes(year, mean, colour=lctype), data=marr_age_means) +
-    geom_ribbon(aes(x=year, ymin=lower_lim, ymax=upper_lim, fill=lctype),
-        alpha=.2, data=marr_age_sds) +
+p + geom_line(aes(year, marr_age.mean, colour=lctype), data=marr_age_means_2class) +
+    geom_ribbon(aes(x=year, ymin=(marr_age.mean - 2 * marr_age.sd), 
+                    ymax=(marr_age.mean + 2 * marr_age.sd), fill=lctype),
+        alpha=.2, data=marr_age_means_2class) +
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Marriage Age (years)', colour="Cover Class")
 ggsave(paste(DATA_PATH, "marriage_age_2_class.png", sep="/"), width=PLOT_WIDTH, 
