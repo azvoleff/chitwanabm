@@ -106,12 +106,12 @@ fb_int_sds <- aggregate(mean_fb_int_allruns$mean_fb_int,
                         by=list(year=mean_fb_int_allruns$year, 
                                 lctype=mean_fb_int_allruns$lctype), sd)
 fb_int_means$fb_int.sd <- fb_int_sds$x
-fb_int_means$year <- as.Date(as.character(fb_int_means$year), format="%Y")
+fb_int_means$time.Robj <- as.Date(as.character(fb_int_means$year), format="%Y")
 write.csv(fb_int_means, file=paste(DATA_PATH, "ens_results_marriage_fb_ints.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
-p + geom_line(aes(year, fb_int.mean, colour=lctype), data=fb_int_means) +
-    geom_ribbon(aes(x=year, ymin=(fb_int.mean - 2 * fb_int.sd), 
+p + geom_line(aes(time.Robj, fb_int.mean, colour=lctype), data=fb_int_means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(fb_int.mean - 2 * fb_int.sd), 
                     ymax=(fb_int.mean + 2 * fb_int.sd), fill=lctype),
         alpha=.2, data=fb_int_means) +
     scale_fill_discrete(guide='none') +
@@ -122,8 +122,8 @@ ggsave(paste(DATA_PATH, "first_birth_intervals.png", sep="/"), width=PLOT_WIDTH,
 # Drop mixed classes:
 fb_int_means_2class <- fb_int_means[!grepl('(Semi-urban|Semi-agricultural)', fb_int_means$lctype), ]
 p <- ggplot()
-p + geom_line(aes(year, fb_int.mean, colour=lctype), data=fb_int_means_2class) +
-    geom_ribbon(aes(x=year, ymin=(fb_int.mean - 2 * fb_int.sd), 
+p + geom_line(aes(time.Robj, fb_int.mean, colour=lctype), data=fb_int_means_2class) +
+    geom_ribbon(aes(x=time.Robj, ymin=(fb_int.mean - 2 * fb_int.sd), 
                     ymax=(fb_int.mean + 2 * fb_int.sd), fill=lctype),
         alpha=.2, data=fb_int_means_2class) +
     scale_fill_discrete(guide='none') +
@@ -149,12 +149,12 @@ marr_age_sds <- aggregate(mean_marr_age_allruns$mean_marr_age,
                         by=list(year=mean_marr_age_allruns$year, 
                                 lctype=mean_marr_age_allruns$lctype), sd)
 marr_age_means$marr_age.sd <- marr_age_sds$x
-marr_age_means$year <- as.Date(as.character(marr_age_means$year), format="%Y")
+marr_age_means$time.Robj <- as.Date(as.character(marr_age_means$year), format="%Y")
 write.csv(marr_age_means, file=paste(DATA_PATH, "ens_results_marriage_ages.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
-p + geom_line(aes(year, marr_age.mean, colour=lctype), data=marr_age_means) +
-    geom_ribbon(aes(x=year, ymin=(marr_age.mean - 2 * marr_age.sd), 
+p + geom_line(aes(time.Robj, marr_age.mean, colour=lctype), data=marr_age_means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marr_age.mean - 2 * marr_age.sd), 
                     ymax=(marr_age.mean + 2 * marr_age.sd), fill=lctype),
         alpha=.2, data=marr_age_means) +
     scale_fill_discrete(guide='none') +
@@ -165,8 +165,8 @@ ggsave(paste(DATA_PATH, "marriage_age.png", sep="/"), width=PLOT_WIDTH,
 # Drop mixed classes:
 marr_age_means_2class <- marr_age_means[!grepl('(Semi-urban|Semi-agricultural)', marr_age_means$lctype), ]
 p <- ggplot()
-p + geom_line(aes(year, marr_age.mean, colour=lctype), data=marr_age_means_2class) +
-    geom_ribbon(aes(x=year, ymin=(marr_age.mean - 2 * marr_age.sd), 
+p + geom_line(aes(time.Robj, marr_age.mean, colour=lctype), data=marr_age_means_2class) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marr_age.mean - 2 * marr_age.sd), 
                     ymax=(marr_age.mean + 2 * marr_age.sd), fill=lctype),
         alpha=.2, data=marr_age_means_2class) +
     scale_fill_discrete(guide='none') +

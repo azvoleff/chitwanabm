@@ -125,3 +125,8 @@ plot_scenario_comparison("ens_results_LULC.csv",
                          low_scenario_name, mid_scenario_name, 
                          high_scenario_name, 'privbldg',
                          "Percent Private Buildings")
+
+plot_scenario_comparison("ens_results_LULC.csv", 
+                         low_scenario_name, mid_scenario_name, 
+                         high_scenario_name, 'privbldg',
+                         "Percent Private Buildings")

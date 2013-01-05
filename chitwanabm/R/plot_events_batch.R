@@ -132,13 +132,13 @@ means <- data.frame(year=run_means$year, lctype=run_means$lctype,
                     marriages.mean=apply(run_means[mean_cols], 1, mean))
                   
 means$marriages.sd <- apply(run_means[mean_cols], 1, sd)
-means$year <- as.Date(as.character(means$year), format="%Y")
+means$time.Robj <- as.Date(as.character(means$year), format="%Y")
 
 write.csv(means, file=paste(DATA_PATH, "ens_results_marriage_rates.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
-p + geom_line(aes(year, marriages.mean, colour=lctype), data=means) +
-    geom_ribbon(aes(x=year, ymin=(marriages.mean - marriages.sd *2 ), 
+p + geom_line(aes(time.Robj, marriages.mean, colour=lctype), data=means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marriages.mean - marriages.sd *2 ), 
                     ymax=(marriages.mean + marriages.sd * 2), fill=lctype), 
                 alpha=.2, data=means) +
     scale_fill_discrete(guide='none') +
@@ -149,8 +149,8 @@ ggsave(paste(DATA_PATH, "num_marriage_events.png", sep="/"), width=PLOT_WIDTH,
 # Drop mixed classes:
 means <- means[!grepl('(Semi-urban|Semi-agricultural)', means$lctype), ]
 p <- ggplot()
-p + geom_line(aes(year, marriages.mean, colour=lctype), data=means) +
-    geom_ribbon(aes(x=year, ymin=(marriages.mean - marriages.sd *2 ), 
+p + geom_line(aes(time.Robj, marriages.mean, colour=lctype), data=means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marriages.mean - marriages.sd *2 ), 
                     ymax=(marriages.mean + marriages.sd * 2), fill=lctype), 
                 alpha=.2, data=means) +
     scale_fill_discrete(guide='none') +
