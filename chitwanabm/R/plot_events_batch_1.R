@@ -107,7 +107,7 @@ fb_int_sds <- aggregate(mean_fb_int_allruns$mean_fb_int,
                                 lctype=mean_fb_int_allruns$lctype), sd)
 fb_int_means$fb_int.sd <- fb_int_sds$x
 fb_int_means$time.Robj <- as.Date(as.character(fb_int_means$year), format="%Y")
-write.csv(fb_int_means, file=paste(DATA_PATH, "ens_results_marriage_fb_ints.csv", sep="/"), row.names=FALSE)
+write.csv(fb_int_means, file=paste(DATA_PATH, "ens_results_fb_ints.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
 p + geom_line(aes(time.Robj, fb_int.mean, colour=lctype), data=fb_int_means) +
