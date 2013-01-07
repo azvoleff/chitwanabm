@@ -173,10 +173,7 @@ def calc_probability_marriage_zvoleff(person, time):
 
     # Neighborhood characteristics
     neighborhood = person.get_parent_agent().get_parent_agent()
-    if neighborhood._land_agveg == 0:
-        log_percent_agveg = 0
-    else:
-        log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100)
+    log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100 + 1)
     inner += rcParams['marrtime.zv.coef.interp_logpercagveg'] * log_percent_agveg
 
     inner += rcParams['marrtime.zv.coef.SCHLFT_1996'] * neighborhood._school_min_ft
