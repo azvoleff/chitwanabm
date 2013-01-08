@@ -180,21 +180,29 @@ def main():
         except:
             logger.warning('Error tailing model log file: %s'%sys.exc_info()[1])
 
-    if rcParams['model.reinitialize']:
-        # Generate a new world (with new resampling, etc.)
-        world = generate_world()
-        if world == 1:
-            logger.critical('Error initializing model world')
-            return 1
-    else:
-        # Load a pickled World for use in the model.
-        input_data_file = rcParams['path.input_data_file']
-        file = open(input_data_file, "r")
-        try:
-            world = pickle.load(file)
-        except IOError:
-            logger.critical('Error loading world data from  %s'%input_data_file)
-            return 1
+    # TODO: Fix the loading of a pickled world. For now, force regenerating the 
+    # world each model run.
+    # if rcParams['model.reinitialize']:
+    #     # Generate a new world (with new resampling, etc.)
+    #     world = generate_world()
+    #     if world == 1:
+    #         logger.critical('Error initializing model world')
+    #         return 1
+    # else:
+    #     # Load a pickled World for use in the model.
+    #     input_data_file = rcParams['path.input_data_file']
+    #     file = open(input_data_file, "r")
+    #     try:
+    #         world = pickle.load(file)
+    #     except IOError:
+    #         logger.critical('Error loading world data from  %s'%input_data_file)
+    #         return 1
+    
+    # Generate a new world (with new resampling, etc.)
+    world = generate_world()
+    if world == 1:
+        logger.critical('Error initializing model world')
+        return 1
 
     # Run the model loop
     start_time = time.localtime()
