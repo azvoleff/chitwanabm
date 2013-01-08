@@ -68,7 +68,7 @@ def calc_first_birth_prob_zvoleff(person, time):
     #########################################################################
     # Adult community context
     neighborhood = person.get_parent_agent().get_parent_agent()
-    # Convert nbh_area form square meters to square kilometers
+    # Convert nbh_area from square meters to square kilometers
     nbh_area = neighborhood._land_total / 1000000
     inner += rcParams['firstbirth.zv.coef.total_t1'] * nbh_area
     percent_agveg = (neighborhood._land_agveg / neighborhood._land_total) * 100
