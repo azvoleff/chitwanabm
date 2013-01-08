@@ -84,6 +84,46 @@ calc_agg_LULC <- function(DATA_PATH) {
     return(lulc.sd.mean)
 }
 
+calc_rate_change_agveg <- function(DATA_PATH) {
+    # Make plots of LULC for a model run.
+    results <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
+            na.strings=c("NA", "nan"))
+
+    agveg.cols <- grep('^agveg.[0-9]*$', names(results))
+    nonagveg.cols <- grep('^nonagveg.[0-9]*$', names(results))
+    pubbldg.cols <- grep('^pubbldg.[0-9]*$', names(results))
+    privbldg.cols <- grep('^privbldg.[0-9]*$', names(results))
+    other.cols <- grep('^other.[0-9]*$', names(results))
+
+    # Calculate the total land area of each neighborhood
+    lulc <- data.frame(nid=results$neighid, 
+                       nbh_area=apply(cbind(results$agveg.1, 
+                                            results$nonagveg.1, 
+                                            results$pubbldg.1,
+                                            results$privbldg.1,
+                                            results$other.1), 1, sum),
+                       results[agveg.cols[3:length(agveg.cols)]])
+    # Note that agveg.0 is not included, since it is not defined (it is 0 for 
+    # all the neighborhoods).
+    agveg_change <- results[agveg.cols[3:length(agveg.cols)]] - results[agveg.cols[2:(length(agveg.cols) - 1)]]
+    names(agveg_change) <- gsub('agveg', 'agveg_change', names(agveg_change))
+    agveg_changepct <- data.frame(apply(agveg_change, 2, function(x) x / lulc$nbh_area) * 100)
+    names(agveg_changepct) <- gsub('agveg_change', 'agveg_changepct', names(agveg_changepct))
+    lulc <- cbind(lulc, agveg_change, agveg_changepct)
+    agveg_vars <- names(lulc)[grep('^agveg.[0-9]*$', names(lulc))]
+    agveg_change_vars <- names(lulc)[grep('^agveg_change.[0-9]*$', names(lulc))]
+    agveg_changepct_vars <- names(lulc)[grep('^agveg_changepct.[0-9]*$', names(lulc))]
+
+
+    lulc <- reshape(lulc, idvar="nid", v.names=c("agveg", "agveg_change", 
+                                                 "agveg_changepct"), 
+                    varying=list(agveg_vars, agveg_change_vars, 
+                                                    agveg_changepct_vars), 
+                    direction="long")
+
+    return(lulc)
+}
+
 calc_NBH_pop <- function(DATA_PATH) {
     model.results <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
             na.strings=c("NA", "nan"))
