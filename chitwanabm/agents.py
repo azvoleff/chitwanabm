@@ -944,10 +944,10 @@ class Region(Agent_set):
             else:
                 spouse_sex = "female"
                 spouse_age_months = person.get_age_months() - age_diff_months
-            if spouse_age_months < rcParams['marriage.minimum_age_years']:
-                spouse_age_months = rcParams['marriage.minimum_age_years']
+            if spouse_age_months < (rcParams['marriage.minimum_age_years'] * 12.):
+                spouse_age_months = (rcParams['marriage.minimum_age_years'] * 12.)
             # Create the spouse:
-            spouse_birthdate = time - spouse_age_months/12.
+            spouse_birthdate = time - spouse_age_months / 12.
             spouse = self._world.new_person(birthdate=spouse_birthdate, 
                     age=spouse_age_months, sex=spouse_sex,
                     ethnicity=person.get_ethnicity(), in_migrant=True)
