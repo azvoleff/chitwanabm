@@ -21,7 +21,7 @@
 # contact information.
 
 ###############################################################################
-# Plots the LULC data from a model runp.
+# Plots the LULC data from a model run.
 ###############################################################################
 
 library(ggplot2, quietly=TRUE)
@@ -38,6 +38,8 @@ script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2050/HH_Fission_Low_nofeedbacks/20130106-183907_azvoleff-think"
+DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2050/HH_Fission_Low_nofeedbacks"
 
 directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # Only match the model results folders - don't match any other folders or files 
@@ -59,8 +61,10 @@ for (directory in directories) {
     }
     runname <- paste("run", n, sep="")
     names(lulc.new) <- paste(names(lulc.new), runname, sep=".")
+
     if (n==1) lulc.agg <- lulc.new 
-    else  lulc.agg <- cbind(lulc.agg, lulc.new)
+    else lulc.agg <- cbind(lulc.agg, lulc.new)
+
     n <- n + 1
 }
 
@@ -71,6 +75,64 @@ write.csv(ens_results, file=paste(DATA_PATH, "ens_results_LULC.csv", sep="/"))
 make_shaded_error_plot(ens_results, "Mean Percentage of Neighborhood", "LULC Type")
 ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
+
+n <- 1
+for (directory in directories) {
+    possible_error <- tryCatch(lulc.new <- calc_rate_change_agveg(directory), 
+                               error=function(e) e)
+    # Catch cases where results file does not exist (because run was 
+    # interrupted, run is not yet finished, etc.)
+    if (inherits(possible_error, "error")) {
+        warning(paste("Error reading", directory))
+        next
+    }
+    runname <- paste("run", n, sep="")
+    lulc.new$run <- runname
+
+    if (n==1) lulc <- lulc.new 
+    else lulc <- rbind(lulc, lulc.new)
+
+    if (n==4) break
+}
+
+lulc$agveg_changepct <- (lulc$agveg_changepct / lulc$nbh_area) * 100
+lulc$year <- as.Date(cut(lulc$time.Robj, "year"))
+
+lulc$lctype <- cut(lulc$agveg, quantile(lulc$agveg), labels=c('Urban', 
+                                                              'Semi-urban', 
+                                                              'Semi-agricultural', 
+                                                              'Agricultural'))
+lulc$lctype[is.na(lulc$lctype)] <- levels(lulc$lctype)[1]
+
+# Convert agricultural vegetation areal units from square meters to hectares
+lulc$agveg_change_ha <- lulc$agveg_change * .0001
+agveg_annual_change <-  aggregate(lulc$agveg_change_ha,
+                          by=list(time.Robj=lulc$year, nid=lulc$nid, 
+                                  lctype=lulc$lctype), sum)
+names(agveg_annual_change)[grep('^x$', names(agveg_annual_change))] <- 'agveg_change_ha'
+agveg_change_ha_means <- aggregate(agveg_annual_change$agveg_change_ha, 
+                                   by=list(time.Robj=agveg_annual_change$time.Robj, 
+                                   lctype=agveg_annual_change$lctype), 
+                                   mean)
+names(agveg_change_ha_means)[grep('^x$', names(agveg_change_ha_means))] <- 'agveg_change_ha.mean'
+agveg_change_ha_means.sd <- aggregate(agveg_annual_change$agveg_change_ha,
+                                      by=list(time.Robj=agveg_annual_change$time.Robj, 
+                                              lctype=agveg_annual_change$lctype), 
+                                      sd)
+names(agveg_change_ha_means.sd)[grep('^x$', names(agveg_change_ha_means.sd))] <- 'agveg_change_ha.sd'
+agveg_change_ha_means <- merge(agveg_change_ha_means, agveg_change_ha_means.sd)
+
+p <- ggplot()
+p + geom_line(aes(time.Robj, agveg_change_ha.mean, colour=lctype), data=agveg_change_ha_means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(agveg_change_ha.mean - 2 * agveg_change_ha.sd), 
+                    ymax=(agveg_change_ha.mean + 2 * agveg_change_ha.sd), fill=lctype),
+        alpha=.2, data=agveg_change_ha_means) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Mean Annual Change in Agricultural Veg. (hectares)', colour="Initial Land-use Class")
+ggsave(paste(DATA_PATH, "lulc_agveg_change_ha.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+save(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.Rdata", sep="/"))
+write.csv(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.csv", sep="/"))
 
 ###############################################################################
 # Now make a map of kriged LULC

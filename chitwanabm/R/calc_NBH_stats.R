@@ -107,19 +107,20 @@ calc_rate_change_agveg <- function(DATA_PATH) {
     # all the neighborhoods).
     agveg_change <- results[agveg.cols[3:length(agveg.cols)]] - results[agveg.cols[2:(length(agveg.cols) - 1)]]
     names(agveg_change) <- gsub('agveg', 'agveg_change', names(agveg_change))
-    agveg_changepct <- data.frame(apply(agveg_change, 2, function(x) x / lulc$nbh_area) * 100)
-    names(agveg_changepct) <- gsub('agveg_change', 'agveg_changepct', names(agveg_changepct))
-    lulc <- cbind(lulc, agveg_change, agveg_changepct)
+    lulc <- cbind(lulc, agveg_change)
     agveg_vars <- names(lulc)[grep('^agveg.[0-9]*$', names(lulc))]
     agveg_change_vars <- names(lulc)[grep('^agveg_change.[0-9]*$', names(lulc))]
-    agveg_changepct_vars <- names(lulc)[grep('^agveg_changepct.[0-9]*$', names(lulc))]
 
-
-    lulc <- reshape(lulc, idvar="nid", v.names=c("agveg", "agveg_change", 
-                                                 "agveg_changepct"), 
-                    varying=list(agveg_vars, agveg_change_vars, 
-                                                    agveg_changepct_vars), 
+    lulc <- reshape(lulc, idvar="nid", v.names=c("agveg", "agveg_change"),
+                    varying=list(agveg_vars, agveg_change_vars),
                     direction="long")
+
+    time.values <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
+    time.Robj <- as.Date(paste(time.values$time_date, "15", sep=","),
+            format="%m/%Y,%d")
+    time.values <- cbind(time.values, time.Robj=time.Robj)
+
+    lulc$time.Robj <- time.values$time.Robj[match(lulc$time, time.values$timestep)]
 
     return(lulc)
 }
