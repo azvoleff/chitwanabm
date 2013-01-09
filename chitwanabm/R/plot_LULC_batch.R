@@ -38,8 +38,6 @@ script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2050/HH_Fission_Low_nofeedbacks/20130106-183907_azvoleff-think"
-DATA_PATH <- "G:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2050/HH_Fission_Low_nofeedbacks"
 
 directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # Only match the model results folders - don't match any other folders or files 
