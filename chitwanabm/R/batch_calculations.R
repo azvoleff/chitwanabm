@@ -1,0 +1,263 @@
+#!/usr/bin/env Rscript
+#
+# Copyright 2008-2012 Alex Zvoleff
+#
+# This file is part of the chitwanabm agent-based model.
+# 
+# chitwanabm is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+# 
+# chitwanabm is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along with
+# chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Contact Alex Zvoleff in the Department of Geography at San Diego State 
+# University with any comments or questions. See the README.txt file for 
+# contact information.
+
+###############################################################################
+# Initialize variables and packages
+###############################################################################
+library(ggplot2)
+
+PLOT_WIDTH = 8.33
+PLOT_HEIGHT = 5.53
+theme_set(theme_grey(base_size=16))
+update_geom_defaults("line", aes(size=1))
+
+DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/Half_Feedbacks_firstbirthscenarios"
+
+directories <- list.dirs(DATA_PATH, recursive=FALSE)
+# Only match the model results folders - don't match any other folders or files 
+# in the directory, as trying to read results from these other files/folders 
+# would lead to an error.
+directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
+if (length(directories)<1) stop(paste("can't run plot_events_batch with", length(directories), "model runs."))
+if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
+
+###############################################################################
+# Helper Functions
+###############################################################################
+
+calc_event_count <- function(event_type, events_data, results) {
+    events <- events_data[grep('^(nid|time|event)$', names(events_data))]
+    events <- events[events$event == event_type, ]
+    events <- merge(events, time_values, by.x="time", by.y="timestep")
+    events <- cbind(events, ones=rep(1, nrow(events)))
+    event_count <- aggregate(events$ones, by=list(neighid=events$nid, year=events$year), sum)
+    names(event_count)[grep('^x$', names(event_count))] <- 'num_events'
+    # If event_type is Marriage, there is one row per new spouse, so the number 
+    # of events needs to be halved to get the number of new marriages.
+    if (event_type == "Marriage") event_count$num_events <- event_count$num_events / 2
+
+    # Normalize events by population of village during that year (using the 
+    # population in the first month of the year the events occurred).
+    num_psn_cols <- grep('^num_psn.', names(results))
+    neigh_pop_cols <- grep('^(neighid|num_psn.)', names(results))
+    neigh_pop <- reshape(results[neigh_pop_cols], direction="long", 
+                            idvar="neighid", varying=c(2:ncol(results[neigh_pop_cols])))
+    neigh_pop$year <- floor(1997 + (neigh_pop$time-1)/12)
+    nbh_pop <- neigh_pop$num_psn[match(paste(event_count$neighid, 
+                                             event_count$year), 
+                                       paste(neigh_pop$neighid, 
+                                             neigh_pop$year))]
+    event_count$num_events_crude_rate <- (event_count$num_events/nbh_pop) * 1000
+    return(event_count)
+}
+
+calc_first_birth_time <- function(event_type, events_data) {
+    events <- events_data[grep('^(nid|age|gender|time|event|marrtime|is_initial_agent|is_in_migrant|pid)$', names(events_data))]
+    events <- merge(events, time_values, by.x="time", by.y="timestep")
+    events <- events[events$event %in% event_type, ]
+    events$fb_int <- round((events$time_float - events$marrtime) * 12, digits=0) 
+    return(events)
+}
+
+calc_agg_LULC <- function(results, time_values) {
+    agveg.cols <- grep('^agveg.[0-9]*$', names(results))
+    nonagveg.cols <- grep('^nonagveg.[0-9]*$', names(results))
+    pubbldg.cols <- grep('^pubbldg.[0-9]*$', names(results))
+    privbldg.cols <- grep('^privbldg.[0-9]*$', names(results))
+    other.cols <- grep('^other.[0-9]*$', names(results))
+
+    # Calculate the total land area of each neighborhood
+    nbh.area <- apply(cbind(results$agveg.1, results$nonagveg.1, results$pubbldg.1,
+            results$privbldg.1, results$other.1), 1, sum)
+
+    # And convert the LULC measurements from units of square meters to units 
+    # that are a percentage of total neighborhood area.
+    lulc.sd <- results / nbh.area
+    lulc.sd.mean <- data.frame(time.Robj=time.Robj,
+            agveg=apply(lulc.sd[agveg.cols], 2, mean),
+            nonagveg=apply(lulc.sd[nonagveg.cols], 2, mean),
+            pubbldg=apply(lulc.sd[pubbldg.cols], 2, mean),
+            privbldg=apply(lulc.sd[privbldg.cols], 2, mean),
+            other=apply(lulc.sd[other.cols], 2, mean), row.names=NULL)
+
+    return(lulc.sd.mean)
+}
+
+calc_rate_change_agveg <- function(DATA_PATH) {
+    # Make plots of LULC for a model run.
+    results <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
+            na.strings=c("NA", "nan"))
+
+    agveg.cols <- grep('^agveg.[0-9]*$', names(results))
+    nonagveg.cols <- grep('^nonagveg.[0-9]*$', names(results))
+    pubbldg.cols <- grep('^pubbldg.[0-9]*$', names(results))
+    privbldg.cols <- grep('^privbldg.[0-9]*$', names(results))
+    other.cols <- grep('^other.[0-9]*$', names(results))
+
+    # Calculate the total land area of each neighborhood
+    lulc <- data.frame(nid=results$neighid, 
+                       nbh_area=apply(cbind(results$agveg.1, 
+                                            results$nonagveg.1, 
+                                            results$pubbldg.1,
+                                            results$privbldg.1,
+                                            results$other.1), 1, sum),
+                       results[agveg.cols[3:length(agveg.cols)]])
+    # Note that agveg.0 is not included, since it is not defined (it is 0 for 
+    # all the neighborhoods).
+    agveg_change <- results[agveg.cols[3:length(agveg.cols)]] - results[agveg.cols[2:(length(agveg.cols) - 1)]]
+    names(agveg_change) <- gsub('agveg', 'agveg_change', names(agveg_change))
+    lulc <- cbind(lulc, agveg_change)
+    agveg_vars <- names(lulc)[grep('^agveg.[0-9]*$', names(lulc))]
+    agveg_change_vars <- names(lulc)[grep('^agveg_change.[0-9]*$', names(lulc))]
+
+    lulc <- reshape(lulc, idvar="nid", v.names=c("agveg", "agveg_change"),
+                    varying=list(agveg_vars, agveg_change_vars),
+                    direction="long")
+
+    time_values <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
+    time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
+            format="%m/%Y,%d")
+    time_values <- cbind(time_values, time.Robj=time.Robj)
+
+    lulc$time.Robj <- time_values$time.Robj[match(lulc$time, time_values$timestep)]
+
+    return(lulc)
+}
+
+calc_NBH_LULC <- function(DATA_PATH, timestep) {
+    # Make plots of LULC for a model run.
+    lulc <- read.csv(paste(DATA_PATH, "/NBHs_time_", timestep, ".csv", sep=""))
+
+    agveg.col <- grep('^agveg.*$', names(lulc))
+    nonagveg.col <- grep('^nonagveg.*$', names(lulc))
+    pubbldg.col <- grep('^pubbldg.*$', names(lulc))
+    privbldg.col <- grep('^privbldg.*$', names(lulc))
+    other.col <- grep('^other.*$', names(lulc))
+
+    # Calculate the total land area of each neighborhood
+    nbh.area <- apply(cbind(lulc$agveg, lulc$nonagveg, lulc$pubbldg,
+            lulc$privbldg, lulc$other), 1, sum)
+
+    # And convert the LULC measurements from units of square meters to units 
+    # that are a percentage of total neighborhood area.
+    lulc.sd <- lulc/nbh.area
+
+    lulc.nbh <- data.frame(nid=lulc$nid, x=lulc$x, y=lulc$y, agveg=lulc.sd[agveg.col],
+            nonagveg=lulc.sd[nonagveg.col], pubbldg=lulc.sd[pubbldg.col],
+            privbldg=lulc.sd[privbldg.col], other=lulc.sd[other.col])
+
+    return(lulc.nbh)
+}
+
+###############################################################################
+# Main loop
+###############################################################################
+
+n <- 1
+for (directory in directories) {
+    runname <- paste("run", n, sep="")
+
+    ###########################################################################
+    # First load data
+    events_data <- read.csv(paste(directory, "person_events.log", sep="/"), na.strings=c("NA", "None"))
+    results <- read.csv(paste(directory, "run_results.csv", sep="/"))
+
+    time_values <- read.csv(paste(directory, "time.csv", sep="/"))
+    time.Robj <- as.Date(paste(time_values$time_date, "15", sep=","),
+            format="%m/%Y,%d")
+    time_values <- cbind(time_values, time.Robj=time.Robj)
+    time_values$year <- as.Date(cut(time_values$time.Robj, "year"))
+
+    ###########################################################################
+    # Make land cover type key, by neighborhood, for later use
+    nbh.area <- apply(cbind(results$agveg.1, results$nonagveg.1, results$pubbldg.1,
+                results$privbldg.1, results$other.1), 1, sum)
+    lcdata <- data.frame(nid=results$neighid, pctagveg.initial=(results$agveg.1 / nbh.area) * 100)
+    final_agveg_col <- grep(paste('^agveg.', max(time_values$timestep), '$', sep=""), names(results))
+    lcdata$pctagveg.final  <- (results[, final_agveg_col] / nbh.area) * 100
+    lcdata$pctagveg.change <- lcdata$pctagveg.initial - lcdata$pctagveg.final
+    # Also calculate difference in log of percent, since model uses log percent
+    lcdata$pctagveg.lninitial <- log(lcdata$pctagveg.initial + 1)
+    lcdata$pctagveg.lnfinal <- log(lcdata$pctagveg.final + 1)
+    lcdata$pctagveg.lnchange <- lcdata$pctagveg.lninitial - lcdata$pctagveg.lnfinal
+
+    ###########################################################################
+    # Handle calculation of marriage rates
+    marriage_events.new <- calc_event_count("Marriage", events_data, results)
+    runname <- paste("run", n, sep="")
+    num_events_cols <- grep('num_events', names(marriage_events.new))
+    names(marriage_events.new)[num_events_cols] <- paste(names(marriage_events.new[num_events_cols]), runname, sep=".")
+    if (n==1) {marriage_events <- marriage_events.new}
+    else {marriage_events <- merge(marriage_events, marriage_events.new, all=TRUE)}
+
+    ###########################################################################
+    # Handle calculation of first birth timing and of marriage ages
+    events.new <- calc_first_birth_time(c("First birth", "Marriage"), events_data)
+    events.new <- cbind(events.new, runname=rep(runname, nrow(events.new)))
+
+    # Merge the land cover type data so results can be plotted by cover class
+    events.new <- merge(events.new, lcdata)
+
+    if (n==1) {events <- events.new}
+    else {events <- rbind(events, events.new)}
+ 
+    ###########################################################################
+    # Handle calculation of change in land use
+    lulc.new <- calc_agg_LULC(results, time_values)
+    names(lulc.new) <- paste(names(lulc.new), runname, sep=".")
+
+    if (n==1) lulc.agg <- lulc.new 
+    else lulc.agg <- cbind(lulc.agg, lulc.new)
+
+    ###########################################################################
+    # Handle calculation of rate of change of land use
+    lulc.rtchange.new <- calc_rate_change_agveg(directory)
+    lulc.rtchange.new$run <- runname
+
+    if (n==1) lulc.rtchange <- lulc.rtchange.new 
+    else lulc.rtchange <- rbind(lulc.rtchange, lulc.rtchange.new)
+
+    ###########################################################################
+    # Get final land cover in each neighborhood.
+    # lulc.new <- calc_NBH_LULC(results, max(time_values$timestep))
+    # vars <- !grepl('^(nid|x|y)$', names(lulc.new))
+    # runname <- paste("run", n, sep="")
+    # names(lulc.new)[vars]<- paste(names(lulc.new)[vars], runname, sep=".")
+    # if (n==1) {
+    #     names(lulc.new)[grep('nid.run1', names(lulc.new))] <- "nid"
+    #     lulc.nbh <- lulc.new 
+    # }
+    # else {
+    #     lulc.new <- lulc.new[-grep('nid', names(lulc.new))]
+    #     lulc.nbh <- cbind(lulc.nbh, lulc.new)
+    # }
+
+    n <- n + 1
+}
+
+
+save(lcdata, paste(DATA_PATH, "lcdata.Rdata", sep="/"))
+save(marriage_events, paste(DATA_PATH, "marriage_events.Rdata", sep="/"))
+save(events, paste(DATA_PATH, "events.Rdata", sep="/"))
+save(lulc.agg, paste(DATA_PATH, "lulc.agg.Rdata", sep="/"))
+save(lulc.rtchange, paste(DATA_PATH, "lulc.rtchange.Rdata", sep="/"))
