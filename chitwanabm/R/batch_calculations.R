@@ -169,6 +169,37 @@ calc_NBH_LULC <- function(DATA_PATH, timestep) {
     return(lulc.nbh)
 }
 
+calc_NBH_pop <- function(results, time_values) {
+    num_psn.cols <- grep('^num_psn.[0-9]*$', names(results))
+    num_hs.cols <- grep('^num_hs.[0-9]*$', names(results))
+    # num_marr is total number of marriages in the neighborhood, whereas marr is 
+    # the number of new marriages in a particular month.
+    num_marr.cols <- grep('^num_marr.[0-9]*$', names(results))
+    marr.cols <- grep('^marr.[0-9]*$', names(results))
+    births.cols <- grep('^births.[0-9]*$', names(results))
+    deaths.cols <- grep('^deaths.[0-9]*$', names(results))
+    out_migr_indiv.cols <- grep('^out_migr_indiv.[0-9]*$', names(results))
+    ret_migr_indiv.cols <- grep('^ret_migr_indiv.[0-9]*$', names(results))
+    in_migr_HH.cols <- grep('^in_migr_HH.[0-9]*$', names(results))
+    out_migr_HH.cols <- grep('^out_migr_HH.[0-9]*$', names(results))
+    fw_usage.cols <- grep('^fw_usage.[0-9]*$', names(results))
+
+    pop_results <- data.frame(time.Robj=time_values$time.Robj,
+            marr=apply(results[marr.cols], 2, sum), 
+            births=apply(results[births.cols], 2, sum), 
+            deaths=apply(results[deaths.cols], 2, sum),
+            out_migr_indiv=apply(results[out_migr_indiv.cols], 2, sum),
+            ret_migr_indiv=apply(results[ret_migr_indiv.cols], 2, sum), 
+            in_migr_HH=apply(results[in_migr_HH.cols], 2, sum), 
+            out_migr_HH=apply(results[out_migr_HH.cols], 2, sum),
+            num_hs=apply(results[num_hs.cols], 2, sum), 
+            num_marr=apply(results[num_marr.cols], 2, sum),
+            num_psn=apply(results[num_psn.cols], 2, sum),
+            fw_usage_kg=apply(results[fw_usage.cols], 2, sum))
+
+    return(pop_results)
+}
+
 ###############################################################################
 # Main loop
 ###############################################################################
@@ -238,6 +269,13 @@ for (directory in directories) {
     else lulc.rtchange <- rbind(lulc.rtchange, lulc.rtchange.new)
 
     ###########################################################################
+    # Handle calculation of neighborhood-level population characteristics
+    pop.results.new <- calc_NBH_pop(results, time_values)
+    names(pop.results.new) <- paste(names(pop.results.new), runname, sep=".")
+    if (n==1) pop.results <- pop.results.new 
+    else pop.results <- cbind(pop.results, pop.results.new)
+
+    ###########################################################################
     # Get final land cover in each neighborhood.
     # lulc.new <- calc_NBH_LULC(results, max(time_values$timestep))
     # vars <- !grepl('^(nid|x|y)$', names(lulc.new))
@@ -255,9 +293,13 @@ for (directory in directories) {
     n <- n + 1
 }
 
-
-save(lcdata, paste(DATA_PATH, "lcdata.Rdata", sep="/"))
-save(marriage_events, paste(DATA_PATH, "marriage_events.Rdata", sep="/"))
-save(events, paste(DATA_PATH, "events.Rdata", sep="/"))
-save(lulc.agg, paste(DATA_PATH, "lulc.agg.Rdata", sep="/"))
-save(lulc.rtchange, paste(DATA_PATH, "lulc.rtchange.Rdata", sep="/"))
+###########################################################################
+# Output data, as Rdata files to save space
+###########################################################################
+save(nbh_coords, file=paste(DATA_PATH, "nbh_coords.Rdata", sep="/"))
+save(lcdata, file=paste(DATA_PATH, "lcdata.Rdata", sep="/"))
+save(marriage_events, file=paste(DATA_PATH, "marriage_events.Rdata", sep="/"))
+save(events, file=paste(DATA_PATH, "events.Rdata", sep="/"))
+save(lulc.agg, file=paste(DATA_PATH, "lulc.agg.Rdata", sep="/"))
+save(lulc.rtchange, file=paste(DATA_PATH, "lulc.rtchange.Rdata", sep="/"))
+save(pop.results, file=paste(DATA_PATH, "pop.results.Rdata", sep="/"))
