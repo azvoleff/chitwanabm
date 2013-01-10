@@ -73,27 +73,30 @@ calc_first_birth_time <- function(event_type, events_data) {
 }
 
 calc_agg_LULC <- function(results, time_values) {
-    agveg.cols <- grep('^agveg.[0-9]*$', names(results))
-    nonagveg.cols <- grep('^nonagveg.[0-9]*$', names(results))
-    pubbldg.cols <- grep('^pubbldg.[0-9]*$', names(results))
-    privbldg.cols <- grep('^privbldg.[0-9]*$', names(results))
-    other.cols <- grep('^other.[0-9]*$', names(results))
-
     # Calculate the total land area of each neighborhood
     nbh.area <- apply(cbind(results$agveg.1, results$nonagveg.1, results$pubbldg.1,
             results$privbldg.1, results$other.1), 1, sum)
 
     # And convert the LULC measurements from units of square meters to units 
     # that are a percentage of total neighborhood area.
-    lulc.sd <- results / nbh.area
-    lulc.sd.mean <- data.frame(time.Robj=time.Robj,
-            agveg=apply(lulc.sd[agveg.cols], 2, mean),
-            nonagveg=apply(lulc.sd[nonagveg.cols], 2, mean),
-            pubbldg=apply(lulc.sd[pubbldg.cols], 2, mean),
-            privbldg=apply(lulc.sd[privbldg.cols], 2, mean),
-            other=apply(lulc.sd[other.cols], 2, mean), row.names=NULL)
+    lulc_cols <- grep('^(agveg|nonagveg|pubbldg|privbldg|other).[0-9]*$', 
+                      names(results))
+    lulc_pct <- results[lulc_cols] / nbh.area
 
-    return(lulc.sd.mean)
+    agveg.cols <- grep('^agveg.[0-9]*$', names(lulc_pct))
+    nonagveg.cols <- grep('^nonagveg.[0-9]*$', names(lulc_pct))
+    pubbldg.cols <- grep('^pubbldg.[0-9]*$', names(lulc_pct))
+    privbldg.cols <- grep('^privbldg.[0-9]*$', names(lulc_pct))
+    other.cols <- grep('^other.[0-9]*$', names(lulc_pct))
+
+    lulc_pct.mean <- data.frame(time.Robj=time_values$time.Robj,
+            agveg=apply(lulc_pct[agveg.cols], 2, mean),
+            nonagveg=apply(lulc_pct[nonagveg.cols], 2, mean),
+            pubbldg=apply(lulc_pct[pubbldg.cols], 2, mean),
+            privbldg=apply(lulc_pct[privbldg.cols], 2, mean),
+            other=apply(lulc_pct[other.cols], 2, mean), row.names=NULL)
+
+    return(lulc_pct.mean)
 }
 
 calc_rate_change_agveg <- function(DATA_PATH) {
@@ -265,6 +268,7 @@ for (directory in directories) {
     # Handle calculation of neighborhood-level population characteristics
     pop.results.new <- calc_NBH_pop(results, time_values)
     names(pop.results.new) <- paste(names(pop.results.new), runname, sep=".")
+
     if (n==1) pop.results <- pop.results.new 
     else pop.results <- cbind(pop.results, pop.results.new)
 
@@ -287,9 +291,15 @@ for (directory in directories) {
 }
 
 ###########################################################################
+# Copy some miscellaneous files to the main model output folder
+###########################################################################
+flag <- file.copy(paste(directories[1], "chitwanabm_world_mask.tif", sep="/"), 
+                  paste(DATA_PATH, "chitwanabm_world_mask.tif", sep="/"))
+
+###########################################################################
 # Output data, as Rdata files to save space
 ###########################################################################
-save(nbh_coords, file=paste(DATA_PATH, "nbh_coords.Rdata", sep="/"))
+#save(nbh_coords, file=paste(DATA_PATH, "nbh_coords.Rdata", sep="/"))
 save(lcdata, file=paste(DATA_PATH, "lcdata.Rdata", sep="/"))
 save(marriage_events, file=paste(DATA_PATH, "marriage_events.Rdata", sep="/"))
 save(events, file=paste(DATA_PATH, "events.Rdata", sep="/"))
