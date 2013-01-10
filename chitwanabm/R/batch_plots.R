@@ -21,15 +21,16 @@
 # contact information.
 
 ###############################################################################
-# Plots the LULC data from a model run.
+# Initialize variables and packages, and setup plotting defaults.
 ###############################################################################
 
-library(ggplot2, quietly=TRUE)
+library(ggplot2)
 library(gstat)
 library(rgdal)
 
-PLOT_WIDTH = 8.33
-PLOT_HEIGHT = 5.53
+PLOT_WIDTH <- 8.33
+PLOT_HEIGHT <- 5.53
+DPI <- 300
 
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="
@@ -38,75 +39,84 @@ script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/Half_Feedbacks_firstbirthscenarios"
+DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/Half_Feedbacks_marriagescenarios"
+DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/No_Feedbacks_firstbirthscenarios"
 
-directories <- list.dirs(DATA_PATH, recursive=FALSE)
-# Only match the model results folders - don't match any other folders or files 
-# in the directory, as trying to read results from these other files/folders 
-# would lead to an error.
-directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
-if (length(directories)<1) stop(paste("can't run plot_LULC_batch with", length(directories), "model runs."))
-if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
+###########################################################################
+# Helper functions
+###########################################################################
 
-n <- 1
-for (directory in directories) {
-    possible_error <- tryCatch(lulc.new <- calc_agg_LULC(directory), 
-                               error=function(e) e)
-    # Catch cases where results file does not exist (because run was 
-    # interrupted, run is not yet finished, etc.)
-    if (inherits(possible_error, "error")) {
-        warning(paste("Error reading", directory))
-        next
-    }
-    runname <- paste("run", n, sep="")
-    names(lulc.new) <- paste(names(lulc.new), runname, sep=".")
+###########################################################################
+# Plot population characteristics
+###########################################################################
+load(file=paste(DATA_PATH, "pop_results.Rdata", sep="/"))
+ens_results <- calc_ensemble_results(pop_results)
+save(ens_results, file=paste(DATA_PATH, "ens_results_pop.Rdata", sep="/"))
+write.csv(ens_results, file=paste(DATA_PATH, "ens_results_pop.csv", sep="/"), row.names=FALSE)
 
-    if (n==1) lulc.agg <- lulc.new 
-    else lulc.agg <- cbind(lulc.agg, lulc.new)
+# First plot monthly event data
+# Column 1 is times, so that column is always needed
+events <- ens_results[c(1, grep("^(marr|births|deaths)", names(ens_results)))]
+make_shaded_error_plot(events, "Number of Events", "Event Type")
+ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
+        dpi=DPI)
 
-    n <- n + 1
-}
+# Now plot total households and total marriages
+num.hs.marr <- ens_results[c(1, grep("^(num_marr|num_hs)", names(ens_results)))]
+make_shaded_error_plot(num.hs.marr, "Number", "Type")
+ggsave(paste(DATA_PATH, "pop_num_hs_marr.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
+        dpi=DPI)
 
-ens_results <- calc_ensemble_results(lulc.agg)
+# Plot total population
+num_psn <- ens_results[c(1, grep("^(num_psn)", names(ens_results)))]
+make_shaded_error_plot(num_psn, "Total Population", NA)
+ggsave(paste(DATA_PATH, "pop_num_psn.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=DPI)
+
+# Plot fw consumption in metric tons
+fw_usage <- ens_results[c(1, grep("^(fw_usage)", names(ens_results)))]
+# fw consumption is in tons per person per month
+fw_usage$fw_usage_metrictons.mean <- fw_usage$fw_usage_kg.mean/1000
+fw_usage$fw_usage_metrictons.sd <- fw_usage$fw_usage_kg.sd/1000
+fw_usage <- fw_usage[!grepl("kg", names(fw_usage))]
+make_shaded_error_plot(fw_usage, "Metric Tons of Fuelwood", NA)
+ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=300)
+write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"), row.names=FALSE)
+
+###########################################################################
+# Plot aggregate land use
+###########################################################################
+load(file=paste(DATA_PATH, "lulc_agg.Rdata", sep="/"))
+
+ens_results <- calc_ensemble_results(lulc_agg)
 save(ens_results, file=paste(DATA_PATH, "ens_results_LULC.Rdata", sep="/"))
 write.csv(ens_results, file=paste(DATA_PATH, "ens_results_LULC.csv", sep="/"))
 
 make_shaded_error_plot(ens_results, "Mean Percentage of Neighborhood", "LULC Type")
 ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
-        height=PLOT_HEIGHT, dpi=300)
+        height=PLOT_HEIGHT, dpi=DPI)
 
-n <- 1
-for (directory in directories) {
-    possible_error <- tryCatch(lulc.new <- calc_rate_change_agveg(directory), 
-                               error=function(e) e)
-    # Catch cases where results file does not exist (because run was 
-    # interrupted, run is not yet finished, etc.)
-    if (inherits(possible_error, "error")) {
-        warning(paste("Error reading", directory))
-        next
-    }
-    runname <- paste("run", n, sep="")
-    lulc.new$run <- runname
+###########################################################################
+# Plot rate of change of agricultural vegetation
+###########################################################################
+load(file=paste(DATA_PATH, "lulc_rtchange.Rdata", sep="/"))
 
-    if (n==1) lulc <- lulc.new 
-    else lulc <- rbind(lulc, lulc.new)
+lulc_rtchange$agveg_changepct <- (lulc_rtchange$agveg_change / lulc_rtchange$nbh_area) * 100
+lulc_rtchange$year <- as.Date(cut(lulc_rtchange$time.Robj, "year"))
 
-    if (n==4) break
-}
-
-lulc$agveg_changepct <- (lulc$agveg_changepct / lulc$nbh_area) * 100
-lulc$year <- as.Date(cut(lulc$time.Robj, "year"))
-
-lulc$lctype <- cut(lulc$agveg, quantile(lulc$agveg), labels=c('Urban', 
+lulc_rtchange$lctype <- cut(lulc_rtchange$agveg, quantile(lulc_rtchange$agveg), labels=c('Urban', 
                                                               'Semi-urban', 
                                                               'Semi-agricultural', 
                                                               'Agricultural'))
-lulc$lctype[is.na(lulc$lctype)] <- levels(lulc$lctype)[1]
+lulc_rtchange$lctype[is.na(lulc_rtchange$lctype)] <- levels(lulc_rtchange$lctype)[1]
 
 # Convert agricultural vegetation areal units from square meters to hectares
-lulc$agveg_change_ha <- lulc$agveg_change * .0001
-agveg_annual_change <-  aggregate(lulc$agveg_change_ha,
-                          by=list(time.Robj=lulc$year, nid=lulc$nid, 
-                                  lctype=lulc$lctype), sum)
+lulc_rtchange$agveg_change_ha <- lulc_rtchange$agveg_change * .0001
+agveg_annual_change <-  aggregate(lulc_rtchange$agveg_change_ha,
+                          by=list(time.Robj=lulc_rtchange$year, nid=lulc_rtchange$nid, 
+                                  lctype=lulc_rtchange$lctype), sum)
 names(agveg_annual_change)[grep('^x$', names(agveg_annual_change))] <- 'agveg_change_ha'
 agveg_change_ha_means <- aggregate(agveg_annual_change$agveg_change_ha, 
                                    by=list(time.Robj=agveg_annual_change$time.Robj, 
@@ -128,59 +138,47 @@ p + geom_line(aes(time.Robj, agveg_change_ha.mean, colour=lctype), data=agveg_ch
     scale_fill_discrete(guide='none') +
     labs(x="Years", y='Mean Annual Change in Agricultural Veg. (hectares)', colour="Initial Land-use Class")
 ggsave(paste(DATA_PATH, "lulc_agveg_change_ha.png", sep="/"), width=PLOT_WIDTH, 
-       height=PLOT_HEIGHT, dpi=300)
+       height=PLOT_HEIGHT, dpi=DPI)
 save(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.Rdata", sep="/"))
 write.csv(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.csv", sep="/"))
 
-###############################################################################
-# Now make a map of kriged LULC
+###########################################################################
+# Now make a map of kriged land cover for the final timestep
+###########################################################################
 
 # First load the grid on which to Krige. This GeoTIFF also will be used to mask 
 # the final kriging results. The world mask can be loaded from any of the 
 # chitwanabm model output folders (they all should match since they all should 
 # represent the same scenario).
-world_mask_file <- paste(directories[1], "chitwanabm_world_mask.tif", sep="/") 
+world_mask_file <- paste(DATA_PATH, "chitwanabm_world_mask.tif", sep="/")
 kriglocations <- readGDAL(world_mask_file)
 if (length(unique(kriglocations$band1)) != 2) stop("ERROR: chitwanabm_world_mask.tif is not a binary raster")
 kriglocations$band1[kriglocations$band1==min(kriglocations$band1)] <- 0
 kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
 
-n <- 1
-for (directory in directories) {
-    possible_error <- tryCatch(lulc.new <- calc_NBH_LULC(directory, "END"),
-                               error=function(e) e)
-    # Catch cases where results file does not exist (because run was 
-    # interrupted, run is not yet finished, etc.)
-    if (inherits(possible_error, "error")) {
-        warning(paste("Error reading", directory))
-        next
-    }
-    vars <- !grepl('^(nid|x|y)$', names(lulc.new))
-    runname <- paste("run", n, sep="")
-    names(lulc.new)[vars]<- paste(names(lulc.new)[vars], runname, sep=".")
-    if (n==1) {
-        names(lulc.new)[grep('nid.run1', names(lulc.new))] <- "nid"
-        lulc.nbh <- lulc.new 
-    }
-    else {
-        lulc.new <- lulc.new[-grep('nid', names(lulc.new))]
-        lulc.nbh <- cbind(lulc.nbh, lulc.new)
-    }
-    n <- n + 1
-} 
+# TODO: For now, load the recoded NBH data to get the NBH coordinates. These 
+# coordinates should be loaded directly from the model - they should be stored 
+# in the model results.
+load("V:/Nepal/ICPSR_0538_Restricted/Recode/recoded_NBH_data.Rdata")
+NBH_LULC <- data.frame(nid=as.numeric(nbh_recode$NEIGHID), x=nbh_recode$NX, y=nbh_recode$NY)
+NBH_LULC <- NBH_LULC[NBH_LULC$nid <= 151, ]
 
-NBH_LULC <- calc_ensemble_results_NBH(lulc.nbh)
-save(NBH_LULC, file=paste(DATA_PATH, "NBH_LULC.Rdata", sep="/"))
-write.csv(NBH_LULC, file=paste(DATA_PATH, "NBH_LULC_LULC.csv", sep="/"))
+load(file=paste(DATA_PATH, "lulc_nbh.Rdata", sep="/"))
+
+agveg_final_col <- grep(paste('^agveg.', max(time_values$timestep), sep=''), 
+                        names(lulc_nbh))
+lulc_nbh$final_agvegpct <- (lulc_nbh[, agveg_final_col] / lulc_nbh$nbh_area) * 100
+mean_agveg <- aggregate(lulc_nbh$final_agvegpct, by=list(lulc_nbh$nid), mean)
+NBH_LULC$agveg_final_pct.mean <- mean_agveg$x
 
 NBH_LULC.spatial <- SpatialPointsDataFrame(cbind(NBH_LULC$x, NBH_LULC$y), NBH_LULC,
         coords.nrs=c(3,4), proj4string=CRS(proj4string(kriglocations)))
 
 # Use ordinary kriging
-v <- variogram(agveg.mean~1, NBH_LULC.spatial)
+v <- variogram(agveg_final_pct.mean~1, NBH_LULC.spatial)
 v.fit <- fit.variogram(v, vgm(1, "Exp", 6000, .05))
 v.fit <- fit.variogram(v, vgm(1, "Sph", 6000, .05))
-krigged.ord <- krige(agveg.mean~1, NBH_LULC.spatial, kriglocations, v.fit)
+krigged.ord <- krige(agveg_final_pct.mean~1, NBH_LULC.spatial, kriglocations, v.fit)
 
 krigged.ord.pred <- krigged.ord["var1.pred"]
 # Mask out areas outside Chitwan using the study area mask. Set areas outside 
@@ -201,7 +199,7 @@ writeGDAL(classed, fname=paste(DATA_PATH,
 
 ###############################################################################
 # Check the kriging results with cross-validation
-krigged.ord.cv5 <- krige.cv(agveg.mean~1, NBH_LULC.spatial, v.fit, nfold=5)
+krigged.ord.cv5 <- krige.cv(agveg_final_pct.mean~1, NBH_LULC.spatial, v.fit, nfold=5)
 # correlation observed and predicted, ideally 1
 cor.obs.pred <- cor(krigged.ord.cv5$observed,
         krigged.ord.cv5$observed - krigged.ord.cv5$residual)
@@ -225,7 +223,7 @@ i3 <- list("sp.text", c(xcoord, ycoord),
                 format(paste("Cor. Pred. Resid.:",  round(cor.pred.resid, 4)), width=30))
 ycoord <- ycoord + deltay
 png(filename=paste(DATA_PATH, "batch_LULC_ordinary_krig_endofrun_bubble.png", sep="/"),
-        width=8.33, height=5.33, units="in", res=300)
+        width=8.33, height=5.33, units="in", res=DPI)
 bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
         maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3),
         key.entries=c(-.5, -.25, -.1, .1, .25, .5))
