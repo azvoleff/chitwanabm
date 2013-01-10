@@ -140,31 +140,6 @@ calc_rate_change_agveg <- function(DATA_PATH) {
     return(lulc)
 }
 
-calc_NBH_LULC <- function(DATA_PATH, timestep) {
-    # Make plots of LULC for a model run.
-    lulc <- read.csv(paste(DATA_PATH, "/NBHs_time_", timestep, ".csv", sep=""))
-
-    agveg.col <- grep('^agveg.*$', names(lulc))
-    nonagveg.col <- grep('^nonagveg.*$', names(lulc))
-    pubbldg.col <- grep('^pubbldg.*$', names(lulc))
-    privbldg.col <- grep('^privbldg.*$', names(lulc))
-    other.col <- grep('^other.*$', names(lulc))
-
-    # Calculate the total land area of each neighborhood
-    nbh_area <- apply(cbind(lulc$agveg, lulc$nonagveg, lulc$pubbldg,
-            lulc$privbldg, lulc$other), 1, sum)
-
-    # And convert the LULC measurements from units of square meters to units 
-    # that are a percentage of total neighborhood area.
-    lulc.sd <- lulc/nbh_area
-
-    lulc_nbh <- data.frame(nid=lulc$nid, x=lulc$x, y=lulc$y, agveg=lulc.sd[agveg.col],
-            nonagveg=lulc.sd[nonagveg.col], pubbldg=lulc.sd[pubbldg.col],
-            privbldg=lulc.sd[privbldg.col], other=lulc.sd[other.col])
-
-    return(lulc_nbh)
-}
-
 calc_NBH_pop <- function(results, time_values) {
     num_psn.cols <- grep('^num_psn.[0-9]*$', names(results))
     num_hs.cols <- grep('^num_hs.[0-9]*$', names(results))
@@ -284,21 +259,6 @@ for (directory in directories) {
 
     if (n==1) pop_results <- pop_results.new 
     else pop_results <- cbind(pop_results, pop_results.new)
-
-    ###########################################################################
-    # Get final land cover in each neighborhood.
-    # lulc.new <- calc_NBH_LULC(results, max(time_values$timestep))
-    # vars <- !grepl('^(nid|x|y)$', names(lulc.new))
-    # runname <- paste("run", n, sep="")
-    # names(lulc.new)[vars]<- paste(names(lulc.new)[vars], runname, sep=".")
-    # if (n==1) {
-    #     names(lulc.new)[grep('nid.run1', names(lulc.new))] <- "nid"
-    #     lulc_nbh <- lulc.new 
-    # }
-    # else {
-    #     lulc.new <- lulc.new[-grep('nid', names(lulc.new))]
-    #     lulc_nbh <- cbind(lulc_nbh, lulc.new)
-    # }
 
     n <- n + 1
 }
