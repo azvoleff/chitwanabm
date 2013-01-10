@@ -23,6 +23,7 @@
 ###############################################################################
 # Initialize variables and packages
 ###############################################################################
+library(lubridate)
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
@@ -48,6 +49,7 @@ calc_event_count <- function(event_type, events_data, results) {
     # If event_type is Marriage, there is one row per new spouse, so the number 
     # of events needs to be halved to get the number of new marriages.
     if (event_type == "Marriage") event_count$num_events <- event_count$num_events / 2
+    event_count$year <- year(event_count$year)
 
     # Normalize events by population of village during that year (using the 
     # population in the first month of the year the events occurred).
@@ -55,12 +57,14 @@ calc_event_count <- function(event_type, events_data, results) {
     neigh_pop_cols <- grep('^(neighid|num_psn.)', names(results))
     neigh_pop <- reshape(results[neigh_pop_cols], direction="long", 
                             idvar="neighid", varying=c(2:ncol(results[neigh_pop_cols])))
-    neigh_pop$year <- floor(1997 + (neigh_pop$time-1)/12)
+    neigh_pop$year <- floor(1997 + (neigh_pop$time - 1) / 12)
+
     nbh_pop <- neigh_pop$num_psn[match(paste(event_count$neighid, 
                                              event_count$year), 
                                        paste(neigh_pop$neighid, 
                                              neigh_pop$year))]
-    event_count$num_events_crude_rate <- (event_count$num_events/nbh_pop) * 1000
+
+    event_count$num_events_crude_rate <- (event_count$num_events / nbh_pop) * 1000
     return(event_count)
 }
 
@@ -268,6 +272,10 @@ for (directory in directories) {
 ###########################################################################
 flag <- file.copy(paste(directories[1], "chitwanabm_world_mask.tif", sep="/"), 
                   paste(DATA_PATH, "chitwanabm_world_mask.tif", sep="/"))
+# TODO: Save neighborhoods coordinates into the main scenario path for later 
+# reuse.
+
+save(time_values, file=paste(DATA_PATH, "time_values.Rdata", sep="/"))
 
 ###########################################################################
 # Output data, as Rdata files to save space
