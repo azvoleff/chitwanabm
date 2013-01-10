@@ -25,27 +25,93 @@
 ###############################################################################
 
 library(ggplot2)
+library(reshape)
 library(gstat)
 library(rgdal)
+library(lubridate)
 
 PLOT_WIDTH <- 8.33
 PLOT_HEIGHT <- 5.53
 DPI <- 300
 
-initial.options <- commandArgs(trailingOnly = FALSE)
-file.arg.name <- "--file="
-script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
-script.basename <- dirname(script.name)
-source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
-
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/Half_Feedbacks_firstbirthscenarios"
-DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/Half_Feedbacks_marriagescenarios"
-DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/No_Feedbacks_firstbirthscenarios"
 
 ###########################################################################
 # Helper functions
 ###########################################################################
+calc_ensemble_results <- function(model_results) {
+    # The first column of model_results dataframe should be the times
+    # For each variable listed in "variable_names", there should be two columns,
+    # one of means, named "variable_name.mean" and one of standard deviations,
+    # named "variable_name.sd"
+    var_names <- unique(gsub(".run[0-9]*$", "",
+                    names(model_results)[2:ncol(model_results)]))
+    var_names <- var_names[var_names!="time.Robj"]
+
+    # First calculate the mean and standard deviations for each set of runs
+    ens_res <- data.frame(time.Robj=model_results$time.Robj.run1)
+    for (var_name in var_names) {
+        var_cols <- grep(paste("^", var_name, ".", sep=""), names(model_results))
+        var_mean <- apply(model_results[var_cols], 1, mean)
+        var_sd <- apply(model_results[var_cols], 1, sd)
+        ens_res <- cbind(ens_res, var_mean, var_sd)
+        var_mean.name <- paste(var_name, ".mean", sep="")
+        var_sd.name <- paste(var_name, ".sd", sep="")
+        names(ens_res)[(length(ens_res)-1):length(ens_res)] <- c(var_mean.name, var_sd.name)
+    }
+    ens_res <- ens_res[ens_res$time.Robj>"1997-01-01", ]
+    return(ens_res)
+}
+
+make_shaded_error_plot <- function(ens_res, ylabel, typelabel) {
+    # The first column of ens_res dataframe should be the times
+    # For each variable listed in "variable_names", there should be two columns,
+    # one of means, named "variable_name.mean" and one of standard deviations,
+    # named "variable_name.sd"
+    theme_set(theme_grey(base_size=18))
+    update_geom_defaults("line", aes(size=1))
+
+    # Ignore column one in code in next line since it is only the time
+    var_names <- unique(gsub("(.mean)|(.sd)", "",
+                    names(ens_res)[2:ncol(ens_res)]))
+    num_vars <- length(var_names)
+    time.Robj <- ens_res$time.Robj
+
+    # Stack the data to use in ggplot2
+    mean.cols <- grep("(^time.Robj$)|(.mean$)", names(ens_res))
+    sd.cols <- grep(".sd$", names(ens_res))
+    ens_res.mean <- melt(ens_res[mean.cols], id.vars="time.Robj")
+    names(ens_res.mean)[2:3] <- c("Type", "mean")
+    # Remove the ".mean" appended to the Type values (agveg.mean, 
+    # nonagveg.mean, etc) so that it does not appear in the plot legend.
+    ens_res.mean$Type <- gsub(".mean", "", ens_res.mean$Type)
+
+    sd.cols <- grep("(^time.Robj$)|(.sd$)", names(ens_res))
+    ens_res.sd <- melt(ens_res[sd.cols], id.vars="time.Robj")
+    names(ens_res.sd)[2:3] <- c("Type", "sd")
+
+    # Add lower and upper limits of ribbon to ens_res.sd dataframe
+    ens_res.sd <- cbind(ens_res.sd, lim.up=ens_res.mean$mean + 2*ens_res.sd$sd)
+    ens_res.sd <- cbind(ens_res.sd, lim.low=ens_res.mean$mean - 2*ens_res.sd$sd)
+
+    p <- ggplot()
+    if (is.na(typelabel)) {
+        # Don't use types - used for plotting things like fuelwood and total 
+        # populatation, where there is only one class on the plot.
+        p + geom_line(aes(time.Robj, mean), data=ens_res.mean) +
+            geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up),
+                alpha=.2, data=ens_res.sd) +
+            scale_fill_discrete(guide='none') +
+            labs(x="Years", y=ylabel)
+    }
+    else {
+        p + geom_line(aes(time.Robj, mean, colour=Type), data=ens_res.mean) +
+            geom_ribbon(aes(x=time.Robj, ymin=lim.low, ymax=lim.up, fill=Type),
+                alpha=.2, data=ens_res.sd) +
+            scale_fill_discrete(guide='none') +
+            labs(x="Years", y=ylabel, colour=typelabel)
+    }
+}
 
 ###########################################################################
 # Plot population characteristics
@@ -57,8 +123,8 @@ write.csv(ens_results, file=paste(DATA_PATH, "ens_results_pop.csv", sep="/"), ro
 
 # First plot monthly event data
 # Column 1 is times, so that column is always needed
-events <- ens_results[c(1, grep("^(marr|births|deaths)", names(ens_results)))]
-make_shaded_error_plot(events, "Number of Events", "Event Type")
+pop_events <- ens_results[c(1, grep("^(marr|births|deaths)", names(ens_results)))]
+make_shaded_error_plot(pop_events, "Number of Events", "Event Type")
 ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
         dpi=DPI)
 
@@ -105,7 +171,6 @@ load(file=paste(DATA_PATH, "lulc_rtchange.Rdata", sep="/"))
 
 lulc_rtchange$agveg_changepct <- (lulc_rtchange$agveg_change / lulc_rtchange$nbh_area) * 100
 lulc_rtchange$year <- as.Date(cut(lulc_rtchange$time.Robj, "year"))
-
 lulc_rtchange$lctype <- cut(lulc_rtchange$agveg, quantile(lulc_rtchange$agveg), labels=c('Urban', 
                                                               'Semi-urban', 
                                                               'Semi-agricultural', 
@@ -159,11 +224,13 @@ kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
 # TODO: For now, load the recoded NBH data to get the NBH coordinates. These 
 # coordinates should be loaded directly from the model - they should be stored 
 # in the model results.
-load("V:/Nepal/ICPSR_0538_Restricted/Recode/recoded_NBH_data.Rdata")
+#load("V:/Nepal/ICPSR_0538_Restricted/Recode/recoded_NBH_data.Rdata")
+load("T:/Nepal/ICPSR_0538_Restricted/Recode/recoded_NBH_data.Rdata")
 NBH_LULC <- data.frame(nid=as.numeric(nbh_recode$NEIGHID), x=nbh_recode$NX, y=nbh_recode$NY)
 NBH_LULC <- NBH_LULC[NBH_LULC$nid <= 151, ]
 
 load(file=paste(DATA_PATH, "lulc_nbh.Rdata", sep="/"))
+load(file=paste(DATA_PATH, "time_values.Rdata", sep="/"))
 
 agveg_final_col <- grep(paste('^agveg.', max(time_values$timestep), sep=''), 
                         names(lulc_nbh))
@@ -228,3 +295,206 @@ bubble(krigged.ord.cv5, "residual", main="Crossvalidation Residuals",
         maxsize=2, col=c("blue", "red"), sp.layout=list(i1, i2, i3),
         key.entries=c(-.5, -.25, -.1, .1, .25, .5))
 dev.off()
+
+###########################################################################
+# Make plots of marriage rates
+###########################################################################
+load(file=paste(DATA_PATH, "marriage_events.Rdata", sep="/"))
+marriage_events$neighid <- as.integer(marriage_events$neighid)
+marriage_events <- marriage_events[order(marriage_events$neighid, marriage_events$year), ]
+
+# Merge a full nbhs x timesteps dataframe so we can fill in zeros in months 
+# with no events.
+initial_year <- min(marriage_events$year)
+final_year <- max(marriage_events$year)
+all_nbhs_timesteps <- data.frame(neighid=gl(151, final_year - initial_year + 1), 
+                               year=rep(initial_year, final_year, 151))
+marriage_events <- merge(marriage_events, all_nbhs_timesteps, all=TRUE)
+marriage_events[is.na(marriage_events)] <- 0
+
+load(paste(DATA_PATH, "lcdata.Rdata", sep="/"))
+# Merge the initial cover types so results can be plotted by cover class
+lctype <- cut(lcdata$pctagveg.initial, quantile(lcdata$pctagveg.initial), 
+                      labels=c('Urban', 'Semi-urban', 'Semi-agricultural', 
+                               'Agricultural'))
+lctype[is.na(lctype)] <- levels(lctype)[1]
+cover_types <- data.frame(neighid=lcdata$nid, lctype=lctype)
+marriage_events <- merge(marriage_events, cover_types)
+
+# # Save num_marr for later kriging
+# num_events_cols <- grep('num_events[.]', names(marriage_events))
+# num_marr <- aggregate(marriage_events[num_events_cols], by=list(neighid=marriage_events$neighid), sum)
+# num_marr <- data.frame(neighid=num_marr$neighid, num_marr=apply(num_marr[-1], 1, mean))
+ 
+crude_rate_cols <- grep('num_events_crude_rate.', names(marriage_events))
+marriage_run_means <- aggregate(marriage_events[crude_rate_cols], by=list(year=marriage_events$year, lctype=marriage_events$lctype), mean)
+mean_cols <- grep('num_events_crude_rate.', names(marriage_run_means))
+marriage_means <- data.frame(year=marriage_run_means$year, lctype=marriage_run_means$lctype, 
+                    marriages.mean=apply(marriage_run_means[mean_cols], 1, mean))
+marriage_means$marriages.sd <- apply(marriage_run_means[mean_cols], 1, sd)
+marriage_means$time.Robj <- as.Date(as.character(marriage_means$year), format="%Y")
+write.csv(marriage_means, file=paste(DATA_PATH, "ens_results_marriage_rates.csv", sep="/"), row.names=FALSE)
+
+p <- ggplot()
+p + geom_line(aes(time.Robj, marriages.mean, colour=lctype), data=marriage_means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marriages.mean - marriages.sd *2 ), 
+                    ymax=(marriages.mean + marriages.sd * 2), fill=lctype), 
+                alpha=.2, data=marriage_means) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
+ggsave(paste(DATA_PATH, "num_marriage_events.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+# Drop mixed classes:
+marriage_means_2class <- marriage_means[!grepl('(Semi-urban|Semi-agricultural)', marriage_means$lctype), ]
+p <- ggplot()
+p + geom_line(aes(time.Robj, marriages.mean, colour=lctype), data=marriage_means_2class) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marriages.mean - marriages.sd *2 ), 
+                    ymax=(marriages.mean + marriages.sd * 2), fill=lctype), 
+                alpha=.2, data=marriage_means_2class) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Marriage Rate (per 1000)', colour="Cover Class")
+ggsave(paste(DATA_PATH, "num_marriage_events_2_class.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+
+###########################################################################
+# Make plots of changes in marriage timing and first birth timing
+###########################################################################
+load(file=paste(DATA_PATH, "events.Rdata", sep="/"))
+
+# Merge the initial cover types so results can be plotted by cover class
+events$lctype <- cut(events$pctagveg.initial, quantile(events$pctagveg.initial), 
+                      labels=c('Urban', 'Semi-urban', 'Semi-agricultural', 
+                               'Agricultural'))
+events$lctype[is.na(events$lctype)] <- levels(events$lctype)[1]
+events$lcctype <- cut(events$pctagveg.change, quantile(events$pctagveg.change), 
+                      labels=c('1st quartile', '2nd quartile', '3rd quartile', 
+                               '4th quartile'))
+events$lcctype[is.na(events$lcctype)] <- levels(events$lcctype)[1]
+events$lnlcctype <- cut(events$pctagveg.lnchange, quantile(events$pctagveg.lnchange), 
+                      labels=c('1st quartile', '2nd quartile', '3rd quartile', 
+                               '4th quartile'))
+events$lnlcctype[is.na(events$lnlcctype)] <- levels(events$lnlcctype)[1]
+
+###############################################################################
+# First analyze first birth intervals:
+first_births <- events[events$event == "First birth" & events$is_in_migrant == "False", ]
+# Can't accurately calculate first birth time for women at beginning of the 
+# model, since their month of marriage is unknown (not included in the CVFS 
+# survey).
+first_births <- first_births[first_births$time_float >= 1999, ]
+mean_fb_int_allruns <- aggregate(first_births$fb_int, by=list(year=first_births$year, 
+                                                        runname=first_births$runname, 
+                                                        lcctype=first_births$lcctype), 
+                                 mean)
+names(mean_fb_int_allruns)[grep('^x$', names(mean_fb_int_allruns))] <- 
+    'mean_fb_int'
+
+fb_int_means <- aggregate(mean_fb_int_allruns$mean_fb_int, 
+                          by=list(year=mean_fb_int_allruns$year, 
+                                  lcctype=mean_fb_int_allruns$lcctype), mean)
+names(fb_int_means)[grep('^x$', names(fb_int_means))] <- 'fb_int.mean'
+fb_int_sds <- aggregate(mean_fb_int_allruns$mean_fb_int, 
+                        by=list(year=mean_fb_int_allruns$year, 
+                                lcctype=mean_fb_int_allruns$lcctype), sd)
+fb_int_means$fb_int.sd <- fb_int_sds$x
+fb_int_means$time.Robj <- as.Date(as.character(fb_int_means$year), format="%Y")
+write.csv(fb_int_means, file=paste(DATA_PATH, "ens_results_fb_ints.csv", sep="/"), row.names=FALSE)
+
+p <- ggplot()
+p + geom_line(aes(time.Robj, fb_int.mean, colour=lcctype), data=fb_int_means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(fb_int.mean - 2 * fb_int.sd), 
+                    ymax=(fb_int.mean + 2 * fb_int.sd), fill=lcctype),
+        alpha=.2, data=fb_int_means) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Time to First Birth (months)', colour="Land-use Change Class")
+ggsave(paste(DATA_PATH, "first_birth_intervals.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+# Drop mixed classes:
+#fb_int_means_2class <- fb_int_means[!grepl('(Semi-urban|Semi-agricultural)', fb_int_means$lctype), ]
+fb_int_means_2class <- fb_int_means[!grepl('(2nd quartile|3rd quartile)', fb_int_means$lcctype), ]
+p <- ggplot()
+p + geom_line(aes(time.Robj, fb_int.mean, colour=lcctype), data=fb_int_means_2class) +
+    geom_ribbon(aes(x=time.Robj, ymin=(fb_int.mean - 2 * fb_int.sd), 
+                    ymax=(fb_int.mean + 2 * fb_int.sd), fill=lcctype),
+        alpha=.2, data=fb_int_means_2class) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Time to First Birth (months)', colour="Land-use Change Class")
+ggsave(paste(DATA_PATH, "first_birth_intervals_2_class.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+###############################################################################
+# Now analyze marriage times
+marriages <- events[events$event == "Marriage" & events$is_in_migrant == "False", ]
+marriages <- marriages[marriages$time_float >= 1999, ]
+mean_marr_age_allruns <- aggregate(marriages$age, by=list(year=marriages$year, 
+                                                          gender=marriages$gender, 
+                                                          runname=marriages$runname, 
+                                                          lcctype=marriages$lcctype), 
+                                 mean)
+names(mean_marr_age_allruns)[grep('^x$', names(mean_marr_age_allruns))] <- 'mean_marr_age'
+
+marr_age_means <- aggregate(mean_marr_age_allruns$mean_marr_age, 
+                          by=list(year=mean_marr_age_allruns$year, 
+                                  gender=mean_marr_age_allruns$gender, 
+                                  lcctype=mean_marr_age_allruns$lcctype), mean)
+names(marr_age_means)[grep('^x$', names(marr_age_means))] <- 'marr_age.mean'
+marr_age_sds <- aggregate(mean_marr_age_allruns$mean_marr_age, 
+                        by=list(year=mean_marr_age_allruns$year, 
+                                gender=mean_marr_age_allruns$gender, 
+                                lcctype=mean_marr_age_allruns$lcctype), sd)
+marr_age_means$marr_age.sd <- marr_age_sds$x
+marr_age_means$time.Robj <- as.Date(as.character(marr_age_means$year), format="%Y")
+
+marr_age_means_male <- marr_age_means[marr_age_means$gender == "male", ]
+write.csv(marr_age_means_male, file=paste(DATA_PATH, "ens_results_marriage_ages_male.csv", sep="/"), row.names=FALSE)
+marr_age_means_female <- marr_age_means[marr_age_means$gender == "female", ]
+write.csv(marr_age_means_female, file=paste(DATA_PATH, "ens_results_marriage_ages_female.csv", sep="/"), row.names=FALSE)
+
+p <- ggplot()
+p + geom_line(aes(time.Robj, marr_age.mean, colour=lcctype), data=marr_age_means_male) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marr_age.mean - 2 * marr_age.sd), 
+                    ymax=(marr_age.mean + 2 * marr_age.sd), fill=lcctype),
+        alpha=.2, data=marr_age_means_male) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Marriage Age (men, years)', colour="Land-use Change Class")
+ggsave(paste(DATA_PATH, "marriage_age_men.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+p <- ggplot()
+p + geom_line(aes(time.Robj, marr_age.mean, colour=lcctype), data=marr_age_means_female) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marr_age.mean - 2 * marr_age.sd), 
+                    ymax=(marr_age.mean + 2 * marr_age.sd), fill=lcctype),
+        alpha=.2, data=marr_age_means_female) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Marriage Age (women, years)', colour="Land-use Change Class")
+ggsave(paste(DATA_PATH, "marriage_age_women.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+
+# Drop mixed classes:
+#marr_age_means_male_2class <- marr_age_means_male[!grepl('(Semi-urban|Semi-agricultural)', marr_age_means_male$lctype), ]
+marr_age_means_male_2class <- marr_age_means_male[!grepl('(2nd quartile|3rd quartile)', marr_age_means_male$lcctype), ]
+p <- ggplot()
+p + geom_line(aes(time.Robj, marr_age.mean, colour=lcctype), data=marr_age_means_male_2class) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marr_age.mean - 2 * marr_age.sd), 
+                    ymax=(marr_age.mean + 2 * marr_age.sd), fill=lcctype),
+        alpha=.2, data=marr_age_means_male_2class) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Marriage Age (men, years)', colour="Land-use Change Class")
+ggsave(paste(DATA_PATH, "marriage_age_men_2_class.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+#marr_age_means_female_2class <- marr_age_means_female[!grepl('(Semi-urban|Semi-agricultural)', marr_age_means_female$lctype), ]
+marr_age_means_female_2class <- marr_age_means_female[!grepl('(2nd quartile|3rd quartile)', marr_age_means_female$lcctype), ]
+p <- ggplot()
+p + geom_line(aes(time.Robj, marr_age.mean, colour=lcctype), data=marr_age_means_female_2class) +
+    geom_ribbon(aes(x=time.Robj, ymin=(marr_age.mean - 2 * marr_age.sd), 
+                    ymax=(marr_age.mean + 2 * marr_age.sd), fill=lcctype),
+        alpha=.2, data=marr_age_means_female_2class) +
+    scale_fill_discrete(guide='none') +
+    labs(x="Years", y='Marriage Age (women, years)', colour="Land-use Change Class")
+ggsave(paste(DATA_PATH, "marriage_age_women_2_class.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
