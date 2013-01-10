@@ -49,10 +49,10 @@
 'model.make_plots' : [True | validate_boolean]
 # Whether to save psn data to CSV periodically while running the model. This 
 # will slow down the model slightly.
-'save_psn_data' : [True | validate_boolean]
+'save_psn_data' : [False | validate_boolean]
 # Whether to save NBH data to CSV periodically while running the model. This 
 # will slow down the model slightly.
-'save_NBH_data' : [True | validate_boolean]
+'save_NBH_data' : [False | validate_boolean]
 # Whether to save the model results to a pickled file at the end of the model 
 # (they will be saved to CSV either way).
 'save_pickled_end_results' : [False | validate_boolean]
