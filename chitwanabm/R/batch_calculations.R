@@ -31,7 +31,7 @@ directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # in the directory, as trying to read results from these other files/folders 
 # would lead to an error.
 directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
-if (length(directories)<1) stop(paste("can't run plot_events_batch with", length(directories), "model runs."))
+if (length(directories)<1) stop(paste("can't run batch calculations with", length(directories), "model runs."))
 if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
 
 ###############################################################################
