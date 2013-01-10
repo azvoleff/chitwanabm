@@ -31,7 +31,6 @@ theme_set(theme_grey(base_size=16))
 update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/to 2020/Half_Feedbacks_firstbirthscenarios"
 
 directories <- list.dirs(DATA_PATH, recursive=FALSE)
 # Only match the model results folders - don't match any other folders or files 
