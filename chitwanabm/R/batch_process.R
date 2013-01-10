@@ -28,7 +28,5 @@ script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initia
 script.basename <- dirname(script.name)
 
 R_bin <- '"C:/Program Files/R/R-2.15.2/bin/x64/Rscript.exe"'
-shell(paste(R_bin, paste(script.basename, 'plot_pop_batch.R', sep="/"), DATA_PATH))
-shell(paste(R_bin, paste(script.basename, 'plot_LULC_batch.R', sep="/"), DATA_PATH))
-shell(paste(R_bin, paste(script.basename, 'plot_events_batch.R', sep="/"), DATA_PATH))
-shell(paste(R_bin, paste(script.basename, 'plot_events_batch_1.R', sep="/"), DATA_PATH))
+shell(paste(R_bin, paste(script.basename, 'batch_calculations.R', sep="/"), DATA_PATH))
+shell(paste(R_bin, paste(script.basename, 'batch_plots.R', sep="/"), DATA_PATH))
