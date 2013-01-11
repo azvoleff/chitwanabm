@@ -91,6 +91,13 @@ def main(argv=None):
     # Save args to pass on to runmodel
     if argv is None:
         argv = sys.argv
+    if len(argv) > 1:
+        # Enquote the parameters as the original quotes were stripped by the # 
+        # parser, so this could lead to problems with things like spaces in 
+        # path names. But: only enquote the parameters if there is more than 1 
+        # entry in sys.argv since the # first item in sys.argv is the script 
+        # name.
+        argv = map(lambda x: '"' + x + '"', argv)
     process_args = " ".join(argv[1:])
 
     parser = argparse.ArgumentParser(description='Run the chitwanabm agent-based model (ABM).')
@@ -104,6 +111,7 @@ def main(argv=None):
     rc_params.load_default_params(__name__)
     if not args.rc_file==None and not os.path.exists(args.rc_file):
         logger.critical('Custom rc file %s does not exist'%args.rc_file)
+        sys.exit()
     rc_params.initialize('chitwanabm', args.rc_file)
     global rcParams
     rcParams = rc_params.get_params()
