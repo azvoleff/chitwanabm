@@ -1,3 +1,4 @@
+echo off
 REM Copyright 2008-2012 Alex Zvoleff
 REM
 REM This file is part of the chitwanabm agent-based model.
@@ -23,5 +24,5 @@ set SCRIPT_PATH=C:\Users\azvoleff\Code\Python\chitwanabm\chitwanabm\R
 
 set DATA_PATH=%1
 
-%R_BIN% "%SCRIPT_PATH%\batch_calculations.R" %DATA_PATH%
-%R_BIN% "%SCRIPT_PATH%\batch_plots.R" %DATA_PATH%
+call %R_BIN% "%SCRIPT_PATH%\batch_calculations.R" %DATA_PATH%
+call %R_BIN% "%SCRIPT_PATH%\batch_plots.R" %DATA_PATH%
