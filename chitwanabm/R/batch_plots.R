@@ -331,7 +331,7 @@ mean_cols <- grep('num_events_crude_rate.', names(marriage_run_means))
 marriage_means <- data.frame(year=marriage_run_means$year, lctype=marriage_run_means$lctype, 
                     marriages.mean=apply(marriage_run_means[mean_cols], 1, mean))
 marriage_means$marriages.sd <- apply(marriage_run_means[mean_cols], 1, sd)
-marriage_means$time.Robj <- as.Date(as.character(marriage_means$year), format="%Y")
+marriage_means$time.Robj <- floor_date(as.Date(as.character(marriage_means$year), format="%Y"), "year")
 write.csv(marriage_means, file=paste(DATA_PATH, "ens_results_marriage_rates.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
@@ -398,7 +398,7 @@ fb_int_sds <- aggregate(mean_fb_int_allruns$mean_fb_int,
                         by=list(year=mean_fb_int_allruns$year, 
                                 lcctype=mean_fb_int_allruns$lcctype), sd)
 fb_int_means$fb_int.sd <- fb_int_sds$x
-fb_int_means$time.Robj <- as.Date(as.character(fb_int_means$year), format="%Y")
+fb_int_means$time.Robj <- floor_date(as.Date(as.character(fb_int_means$year), format="%Y"), 'year')
 write.csv(fb_int_means, file=paste(DATA_PATH, "ens_results_fb_ints.csv", sep="/"), row.names=FALSE)
 
 p <- ggplot()
@@ -445,7 +445,7 @@ marr_age_sds <- aggregate(mean_marr_age_allruns$mean_marr_age,
                                 gender=mean_marr_age_allruns$gender, 
                                 lcctype=mean_marr_age_allruns$lcctype), sd)
 marr_age_means$marr_age.sd <- marr_age_sds$x
-marr_age_means$time.Robj <- as.Date(as.character(marr_age_means$year), format="%Y")
+marr_age_means$time.Robj <- floor_date(as.Date(as.character(marr_age_means$year), format="%Y"), 'year')
 
 marr_age_means_male <- marr_age_means[marr_age_means$gender == "male", ]
 write.csv(marr_age_means_male, file=paste(DATA_PATH, "ens_results_marriage_ages_male.csv", sep="/"), row.names=FALSE)
