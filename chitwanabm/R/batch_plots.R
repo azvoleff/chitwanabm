@@ -158,7 +158,7 @@ load(file=paste(DATA_PATH, "lulc_agg.Rdata", sep="/"))
 
 ens_results <- calc_ensemble_results(lulc_agg)
 save(ens_results, file=paste(DATA_PATH, "ens_results_LULC.Rdata", sep="/"))
-write.csv(ens_results, file=paste(DATA_PATH, "ens_results_LULC.csv", sep="/"))
+write.csv(ens_results, file=paste(DATA_PATH, "ens_results_LULC.csv", sep="/"), row.names=FALSE)
 
 make_shaded_error_plot(ens_results, "Mean Percentage of Neighborhood", "LULC Type")
 ggsave(paste(DATA_PATH, "batch_LULC.png", sep="/"), width=PLOT_WIDTH,
