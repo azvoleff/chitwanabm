@@ -144,7 +144,7 @@ def main(argv=None):
             new_thread = ProcessThread(run_count, script_path, process_args)
             logger.info("Starting run %s"%new_thread.name)
             new_thread.start()
-            time.sleep(30)
+            time.sleep(5)
             run_count += 1
 
     # Wait until all active threads have finished before emailing the log.
