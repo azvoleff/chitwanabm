@@ -68,7 +68,7 @@ class ProcessThread(threading.Thread):
         if '--log' not in command:
             command += ' --log=CRITICAL'
         self._modelrun = subprocess.Popen(command, cwd=sys.path[0], 
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         output, unused_err = self._modelrun.communicate()  # buffers the output
         retcode = self._modelrun.poll() 
         logger.info("Finished run %s (return code %s)"%(self.name, retcode))
