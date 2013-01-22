@@ -29,6 +29,8 @@ import os
 import sys
 import logging
 import pickle
+import shutil
+import tempfile
 from pkg_resources import resource_filename
 from subprocess import check_call, CalledProcessError
 
@@ -410,7 +412,7 @@ def assemble_persons(relationshipsFile, model_world):
 
     return persons, RESPID_HHID_map
 
-def assemble_world():
+def assemble_world(data_path):
     """
     Puts together a single world (with, currently, only a single region) from 
     the CVFS data using the above functions to input restricted CVFS data on 
@@ -418,11 +420,10 @@ def assemble_world():
     """
     model_world = World()
 
-    raw_data_path = rcParams['path.raw_input_data']
-    relationships_grid_file = os.path.join(raw_data_path, 'hhrel.csv')
-    households_file = os.path.join(raw_data_path, 'hhag.csv')
-    neighborhoods_file = os.path.join(raw_data_path,  'neigh.csv')
-    neighborhoods_coords_file = os.path.join(raw_data_path, 'neigh_coords.csv')
+    relationships_grid_file = os.path.join(data_path, 'hhrel.csv')
+    households_file = os.path.join(data_path, 'hhag.csv')
+    neighborhoods_file = os.path.join(data_path,  'neigh.csv')
+    neighborhoods_coords_file = os.path.join(data_path, 'neigh_coords.csv')
 
     persons, RESPID_HHID_map = assemble_persons(relationships_grid_file,
             model_world)
@@ -442,6 +443,7 @@ def assemble_world():
         # We already know that the closest neighborhood is itself.
         neighborhood._neighborhoods_by_distance.pop(0)
 
+    raw_data_path = rcParams['path.raw_input_data']
     # Add the DEM and CVFS Study Area mask to the model_world instance.
     DEM_file = os.path.join(raw_data_path, rcParams['path.DEM_file'])
     DEM, gt, prj = read_single_band_raster(DEM_file)
@@ -528,13 +530,16 @@ def generate_world():
         raw_data_path = rcParams['path.raw_input_data']
         Rscript_binary = rcParams['path.Rscript_binary']
         preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
-        check_call([Rscript_binary, preprocess_script, raw_data_path, 
+        processed_data_path = tempfile.mkdtemp()
+        check_call([Rscript_binary, preprocess_script, raw_data_path, processed_data_path,
             str(rcParams['random_seed'])])
     except CalledProcessError:
         logger.exception("Problem while running data_preprocess.R R script")
         return 1
     logger.info("Generating world from preprocessed CVFS data")
-    model_world = assemble_world()
+    model_world = assemble_world(processed_data_path)
+    shutil.rmtree(processed_data_path)
+
 
     #TODO: Re-enable saving a pickled world when kinks are worked out.
     # try:

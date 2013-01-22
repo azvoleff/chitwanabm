@@ -27,10 +27,12 @@
 
 require(foreign, quietly=TRUE)
 
-DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
-RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[2]
+RAW_DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+PROCESSED_DATA_PATH <- commandArgs(trailingOnly=TRUE)[2]
+RANDOM_SEED <- commandArgs(trailingOnly=TRUE)[3]
 
-if (is.na(DATA_PATH)) stop("Data path must be supplied")
+if (is.na(RAW_DATA_PATH)) stop("Raw data path must be supplied")
+if (is.na(PROCESSED_DATA_PATH)) stop("Processed data path must be supplied")
 
 if (is.na(RANDOM_SEED)) stop("Random seed must be supplied")
 set.seed(RANDOM_SEED)
@@ -44,7 +46,7 @@ replace_nas <- function(input_vector) {
 
 ###############################################################################
 # First handle DS0004 - the census dataset
-census <- read.xport(paste(DATA_PATH, "da04538-0004_REST.xpt", sep="/"))
+census <- read.xport(paste(RAW_DATA_PATH, "da04538-0004_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 census <- census[census$NEIGHID <= 151,]
 # Convert IDs to new 9 digit format:
@@ -70,7 +72,7 @@ census.processed <- na.omit(census.processed)
 ###############################################################################
 # Now handle DS0012, the individual data, to get desired family size 
 # preferences and educational histories.
-t1indiv <- read.xport(paste(DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
+t1indiv <- read.xport(paste(RAW_DATA_PATH, "da04538-0012_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 t1indiv <- t1indiv[t1indiv$NEIGHID <= 151,]
 # Convert IDs to new 9 digit format:
@@ -147,7 +149,7 @@ parents_char <- cbind(RESPID=t1indiv$RESPID, parents_char)
 # Now handle DS0013, the life history calendar data, to get information on what 
 # women had births in the past year (so they can start out ineligible for 
 # pregnancy).
-lhc <- read.xport(paste(DATA_PATH, "04538_0013_data.xpt", sep="/"))
+lhc <- read.xport(paste(RAW_DATA_PATH, "04538_0013_data.xpt", sep="/"))
 # NOTE: lhc contains no NEIGHID column before I add one here.
 # Convert IDs to new 9 digit format:
 old_respID_lhc <- sprintf("%07i", lhc$RESPID)
@@ -196,7 +198,7 @@ lhc_recode <- data.frame(RESPID=lhc$RESPID, recent_birth, n_children, marr_date,
 ###############################################################################
 # Now handle DS0016 - the household relationship grid. Merge the census data 
 # with the relationship grid.
-hhrel <- read.xport(paste(DATA_PATH, "da04538-0016_REST.xpt", sep="/"))
+hhrel <- read.xport(paste(RAW_DATA_PATH, "da04538-0016_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 hhrel <- hhrel[hhrel$NEIGHID <= 151,]
 # Convert IDs to new 9 digit format:
@@ -250,7 +252,7 @@ hhrel.processed[parents_char_cols] <- apply(hhrel.processed[parents_char_cols], 
 
 ###############################################################################
 # Now handle DS0002 - the time 1 baseline agriculture data
-hhag <- read.xport(paste(DATA_PATH, "da04538-0002_REST.xpt", sep="/"))
+hhag <- read.xport(paste(RAW_DATA_PATH, "da04538-0002_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 hhag <- hhag[hhag$NEIGHID <= 151,]
 # Convert IDs to new 6 digit format:
@@ -273,7 +275,7 @@ hhrel.processed <- hhrel.processed[in_hhag,]
 
 ###############################################################################
 # Now handle DS0014 - the neighborhood history data
-neigh <- read.xport(paste(DATA_PATH, "da04538-0014_REST.xpt", sep="/"))
+neigh <- read.xport(paste(RAW_DATA_PATH, "da04538-0014_REST.xpt", sep="/"))
 # Exclude neighborhoods 152-172
 neigh <- neigh[neigh$NEIGHID <= 151,]
 # Convert IDs to new 3 digit format:
@@ -330,7 +332,7 @@ neigh.processed <- merge(neigh.processed, ccadult)
 # 	Private buildings - HHRESID1, MILL1, OTRBLD1
 # 	Public buildings - ROAD1, SCHOOL1, TEMPLE1
 # 	Other uses - CANAL1, POND1, RIVER1, SILT1, UNDVP1
-lu <- read.xport(paste(DATA_PATH, "landuse.xpt", sep="/"))
+lu <- read.xport(paste(RAW_DATA_PATH, "landuse.xpt", sep="/"))
 # Convert IDs to new 3 digit format:
 old_neighID <- sprintf("%03i", lu$NEIGHID)
 lu$NEIGHID <- sprintf("%03i", as.numeric(substr(old_neighID, 1, 3)))
@@ -352,7 +354,7 @@ neigh.processed <- merge(neigh.processed, lu.processed, by="NEIGHID")
 
 ###############################################################################
 # Add on forest distances rows:
-forest_distances <- read.csv(paste(DATA_PATH, "CVFS_NBHs_forest_distances_recode.csv", sep="/"))
+forest_distances <- read.csv(paste(RAW_DATA_PATH, "CVFS_NBHs_forest_distances_recode.csv", sep="/"))
 columns <- grep('^(NEIGHID)|(BZ_meters)|(CNP_meters)|(closest_type)|(closest_meters)$', names(forest_distances))
 forest_distances <- forest_distances[columns]
 forest_distances$NEIGHID <- sprintf("%03i", as.numeric(substr(forest_distances$NEIGHID, 1, 3)))
@@ -360,7 +362,7 @@ neigh.processed <- merge(neigh.processed, forest_distances, by="NEIGHID")
 
 ###############################################################################
 # Read in the household registry data to get the ethnicities
-load(paste(DATA_PATH, "hhreg.Rdata", sep="/"))
+load(paste(RAW_DATA_PATH, "hhreg.Rdata", sep="/"))
 # Convert IDs to new 9 digit format:
 old_respID_hhreg <- sprintf("%07i", hhreg$respid)
 NEIGHID_hhreg <- sprintf("%03i", as.numeric(substr(old_respID_hhreg, 1, 3)))
@@ -382,9 +384,13 @@ hhrel.processed$ETHNIC <- replace_nas(hhrel.processed$ETHNIC)
 # Output data. Data is restricted so it has to be stored in an encrypted 
 # folder. Save both Rdata files (to be used for synthetic agent generation) and 
 # csv files (for loading into the model).
-write.csv(hhrel.processed, file=paste(DATA_PATH, "hhrel.csv", sep="/"), row.names=FALSE)
-save(hhrel.processed, file=paste(DATA_PATH, "hhrel.Rdata", sep="/"))
-write.csv(hhag.processed, file=paste(DATA_PATH, "hhag.csv", sep="/"), row.names=FALSE)
-save(hhag.processed, file=paste(DATA_PATH, "hhag.Rdata", sep="/"))
-write.csv(neigh.processed, file=paste(DATA_PATH, "neigh.csv", sep="/"), row.names=FALSE)
-save(neigh.processed, file=paste(DATA_PATH, "neigh.Rdata", sep="/"))
+write.csv(hhrel.processed, file=paste(PROCESSED_DATA_PATH, "hhrel.csv", sep="/"), row.names=FALSE)
+save(hhrel.processed, file=paste(PROCESSED_DATA_PATH, "hhrel.Rdata", sep="/"))
+write.csv(hhag.processed, file=paste(PROCESSED_DATA_PATH, "hhag.csv", sep="/"), row.names=FALSE)
+save(hhag.processed, file=paste(PROCESSED_DATA_PATH, "hhag.Rdata", sep="/"))
+write.csv(neigh.processed, file=paste(PROCESSED_DATA_PATH, "neigh.csv", sep="/"), row.names=FALSE)
+save(neigh.processed, file=paste(PROCESSED_DATA_PATH, "neigh.Rdata", sep="/"))
+
+# Save a copy of the neighborhoods coordinates to the temp path
+neigh_coords <- read.csv(paste(RAW_DATA_PATH, "neigh_coords.csv", sep="/"))
+write.csv(neigh_coords, file=paste(PROCESSED_DATA_PATH, "neigh_coords.csv", sep="/"), row.names=FALSE)
