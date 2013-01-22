@@ -124,7 +124,7 @@ def main(argv=None):
             logger.critical("Could not create scenario directory %s"%scenario_path)
             return 1
 
-    batchrun_name = time.strftime("Batch_%Y%m%d-%H%M%S") + '_' + socket.gethostname()
+    batchrun_name = "Batch_" + socket.gethostname() + time.strftime("_%Y%m%d-%H%M%S")
     logfile = os.path.join(scenario_path, 'chitwanabm_' + batchrun_name + '.log')
     logger.info("Logging to %s"%logfile)
     fh = logging.FileHandler(logfile)
