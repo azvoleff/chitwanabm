@@ -184,7 +184,6 @@ def validate_person_attributes(world):
 
 def validate_household_attributes(world):
     logger.debug("Validating household attributes")
-    # TODO: Complete validation function.
     all_agents_valid = True
     for region in world.iter_regions():
         for household in region.iter_households():
@@ -198,7 +197,6 @@ def validate_household_attributes(world):
 
 def validate_neighborhood_attributes(world):
     logger.debug("Validating neighborhood attributes")
-    # TODO: Complete validation function.
     all_agents_valid = True
     for region in world.iter_regions():
         for neighborhood in region.iter_agents():

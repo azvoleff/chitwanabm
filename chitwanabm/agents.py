@@ -167,10 +167,11 @@ class Person(Agent):
         else:
             self._school_status = "undetermined"
 
-        #TODO: fix this value elsewhere according to empirical probability
+        #TODO: fix this value elsewhere according to empirical probability (not 
+        # currently used)
         self._work = boolean_choice(.1)
-        #TODO: fix this value elsewhere according to empirical probability
-        self._parents_contracep_ever = boolean_choice()
+
+        self._parents_contracep_ever = boolean_choice(.53) # Ghimire, Axinn (2010)
 
         if in_migrant:
             # These values are set in the give_birth method of mother agents 
