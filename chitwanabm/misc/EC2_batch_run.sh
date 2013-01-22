@@ -3,13 +3,13 @@
 EC2_MANAGER="ubuntu@ec2-54-242-233-203.compute-1.amazonaws.com"
 BASE_PATH="/home/azvoleff/ChitwanABM"
 REMOTE_BASE_PATH="/home/ubuntu/ChitwanABM"
-MODEL_PATH="/home/azvoleff/ChitwanABM"
+MODEL_PATH="/home/ubuntu/ChitwanABM"
 
 ssh $EC2_MANAGER true || { echo "ERROR logging into run manager" >&2; exit; }
 
 for rcfile in $(find $BASE_PATH/rcfiles -maxdepth 1 -mindepth 1 -type f) ; do
     echo "Processing $rcfile"
-    /home/azvoleff/Code/Python/chitwanabm/chitwanabm/threaded_batch_run.py --rc $rcfile
+    /home/ubuntu/Code/chitwanabm/chitwanabm/threaded_batch_run.py --rc $rcfile
 done
 
 CURTIME=$(date +%Y%m%d-%H%M%S)
