@@ -16,8 +16,7 @@ script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initia
 script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
-#baseline_path <- "M:/Data/Nepal/chitwanabm_runs/New_Baseline"
-baseline_path <- "M:/Data/Nepal/chitwanabm_runs_Archives/2012_PIRE/Baseline"
+baseline_path <- "M:/Data/Nepal/chitwanabm_runs/20130101_ES_Paper_Scenarios/Baseline"
 baseline_name <- "Baseline"
 
 load(paste(baseline_path, "ens_results_pop.Rdata", sep="/"))
