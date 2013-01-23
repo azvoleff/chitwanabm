@@ -1,5 +1,6 @@
 #!/bin/bash
 
+INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 EC2_MANAGER="ubuntu@ec2-54-242-233-203.compute-1.amazonaws.com"
 BASE_PATH="/home/azvoleff/ChitwanABM"
 REMOTE_BASE_PATH="/home/ubuntu/ChitwanABM"
@@ -13,7 +14,7 @@ for rcfile in $(find $BASE_PATH/rcfiles -maxdepth 1 -mindepth 1 -type f) ; do
 done
 
 CURTIME=$(date +%Y%m%d-%H%M%S)
-TARFILENAME="$BASE_PATH/Tarballs/ChitwanABM_Runs-$HOSTNAME-$CURTIME.tar.gz"
+TARFILENAME="$BASE_PATH/Tarballs/ChitwanABM_Runs-$INSTANCE_ID-$CURTIME.tar.gz"
 echo $TARFILENAME
 tar -czvf $TARFILENAME $BASE_PATH/Runs
 scp $TARFILENAME $EC2_MANAGER:$REMOTE_BASE_PATH/Tarballs
