@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import distribute_setup
 distribute_setup.use_setuptools()
 
@@ -7,8 +9,9 @@ setup(
     name = "chitwanabm",
     version = "1.5dev",
     packages = find_packages(),
-    include_package_data = True,
-    exclude_package_data = {'': ['.gitignore']},
+    package_data = {'chitwanabm' : ['rcparams.default',
+                                    'chitwanabmrc.windows',
+                                    'R/*.R']}
     zip_safe = True,
     install_requires = ['numpy >= 1.6.1',
                         'matplotlib >= 0.98.4',
