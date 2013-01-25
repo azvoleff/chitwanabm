@@ -8,7 +8,8 @@ from setuptools import setup, find_packages
 setup(
     name = "chitwanabm",
     version = "1.5dev",
-    packages = find_packages(),
+    packages = ['chitwanabm'],
+    package_dir = {'chitwanabm' : 'chitwanabm'},
     package_data = {'chitwanabm' : ['rcparams.default',
                                     'chitwanabmrc.windows',
                                     'R/*.R']},
