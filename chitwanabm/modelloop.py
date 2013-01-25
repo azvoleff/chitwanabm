@@ -98,7 +98,7 @@ def main_loop(world, results_path):
                 neighborhoods.extend(region.get_agents())
             file_io.write_NBH_shapefile(neighborhoods, NBH_shapefile)
 
-# TODO: The below is still a work in progress
+    # TODO: The below is still a work in progress
     # def write_results_netcdf(world, results_path, timestep):
     #     if rcParams['save_psn_data_netcdf']:
     #         world.write_persons_to_netcdf(timestep, results_path)
