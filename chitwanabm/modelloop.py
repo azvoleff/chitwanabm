@@ -131,6 +131,12 @@ def main_loop(world, results_path):
     saved_data[0].update(region.get_neighborhood_pop_stats())
     saved_data[0].update(region.get_neighborhood_fw_usage(model_time.get_T0_date_float()))
 
+    # Make a dictionary to store empty (zero) event data for submodels if they 
+    # are turned off by the user.
+    zero_events = {}
+    for neighborhood in region.iter_agents():
+        zero_events[neighborhood.get_ID()] = 0
+
     # "Burn in" by running the model for three years in simulated mode, where 
     # age isn't incremented, but migrations occur. This allows starting the 
     # model with realistic migration histories, avoiding a huge loss of 
@@ -138,8 +144,12 @@ def main_loop(world, results_path):
     logger.info('Burning in events for region %s'%region.get_ID())
     for neg_timestep in xrange(-rcParams['model.burnin_timesteps'], 0):
         for region in world.iter_regions():
-            new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
-            new_births = region.births(model_time.get_cur_date_float(), model_time.get_cur_int_timestep(), simulate=True)
+            if rcParams['submodels.migration_individual']:
+                new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
+            else: new_out_migr_indiv, new_ret_migr_indiv = zero_events, zero_events
+            if rcParams['submodels.fertility']:
+                new_births = region.births(model_time.get_cur_date_float(), model_time.get_cur_int_timestep(), simulate=True)
+            else: new_births = zero_events
             num_new_births = sum(new_births.values())
             num_new_out_migr_indiv = sum(new_out_migr_indiv.values())
             num_new_ret_migr_indiv = sum(new_ret_migr_indiv.values())
@@ -159,11 +169,6 @@ def main_loop(world, results_path):
             annual_num_in_migr_HH = 0
             annual_num_out_migr_HH = 0
 
-        # Make a dictionary to store empty (zero) event data for submodels if 
-        # they are turned off by the user.
-        zero_events = {}
-        for neighborhood in region.iter_agents():
-            zero_events[neighborhood.get_ID()] = 0
         for region in world.iter_regions():
             logger.debug('processing region %s'%region.get_ID())
             # This could easily handle multiple regions, although currently 
