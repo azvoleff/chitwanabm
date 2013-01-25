@@ -244,7 +244,13 @@ class Person(Agent):
                 str(self._marriage_time), str(self._schooling), 
                 str(self._number_of_children),
                 str(self._alive), str(self.is_away()), 
-                str(self.is_initial_agent()), str(self.is_in_migrant()))
+                str(self.is_initial_agent()), str(self.is_in_migrant()),
+                str(self.get_mother_num_children()),
+                str(self.get_mother_years_schooling()),
+                str(self.get_mother_work()),
+                str(self.get_father_years_schooling()),
+                str(self.get_father_work()),
+                str(self._parents_contracep_ever))
 
     def get_mother(self):
         return self._mother
@@ -1511,7 +1517,11 @@ class World():
                              "ethnicity", "mother_id", "father_id",
                              "spouseid", "marrtime", "schooling", 
                              "num_children", "alive", "is_away", 
-                             "is_initial_agent", "is_in_migrant"])
+                             "is_initial_agent", "is_in_migrant", 
+                             "mother_num_children",
+                             "mother_years_schooling", "mother_work", 
+                             "father_years_schooling","father_work", 
+                             "parents_contracep"])
         for region in self.iter_regions():
             for person in region.iter_persons():
                 csv_writer.writerow(person.get_info())

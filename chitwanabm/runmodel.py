@@ -136,7 +136,15 @@ def main():
                                         "ethnicity", "mother_id", "father_id", 
                                         "spouseid", "marrtime", "schooling", 
                                         "num_children", "alive", "is_away", 
-                                        "is_initial_agent", "is_in_migrant"])
+                                        "is_initial_agent", "is_in_migrant",
+                                        "mother_num_children",
+                                        "mother_years_schooling", 
+                                        "mother_work", 
+                                        "father_years_schooling","father_work", 
+                                        "parents_contracep"])
+                                        
+                                        
+                                        ])
     person_event_log_file.write(person_event_log_header + '\n')
     person_event_log_file.close()
     person_event_fh = logging.FileHandler(os.path.join(results_path, "person_events.log"), mode='a')
