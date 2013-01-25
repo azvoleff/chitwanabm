@@ -1517,6 +1517,56 @@ class World():
                 csv_writer.writerow(person.get_info())
         out_file.close()
 
+    # TODO: The below is still a work in progress
+    # def write_persons_to_netcdf(self, timestep, results_path):
+    #     """
+    #     Writes person data to a netcdf file. Useful for high frequency usage 
+    #     (keeps storage space and write time manageable if person data is 
+    #     written for every timestep of the model.
+    #     """
+    #     person_cdffile = os.path.join(results_path, 'persons.nc')
+    #     data_type = numpy.dtype([("pid", np.int32),
+    #                         ("hid", np.int32),
+    #                         ("nid", np.int32),
+    #                         ("rid", np.int32),
+    #                         ("gender", np.str_, 12),
+    #                         ("age", np.int8),
+    #                         ("ethnicity", np.str_, 12),
+    #                         ("mother_id", np.int32),
+    #                         ("father_id", np.int32),
+    #                         ("spouseid", np.int32),
+    #                         ("marrtime", np.int8),
+    #                         ("schooling", np.str_, 12),
+    #                         ("num_children", np.int8),
+    #                         ("alive", np.bool_),
+    #                         ("is_away", np.bool_),
+    #                         ("is_initial_agent", np.bool_),
+    #                         ("is_in_migrant", np.bool_)])
+    #     if not os.path.exists(person_cdffile):
+    #         f = Dataset(person_cdffile,'w')
+    #         f.createDimension('time')
+    #         f.createVariable('person', data_type, 'time')
+
+    #     size = 3 # length of 1-d complex array
+    #     # create sample complex data.
+    #     datac = numpy.exp(1j*(1.+numpy.linspace(0, numpy.pi, size)))
+    #     # create complex128 compound data type.
+    #     complex128_t = f.createCompoundType(complex128,'complex128')
+    #     # create a variable with this data type, write some data to it.
+    #     f.createDimension('x_dim',None)
+    #     v = f.createVariable('cmplx_var',complex128_t,'x_dim')
+    #     data = numpy.empty(size, complex128) # numpy structured array
+    #     data['real'] = datac.real; data['imag'] = datac.imag
+    #     v[:] = data # write numpy structured array to netcdf compound var
+
+    #     psn_csv_file = os.path.join(results_path, "psns_time_%s.csv"%timestep)
+    #     out_file = open(psn_csv_file, "wb")
+    #     csv_writer = csv.writer(out_file)
+    #     for region in self.iter_regions():
+    #         for person in region.iter_persons():
+    #             csv_writer.writerow(person.get_info())
+    #     out_file.close()
+
     def write_NBHs_to_csv(self, timestep, results_path):
         """
         Writes a list of neighborhoods, with a header row, to CSV.
