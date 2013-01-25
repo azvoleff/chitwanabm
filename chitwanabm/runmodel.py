@@ -302,6 +302,10 @@ def main():
         speed, commit_hash, chitwanabm_version, pyabm_version)
     rc_params.write_RC_file(run_RC_file, RC_file_header)
 
+    # Write a file that can be used to confirm the run completed successfully
+    finished_file = open(os.path.join(results_path, "RUN_FINISHED_OK"), "w")
+    finished_file.close()
+
     logger.info("Finished saving results for model run %s"%run_ID_number)
 
     return 0
