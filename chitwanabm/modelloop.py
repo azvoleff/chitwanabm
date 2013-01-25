@@ -159,31 +159,36 @@ def main_loop(world, results_path):
             annual_num_in_migr_HH = 0
             annual_num_out_migr_HH = 0
 
+        # Make a dictionary to store empty (zero) event data for submodels if 
+        # they are turned off by the user.
+        zero_events = {}
+        for neighborhood in region.iter_agents():
+            zero_events[neighborhood.get_ID()] = 0
         for region in world.iter_regions():
             logger.debug('processing region %s'%region.get_ID())
             # This could easily handle multiple regions, although currently 
             # there is only one, for all of Chitwan.
             if rcParams['submodels.fertility']:
                 new_births = region.births(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_births = 0
+            else: new_births = zero_events
             if rcParams['submodels.mortality']:
                 new_deaths = region.deaths(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_deaths = 0
+            else: new_deaths = zero_events
             if rcParams['submodels.marriage']:
                 new_marr = region.marriages(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_marr = 0
+            else: new_marr = zero_events
             if rcParams['submodels.divorce']:
                 new_divo = region.divorces(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_divo = 0
+            else: new_divo = zero_events
             if rcParams['submodels.migration_individual']:
                 new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_out_migr_indiv, new_ret_migr_indiv = 0
+            else: new_out_migr_indiv, new_ret_migr_indiv = zero_events
             if rcParams['submodels.migration_household']:
                 new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_in_migr_HH, new_out_migr_HH = 0
+            else: new_in_migr_HH, new_out_migr_HH = zero_events
             if rcParams['submodels.schooling']:
                 schooling = region.education(model_time.get_cur_date_float())
-            else: schooling = 0
+            else: schooling = zero_events
 
             region.increment_age()
 
