@@ -13,6 +13,8 @@ setup(
     package_data = {'chitwanabm' : ['rcparams.default',
                                     'chitwanabmrc.windows',
                                     'R/*.R']},
+    entry_points = {'console_scripts': ['chitwanabm_run = chitwanabm.runmodel:main',
+                                        'chitwanabm_run_batch = chitwanabm.threaded_batch_run:main']},
     zip_safe = True,
     install_requires = ['numpy >= 1.6.1',
                         'matplotlib >= 0.98.4',
