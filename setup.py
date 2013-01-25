@@ -11,7 +11,7 @@ setup(
     packages = find_packages(),
     package_data = {'chitwanabm' : ['rcparams.default',
                                     'chitwanabmrc.windows',
-                                    'R/*.R']}
+                                    'R/*.R']},
     zip_safe = True,
     install_requires = ['numpy >= 1.6.1',
                         'matplotlib >= 0.98.4',
