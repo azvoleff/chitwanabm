@@ -182,17 +182,10 @@ def main_loop(world, results_path):
             else: new_divo = zero_events
             if rcParams['submodels.migration_individual']:
                 new_out_migr_indiv, new_ret_migr_indiv = region.individual_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-<<<<<<< HEAD
             else: new_out_migr_indiv, new_ret_migr_indiv = zero_events, zero_events
             if rcParams['submodels.migration_household']:
                 new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             else: new_in_migr_HH, new_out_migr_HH = zero_events, zero_events
-=======
-            else: new_out_migr_indiv, new_ret_migr_indiv = zero_events
-            if rcParams['submodels.migration_household']:
-                new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_in_migr_HH, new_out_migr_HH = zero_events
->>>>>>> c6ab421cf3eadb9a79a8fb77c21bb839d3271ef9
             if rcParams['submodels.schooling']:
                 schooling = region.education(model_time.get_cur_date_float())
             else: schooling = zero_events
