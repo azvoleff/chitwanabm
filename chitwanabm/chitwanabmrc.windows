@@ -69,10 +69,10 @@ save_LULC_shapefiles : False
 # model code. This will slow down the model considerably.
 run_validation_checks : False
 
-model.parameterization.marriage: zvoleff
-model.parameterization.firstbirthtiming: zvoleff
-model.parameterization.migration : zvoleff
-model.parameterization.fuelwood_usage : simple
+submodel.parameterization.marriage: zvoleff
+submodel.parameterization.firstbirth: zvoleff
+submodel.parameterization.migration : zvoleff
+submodel.parameterization.fuelwood_usage : simple
 
 ###############################################################################
 # Location of input data (these are restricted data)

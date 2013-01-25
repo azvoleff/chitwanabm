@@ -56,26 +56,26 @@ def log_event_record(message, person, modeltime, **kwargs):
              'personinfo' : ",".join(person.get_info())}
     person_event_logger.info(message, extra=extra, **kwargs)
 
-if rcParams['model.parameterization.marriage'] == 'simple':
+if rcParams['submodel.parameterization.marriage'] == 'simple':
     from chitwanabm.statistics import calc_probability_marriage_simple as calc_probability_marriage
-elif rcParams['model.parameterization.marriage'] == 'zvoleff':
+elif rcParams['submodel.parameterization.marriage'] == 'zvoleff':
     from chitwanabm.statistics import calc_probability_marriage_zvoleff as calc_probability_marriage
 else:
-    raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['model.parameterization.marriage'])
+    raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['submodel.parameterization.marriage'])
 
-if rcParams['model.parameterization.migration'] == 'simple':
+if rcParams['submodel.parameterization.migration'] == 'simple':
     from chitwanabm.statistics import calc_probability_migration_simple as calc_probability_migration
-elif rcParams['model.parameterization.migration'] == 'zvoleff':
+elif rcParams['submodel.parameterization.migration'] == 'zvoleff':
     from chitwanabm.statistics import calc_probability_migration_zvoleff as calc_probability_migration
 else:
-    raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['model.parameterization.migration'])
+    raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['submodel.parameterization.migration'])
 
-if rcParams['model.parameterization.fuelwood_usage'] == 'simple':
+if rcParams['submodel.parameterization.fuelwood_usage'] == 'simple':
     from chitwanabm.statistics import calc_daily_fuelwood_usage_simple as calc_daily_fuelwood_usage
-elif rcParams['model.parameterization.fuelwood_usage'] == 'migrationfeedback':
+elif rcParams['submodel.parameterization.fuelwood_usage'] == 'migrationfeedback':
     from chitwanabm.statistics import calc_daily_fuelwood_usage_migration_feedback as calc_daily_fuelwood_usage
 else:
-    raise Exception("Unknown option for fuelwood usage: '%s'"%rcParams['model.parameterization.fuelwood_usage'])
+    raise Exception("Unknown option for fuelwood usage: '%s'"%rcParams['submodel.parameterization.fuelwood_usage'])
 
 class Person(Agent):
     "Represents a single person agent"
@@ -473,17 +473,17 @@ class Person(Agent):
             first_birth_flag = False
             if ((time - self._marriage_time) >= 6.):
                 return False
-            elif rcParams['model.parameterization.firstbirthtiming'] == 'simple':
+            elif rcParams['submodel.parameterization.firstbirth'] == 'simple':
                 if (time - self._marriage_time) >= self._first_birth_timing/12.:
                     first_birth_flag = True
-            elif rcParams['model.parameterization.firstbirthtiming'] == 'ghimireaxinn2010':
+            elif rcParams['submodel.parameterization.firstbirth'] == 'ghimireaxinn2010':
                 if (np.random.rand() < calc_first_birth_prob_ghimireaxinn2010(self, time)) & ((time - self._marriage_time) >= 9/12.):
                     first_birth_flag = True
-            elif rcParams['model.parameterization.firstbirthtiming'] == 'zvoleff':
+            elif rcParams['submodel.parameterization.firstbirth'] == 'zvoleff':
                 if (np.random.rand() < calc_first_birth_prob_zvoleff(self, time)) & ((time - self._marriage_time) >= 9/12.):
                     first_birth_flag = True
             else:
-                raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['model.parameterization.firstbirthtiming'])
+                raise Exception("Unknown option for first birth timing parameterization: '%s'"%rcParams['submodel.parameterization.firstbirth'])
             if first_birth_flag == True:
                 logger.debug("First birth to agent %s (age %.2f, marriage time %.2f)"%(self.get_ID(), self.get_age_years(), self._marriage_time))
                 log_event_record("First birth", self, timestep)
