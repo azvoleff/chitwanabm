@@ -48,6 +48,7 @@ def main():
         output = subprocess.check_output([args.Rscript, batch_calc_script, scenario_path], cwd=sys.path[0], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, e:
         print "Problem running calculations %s: %s"%(scenario_path, e.output)
+        sys.exit(1)
 
     print "Running making plots for %s"%scenario_path
     batch_plot_script = resource_filename(__name__, 'R/batch_plots.R')
@@ -55,6 +56,10 @@ def main():
         output = subprocess.check_output([args.Rscript, batch_plot_script, scenario_path], cwd=sys.path[0], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, e:
         print "Problem making plots for %s: %s"%(scenario_path, e.output)
+        sys.exit(1)
+
+    finished_file = open(os.path.join(scenario_path, "SCENARIO_PROCESSED_OK"), "w")
+    finished_file.close()
 
     return 0
 
