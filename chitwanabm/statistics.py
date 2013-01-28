@@ -80,9 +80,11 @@ def calc_first_birth_prob_zvoleff(person, time):
     #########################################################################
     # Parents characteristics
     inner += rcParams['firstbirth.zv.coef.mother_num_children'] * person.get_mother_num_children()
-    inner += rcParams['firstbirth.zv.coef.mother_school'] * person.get_mother_years_schooling()
+    if person.get_mother_years_schooling() > 1:
+        inner += rcParams['firstbirth.zv.coef.mother_school']
     inner += rcParams['firstbirth.zv.coef.mother_work'] * person.get_mother_work()
-    inner += rcParams['firstbirth.zv.coef.father_school'] * person.get_father_years_schooling()
+    if person.get_father_years_schooling() > 1:
+        inner += rcParams['firstbirth.zv.coef.father_school']
     inner += rcParams['firstbirth.zv.coef.father_work'] * person.get_father_work()
     inner += rcParams['firstbirth.zv.coef.parents_contracep_ever'] * person._parents_contracep_ever
 

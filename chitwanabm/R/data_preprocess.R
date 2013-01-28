@@ -130,20 +130,34 @@ ccchild <- cbind(RESPID=t1indiv$RESPID, ccchild)
 # parent's contraceptive use
 # I17 father's work
 # I11 father school (ever)
+# I12 father school (years)
 # I15 mother's work
 # I7 mother school (ever)
+# I8 mother school (years)
 # I19 mother's number of children
 # I21 parents birth control ever
-parents_char_cols <- grep('^(I17|I11|I15|I7|I19|I21)$', names(t1indiv))
+parents_char_cols <- grep('^(I17|I11|I12|I15|I19|I21|I7|I8)$', names(t1indiv))
 parents_char <- t1indiv[parents_char_cols]
 names(parents_char)[grep('^I17$', names(parents_char))] <- "father_work"
-names(parents_char)[grep('^I11$', names(parents_char))] <- "father_school"
+names(parents_char)[grep('^I11$', names(parents_char))] <- "father_school_ever"
+names(parents_char)[grep('^I12$', names(parents_char))] <- "father_years_schooling"
 names(parents_char)[grep('^I15$', names(parents_char))] <- "mother_work"
-names(parents_char)[grep('^I7$', names(parents_char))] <- "mother_school"
 names(parents_char)[grep('^I19$', names(parents_char))] <- "mother_num_children"
 names(parents_char)[grep('^I21$', names(parents_char))] <- "parents_contracep_ever"
+names(parents_char)[grep('^I7$', names(parents_char))] <- "mother_school_ever"
+names(parents_char)[grep('^I8$', names(parents_char))] <- "mother_years_schooling"
+
+# People who responded no to question I7 (mother never went to school) are 
+# coded as -1 for I8 (years went to school). Set these people's mothers to 0.  
+parents_char$mother_years_schooling[parents_char$mother_school_ever == 0] <- 0
+# Same goes for the father schooling coding.
+parents_char$father_years_schooling[parents_char$father_school_ever == 0] <- 0
+
 parents_char[parents_char < 0] <- NA # will be replaced with resampling
 parents_char <- cbind(RESPID=t1indiv$RESPID, parents_char)
+
+parents_char$mother_years_schooling <- replace_nas(parents_char$mother_years_schooling)
+parents_char$father_years_schooling <- replace_nas(parents_char$father_years_schooling)
 
 ###############################################################################
 # Now handle DS0013, the life history calendar data, to get information on what 
@@ -247,7 +261,7 @@ hhrel.processed[child_cols] <- apply(hhrel.processed[child_cols], 2, replace_nas
 
 # Merge the parent's characteristics data
 hhrel.processed <- merge(hhrel.processed, parents_char, all.x=TRUE)
-parents_char_cols <- grep("^(father_work|father_school|mother_work|mother_school|mother_num_children|parents_contracep_ever)$", names(hhrel.processed))
+parents_char_cols <- grep("^(father_work|father_years_schooling|mother_work|mother_years_schooling|mother_num_children|parents_contracep_ever)$", names(hhrel.processed))
 hhrel.processed[parents_char_cols] <- apply(hhrel.processed[parents_char_cols], 2, replace_nas)
 
 ###############################################################################

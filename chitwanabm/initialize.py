@@ -318,12 +318,12 @@ def assemble_persons(relationshipsFile, model_world):
         person._child_employer_lt_1hr_ft = int(relation['child_emp_1hr'])
         person._child_market_lt_1hr_ft = int(relation['child_market_1hr'])
 
-        person._parents_contracep_ever = int(relation['parents_contracep_ever'])
+        person._parents_contracep_ever = bool(relation['parents_contracep_ever'])
 
-        person._father_work = int(relation['father_work'])
-        person._father_years_schooling = int(relation['father_school'])
-        person._mother_work = int(relation['mother_work'])
-        person._mother_years_schooling = int(relation['mother_school'])
+        person._father_work = bool(relation['father_work'])
+        person._father_years_schooling = int(relation['father_years_schooling'])
+        person._mother_work = bool(relation['mother_work'])
+        person._mother_years_schooling = int(relation['mother_years_schooling'])
         person._mother_num_children = int(relation['mother_num_children'])
 
         marr_time = relation['marr_date']
