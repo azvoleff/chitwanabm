@@ -73,6 +73,10 @@ def main():
             default="debug", help='The logging threshold for logging to the log file')
     parser.add_argument('--tail', dest='tail', action='store_const', 
             const=True, default=False, help='Tail the logfile with the default tail application specified in the rc parameters')
+    parser.add_argument('--output-path', dest='output_path', default=None,
+            help='Path in which to store the model output (overrides any value set in the rc-file)')
+    parser.add_argument('--run-id', dest='run_ID_number', default=None,
+            help='Run ID number (automatically generated if it is not specified)')
     args = parser.parse_args()
 
     # Setup logging according to the desired levels
@@ -107,7 +111,16 @@ def main():
     from pyabm import __version__ as pyabm_version
     from chitwanabm import __version__ as chitwanabm_version
 
-    scenario_path = os.path.join(str(rcParams['model.resultspath']), rcParams['scenario.name'])
+    if args.output_path != None:
+        scenario_path = os.path.join(args.output_path, rcParams['scenario.name'])
+        if not os.path.exists(args.output_path):
+            try:
+                os.mkdir(args.output_path)
+            except OSError:
+                logger.critical("Could not create output folder %s"%scenario_path)
+                return 1
+    else:
+        scenario_path = os.path.join(rcParams['model.resultspath'], rcParams['scenario.name'])
     if not os.path.exists(scenario_path):
         try:
             os.mkdir(scenario_path)
@@ -115,29 +128,37 @@ def main():
             logger.critical("Could not create scenario directory %s"%scenario_path)
             return 1
 
-    # Get machine hostname to print it in the results file and use in the 
-    # run_ID_number.
-    hostname = socket.gethostname()
-    make_result_path = True
-    while make_result_path == True:
-        # The run_ID_number provides an ID number (built from the start 
-        # time and machine name) to uniquely identify this model run.
-        run_ID_number = time.strftime("%Y%m%d-%H%M%S") + '_' + hostname
-        print run_ID_number
+    if args.run_ID_number == None:
+        # Get machine hostname to print it in the results file and use in the 
+        # run_ID_number.
+        hostname = socket.gethostname()
+        make_result_path = True
+        while make_result_path == True:
+            # The run_ID_number provides an ID number (built from the start 
+            # time and machine name) to uniquely identify this model run.
+            run_ID_number = time.strftime("%Y%m%d-%H%M%S") + '_' + hostname
+            results_path = os.path.join(scenario_path, run_ID_number)
+            if os.path.exists(results_path):
+                # If many runs are starting simultaneously in parallel, their 
+                # runIDs may collide. So if path creation fails, sleep for a random 
+                # period between 0 and 2 seconds, and then try again with a new run 
+                time.sleep(np.random.rand()*3)
+            else:
+                try:
+                    os.mkdir(results_path)
+                except OSError:
+                    logger.critical("Could not create results directory %s"%results_path)
+                    return 1
+                make_result_path = False
+    else:
+        run_ID_number = args.run_ID_number
         results_path = os.path.join(scenario_path, run_ID_number)
-        if os.path.exists(results_path):
-            # If many runs are starting simultaneously in parallel, their 
-            # runIDs may collide. So if path creation fails, sleep for a random 
-            # period between 0 and 2 seconds, and then try again with a new run 
-            time.sleep(np.random.rand()*3)
-        else:
-            try:
-                os.mkdir(results_path)
-            except OSError:
-                logger.critical("Could not create results directory %s"%results_path)
-                return 1
-            make_result_path = False
-    
+        try:
+            os.mkdir(results_path)
+        except OSError:
+            logger.critical("Could not create results directory %s"%results_path)
+            return 1
+        
     # Setup a special logger to log demographic events while the model is 
     # running (births, migrations, deaths, marriages, etc.)
     person_event_log_file_path = os.path.join(results_path, "person_events.log")

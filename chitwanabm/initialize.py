@@ -531,8 +531,8 @@ def generate_world():
         Rscript_binary = rcParams['path.Rscript_binary']
         preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
         processed_data_path = tempfile.mkdtemp()
-        check_call([Rscript_binary, preprocess_script, raw_data_path, processed_data_path,
-            str(rcParams['random_seed'])])
+        check_call([Rscript_binary, preprocess_script, raw_data_path, 
+            processed_data_path, str(rcParams['random_seed'])])
     except CalledProcessError:
         logger.exception("Problem while running data_preprocess.R R script")
         return 1
