@@ -91,9 +91,9 @@
 'path.raw_input_data' : ["V:/Nepal/chitwanabm_Initialization" | validate_writable_dir]
 # The world_mask is a binary GeoTIFF (zeros and ones), indicating the land area 
 # represented within the model.
-'path.world_mask' : ["V:/Nepal/chitwanabm_Initialization/CVFS_Study_Area_Raster_30m.tif" | validate_readable_file]
+'world_mask_file' : ["CVFS_Study_Area_Raster_30m.tif" | validate_string]
 # The DEM_file is a GeoTIFF digital elevation model of the study area.
-'path.DEM_file' : ["V:/Nepal/chitwanabm_Initialization/CVFS_Study_Area_DEM_Raster_30m.tif" | validate_readable_file]
+'DEM_file' : ["CVFS_Study_Area_DEM_Raster_30m.tif" | validate_string]
 # Set the level of verbosity for console output while the model is running:
 'loglevel.console' : ["info" | validate_string]
 # Set the level of verbosity for logging messages to a file while the model is 

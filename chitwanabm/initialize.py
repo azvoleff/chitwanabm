@@ -445,11 +445,11 @@ def assemble_world(data_path):
 
     raw_data_path = rcParams['path.raw_input_data']
     # Add the DEM and CVFS Study Area mask to the model_world instance.
-    DEM_file = os.path.join(raw_data_path, rcParams['path.DEM_file'])
+    DEM_file = os.path.join(raw_data_path, rcParams['DEM_file'])
     DEM, gt, prj = read_single_band_raster(DEM_file)
     model_world.set_DEM_data(DEM, gt, prj)
 
-    world_mask_file = os.path.join(raw_data_path, rcParams['path.world_mask'])
+    world_mask_file = os.path.join(raw_data_path, rcParams['world_mask_file'])
     world_mask, gt, prj = read_single_band_raster(world_mask_file)
     model_world.set_world_mask_data(world_mask, gt, prj)
 
