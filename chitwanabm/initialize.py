@@ -531,10 +531,10 @@ def generate_world():
         Rscript_binary = rcParams['path.Rscript_binary']
         preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
         processed_data_path = tempfile.mkdtemp()
-        subprocess.check_output([Rscript_binary, preprocess_script, 
+        subprocess.check_call([Rscript_binary, preprocess_script, 
             raw_data_path, processed_data_path, str(rcParams['random_seed'])])
     except subprocess.CalledProcessError:
-        logger.exception("Problem running data_preprocess.R. %s")
+        logger.exception("Problem running data_preprocess.R.")
         return 1
     logger.info("Generating world from preprocessed CVFS data")
     model_world = assemble_world(processed_data_path)
