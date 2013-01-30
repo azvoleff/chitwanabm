@@ -32,7 +32,7 @@ import pickle
 import shutil
 import tempfile
 from pkg_resources import resource_filename
-from subprocess import check_call, CalledProcessError
+from subprocess import Popen, CalledProcessError
 
 import numpy as np
 
