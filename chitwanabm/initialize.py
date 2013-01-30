@@ -531,7 +531,7 @@ def generate_world():
         Rscript_binary = rcParams['path.Rscript_binary']
         preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
         processed_data_path = tempfile.mkdtemp()
-        output = subprocess.check_output([Rscript_binary, preprocess_script, 
+        subprocess.check_output([Rscript_binary, preprocess_script, 
             raw_data_path, processed_data_path, str(rcParams['random_seed'])],
             cwd=sys.path[0], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, e:
