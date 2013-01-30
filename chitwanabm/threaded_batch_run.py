@@ -74,6 +74,10 @@ class ProcessThread(threading.Thread):
         logger.info("Finished run %s (return code %s)"%(self.name, retcode))
         pool_sema.release()
         active_threads.remove(self)
+        if retcode != 0:
+            logger.exception("Problem while running run %s.\nOutput: %s\nstderr: %s\nReturn code %s\n"%(self.threadID, output, unused_err, retcode))
+            return 1
+        return 0
 
     def kill(self):
         logger.warning("Killed run %s"%self.name)

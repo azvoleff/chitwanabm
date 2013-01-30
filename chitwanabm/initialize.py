@@ -531,10 +531,13 @@ def generate_world():
         Rscript_binary = rcParams['path.Rscript_binary']
         preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
         processed_data_path = tempfile.mkdtemp()
-        check_call([Rscript_binary, preprocess_script, raw_data_path, 
-            processed_data_path, str(rcParams['random_seed'])])
-    except CalledProcessError:
-        logger.exception("Problem while running data_preprocess.R R script")
+        R_process = subprocess.Popen([Rscript_binary, preprocess_script, 
+            raw_data_path, processed_data_path, str(rcParams['random_seed'])],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        output, unused_err = R_process.communicate()  # buffers the output
+        retcode = R_process.poll()
+    except CalledProcessError, e:
+        logger.exception("Problem while running data_preprocess.R R script:\nOutput: %s\nstderr: %s\nReturn code %s\n"%(output, unused_err, retcode))
         return 1
     logger.info("Generating world from preprocessed CVFS data")
     model_world = assemble_world(processed_data_path)
