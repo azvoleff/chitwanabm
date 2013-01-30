@@ -64,7 +64,7 @@ class ProcessThread(threading.Thread):
         dev_null = open(os.devnull, 'w')
         command = rcParams['batchrun.python_path'] +  ' ' + \
                   self._script_path +  ' ' + \
-                  self._process_args
+                  self._process_args + '--run-id %s'%self.threadID
         if '--log' not in command:
             command += ' --log=CRITICAL'
         self._modelrun = subprocess.Popen(command, cwd=sys.path[0], 
@@ -144,7 +144,6 @@ def main(argv=None):
             new_thread = ProcessThread(run_count, script_path, process_args)
             logger.info("Starting run %s"%new_thread.name)
             new_thread.start()
-            time.sleep(5)
             run_count += 1
 
     # Wait until all active threads have finished before emailing the log.
