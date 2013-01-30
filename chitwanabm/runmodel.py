@@ -132,24 +132,15 @@ def main():
         # Get machine hostname to print it in the results file and use in the 
         # run_ID_number.
         hostname = socket.gethostname()
-        make_result_path = True
-        while make_result_path == True:
-            # The run_ID_number provides an ID number (built from the start 
-            # time and machine name) to uniquely identify this model run.
-            run_ID_number = time.strftime("%Y%m%d-%H%M%S") + '_' + hostname
-            results_path = os.path.join(scenario_path, run_ID_number)
-            if os.path.exists(results_path):
-                # If many runs are starting simultaneously in parallel, their 
-                # runIDs may collide. So if path creation fails, sleep for a random 
-                # period between 0 and 2 seconds, and then try again with a new run 
-                time.sleep(np.random.rand()*3)
-            else:
-                try:
-                    os.mkdir(results_path)
-                except OSError:
-                    logger.critical("Could not create results directory %s"%results_path)
-                    return 1
-                make_result_path = False
+        # The run_ID_number provides an ID number (built from the start time 
+        # and machine name) to uniquely identify this model run.
+        run_ID_number = time.strftime("%Y%m%d-%H%M%S") + '_' + hostname
+        results_path = os.path.join(scenario_path, run_ID_number)
+        try:
+            os.mkdir(results_path)
+        except OSError:
+            logger.critical("Could not create results directory %s"%results_path)
+            return 1
     else:
         run_ID_number = args.run_ID_number
         results_path = os.path.join(scenario_path, run_ID_number)
