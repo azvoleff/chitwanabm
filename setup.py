@@ -19,7 +19,7 @@ setup(
     zip_safe = True,
     install_requires = ['numpy >= 1.6.1',
                         'matplotlib >= 0.98.4',
-                        'pyabm >= 0.3'],
+                        'pyabm[gdal] >= 0.3'],
     author = "Alex Zvoleff",
     author_email = "azvoleff@mail.sdsu.edu",
     description = "An agent-based model of the Chitwan Valley, Nepal",
