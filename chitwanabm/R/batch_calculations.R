@@ -28,12 +28,6 @@ library(lubridate)
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 
 directories <- list.dirs(DATA_PATH, recursive=FALSE)
-# Only match the model results folders - don't match any other folders or files 
-# in the directory, as trying to read results from these other files/folders 
-# would lead to an error.
-directories <- directories[grep("[0-9]{8}-[0-9]{6}", directories)]
-if (length(directories)<1) stop(paste("can't run batch calculations with", length(directories), "model runs."))
-if (length(directories)<5) warning(paste("Only", length(directories), "model runs found."))
 
 ###############################################################################
 # Helper Functions
@@ -183,6 +177,12 @@ n <- 1
 pb <- txtProgressBar(min=n, max=length(directories), style=3)
 for (directory in directories) {
     setTxtProgressBar(pb, n)
+    
+    if (!file.exists(paste(directory, "RUN_FINISHED_OK", sep="/"))) {
+        warning(paste(directory, "does not contain a finished model run"))
+        next
+    }
+
     runname <- paste("run", n, sep="")
 
     ###########################################################################
