@@ -28,7 +28,7 @@ def update_version(new_release, new_version=None):
     if new_version != None:
         replace('doc/conf.py', "version = '[0-9.]*'", "version = '%s'"%new_version)
     replace('doc/conf.py', "release = '[0-9.]*(dev)?'", "release = '%s'"%new_release)
-    replace('pyabm/__init__.py', "__version__ = '[0-9.]*(dev)?'", "__version__ = '%s'"%new_release)
+    replace('chitwanabm/__init__.py', "__version__ = '[0-9.]*(dev)?'", "__version__ = '%s'"%new_release)
 
 @task
 def generate_docs():
