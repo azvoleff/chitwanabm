@@ -224,8 +224,8 @@ kriglocations$band1[kriglocations$band1==max(kriglocations$band1)] <- 1
 # TODO: For now, load the recoded NBH data to get the NBH coordinates. These 
 # coordinates should be loaded directly from the model - they should be stored 
 # in the model results.
-load("V:/Nepal/ICPSR_0538_Restricted/Recode/recoded_NBH_data.Rdata")
-NBH_LULC <- data.frame(nid=as.numeric(nbh_recode$NEIGHID), x=nbh_recode$NX, y=nbh_recode$NY)
+load(file=paste(DATA_PATH, "NBH_coords.Rdata", sep="/"))
+NBH_LULC <- data.frame(nid=NBH_coords$nid, x=NBH_coords$x, y=NBH_coords$y)
 NBH_LULC <- NBH_LULC[NBH_LULC$nid <= 151, ]
 
 load(file=paste(DATA_PATH, "lulc_nbh.Rdata", sep="/"))
