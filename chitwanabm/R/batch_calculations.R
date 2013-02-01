@@ -273,7 +273,6 @@ for (directory in directories) {
 flag <- file.copy(paste(directories[1], "chitwanabm_world_mask.tif", sep="/"), 
                   paste(DATA_PATH, "chitwanabm_world_mask.tif", sep="/"))
 
-DATA_PATH <- "M:/Data/Nepal/chitwanabm_runs/Testing"
 # Save neighborhoods coordinates into the main scenario path for later reuse.
 NBHs_end <- read.csv(paste(directories[1], "NBHs_time_END.csv", sep="/"))
 NBH_coords <- NBHs_end[grep('^(nid)|(rid)|(x)|(y)$', names(NBHs_end))]
