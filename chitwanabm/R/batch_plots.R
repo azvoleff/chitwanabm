@@ -382,7 +382,8 @@ first_births <- events[events$event == "First birth" & events$is_in_migrant == "
 # Can't accurately calculate first birth time for women at beginning of the 
 # model, since their month of marriage is unknown (not included in the CVFS 
 # survey).
-first_births <- first_births[first_births$time_float >= 1999, ]
+first_births <- first_births[first_births$marrtime >= 1997, ]
+#first_births <- first_births[first_births$time_float >= 2000, ]
 mean_fb_int_allruns <- aggregate(first_births$fb_int, by=list(year=first_births$year, 
                                                         runname=first_births$runname, 
                                                         lcctype=first_births$lcctype), 
@@ -427,12 +428,14 @@ ggsave(paste(DATA_PATH, "first_birth_intervals_2_class.png", sep="/"), width=PLO
 ###############################################################################
 # Now analyze marriage times
 marriages <- events[events$event == "Marriage" & events$is_in_migrant == "False", ]
-marriages <- marriages[marriages$time_float >= 1999, ]
+marriages$age_1997 <- marriages$age - (marriages$time / 12)
+marriages <- marriages[marriages$age_1997 <= 13, ]
+#marriages <- marriages[marriages$time_float >= 1999, ]
 mean_marr_age_allruns <- aggregate(marriages$age, by=list(year=marriages$year, 
                                                           gender=marriages$gender, 
                                                           runname=marriages$runname, 
                                                           lcctype=marriages$lcctype), 
-                                 mean)
+                                   mean)
 names(mean_marr_age_allruns)[grep('^x$', names(mean_marr_age_allruns))] <- 'mean_marr_age'
 
 marr_age_means <- aggregate(mean_marr_age_allruns$mean_marr_age, 
