@@ -117,7 +117,7 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood = model_world.new_neighborhood(NEIGHID, initial_agent=True)
         neighborhood._avg_yrs_services_lt15 = float(neigh_data["avg_yrs_services_lt15"])
         neighborhood._avg_yrs_services_lt30 = float(neigh_data["avg_yrs_services_lt30"])
-        neighborhood._elec_available =  bool(neigh_data['ELEC_AVAIL']) # is neighborhood electrified (in 1995/1996)
+        neighborhood._elec_available =  bool(int(neigh_data['ELEC_AVAIL'])) # is neighborhood electrified (in 1995/1996)
         # All land areas are given in square meters
         neighborhood._land_agveg = float(neigh_data['land.agveg'])
         neighborhood._land_nonagveg= float(neigh_data['land.nonagveg'])
@@ -164,7 +164,7 @@ def assemble_households(householdsFile, model_world):
         HHID_NEIGHID_map[HHID] = NEIGHID
         
         household = model_world.new_household(HID=HHID, initial_agent=True)
-        household._own_house_plot = bool(household_data['BAA43']) # does the household own the plot of land the house is on
+        household._own_house_plot = bool(int(household_data['BAA43'])) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
 
 
@@ -175,8 +175,8 @@ def assemble_households(householdsFile, model_world):
         else:
             household._lastmigrant_time = -9999
 
-        own_any_bari = bool(household_data['BAA10A']) # does the household own any bari land
-        own_any_khet = bool(household_data['BAA18A']) # does the household own any khet land
+        own_any_bari = bool(int(household_data['BAA10A'])) # does the household own any bari land
+        own_any_khet = bool(int(household_data['BAA18A'])) # does the household own any khet land
 
         if own_any_bari or own_any_khet or household._own_household_plot:
             household._own_any_land = True
@@ -317,12 +317,13 @@ def assemble_persons(relationshipsFile, model_world):
         person._child_bus_lt_1hr_ft = int(relation['child_bus_1hr'])
         person._child_employer_lt_1hr_ft = int(relation['child_emp_1hr'])
         person._child_market_lt_1hr_ft = int(relation['child_market_1hr'])
+        
 
-        person._parents_contracep_ever = bool(relation['parents_contracep_ever'])
+        person._parents_contracep_ever = bool(int(relation['parents_contracep_ever']))
 
-        person._father_work = bool(relation['father_work'])
+        person._father_work = bool(int(relation['father_work']))
         person._father_years_schooling = int(relation['father_years_schooling'])
-        person._mother_work = bool(relation['mother_work'])
+        person._mother_work = bool(int(relation['mother_work']))
         person._mother_years_schooling = int(relation['mother_years_schooling'])
         person._mother_num_children = int(relation['mother_num_children'])
 
