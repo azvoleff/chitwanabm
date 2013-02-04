@@ -167,9 +167,10 @@ class Person(Agent):
         else:
             self._school_status = "undetermined"
 
-        #TODO: fix this value elsewhere according to empirical probability (not 
-        # currently used)
-        self._work = boolean_choice(.1)
+        if self._sex == "female":
+            self._work = boolean_choice(.205) # T1 indiv interview
+        else:
+            self._work = boolean_choice(.450) # T1 indiv interview
 
         self._parents_contracep_ever = boolean_choice(.53) # Ghimire, Axinn (2010)
 
