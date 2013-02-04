@@ -175,10 +175,11 @@ def assemble_households(householdsFile, model_world):
         else:
             household._lastmigrant_time = -9999
 
-        own_any_bari = bool(int(household_data['BAA10A'])) # does the household own any bari land
-        own_any_khet = bool(int(household_data['BAA18A'])) # does the household own any khet land
+        household._own_any_bari = bool(int(household_data['BAA10A'])) # does the household own any bari land
+        household._own_any_khet = bool(int(household_data['BAA18A'])) # does the household own any khet land
+        household._own_household_plot = bool(int(household_data['BAA43'])) # does the household own any khet land
 
-        if own_any_bari or own_any_khet or household._own_household_plot:
+        if household._own_any_bari or household._own_any_khet or household._own_household_plot:
             household._own_any_land = True
         else:
             household._own_any_land = False

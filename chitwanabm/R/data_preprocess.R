@@ -281,6 +281,8 @@ hhag.processed$BAA10A[hhag.processed$BAA10A==1] <- TRUE
 hhag.processed$BAA10A[hhag.processed$BAA10A!=1] <- FALSE
 hhag.processed$BAA18A[hhag.processed$BAA18A==1] <- TRUE
 hhag.processed$BAA18A[hhag.processed$BAA18A!=1] <- FALSE
+hhag.processed$BAA43[hhag.processed$BAA43==1] <- TRUE
+hhag.processed$BAA43[hhag.processed$BAA43!=1] <- FALSE
 
 # Only include individuals in hhrel that are in households for which hhag 
 # information is available:
