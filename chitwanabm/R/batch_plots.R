@@ -205,7 +205,36 @@ p + geom_line(aes(time.Robj, agveg_change_ha.mean, colour=lctype), data=agveg_ch
 ggsave(paste(DATA_PATH, "lulc_agveg_change_ha.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT, dpi=DPI)
 save(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.Rdata", sep="/"))
-write.csv(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.csv", sep="/"))
+write.csv(agveg_change_ha_means, file=paste(DATA_PATH, "ens_results_LULC_change.csv", sep="/"), row.names=FALSE)
+
+###########################################################################
+# Plot total agveg land in hectares
+###########################################################################
+lulc_rtchange$agveg_ha <- lulc_rtchange$agveg * .0001
+agveg_total_ha <-  aggregate(lulc_rtchange$agveg_ha,
+                              by=list(time.Robj=lulc_rtchange$time.Robj, 
+                                      nid=lulc_rtchange$run), sum)
+names(agveg_total_ha)[grep('^x$', names(agveg_total_ha))] <- 'agveg_total_ha'
+agveg_total_ha_means <- aggregate(agveg_total_ha$agveg_total_ha, 
+                                  by=list(time.Robj=agveg_total_ha$time.Robj), 
+                                  mean)
+names(agveg_total_ha_means)[grep('^x$', names(agveg_total_ha_means))] <- 'agveg_total_ha.mean'
+agveg_total_ha_means.sd <- aggregate(agveg_total_ha$agveg_total_ha,
+                                     by=list(time.Robj=agveg_total_ha$time.Robj),
+                                     sd)
+names(agveg_total_ha_means.sd)[grep('^x$', names(agveg_total_ha_means.sd))] <- 'agveg_total_ha.sd'
+agveg_total_ha_means <- merge(agveg_total_ha_means, agveg_total_ha_means.sd)
+
+p <- ggplot()
+p + geom_line(aes(time.Robj, agveg_total_ha.mean), data=agveg_total_ha_means) +
+    geom_ribbon(aes(x=time.Robj, ymin=(agveg_total_ha.mean - 2 * agveg_total_ha.sd), 
+                    ymax=(agveg_total_ha.mean + 2 * agveg_total_ha.sd)),
+        alpha=.2, data=agveg_total_ha_means) +
+    labs(x="Years", y='Agricultural Vegetation (hectares)', colour="Initial Land-use Class")
+ggsave(paste(DATA_PATH, "lulc_agveg_total_ha.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=DPI)
+save(agveg_total_ha_means, file=paste(DATA_PATH, "ens_results_LULC_agveg_total_ha.Rdata", sep="/"))
+write.csv(agveg_total_ha_means, file=paste(DATA_PATH, "ens_results_LULC_agveg_total_ha.csv", sep="/"), row.names=FALSE)
 
 ###########################################################################
 # Now make a map of kriged land cover for the final timestep
