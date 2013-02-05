@@ -35,6 +35,7 @@ PLOT_HEIGHT <- 5.53
 DPI <- 300
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
 ###########################################################################
 # Helper functions

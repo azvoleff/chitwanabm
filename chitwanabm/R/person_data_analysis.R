@@ -27,6 +27,7 @@
 ###############################################################################
 
 run_path <- commandArgs(trailingOnly=TRUE)[1]
+if (is.na(run_path)) stop("Run path must be supplied")
 
 person_data_files <- list.files(run_path, "^psns_time_")
 

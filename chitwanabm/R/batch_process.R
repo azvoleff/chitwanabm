@@ -21,6 +21,7 @@
 # contact information.
 
 DATA_PATH <- shQuote(commandArgs(trailingOnly=TRUE)[1])
+if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="

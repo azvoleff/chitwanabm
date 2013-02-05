@@ -39,6 +39,7 @@ script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
 pop.results <- calc_NBH_pop(DATA_PATH)
 

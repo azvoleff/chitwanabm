@@ -34,6 +34,7 @@ theme_set(theme_grey(base_size=18))
 update_geom_defaults("line", aes(size=1))
 
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
+if (is.na(DATA_PATH)) stop("Data path must be supplied")
 
 files <- list.files(DATA_PATH)
 # Only match the model results folders - don't match any other folders or files 
