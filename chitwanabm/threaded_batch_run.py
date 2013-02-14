@@ -64,7 +64,7 @@ class ProcessThread(threading.Thread):
         dev_null = open(os.devnull, 'w')
         command = rcParams['batchrun.python_path'] +  ' ' + \
                   self._script_path +  ' ' + \
-                  self._process_args + '--run-id %s'%self.threadID
+                  self._process_args + ' --run-id %s'%self.threadID
         if '--log' not in command:
             command += ' --log=CRITICAL'
         self._modelrun = subprocess.Popen(command, cwd=sys.path[0], 
