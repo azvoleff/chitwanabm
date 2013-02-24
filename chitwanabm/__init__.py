@@ -29,7 +29,7 @@ project (grant OISE 0729709) investigating human-environment interactions in
 the Western Chitwan Valley.
 """
 
-__version__ = '1.4.2dev'
+__version__ = '1.5'
 
 from pyabm import rc_params, np
 # Set rcparams._initialized to False as rcparams still need to be initialized 
