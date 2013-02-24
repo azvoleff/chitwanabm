@@ -1,6 +1,22 @@
 =====================
 chitwanabm Changelog
 =====================
+
+Version 1.5 - 2013/02/24
+___________________________
+- Store ChitwanABM version module in module __version__
+- Minor documentation revisions
+- Add functions for modeling NFO change.
+- Remove deprecated alternative models for marriage, first birth timing, and 
+  migration.
+- Remove saving of pickled intialization files.
+- Optimize model for speed.
+- Update dependencies to run on a default Amazon EC2 instance.
+- Add new verification script to verify person agent attributes over course of 
+  a model run.
+- Update runmodel to allow passing model run ID as a command line parameter 
+  (helpful on EC2).
+
 Version 1.4.2 - 2012/09/04
 ___________________________
 
