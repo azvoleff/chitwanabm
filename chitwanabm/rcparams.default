@@ -271,7 +271,8 @@
 ###############################################################################
 # Landscape parameters
 ###############################################################################
-'NFOs.change.type' : [('None') | validate_string_list]
+'NFOs.change.model' : ['None' | validate_string]
+'NFOs.modeled.types' : [('None') | validate_string_list]
 'NFOs.rand_NBH_type' : ['inv_dist_narayangar_km' | validate_string]
 'NFOs.change.prob_new_school' : [((0, 1, 3, 5), (.3, .5, .2)) | validate_prob_dist]
 'NFOs.change.prob_new_health' : [((0, 1, 3, 5), (.3, .5, .2)) | validate_prob_dist]

@@ -133,11 +133,12 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood._forest_closest_km = float(neigh_data['closest_meters']) / 1000.
         neighborhood._forest_closest_type = neigh_data['closest_type']
 
-        neighborhood._school_min_ft = float(neigh_data['SCHLFT52'])
-        neighborhood._health_min_ft = float(neigh_data['HLTHFT52'])
-        neighborhood._bus_min_ft = float(neigh_data['BUSFT52'])
-        neighborhood._market_min_ft = float(neigh_data['MARFT52'])
-        neighborhood._employer_min_ft = float(neigh_data['EMPFT52'])
+        neighborhood.NFOs = {}
+        neighborhood.NFOs['school_min_ft'] = float(neigh_data['SCHLFT52'])
+        neighborhood.NFOs['health_min_ft'] = float(neigh_data['HLTHFT52'])
+        neighborhood.NFOs['bus_min_ft'] = float(neigh_data['BUSFT52'])
+        neighborhood.NFOs['market_min_ft'] = float(neigh_data['MARFT52'])
+        neighborhood.NFOs['employer_min_ft'] = float(neigh_data['EMPFT52'])
 
         neighborhood._x = float(neigh_coords[NEIGHID]['x'])
         neighborhood._y = float(neigh_coords[NEIGHID]['y'])

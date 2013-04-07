@@ -511,11 +511,11 @@ class Person(Agent):
             neighborhood = self.get_parent_agent().get_parent_agent()
         
             # Set childhood community context for baby
-            baby._child_school_lt_1hr_ft = neighborhood._school_min_ft < 60
-            baby._child_health_lt_1hr_ft = neighborhood._health_min_ft < 60
-            baby._child_bus_lt_1hr_ft = neighborhood._bus_min_ft < 60
-            baby._child_market_lt_1hr_ft = neighborhood._market_min_ft < 60
-            baby._child_employer_lt_1hr_ft = neighborhood._employer_min_ft < 60
+            baby._child_school_lt_1hr_ft = neighborhood.NFOs['school_min_ft'] < 60
+            baby._child_health_lt_1hr_ft = neighborhood.NFOs['health_min_ft'] < 60
+            baby._child_bus_lt_1hr_ft = neighborhood.NFOs['bus_min_ft'] < 60
+            baby._child_market_lt_1hr_ft = neighborhood.NFOs['market_min_ft'] < 60
+            baby._child_employer_lt_1hr_ft = neighborhood.NFOs['employer_min_ft'] < 60
 
             baby._birth_household_ID = self.get_parent_agent().get_ID()
             baby._birth_neighborhood_ID = neighborhood.get_ID()
@@ -686,22 +686,21 @@ class Neighborhood(Agent_set):
         self._x = None # x coordinate in UTM45N
         self._y = None # y coordinate in UTM45N
         self._elev = None # Elevation of neighborhood from SRTM DEM
-
-        # These values are set in the initialize.py script.
-        self._school_min_ft = None
-        self._health_min_ft = None
-        self._bus_min_ft = None
-        self._market_min_ft = None
-        self._employer_min_ft = None
+        self.NFOs = {}
+        self.NFOs['school_min_ft'] = None
+        self.NFOs['health_min_ft'] = None
+        self.NFOs['bus_min_ft'] = None
+        self.NFOs['market_min_ft'] = None
+        self.NFOs['employer_min_ft'] = None
 
     def get_info(self):
         "Returns basic info about this neighborhood for use in logging."
         return (str(self.get_ID()), str(self._land_agveg), 
                 str(self._land_nonagveg), str(self._land_privbldg), 
                 str(self._land_pubbldg), str(self._land_other), 
-                str(self._elec_available), str(self._school_min_ft), 
-                str(self._health_min_ft), str(self._bus_min_ft), 
-                str(self._market_min_ft), str(self._employer_min_ft),
+                str(self._elec_available), str(self.NFOs['school_min_ft']), 
+                str(self.NFOs['health_min_ft']), str(self.NFOs['bus_min_ft']), 
+                str(self.NFOs['market_min_ft']), str(self.NFOs['employer_min_ft']),
                 str(self._forest_dist_BZ_km), str(self._forest_dist_CNP_km),
                 str(self._forest_closest_km), str(self._forest_closest_type))
 
@@ -1287,53 +1286,62 @@ class Region(Agent_set):
 
     def establish_NFOs(self):
         # First decide on how many neighborhoods will have NFO changes occur.
-        NFO_types = rcParams['NFOs.change.type']
-        new_NFOs = []
-        if 'All' in NFO_types or 'school' in NFO_types:
-            # Not that the random numbers from draw_from_prob_dist are 
-            # converted to ints so that the minimum number of NFOs that may be 
-            # be established is zero.
-            new_NFOs.append(('school', 
-                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_school']))))
-        if 'All' in NFO_types or 'health' in NFO_types:
-            new_NFOs.append(('health', 
-                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_health']))))
-        if 'All' in NFO_types or 'bus' in NFO_types:
-            new_NFOs.append(('bus', 
-                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_bus']))))
-        if 'All' in NFO_types or 'market' in NFO_types:
-            new_NFOs.append(('market', 
-                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_market']))))
-        if 'All' in NFO_types or 'employer' in NFO_types:
-            new_NFOs.append(('employer', 
-                int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_employer']))))
-
-        # Now actually make the NFO changes happen, according the
-        # rand_NBH_type chosen in the rcparams
-        for change_tuple in new_NFOs:
-            NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type']) for n in xrange(change_tuple[1])]
+        if rcParams['NFOs.change.model'] == 'constant_rate':
+            NBHs = self.get_agents()
             for NBH in NBHs:
-                if change_tuple[0] == 'school':
-                    initial = NBH._school_min_ft
-                    NBH._school_min_ft = NBH._school_min_ft / 2
-                    final = NBH._school_min_ft
-                elif change_tuple[0] == 'health':
-                    initial = NBH._health_min_ft
-                    NBH._health_min_ft = NBH._health_min_ft / 2
-                    final = NBH._health_min_ft
-                elif change_tuple[0] == 'bus':
-                    initial = NBH._bus_min_ft
-                    NBH._bus_min_ft = NBH._bus_min_ft / 2
-                    final = NBH._bus_min_ft
-                elif change_tuple[0] == 'market':
-                    initial = NBH._market_min_ft
-                    NBH._market_min_ft = NBH._market_min_ft / 2
-                    final = NBH._market_min_ft
-                elif change_tuple[0] == 'employer':
-                    initial = NBH._employer_min_ft
-                    NBH._employer_min_ft = NBH._employer_min_ft / 2
-                    final = NBH._employer_min_ft
-                logger.debug('New %s established in NBH %s. Distance in min. on foot reduced from %s to %s'%(change_tuple[0], NBH.get_ID(), initial, final))
+                for type in rcParams['NFOs.modeled.types']:
+                    NBH.NFOs[type] = NBH.NFOs[type] + self.NFO_change_rates[type]
+            
+        elif rcParams['NFOs.change.model'] == 'random':
+            NFO_types = rcParams['NFOs.modeled.types']
+            new_NFOs = []
+            if 'All' in NFO_types or 'school' in NFO_types:
+                # Not that the random numbers from draw_from_prob_dist are 
+                # converted to ints so that the minimum number of NFOs that may be 
+                # be established is zero.
+                new_NFOs.append(('school', 
+                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_school']))))
+            if 'All' in NFO_types or 'health' in NFO_types:
+                new_NFOs.append(('health', 
+                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_health']))))
+            if 'All' in NFO_types or 'bus' in NFO_types:
+                new_NFOs.append(('bus', 
+                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_bus']))))
+            if 'All' in NFO_types or 'market' in NFO_types:
+                new_NFOs.append(('market', 
+                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_market']))))
+            if 'All' in NFO_types or 'employer' in NFO_types:
+                new_NFOs.append(('employer', 
+                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_employer']))))
+
+            # Now actually make the NFO changes happen, according the
+            # rand_NBH_type chosen in the rcparams
+            for change_tuple in new_NFOs:
+                NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type']) for n in xrange(change_tuple[1])]
+                for NBH in NBHs:
+                    if change_tuple[0] == 'school':
+                        initial = NBH._school_min_ft
+                        NBH._school_min_ft = NBH._school_min_ft / 2
+                        final = NBH._school_min_ft
+                    elif change_tuple[0] == 'health':
+                        initial = NBH._health_min_ft
+                        NBH._health_min_ft = NBH._health_min_ft / 2
+                        final = NBH._health_min_ft
+                    elif change_tuple[0] == 'bus':
+                        initial = NBH._bus_min_ft
+                        NBH._bus_min_ft = NBH._bus_min_ft / 2
+                        final = NBH._bus_min_ft
+                    elif change_tuple[0] == 'market':
+                        initial = NBH._market_min_ft
+                        NBH._market_min_ft = NBH._market_min_ft / 2
+                        final = NBH._market_min_ft
+                    elif change_tuple[0] == 'employer':
+                        initial = NBH._employer_min_ft
+                        NBH._employer_min_ft = NBH._employer_min_ft / 2
+                        final = NBH._employer_min_ft
+                    logger.debug('New %s established in NBH %s. Distance in min. on foot reduced from %s to %s'%(change_tuple[0], NBH.get_ID(), initial, final))
+
+        else: raise Exception("Unknown option for NFOs.change.model: '%s'"%rcParams['NFOs.change.model'])
 
     def get_neighborhood_fw_usage(self, time):
         fw_usage = {}
@@ -1358,11 +1366,11 @@ class Region(Agent_set):
     def get_neighborhood_nfo_context(self):
         nfocontext = {'school_min_ft':{}, 'health_min_ft':{}, 'bus_min_ft':{}, 'market_min_ft':{}, 'employer_min_ft':{}}
         for neighborhood in self.iter_agents():
-            nfocontext['school_min_ft'][neighborhood.get_ID()] = neighborhood._school_min_ft
-            nfocontext['health_min_ft'][neighborhood.get_ID()] = neighborhood._health_min_ft
-            nfocontext['bus_min_ft'][neighborhood.get_ID()] = neighborhood._bus_min_ft
-            nfocontext['market_min_ft'][neighborhood.get_ID()] = neighborhood._market_min_ft
-            nfocontext['employer_min_ft'][neighborhood.get_ID()] = neighborhood._employer_min_ft
+            nfocontext['school_min_ft'][neighborhood.get_ID()] = neighborhood.NFOs['school_min_ft']
+            nfocontext['health_min_ft'][neighborhood.get_ID()] = neighborhood.NFOs['health_min_ft']
+            nfocontext['bus_min_ft'][neighborhood.get_ID()] = neighborhood.NFOs['bus_min_ft']
+            nfocontext['market_min_ft'][neighborhood.get_ID()] = neighborhood.NFOs['market_min_ft']
+            nfocontext['employer_min_ft'][neighborhood.get_ID()] = neighborhood.NFOs['employer_min_ft']
         return nfocontext
 
     def get_neighborhood_forest_distance(self):

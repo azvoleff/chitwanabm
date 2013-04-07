@@ -178,14 +178,14 @@ def calc_probability_marriage_zvoleff(person, time):
     log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100 + 1)
     inner += rcParams['marrtime.zv.coef.interp_logpercagveg'] * log_percent_agveg
 
-    inner += rcParams['marrtime.zv.coef.SCHLFT'] * neighborhood._school_min_ft
-    inner += rcParams['marrtime.zv.coef.HLTHFT'] * neighborhood._health_min_ft
-    inner += rcParams['marrtime.zv.coef.BUSFT'] * neighborhood._bus_min_ft
-    inner += rcParams['marrtime.zv.coef.MARFT'] * neighborhood._market_min_ft
-    inner += rcParams['marrtime.zv.coef.EMPFT'] * neighborhood._employer_min_ft
+    inner += rcParams['marrtime.zv.coef.SCHLFT'] * neighborhood.NFOs['school_min_ft']
+    inner += rcParams['marrtime.zv.coef.HLTHFT'] * neighborhood.NFOs['health_min_ft']
+    inner += rcParams['marrtime.zv.coef.BUSFT'] * neighborhood.NFOs['bus_min_ft']
+    inner += rcParams['marrtime.zv.coef.MARFT'] * neighborhood.NFOs['market_min_ft']
+    inner += rcParams['marrtime.zv.coef.EMPFT'] * neighborhood.NFOs['employer_min_ft']
 
     # Schooling
-    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
+    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood.NFOs['school_min_ft']
     if person.is_in_school():
         inner += rcParams['marrtime.zv.coef.in_school']
 
@@ -327,7 +327,7 @@ def calc_probability_migration_zvoleff(person):
     #######################################################################
     # Neighborhood level variables
     neighborhood = household.get_parent_agent()
-    inner += rcParams['migration.zv.coef.log_market_min_ft'] * np.log(neighborhood._market_min_ft + 1)
+    inner += rcParams['migration.zv.coef.log_market_min_ft'] * np.log(neighborhood.NFOs['market_min_ft'] + 1)
 
     #########################################################################
     # Other controls
