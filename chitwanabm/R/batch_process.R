@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 #
-# Copyright 2008-2012 Alex Zvoleff
+# Copyright 2008-2013 Alex Zvoleff
 #
 # This file is part of the chitwanabm agent-based model.
 # 
