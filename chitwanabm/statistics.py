@@ -574,26 +574,31 @@ def calc_education_level(person):
     """
     levels = rcParams['education.depvar_levels']
 
+    intercepts = [rcParams['education.coef.y>=gt0lt4'],
+                  rcParams['education.coef.y>=gt4lt8'],
+                  rcParams['education.coef.y>=gt8lt11'],
+                  rcParams['education.coef.y>=gt11']]
+
     prob_y_gte_j = np.zeros(len(levels) - 1) # probability y >= j
     for n in np.arange(len(prob_y_gte_j)):
-        intercept = rcParams['education.coef.intercepts'][n]
+        intercept = intercepts[n]
         xb_sum = 0
 
         # Individual-level characteristics
         if person.get_sex() == "female":
-            xb_sum += rcParams['education.coef.female']
+            xb_sum += rcParams['education.coef.gender=female']
 
         if person.get_ethnicity() == "HighHindu":
             # This was the reference class
             pass
-        elif person.get_ethnicity() == "LowHindu":
-            xb_sum += rcParams['education.coef.ethnicLowHindu']
-        elif person.get_ethnicity() == "Newar":
-            xb_sum += rcParams['education.coef.ethnicNewar']
         elif person.get_ethnicity() == "HillTibeto":
-            xb_sum += rcParams['education.coef.ethnicHillTibeto']
+            xb_sum += rcParams['education.coef.ethnic=HillTibeto']
+        elif person.get_ethnicity() == "LowHindu":
+            xb_sum += rcParams['education.coef.ethnic=LowHindu']
+        elif person.get_ethnicity() == "Newar":
+            xb_sum += rcParams['education.coef.ethnic=Newar']
         elif person.get_ethnicity() == "TeraiTibeto":
-            xb_sum += rcParams['education.coef.ethnicTeraiTibeto']
+            xb_sum += rcParams['education.coef.ethnic=TeraiTibeto']
         else:
             raise StatisticsError("No coefficient was specified for ethnicity '%s'"%person.get_ethnicity())
 

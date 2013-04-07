@@ -252,13 +252,18 @@
 # Education OLR results
 'education.start_school_age_years' : [6 | validate_int]
 'education.depvar_levels' : [(0, 4, 8, 11, 15) | validate_nseq_int(5)]
+'education.coef.y>=gt0lt4' : [2.078325 | validate_float]
+'education.coef.y>=gt4lt8' : [1.357425 | validate_float]
+'education.coef.y>=gt8lt11' : [-0.01346 | validate_float]
+'education.coef.y>=gt11' : [-1.682605 | validate_float]
+'education.coef.gender=female' : [-2.083916 | validate_float]
+'education.coef.ethnic=HillTibeto' : [-1.483859 | validate_float]
+'education.coef.ethnic=LowHindu' : [-2.01507 | validate_float]
+'education.coef.ethnic=Newar' : [-0.017056 | validate_float]
+'education.coef.ethnic=TeraiTibeto' : [-2.483261 | validate_float]
+'education.coef.avg_yrs_services_lt15' : [0.048501 | validate_float]
+
 'education.coef.intercepts' : [(2.0783, 1.3574, -.0135, -1.6826) | validate_nseq_float(4)]
-'education.coef.female' : [-2.0839 | validate_float]
-'education.coef.ethnicLowHindu' : [-2.0151 | validate_float]
-'education.coef.ethnicHillTibeto' : [-1.4839 | validate_float]
-'education.coef.ethnicNewar' : [-0.0171 | validate_float]
-'education.coef.ethnicTeraiTibeto' : [-2.4833 | validate_float]
-'education.coef.avg_yrs_services_lt15' : [0.0485 | validate_float]
 
 # Spouse choice (dependent on age) parameters
 'spousechoice.male.agediff' : [((20, -15, -10, -5, -2, -1, 0, 1, 2, 5, 10, 15, 30), (.0005411, .0032468, .0075758, .0205628, .0178571, .0524892, .0703463, .1049784, .3019481, .2732684, .0963203, .0508658)) | validate_prob_dist]
