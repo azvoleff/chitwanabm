@@ -178,16 +178,16 @@ def calc_probability_marriage_zvoleff(person, time):
     log_percent_agveg = np.log((neighborhood._land_agveg / neighborhood._land_total)*100 + 1)
     inner += rcParams['marrtime.zv.coef.interp_logpercagveg'] * log_percent_agveg
 
-    inner += rcParams['marrtime.zv.coef.SCHLFT_1996'] * neighborhood._school_min_ft
-    inner += rcParams['marrtime.zv.coef.HLTHFT_1996'] * neighborhood._health_min_ft
-    inner += rcParams['marrtime.zv.coef.BUSFT_1996'] * neighborhood._bus_min_ft
-    inner += rcParams['marrtime.zv.coef.MARFT_1996'] * neighborhood._market_min_ft
-    inner += rcParams['marrtime.zv.coef.EMPFT_1996'] * neighborhood._employer_min_ft
+    inner += rcParams['marrtime.zv.coef.SCHLFT'] * neighborhood._school_min_ft
+    inner += rcParams['marrtime.zv.coef.HLTHFT'] * neighborhood._health_min_ft
+    inner += rcParams['marrtime.zv.coef.BUSFT'] * neighborhood._bus_min_ft
+    inner += rcParams['marrtime.zv.coef.MARFT'] * neighborhood._market_min_ft
+    inner += rcParams['marrtime.zv.coef.EMPFT'] * neighborhood._employer_min_ft
 
     # Schooling
     inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood._school_min_ft
     if person.is_in_school():
-        inner += rcParams['marrtime.zv.coef.in_school_1996']
+        inner += rcParams['marrtime.zv.coef.in_school']
 
     # Account for monthly differences in marriage rates - some days (and 
     # months) are more auspicious for marriage than others.
