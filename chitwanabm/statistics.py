@@ -185,7 +185,7 @@ def calc_probability_marriage_zvoleff(person, time):
     inner += rcParams['marrtime.zv.coef.EMPFT'] * neighborhood.NFOs['employer_min_ft']
 
     # Schooling
-    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * neighborhood.NFOs['school_min_ft']
+    inner += rcParams['marrtime.zv.coef.schooling_yrs'] * person.get_years_schooling()
     if person.is_in_school():
         inner += rcParams['marrtime.zv.coef.in_school']
 
