@@ -134,11 +134,11 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood._forest_closest_type = neigh_data['closest_type']
 
         neighborhood.NFOs = {}
-        neighborhood.NFOs['school_min_ft'] = float(neigh_data['SCHLFT52'])
-        neighborhood.NFOs['health_min_ft'] = float(neigh_data['HLTHFT52'])
-        neighborhood.NFOs['bus_min_ft'] = float(neigh_data['BUSFT52'])
-        neighborhood.NFOs['market_min_ft'] = float(neigh_data['MARFT52'])
-        neighborhood.NFOs['employer_min_ft'] = float(neigh_data['EMPFT52'])
+        neighborhood.NFOs['school_min_ft'] = float(neigh_data['SCHLFT52']) * rcParams['NFOs.initmultiplier.school_min_ft']
+        neighborhood.NFOs['health_min_ft'] = float(neigh_data['HLTHFT52']) * rcParams['NFOs.initmultiplier.health_min_ft']
+        neighborhood.NFOs['bus_min_ft'] = float(neigh_data['BUSFT52']) * rcParams['NFOs.initmultiplier.bus_min_ft']
+        neighborhood.NFOs['market_min_ft'] = float(neigh_data['MARFT52']) * rcParams['NFOs.initmultiplier.market_min_ft']
+        neighborhood.NFOs['employer_min_ft'] = float(neigh_data['EMPFT52']) * rcParams['NFOs.initmultiplier.employer_min_ft']
 
         # The below 
         neighborhood.NFOs_change_rate = {}

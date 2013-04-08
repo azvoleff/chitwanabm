@@ -273,6 +273,14 @@
 ###############################################################################
 # Options for the NFO change model are 'random' or 'constant_rate'
 'NFOs.change.model' : ['None' | validate_string]
+# The below multipliers can be used to scale the initial values of the NFO 
+# distance variables (can be set to zero for example to test effect of having 
+# all NBHs have distance to a particular NFO set to zero).
+'NFOs.initmultiplier.school_min_ft' : [1 | validate_float]
+'NFOs.initmultiplier.health_min_ft' : [1 | validate_float]
+'NFOs.initmultiplier.bus_min_ft' : [1 | validate_float]
+'NFOs.initmultiplier.market_min_ft' : [1 | validate_float]
+'NFOs.initmultiplier.employer_min_ft' : [1 | validate_float]
 # The below specifies the types of NFOs in which to model change
 'NFOs.modeled.types' : [('school_min_ft', 'health_min_ft', 'bus_min_ft', 'market_min_ft', 'employer_min_ft') | validate_string_list]
 # If the 'constant_rate' model is chosen, this multiplier will be used to 
