@@ -1295,7 +1295,7 @@ class Region(Agent_set):
             person._agemonths += timestep
 
     def establish_NFOs(self):
-        logger.debug('Modeling NFO change.'%NFO_type)
+        logger.debug('Modeling NFO change.')
         mask = {}
         for NFO_type in rcParams['NFOs.modeled.types']:
             mask[NFO_type] = [(NBH.NFOs[NFO_type] == 0) for NBH in self.iter_agents()]
