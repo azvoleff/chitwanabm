@@ -1291,22 +1291,27 @@ class Region(Agent_set):
             for NBH in NBHs:
                 for type in rcParams['NFOs.modeled.types']:
                     NBH.NFOs[type] = NBH.NFOs[type] + self.NFO_change_rates[type]
+                    if NBH.NFOs[type] < 0: NBH.NFOs[type] = 0
             
         elif rcParams['NFOs.change.model'].lower() == 'random':
             new_NFOs = []
             for NFO_type in rcParams['NFOs.modeled.types']:
                 new_NFOs.append((NFO_type, int(draw_from_prob_dist(rcParams['NFOs.prob.change.' + NFO_type]))))
 
-            # Now actually make the NFO changes happen, according the
+            # Now actually make the NFO changes happen, according to the
             # rand_NBH_type chosen in the rcparams
             for change_tuple in new_NFOs:
                 NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type']) for n in xrange(change_tuple[1])]
                 for NBH in NBHs:
-                    nfo_type = change_tuple[0]
-                    initial = NBH.NFOs[nfo_type]
-                    NBH.NFOs[nfo_type] = NBH.NFOs[nfo_type] / 2
-                    final = NBH.NFOs[nfo_type]
-                    logger.debug('NFO change modeled in %s in NBH %s. Distance in min. on foot reduced from %s to %s'%(nfo_type, NBH.get_ID(), initial, final))
+                    NFO_type = change_tuple[0]
+                    while NBH.NFOs[NFO_type] == 0:
+                        NBH = self.get_rand_NBH(rcParams['NFOs.rand_NBH_type'])
+                        logger.debug('NFO change: redrew NBH as %s in NBH %s is 0.'%(NFO_type, NBH.get_ID()))
+                    initial = NBH.NFOs[NFO_type]
+                    NBH.NFOs[NFO_type] = NBH.NFOs[NFO_type] / 2
+                    final = NBH.NFOs[NFO_type]
+                    if NBH.NFOs[NFO_type] < 1: NBH.NFOs[NFO_type] = 0
+                    logger.debug('NFO change: change modeled in %s in NBH %s. Distance in min. on foot reduced from %s to %s'%(NFO_type, NBH.get_ID(), initial, final))
 
         else: raise Exception("Unknown option for NFOs.change.model: '%s'"%rcParams['NFOs.change.model'])
 
