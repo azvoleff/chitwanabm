@@ -272,7 +272,7 @@
 # Landscape parameters
 ###############################################################################
 # Options for the NFO change model are 'random' or 'constant_rate'
-'NFOs.change.model' : ['constant_rate' | validate_string]
+'NFOs.change.model' : ['None' | validate_string]
 # The below specifies the types of NFOs in which to model change
 'NFOs.modeled.types' : [('school_min_ft', 'health_min_ft', 'bus_min_ft', 'market_min_ft', 'employer_min_ft') | validate_string_list]
 # If the 'constant_rate' model is chosen, this multiplier will be used to 
