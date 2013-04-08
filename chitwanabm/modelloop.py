@@ -198,7 +198,7 @@ def main_loop(world, results_path):
             region.increment_age()
 
             # Now account for changing NFOs (if desired)
-            if rcParams['NFOs.change.model'].lower() != 'None':
+            if rcParams['NFOs.change.model'].lower() != 'none':
                 region.establish_NFOs()
 
         # Save event, LULC, and population data in the saved_data dictionary 
