@@ -1286,60 +1286,27 @@ class Region(Agent_set):
 
     def establish_NFOs(self):
         # First decide on how many neighborhoods will have NFO changes occur.
-        if rcParams['NFOs.change.model'] == 'constant_rate':
+        if rcParams['NFOs.change.model'].lower() == 'constant_rate':
             NBHs = self.get_agents()
             for NBH in NBHs:
                 for type in rcParams['NFOs.modeled.types']:
                     NBH.NFOs[type] = NBH.NFOs[type] + self.NFO_change_rates[type]
             
-        elif rcParams['NFOs.change.model'] == 'random':
-            NFO_types = rcParams['NFOs.modeled.types']
+        elif rcParams['NFOs.change.model'].lower() == 'random':
             new_NFOs = []
-            if 'All' in NFO_types or 'school' in NFO_types:
-                # Not that the random numbers from draw_from_prob_dist are 
-                # converted to ints so that the minimum number of NFOs that may be 
-                # be established is zero.
-                new_NFOs.append(('school', 
-                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_school']))))
-            if 'All' in NFO_types or 'health' in NFO_types:
-                new_NFOs.append(('health', 
-                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_health']))))
-            if 'All' in NFO_types or 'bus' in NFO_types:
-                new_NFOs.append(('bus', 
-                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_bus']))))
-            if 'All' in NFO_types or 'market' in NFO_types:
-                new_NFOs.append(('market', 
-                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_market']))))
-            if 'All' in NFO_types or 'employer' in NFO_types:
-                new_NFOs.append(('employer', 
-                    int(draw_from_prob_dist(rcParams['NFOs.change.prob_new_employer']))))
+            for NFO_type in rcParams['NFOs.modeled.types']:
+                new_NFOs.append((NFO_type, int(draw_from_prob_dist(rcParams['NFOs.prob.change.' + NFO_type]))))
 
             # Now actually make the NFO changes happen, according the
             # rand_NBH_type chosen in the rcparams
             for change_tuple in new_NFOs:
                 NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type']) for n in xrange(change_tuple[1])]
                 for NBH in NBHs:
-                    if change_tuple[0] == 'school':
-                        initial = NBH._school_min_ft
-                        NBH._school_min_ft = NBH._school_min_ft / 2
-                        final = NBH._school_min_ft
-                    elif change_tuple[0] == 'health':
-                        initial = NBH._health_min_ft
-                        NBH._health_min_ft = NBH._health_min_ft / 2
-                        final = NBH._health_min_ft
-                    elif change_tuple[0] == 'bus':
-                        initial = NBH._bus_min_ft
-                        NBH._bus_min_ft = NBH._bus_min_ft / 2
-                        final = NBH._bus_min_ft
-                    elif change_tuple[0] == 'market':
-                        initial = NBH._market_min_ft
-                        NBH._market_min_ft = NBH._market_min_ft / 2
-                        final = NBH._market_min_ft
-                    elif change_tuple[0] == 'employer':
-                        initial = NBH._employer_min_ft
-                        NBH._employer_min_ft = NBH._employer_min_ft / 2
-                        final = NBH._employer_min_ft
-                    logger.debug('New %s established in NBH %s. Distance in min. on foot reduced from %s to %s'%(change_tuple[0], NBH.get_ID(), initial, final))
+                    nfo_type = change_tuple[0]
+                    initial = NBH.NFOs[nfo_type]
+                    NBH.NFOs[nfo_type] = NBH.NFOs[nfo_type] / 2
+                    final = NBH.NFOs[nfo_type]
+                    logger.debug('NFO change modeled in %s in NBH %s. Distance in min. on foot reduced from %s to %s'%(nfo_type, NBH.get_ID(), initial, final))
 
         else: raise Exception("Unknown option for NFOs.change.model: '%s'"%rcParams['NFOs.change.model'])
 
