@@ -692,6 +692,12 @@ class Neighborhood(Agent_set):
         self.NFOs['bus_min_ft'] = None
         self.NFOs['market_min_ft'] = None
         self.NFOs['employer_min_ft'] = None
+        self.NFOs_change_rate = {}
+        self.NFOs_change_rate['school_min_ft'] = None
+        self.NFOs_change_rate['health_min_ft'] = None
+        self.NFOs_change_rate['bus_min_ft'] = None
+        self.NFOs_change_rate['market_min_ft'] = None
+        self.NFOs_change_rate['employer_min_ft'] = None
 
     def get_info(self):
         "Returns basic info about this neighborhood for use in logging."
@@ -1289,9 +1295,11 @@ class Region(Agent_set):
         if rcParams['NFOs.change.model'].lower() == 'constant_rate':
             NBHs = self.get_agents()
             for NBH in NBHs:
-                for type in rcParams['NFOs.modeled.types']:
-                    NBH.NFOs[type] = NBH.NFOs[type] + self.NFO_change_rates[type]
-                    if NBH.NFOs[type] < 0: NBH.NFOs[type] = 0
+                for NFO_type in rcParams['NFOs.modeled.types']:
+                    NBH.NFOs[NFO_type] = NBH.NFOs[NFO_type] + \
+                            NBH.NFOs_change_rate[NFO_type] * \
+                            rcParams['NFOs.change.model.constant_rate.multiplier']
+                    if NBH.NFOs[NFO_type] < 1: NBH.NFOs[NFO_type] = 0
             
         elif rcParams['NFOs.change.model'].lower() == 'random':
             new_NFOs = []

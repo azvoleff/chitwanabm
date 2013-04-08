@@ -140,6 +140,14 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood.NFOs['market_min_ft'] = float(neigh_data['MARFT52'])
         neighborhood.NFOs['employer_min_ft'] = float(neigh_data['EMPFT52'])
 
+        # The below 
+        neighborhood.NFOs_change_rate = {}
+        neighborhood.NFOs_change_rate['school_min_ft'] = float(neigh_data['SCHLFT_change'])
+        neighborhood.NFOs_change_rate['health_min_ft'] = float(neigh_data['HLTHFT_change'])
+        neighborhood.NFOs_change_rate['bus_min_ft'] = float(neigh_data['BUSFT_change'])
+        neighborhood.NFOs_change_rate['market_min_ft'] = float(neigh_data['MARFT_change'])
+        neighborhood.NFOs_change_rate['employer_min_ft'] = float(neigh_data['EMPFT_change'])
+
         neighborhood._x = float(neigh_coords[NEIGHID]['x'])
         neighborhood._y = float(neigh_coords[NEIGHID]['y'])
         neighborhood._distnara =  float(neigh_data['dist_nara']) # distance from Narayanghat

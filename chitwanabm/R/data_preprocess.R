@@ -377,6 +377,15 @@ forest_distances$NEIGHID <- sprintf("%03i", as.numeric(substr(forest_distances$N
 neigh.processed <- merge(neigh.processed, forest_distances, by="NEIGHID")
 
 ###############################################################################
+# Add on rates of change of NFO distance in minutes on foot.
+nfo_change_rates <- read.csv(paste(RAW_DATA_PATH, "NFO_change_mean_annual_minft.csv", sep="/"))
+nfo_change_rates$NEIGHID <- factor(sprintf("%03i", as.numeric(nfo_change_rates$NEIGHID)))
+change_cols <- !grepl('NEIGHID', names(nfo_change_rates))
+# Convert the annual rates to monthly rates.
+nfo_change_rates[change_cols] <- nfo_change_rates[change_cols] / 12
+neigh.processed <- merge(neigh.processed, nfo_change_rates)
+
+###############################################################################
 # Read in the household registry data to get the ethnicities
 load(paste(RAW_DATA_PATH, "hhreg.Rdata", sep="/"))
 # Convert IDs to new 9 digit format:
