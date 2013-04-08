@@ -282,6 +282,8 @@
 # If the 'random' model is chosen, the below parameter specifies how the random 
 # neighborhoods in which to model change should be chosen.
 'NFOs.rand_NBH_type' : ['inv_dist_narayangar_km' | validate_string]
+'NFOs.rand_NBH_type' : ['inv_dist_narayangar_km' | validate_string]
+'NFOs.change.model.random.multiplier' : [.75 | validate_float]
 # If the 'random' model is chosen, the below parameters specify probability 
 # distributions from which to draw the number of neighborhoods that will have 
 # their NFO distances change each month.

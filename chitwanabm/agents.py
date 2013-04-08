@@ -1176,11 +1176,13 @@ class Region(Agent_set):
             person.return_from_LD_migration()
         return n_outmigr_indiv, n_ret_migr_indiv
 
-    def get_rand_NBH(self, rand_NBH_type):
+    def get_rand_NBH(self, rand_NBH_type, mask):
         # Returns a random neighborhood, chosen from a sorted list of all 
         # neighborhoods with probability assigned to each neighborhood 
         # according to the chosen 'rand_NBH_type', which could be purely 
         # random, or based on an inverse distance or other weighting function.
+        # Mask is a list of zeros and ones that can be used to mask out certain 
+        # neighborhoods from the list.
         if rand_NBH_type == 'inv_dist_forest_closest_km':
             probs = [1 / NBH._forest_closest_km for NBH in self.get_agents()]
         elif rand_NBH_type == 'inv_dist_CNP_km':
@@ -1193,7 +1195,9 @@ class Region(Agent_set):
             probs = np.ones(len(self.get_agents()))
         else:
             raise Exception("Unknown option %s for 'rand_NBH_type' in get_rand_NBH"%rand_NBH_type)
-        probs = np.cumsum(probs) / np.sum(probs)
+        probs = np.array(probs)
+        probs[mask] = 0
+        probs = probs.cumsum() / probs.sum()
         index = sum(np.random.rand() > probs)
         return self.get_agents()[index]
 
@@ -1291,11 +1295,19 @@ class Region(Agent_set):
             person._agemonths += timestep
 
     def establish_NFOs(self):
-        # First decide on how many neighborhoods will have NFO changes occur.
+        logger.debug('Modeling NFO change.'%NFO_type)
+        mask = {}
+        for NFO_type in rcParams['NFOs.modeled.types']:
+            mask[NFO_type] = [(NBH.NFOs[NFO_type] == 0) for NBH in self.iter_agents()]
+            mask[NFO_type] = np.array(mask[NFO_type], dtype=bool)
+
         if rcParams['NFOs.change.model'].lower() == 'constant_rate':
             NBHs = self.get_agents()
             for NBH in NBHs:
                 for NFO_type in rcParams['NFOs.modeled.types']:
+                    if np.sum(mask[NFO_type]) == 0:
+                        logger.debug('Skipping %s NFO change as all NBHs have min ft equal to 0.'%NFO_type)
+                        continue
                     NBH.NFOs[NFO_type] = NBH.NFOs[NFO_type] + \
                             NBH.NFOs_change_rate[NFO_type] * \
                             rcParams['NFOs.change.model.constant_rate.multiplier']
@@ -1303,23 +1315,25 @@ class Region(Agent_set):
             
         elif rcParams['NFOs.change.model'].lower() == 'random':
             new_NFOs = []
+            # First decide on how many neighborhoods will have NFO changes 
+            # occur.
             for NFO_type in rcParams['NFOs.modeled.types']:
+                if mask[NFO_type].sum() == 0:
+                    logger.debug('Skipping %s NFO change as all NBHs have min ft equal to 0.'%NFO_type)
+                    continue
                 new_NFOs.append((NFO_type, int(draw_from_prob_dist(rcParams['NFOs.prob.change.' + NFO_type]))))
 
             # Now actually make the NFO changes happen, according to the
             # rand_NBH_type chosen in the rcparams
             for change_tuple in new_NFOs:
-                NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type']) for n in xrange(change_tuple[1])]
+                NBHs = [self.get_rand_NBH(rcParams['NFOs.rand_NBH_type'], mask[NFO_type]) for n in xrange(change_tuple[1])]
                 for NBH in NBHs:
                     NFO_type = change_tuple[0]
-                    while NBH.NFOs[NFO_type] == 0:
-                        NBH = self.get_rand_NBH(rcParams['NFOs.rand_NBH_type'])
-                        logger.debug('NFO change: redrew NBH as %s in NBH %s is 0.'%(NFO_type, NBH.get_ID()))
                     initial = NBH.NFOs[NFO_type]
-                    NBH.NFOs[NFO_type] = NBH.NFOs[NFO_type] / 2
+                    NBH.NFOs[NFO_type] = NBH.NFOs[NFO_type] * rcParams['NFOs.change.model.random.multiplier']
                     final = NBH.NFOs[NFO_type]
                     if NBH.NFOs[NFO_type] < 1: NBH.NFOs[NFO_type] = 0
-                    logger.debug('NFO change: change modeled in %s in NBH %s. Distance in min. on foot reduced from %s to %s'%(NFO_type, NBH.get_ID(), initial, final))
+                    logger.debug('NFO change modeled in %s in NBH %s. Distance reduced from %s to %s'%(NFO_type, NBH.get_ID(), initial, final))
 
         else: raise Exception("Unknown option for NFOs.change.model: '%s'"%rcParams['NFOs.change.model'])
 
