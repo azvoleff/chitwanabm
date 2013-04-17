@@ -131,6 +131,48 @@ def main_loop(world, results_path):
     saved_data[0].update(region.get_neighborhood_pop_stats())
     saved_data[0].update(region.get_neighborhood_fw_usage(model_time.get_T0_date_float()))
 
+    ###########################################################################
+    # Define the result arrays - there will be three arrays:
+    # 	1) out_timesteps stores the output
+    # 	2) out_nbh stores neighborhood level output
+    # 	3) out_psn stores person level output
+    out_timesteps_dtype = [('timestep', 'i2'),
+                           ('year', 'i2'),
+                           ('month', 'i2'),
+                           ('date_float', 'f4')]
+    out_timesteps = np.zeros((model_time.get_total_num_timesteps()), 
+            dtype=out_timesteps_dtype)
+
+    #TODO: Finish this
+    out_nbh_dtype = [('births', 'i2'),
+                     ('deaths', 'i2'),
+                     ('marr', 'i2'),
+                     ('divo', 'i2'),
+                     ('out_migr_indiv', 'i2'),
+                     ('ret_migr_indiv', 'i2'),
+                     ('in_migr_HH', 'i2'),
+                     ('out_migr_HH', 'i2'),
+                     ('num_psn', 'i4'),
+                     ('num_hs', 'i2'),
+                     ('num_marr', 'i2')]
+    out_nbh = np.zeros((region.num_members() * model_time.get_total_num_timesteps()), 
+            dtype=out_nbh_dtype)
+
+    #TODO: Finish this
+    out_psn_dtype = [('births', 'i2'),
+                     ('deaths', 'i2'),
+                     ('marr', 'i2'),
+                     ('divo', 'i2'),
+                     ('out_migr_indiv', 'i2'),
+                     ('ret_migr_indiv', 'i2'),
+                     ('in_migr_HH', 'i2'),
+                     ('out_migr_HH', 'i2'),
+                     ('num_psn', 'i4'),
+                     ('num_hs', 'i2'),
+                     ('num_marr', 'i2')]
+    out_psn = np.zeros((model_time.get_total_num_timesteps()), 
+            dtype=out_psn_dtype)
+
     # Make a dictionary to store empty (zero) event data for submodels if they 
     # are turned off by the user.
     zero_events = {}
@@ -158,7 +200,10 @@ def main_loop(world, results_path):
 
     while model_time.in_bounds():
         timestep = model_time.get_cur_int_timestep()
-        logger.debug('beginning timestep %s (%s)'%(model_time.get_cur_int_timestep(), model_time.get_cur_date_string()))
+        out_timesteps[timestep - 1] = (timestep, model_time.get_cur_year(), 
+                model_time.get_cur_month(), model_time.get_cur_date_float())
+        logger.debug('beginning timestep %s (%s)'%(model_time.get_cur_int_timestep(), 
+            model_time.get_cur_date_string()))
         if model_time.get_cur_month() == 1:
             annual_num_births = 0
             annual_num_deaths = 0
@@ -285,7 +330,7 @@ def main_loop(world, results_path):
 
         model_time.increment()
 
-    return saved_data, time_strings
+    return saved_data, time_strings, out_timesteps, out_nbh, out_psn
 
 def elapsed_time(start_time):
     elapsed = int(time.time() - start_time)

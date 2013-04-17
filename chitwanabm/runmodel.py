@@ -235,7 +235,7 @@ def main():
     # Run the model loop
     start_time = time.localtime()
     logger.info('Beginning model run %s'%run_ID_number)
-    run_results, time_strings = main_loop(world, results_path) # This line actually runs the model.
+    run_results, time_strings, out_timesteps, out_nbh, out_psn = main_loop(world, results_path) # This line actually runs the model.
     end_time = time.localtime()
     logger.info('Finished model run number %s'%run_ID_number)
     
@@ -250,6 +250,9 @@ def main():
     run_results = reformat_run_results(run_results)
     run_results_csv_file = os.path.join(results_path, "run_results.csv")
     write_results_csv(run_results, run_results_csv_file, "neighid")
+
+    results_npz_file = os.path.join(results_path, "results.npz")
+    np.savez_compressed(results_npz_file, timesteps=out_timesteps, nbh=out_nbh, psn=out_psn)
 
     # Write neighborhood LULC, pop, x, y coordinates, etc. for the last 
     # timestep.
