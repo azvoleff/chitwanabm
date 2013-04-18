@@ -35,11 +35,13 @@ import tempfile
 import subprocess
 import socket
 import csv
-import numpy as np
 import argparse # Requires Python 2.7 or above
 import logging
 import shutil
 from pkg_resources import resource_filename
+
+import numpy as np
+import tables
 
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
@@ -235,7 +237,7 @@ def main():
     # Run the model loop
     start_time = time.localtime()
     logger.info('Beginning model run %s'%run_ID_number)
-    run_results, time_strings, out_timesteps, out_nbh, out_psn = main_loop(world, results_path) # This line actually runs the model.
+    run_results, time_strings, run_results_new_format = main_loop(world, results_path) # This line actually runs the model.
     end_time = time.localtime()
     logger.info('Finished model run number %s'%run_ID_number)
     
@@ -251,8 +253,10 @@ def main():
     run_results_csv_file = os.path.join(results_path, "run_results.csv")
     write_results_csv(run_results, run_results_csv_file, "neighid")
 
-    results_npz_file = os.path.join(results_path, "results.npz")
-    np.savez_compressed(results_npz_file, timesteps=out_timesteps, nbh=out_nbh, psn=out_psn)
+    run_results_new_format_h5_file = os.path.join(results_path, "results.h5")
+    results_to_h5(run_results_new_format, run_results_new_format_h5_file, run_ID_number)
+    results_to_csv(run_results_new_format, results_path)
+
 
     # Write neighborhood LULC, pop, x, y coordinates, etc. for the last 
     # timestep.
@@ -377,6 +381,8 @@ def write_time_csv(time_strings, time_csv_file):
     csv_writer.writerows(columns)
     out_file.close()
 
+#TODO: this function is deprecated and should be removed when the new record 
+# array data storage is completed.
 def write_results_csv(results, csv_file, ID_col_name):
     "Write to CSV the saved model run data."
     # The data is stored in a dictionary keyed by timestep, then keyed by ID, 
@@ -420,6 +426,54 @@ def write_results_csv(results, csv_file, ID_col_name):
                         row.append(0)
         csv_writer.writerow(row)
     out_file.close()
+
+def results_to_h5(results, hdf_filename, run_ID_number):
+    "Saves a dictionary of numpy structured arrays to HDF5 using pytables"
+    filters = tables.Filters(complevel=5, complib='zlib')
+    f = tables.openFile(hdf_filename, mode="w", title='ChitwanABM')
+    for key in results:
+        f.createTable('/', key, results[key], filters=filters)
+    f.createArray('/', 'run_ID', np.array(run_ID_number))
+    f.close()
+    return 1
+
+def results_to_csv(results, output_folder):
+    "Saves numpy structured arrays from dictionary to gzipped CSV files"
+    for key in results:
+        # First need to setup format strings
+        header_str = []
+        offsets = []
+        fmt_str = []
+        dt_dict = results[key].dtype.fields
+        for dt in dt_dict:
+            header_str.append(dt)
+            offsets.append(dt_dict[dt][1])
+            dt_str = str(dt_dict[dt][0])
+            if 'int' in dt_str:
+                fmt_str.append('%i')
+            elif 'float' in dt_str:
+                fmt_str.append('%.18e')
+            elif 'S' in dt_str:
+                fmt_str.append('%s')
+            else:
+                raise IOError('unhandled data type %s in numpy structured array'%dt_str)
+        # The fields in the dt_dict may not be sorted in order of the offsets, 
+        # so the output and format strings may not match the data as output by 
+        # savetxt unless we sort the format strings and header. We can figure 
+        # out the proper sort order by looking at the offsets, which we need to 
+        # reorder so they are in ascending order.
+        fmt_str_decorated = [(offset, fmt) for fmt, offset in zip(fmt_str, 
+            offsets)]
+        fmt_str_decorated.sort()
+        fmt_str = [fmt for offset, fmt in fmt_str_decorated]
+        header_str_decorated = [(offset, header) for header, offset in 
+                zip(header_str, offsets)]
+        header_str_decorated.sort()
+        header_str = [header for offset, header in header_str_decorated]
+        header_str = ','.join(header_str)
+        np.savetxt(os.path.join(output_folder, key + '.gz'), results[key], 
+                delimiter=',', fmt=fmt_str, header=header_str, comments='')
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())
