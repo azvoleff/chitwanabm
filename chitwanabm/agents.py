@@ -1158,15 +1158,15 @@ class Region(Agent_set):
         """
         # First handle out-migrations
         logger.debug("Processing person-level migrations")
-        n_outmigr_indiv = {}
+        n_LD_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
                 if np.random.rand() < calc_probability_migration(person):
                     person.make_individual_LD_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
-                    if not neighborhood.get_ID() in n_outmigr_indiv:
-                        n_outmigr_indiv[neighborhood.get_ID()] = 0
-                    n_outmigr_indiv[neighborhood.get_ID()] += 1
+                    if not neighborhood.get_ID() in n_LD_outmigr_indiv:
+                        n_LD_outmigr_indiv[neighborhood.get_ID()] = 0
+                    n_LD_outmigr_indiv[neighborhood.get_ID()] += 1
 
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially out migrated)
@@ -1174,7 +1174,7 @@ class Region(Agent_set):
         for person in released_persons:
             # Last housekeeping to return agent to model.
             person.return_from_LD_migration()
-        return n_outmigr_indiv, n_ret_migr_indiv
+        return n_LD_outmigr_indiv, n_ret_migr_indiv
 
     def get_rand_NBH(self, rand_NBH_type, mask):
         # Returns a random neighborhood, chosen from a sorted list of all 
