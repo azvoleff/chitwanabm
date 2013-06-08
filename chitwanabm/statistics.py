@@ -295,7 +295,7 @@ def calc_probability_death(person):
     except IndexError:
         raise IndexError("error calculating death probability (index %s)"%(probability_index))
 
-def calc_probability_migration_simple(person):
+def calc_probability_LD_migration_simple(person):
     "Calculates the probability of migration for an agent."
     age = person.get_age_months()
     probability_index = get_probability_index(age, prob_time_units)
@@ -304,7 +304,7 @@ def calc_probability_migration_simple(person):
     elif person.get_sex() == 'male':
         return migration_probabilities_male[probability_index]
 
-def calc_probability_migration_zvoleff(person):
+def calc_probability_LD_migration_zvoleff(person):
     """
     Calculates the probability of local-distant migration for an agent, using 
     the results of Alex Zvoleff's empirical analysis of the CVFS data, 

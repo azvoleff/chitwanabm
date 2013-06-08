@@ -38,7 +38,7 @@ from pyabm.agents import Agent, Agent_set, Agent_Store
 
 from chitwanabm import rc_params
 from chitwanabm.statistics import calc_probability_death, \
-        calc_probability_migration_simple, calc_first_birth_time, \
+        calc_probability_LD_migration_simple, calc_first_birth_time, \
         calc_birth_interval, calc_hh_area, calc_des_num_children, \
         calc_first_birth_prob_zvoleff, calc_migration_length, \
         calc_education_level, calc_spouse_age_diff, choose_spouse, \
@@ -64,9 +64,9 @@ else:
     raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['submodel.parameterization.marriage'])
 
 if rcParams['submodel.parameterization.migration'] == 'simple':
-    from chitwanabm.statistics import calc_probability_migration_simple as calc_probability_migration
+    from chitwanabm.statistics import calc_probability_LD_migration_simple as calc_probability_LD_migration
 elif rcParams['submodel.parameterization.migration'] == 'zvoleff':
-    from chitwanabm.statistics import calc_probability_migration_zvoleff as calc_probability_migration
+    from chitwanabm.statistics import calc_probability_LD_migration_zvoleff as calc_probability_LD_migration
 else:
     raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['submodel.parameterization.migration'])
 
@@ -1156,25 +1156,53 @@ class Region(Agent_set):
         Runs through the population and makes agents probabilistically migrate
         based on demographic characteristics.
         """
-        # First handle out-migrations
-        logger.debug("Processing person-level migrations")
+        # First handle LD out-migrations
+        logger.debug("Processing person-level LD out-migrations")
         n_LD_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if np.random.rand() < calc_probability_migration(person):
+                if np.random.rand() < calc_probability_LD_migration(person):
                     person.make_individual_LD_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
                     if not neighborhood.get_ID() in n_LD_outmigr_indiv:
                         n_LD_outmigr_indiv[neighborhood.get_ID()] = 0
                     n_LD_outmigr_indiv[neighborhood.get_ID()] += 1
-
         # Now handle the returning migrants (based on the return times assigned 
         # to them when they initially out migrated)
-        n_ret_migr_indiv, released_persons = self._agent_stores['person']['LD_migr'].release_agents(timestep)
-        for person in released_persons:
+        n_ret_LD_migr_indiv, released_LD_migr = self._agent_stores['person']['LD_migr'].release_agents(timestep)
+        for person in released_LD_migr:
             # Last housekeeping to return agent to model.
             person.return_from_LD_migration()
-        return n_LD_outmigr_indiv, n_ret_migr_indiv
+        return n_LD_outmigr_indiv, n_ret_LD_migr_indiv
+
+        # Now handle LL out-migrations
+        logger.debug("Processing person-level LL out-migrations")
+        n_LL_outmigr_indiv = {}
+        for household in self.iter_households():
+            for person in household.iter_agents():
+                if np.random.rand() < calc_probability_LD_migration(person):
+                    person.make_individual_LL_migration(time_float, timestep, self, BURN_IN)
+                    neighborhood = household.get_parent_agent()
+                    if not neighborhood.get_ID() in n_LL_outmigr_indiv:
+                        n_LL_outmigr_indiv[neighborhood.get_ID()] = 0
+                    n_LL_outmigr_indiv[neighborhood.get_ID()] += 1
+        # Now handle the returning migrants (based on the return times assigned 
+        # to them when they initially out migrated)
+        n_ret_LL_migr_indiv, released_LL_migr = self._agent_stores['person']['LL_migr'].release_agents(timestep)
+        for person in released_LL_migr:
+            # Last housekeeping to return agent to model.
+            person.return_from_LL_migration()
+        return n_LL_outmigr_indiv, n_ret_LL_migr_indiv
+
+    def get_rand_NBH(self, rand_NBH_type, mask):
+        # Returns a random neighborhood, chosen from a sorted list of all 
+        # neighborhoods with probability assigned to each neighborhood 
+        # according to the chosen 'rand_NBH_type', which could be purely 
+        # random, or based on an inverse distance or other weighting function.
+        # Mask is a list of zeros and ones that can be used to mask out certain 
+        # neighborhoods from the list.
+        if rand_NBH_type == 'inv_dist_forest_closest_km':
+            probs = [1 / NBH._forest_closest_km for NBH in self.get_agents()]
 
     def get_rand_NBH(self, rand_NBH_type, mask):
         # Returns a random neighborhood, chosen from a sorted list of all 
