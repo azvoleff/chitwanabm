@@ -203,20 +203,20 @@
 
 # Migration coefficents from Zvoleff's analysis of CVFS household registry, 
 # following Massey, Axinn, and Ghimire (2010).
-'migration.zv.coef.in_school' : [-.198 | validate_float]
-'migration.zv.coef.years_schooling' : [.072 | validate_float]
-'migration.zv.coef.log_market_min_ft' : [.025 | validate_float]
-'migration.zv.coef.own_farmland' : [-.073 | validate_float]
-'migration.zv.coef.female' : [-0.472 | validate_float]
-'migration.zv.coef.age15-24' : [1.029 | validate_float]
-'migration.zv.coef.age24-34' : [.434 | validate_float]
-'migration.zv.coef.age34-44' : [-.062 | validate_float]
-'migration.zv.coef.age45-55' : [.049 | validate_float]
-'migration.zv.coef.ethnicLowHindu' : [.104 | validate_float]
-'migration.zv.coef.ethnicNewar' : [-.158 | validate_float]
-'migration.zv.coef.ethnicHillTibeto' : [.201 | validate_float]
-'migration.zv.coef.ethnicTeraiTibeto' : [-.484 | validate_float]
-'migration.zv.coef.intercept' : [-4.903 | validate_float]
+'migration.ld.zv.coef.in_school' : [-.198 | validate_float]
+'migration.ld.zv.coef.years_schooling' : [.072 | validate_float]
+'migration.ld.zv.coef.log_market_min_ft' : [.025 | validate_float]
+'migration.ld.zv.coef.own_farmland' : [-.073 | validate_float]
+'migration.ld.zv.coef.female' : [-0.472 | validate_float]
+'migration.ld.zv.coef.age15-24' : [1.029 | validate_float]
+'migration.ld.zv.coef.age24-34' : [.434 | validate_float]
+'migration.ld.zv.coef.age34-44' : [-.062 | validate_float]
+'migration.ld.zv.coef.age45-55' : [.049 | validate_float]
+'migration.ld.zv.coef.ethnicLowHindu' : [.104 | validate_float]
+'migration.ld.zv.coef.ethnicNewar' : [-.158 | validate_float]
+'migration.ld.zv.coef.ethnicHillTibeto' : [.201 | validate_float]
+'migration.ld.zv.coef.ethnicTeraiTibeto' : [-.484 | validate_float]
+'migration.ld.zv.coef.intercept' : [-4.903 | validate_float]
 
 ###############################################################################
 # Household agent parameters

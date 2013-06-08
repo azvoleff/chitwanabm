@@ -312,27 +312,27 @@ def calc_probability_LD_migration_zvoleff(person):
     """
     #########################################################################
     # Intercept
-    inner = rcParams['migration.zv.coef.intercept']
+    inner = rcParams['migration.ld.zv.coef.intercept']
 
     if person.is_in_school():
-        inner += rcParams['migration.zv.coef.in_school']
+        inner += rcParams['migration.ld.zv.coef.in_school']
 
-    inner += person.get_years_schooling() * rcParams['migration.zv.coef.years_schooling']
+    inner += person.get_years_schooling() * rcParams['migration.ld.zv.coef.years_schooling']
 
     #######################################################################
     # Household level variables
     household = person.get_parent_agent()
-    inner += rcParams['migration.zv.coef.own_farmland'] * household._own_land
+    inner += rcParams['migration.ld.zv.coef.own_farmland'] * household._own_land
 
     #######################################################################
     # Neighborhood level variables
     neighborhood = household.get_parent_agent()
-    inner += rcParams['migration.zv.coef.log_market_min_ft'] * np.log(neighborhood.NFOs['market_min_ft'] + 1)
+    inner += rcParams['migration.ld.zv.coef.log_market_min_ft'] * np.log(neighborhood.NFOs['market_min_ft'] + 1)
 
     #########################################################################
     # Other controls
     if person.get_sex() == "female":
-        inner += rcParams['migration.zv.coef.female']
+        inner += rcParams['migration.ld.zv.coef.female']
 
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
@@ -340,30 +340,92 @@ def calc_probability_LD_migration_zvoleff(person):
         # This was the reference level
         pass
     elif ethnicity == "HillTibeto":
-        inner += rcParams['migration.zv.coef.ethnicHillTibeto']
+        inner += rcParams['migration.ld.zv.coef.ethnicHillTibeto']
     elif ethnicity == "LowHindu":
-        inner += rcParams['migration.zv.coef.ethnicLowHindu']
+        inner += rcParams['migration.ld.zv.coef.ethnicLowHindu']
     elif ethnicity == "Newar":
-        inner += rcParams['migration.zv.coef.ethnicNewar']
+        inner += rcParams['migration.ld.zv.coef.ethnicNewar']
     elif ethnicity == "TeraiTibeto":
-        inner += rcParams['migration.zv.coef.ethnicTeraiTibeto']
+        inner += rcParams['migration.ld.zv.coef.ethnicTeraiTibeto']
 
     age = person.get_age_years()
     if (age >= 15) & (age <= 24):
-        inner += rcParams['migration.zv.coef.age15-24']
+        inner += rcParams['migration.ld.zv.coef.age15-24']
     elif (age > 24) & (age <= 34):
-        inner += rcParams['migration.zv.coef.age24-34']
+        inner += rcParams['migration.ld.zv.coef.age24-34']
     elif (age > 34) & (age <= 44):
-        inner += rcParams['migration.zv.coef.age34-44']
+        inner += rcParams['migration.ld.zv.coef.age34-44']
     elif (age > 44) & (age <= 55):
-        inner += rcParams['migration.zv.coef.age45-55']
+        inner += rcParams['migration.ld.zv.coef.age45-55']
     elif (age > 55):
         # Reference class
         pass
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:
-        logger.debug("Person %s migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
+        logger.debug("Person %s local-distant migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
+    return prob
+
+def calc_probability_LL_migration_zvoleff(person):
+    """
+    Calculates the probability of local-local migration for an agent, using the 
+    results of Alex Zvoleff's empirical analysis of the CVFS data, as presented 
+    in chapter 3 of his dissertation.
+    """
+    #########################################################################
+    # Intercept
+    inner = rcParams['migration.ll.zv.coef.intercept']
+
+    if person.is_in_school():
+        inner += rcParams['migration.ll.zv.coef.in_school']
+
+    inner += person.get_years_schooling() * rcParams['migration.ll.zv.coef.years_schooling']
+
+    #######################################################################
+    # Household level variables
+    household = person.get_parent_agent()
+    inner += rcParams['migration.ll.zv.coef.own_farmland'] * household._own_land
+
+    #######################################################################
+    # Neighborhood level variables
+    neighborhood = household.get_parent_agent()
+    inner += rcParams['migration.ll.zv.coef.log_market_min_ft'] * np.log(neighborhood.NFOs['market_min_ft'] + 1)
+
+    #########################################################################
+    # Other controls
+    if person.get_sex() == "female":
+        inner += rcParams['migration.ll.zv.coef.female']
+
+    ethnicity = person.get_ethnicity()
+    assert ethnicity!=None, "Ethnicity must be defined"
+    if ethnicity == "HighHindu":
+        # This was the reference level
+        pass
+    elif ethnicity == "HillTibeto":
+        inner += rcParams['migration.ll.zv.coef.ethnicHillTibeto']
+    elif ethnicity == "LowHindu":
+        inner += rcParams['migration.ll.zv.coef.ethnicLowHindu']
+    elif ethnicity == "Newar":
+        inner += rcParams['migration.ll.zv.coef.ethnicNewar']
+    elif ethnicity == "TeraiTibeto":
+        inner += rcParams['migration.ll.zv.coef.ethnicTeraiTibeto']
+
+    age = person.get_age_years()
+    if (age >= 15) & (age <= 24):
+        inner += rcParams['migration.ll.zv.coef.age15-24']
+    elif (age > 24) & (age <= 34):
+        inner += rcParams['migration.ll.zv.coef.age24-34']
+    elif (age > 34) & (age <= 44):
+        inner += rcParams['migration.ll.zv.coef.age34-44']
+    elif (age > 44) & (age <= 55):
+        inner += rcParams['migration.ll.zv.coef.age45-55']
+    elif (age > 55):
+        # Reference class
+        pass
+
+    prob = 1./(1 + np.exp(-inner))
+    if rcParams['log_stats_probabilities']:
+        logger.debug("Person %s local-local migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
 def calc_migration_length(person, BURN_IN):
