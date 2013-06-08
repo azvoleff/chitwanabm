@@ -148,8 +148,10 @@ calc_NBH_pop <- function(results, time_values) {
     marr.cols <- grep('^marr.[0-9]*$', names(results))
     births.cols <- grep('^births.[0-9]*$', names(results))
     deaths.cols <- grep('^deaths.[0-9]*$', names(results))
-    out_migr_indiv.cols <- grep('^out_migr_indiv.[0-9]*$', names(results))
-    ret_migr_indiv.cols <- grep('^ret_migr_indiv.[0-9]*$', names(results))
+    out_migr_LL_indiv.cols <- grep('^out_migr_LL_indiv.[0-9]*$', names(results))
+    ret_migr_LL_indiv.cols <- grep('^ret_migr_LL_indiv.[0-9]*$', names(results))
+    out_migr_LD_indiv.cols <- grep('^out_migr_LD_indiv.[0-9]*$', names(results))
+    ret_migr_LD_indiv.cols <- grep('^ret_migr_LD_indiv.[0-9]*$', names(results))
     in_migr_HH.cols <- grep('^in_migr_HH.[0-9]*$', names(results))
     out_migr_HH.cols <- grep('^out_migr_HH.[0-9]*$', names(results))
     fw_usage.cols <- grep('^fw_usage.[0-9]*$', names(results))
@@ -158,8 +160,10 @@ calc_NBH_pop <- function(results, time_values) {
             marr=apply(results[marr.cols], 2, sum), 
             births=apply(results[births.cols], 2, sum), 
             deaths=apply(results[deaths.cols], 2, sum),
-            out_migr_indiv=apply(results[out_migr_indiv.cols], 2, sum),
-            ret_migr_indiv=apply(results[ret_migr_indiv.cols], 2, sum), 
+            out_migr_LL_indiv=apply(results[out_migr_LL_indiv.cols], 2, sum),
+            ret_migr_LL_indiv=apply(results[ret_migr_LL_indiv.cols], 2, sum), 
+            out_migr_LL_indiv=apply(results[out_migr_LL_indiv.cols], 2, sum),
+            ret_migr_LL_indiv=apply(results[ret_migr_LL_indiv.cols], 2, sum), 
             in_migr_HH=apply(results[in_migr_HH.cols], 2, sum), 
             out_migr_HH=apply(results[out_migr_HH.cols], 2, sum),
             num_hs=apply(results[num_hs.cols], 2, sum), 

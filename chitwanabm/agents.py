@@ -339,6 +339,31 @@ class Person(Agent):
     def is_in_migrant(self):
         return self._in_migrant
 
+    def make_individual_LL_migration(self, time, timestep, region, BURN_IN=False):
+        log_event_record("LL_migration", self, timestep)
+        household = self.get_parent_agent()
+        household._lastmigrant_time = time
+        household._members_away.append(self)
+
+        months_away = calc_migration_length(self, BURN_IN)
+        # The add_agent function of the agent_store class also handles removing 
+        # the agent from its parent (the household), and adding the agent_store 
+        # to the person's store_list
+        self._return_timestep = timestep + months_away
+        region._agent_stores['person']['LL_migr'].add_agent(self, self._return_timestep)
+        self._last_migration['type'] = 'LL'
+        self._last_migration['time'] = time
+        self._last_migration['duration_months'] = months_away
+        self._away = True
+
+    def return_from_LL_migration(self):
+        # This runs AFTER the agent has been released back to their household 
+        # by the agent_set class release_agents method. Otherwise the below 
+        # line would not work.
+        self.get_parent_agent()._members_away.remove(self)
+        self._return_timestep = None
+        self._away = False
+
     def make_individual_LD_migration(self, time, timestep, region, BURN_IN=False):
         log_event_record("LD_migration", self, timestep)
         household = self.get_parent_agent()
@@ -1151,12 +1176,11 @@ class Region(Agent_set):
             #schooling[neighborhood.get_ID()] += 1
         return schooling
 
-    def individual_migrations(self, time_float, timestep, BURN_IN=False):
+    def individual_LD_migrations(self, time_float, timestep, BURN_IN=False):
         """
-        Runs through the population and makes agents probabilistically migrate
-        based on demographic characteristics.
+        Runs through the population and makes agents probabilistically make 
+        local-distant migrations based on demographic characteristics.
         """
-        # First handle LD out-migrations
         logger.debug("Processing person-level LD out-migrations")
         n_LD_outmigr_indiv = {}
         for household in self.iter_households():
@@ -1175,7 +1199,11 @@ class Region(Agent_set):
             person.return_from_LD_migration()
         return n_LD_outmigr_indiv, n_ret_LD_migr_indiv
 
-        # Now handle LL out-migrations
+    def individual_LL_migrations(self, time_float, timestep, BURN_IN=False):
+        """
+        Runs through the population and makes agents probabilistically make 
+        local-local migrations based on demographic characteristics.
+        """
         logger.debug("Processing person-level LL out-migrations")
         n_LL_outmigr_indiv = {}
         for household in self.iter_households():
@@ -1192,6 +1220,7 @@ class Region(Agent_set):
         for person in released_LL_migr:
             # Last housekeeping to return agent to model.
             person.return_from_LL_migration()
+
         return n_LL_outmigr_indiv, n_ret_LL_migr_indiv
 
     def get_rand_NBH(self, rand_NBH_type, mask):

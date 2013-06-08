@@ -72,8 +72,10 @@ def main_loop(world, results_path):
     annual_num_divo = 0
     annual_num_births = 0
     annual_num_deaths = 0
+    annual_num_out_migr_LL_indiv = 0
+    annual_num_ret_migr_LL_indiv = 0
     annual_num_out_migr_LD_indiv = 0
-    annual_num_ret_LD_migr_indiv = 0
+    annual_num_ret_migr_LD_indiv = 0
     annual_num_in_migr_HH = 0
     annual_num_out_migr_HH = 0
 
@@ -124,8 +126,10 @@ def main_loop(world, results_path):
     saved_data[0]['deaths'] = empty_events
     saved_data[0]['marr'] = empty_events
     saved_data[0]['divo'] = empty_events
+    saved_data[0]['out_migr_LL_indiv'] = empty_events
+    saved_data[0]['ret_migr_LL_indiv'] = empty_events
     saved_data[0]['out_migr_LD_indiv'] = empty_events
-    saved_data[0]['ret_LD_migr_indiv'] = empty_events
+    saved_data[0]['ret_migr_LD_indiv'] = empty_events
     saved_data[0]['in_migr_HH'] = empty_events
     saved_data[0]['out_migr_HH'] = empty_events
     saved_data[0].update(region.get_neighborhood_pop_stats())
@@ -150,8 +154,10 @@ def main_loop(world, results_path):
                  ('deaths', 'i2'),
                  ('marr', 'i2'),
                  ('divo', 'i2'),
+                 ('out_migr_LL_indiv', 'i2'),
+                 ('ret_migr_LL_indiv', 'i2'),
                  ('out_migr_LD_indiv', 'i2'),
-                 ('ret_LD_migr_indiv', 'i2'),
+                 ('ret_migr_LD_indiv', 'i2'),
                  ('in_migr_HH', 'i2'),
                  ('out_migr_HH', 'i2'),
                  ('num_psn', 'i4'),
@@ -165,8 +171,10 @@ def main_loop(world, results_path):
                  ('deaths', 'i2'),
                  ('marr', 'i2'),
                  ('divo', 'i2'),
+                 ('out_migr_LL_indiv', 'i2'),
+                 ('ret_migr_LL_indiv', 'i2'),
                  ('out_migr_LD_indiv', 'i2'),
-                 ('ret_LD_migr_indiv', 'i2'),
+                 ('ret_migr_LD_indiv', 'i2'),
                  ('in_migr_HH', 'i2'),
                  ('out_migr_HH', 'i2'),
                  ('num_psn', 'i4'),
@@ -187,17 +195,25 @@ def main_loop(world, results_path):
     logger.info('Burning in events for region %s'%region.get_ID())
     for neg_timestep in xrange(-rcParams['model.burnin_timesteps'], 0):
         for region in world.iter_regions():
-            if rcParams['submodels.migration_individual']:
-                new_out_migr_LD_indiv, new_ret_LD_migr_indiv = region.individual_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
-            else: new_out_migr_LD_indiv, new_ret_LD_migr_indiv = zero_events, zero_events
+            if rcParams['submodels.migration_LL_individual']:
+                new_out_migr_LL_indiv, new_ret_migr_LL_indiv = region.individual_LL_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
+            else: new_out_migr_LL_indiv, new_ret_migr_LL_indiv = zero_events, zero_events
+            if rcParams['submodels.migration_LD_individual']:
+                new_out_migr_LD_indiv, new_ret_migr_LD_indiv = region.individual_LD_migrations(model_time.get_T_minus_date_float(neg_timestep), neg_timestep, BURN_IN=True)
+            else: new_out_migr_LD_indiv, new_ret_migr_LD_indiv = zero_events, zero_events
             if rcParams['submodels.fertility']:
                 new_births = region.births(model_time.get_cur_date_float(), model_time.get_cur_int_timestep(), simulate=True)
             else: new_births = zero_events
             num_new_births = sum(new_births.values())
+            num_new_out_migr_LL_indiv = sum(new_out_migr_LL_indiv.values())
+            num_new_ret_migr_LL_indiv = sum(new_ret_migr_LL_indiv.values())
             num_new_out_migr_LD_indiv = sum(new_out_migr_LD_indiv.values())
-            num_new_ret_LD_migr_indiv = sum(new_ret_LD_migr_indiv.values())
+            num_new_ret_migr_LD_indiv = sum(new_ret_migr_LD_indiv.values())
 
-            logger.info("Burn in %3s: P: %5s NOM: %3s NRM: %3s NB: %3s"%(neg_timestep, region.num_persons(), num_new_out_migr_LD_indiv, num_new_ret_LD_migr_indiv, num_new_births))
+            logger.info("Burn in %3s: P: %5s NOLL: %3s NRLL: %3s NOLD: %3s NRLD: %3s NB: %3s"%(neg_timestep,
+                region.num_persons(), num_new_out_migr_LL_indiv, 
+                num_new_ret_migr_LL_indiv, num_new_out_migr_LD_indiv, 
+                num_new_ret_migr_LD_indiv, num_new_births))
 
     while model_time.in_bounds():
         timestep = model_time.get_cur_int_timestep()
@@ -211,8 +227,10 @@ def main_loop(world, results_path):
             annual_num_deaths = 0
             annual_num_marr = 0
             annual_num_divo = 0
+            annual_num_out_migr_LL_indiv = 0
+            annual_num_ret_migr_LL_indiv = 0
             annual_num_out_migr_LD_indiv = 0
-            annual_num_ret_LD_migr_indiv = 0
+            annual_num_ret_migr_LD_indiv = 0
             annual_num_in_migr_HH = 0
             annual_num_out_migr_HH = 0
 
@@ -232,9 +250,12 @@ def main_loop(world, results_path):
             if rcParams['submodels.divorce']:
                 new_divo = region.divorces(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             else: new_divo = zero_events
-            if rcParams['submodels.migration_individual']:
-                new_out_migr_LD_indiv, new_ret_LD_migr_indiv = region.individual_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
-            else: new_out_migr_LD_indiv, new_ret_LD_migr_indiv = zero_events, zero_events
+            if rcParams['submodels.migration_LL_individual']:
+                new_out_migr_LL_indiv, new_ret_migr_LL_indiv = region.individual_LL_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
+            else: new_out_migr_LL_indiv, new_ret_migr_LL_indiv = zero_events, zero_events
+            if rcParams['submodels.migration_LD_individual']:
+                new_out_migr_LD_indiv, new_ret_migr_LD_indiv = region.individual_LD_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
+            else: new_out_migr_LD_indiv, new_ret_migr_LD_indiv = zero_events, zero_events
             if rcParams['submodels.migration_household']:
                 new_in_migr_HH, new_out_migr_HH = region.household_migrations(model_time.get_cur_date_float(), model_time.get_cur_int_timestep())
             else: new_in_migr_HH, new_out_migr_HH = zero_events, zero_events
@@ -255,8 +276,10 @@ def main_loop(world, results_path):
         saved_data[timestep]['deaths'] = new_deaths
         saved_data[timestep]['marr'] = new_marr
         saved_data[timestep]['divo'] = new_divo
+        saved_data[timestep]['out_migr_LL_indiv'] = new_out_migr_LL_indiv
+        saved_data[timestep]['ret_migr_LL_indiv'] = new_ret_migr_LL_indiv
         saved_data[timestep]['out_migr_LD_indiv'] = new_out_migr_LD_indiv
-        saved_data[timestep]['ret_LD_migr_indiv'] = new_ret_LD_migr_indiv
+        saved_data[timestep]['ret_migr_LD_indiv'] = new_ret_migr_LD_indiv
         saved_data[timestep]['in_migr_HH'] = new_in_migr_HH
         saved_data[timestep]['out_migr_HH'] = new_out_migr_HH
         saved_data[timestep].update(region.get_neighborhood_pop_stats())
@@ -270,8 +293,10 @@ def main_loop(world, results_path):
         num_new_deaths = sum(new_deaths.values())
         num_new_marr = sum(new_marr.values())
         num_new_divo = sum(new_divo.values())
+        num_new_out_migr_LL_indiv = sum(new_out_migr_LL_indiv.values())
+        num_new_ret_migr_LL_indiv = sum(new_ret_migr_LL_indiv.values())
         num_new_out_migr_LD_indiv = sum(new_out_migr_LD_indiv.values())
-        num_new_ret_LD_migr_indiv = sum(new_ret_LD_migr_indiv.values())
+        num_new_ret_migr_LD_indiv = sum(new_ret_migr_LD_indiv.values())
         num_new_in_migr_HH = sum(new_in_migr_HH.values())
         num_new_out_migr_HH = sum(new_out_migr_HH.values())
 
@@ -279,8 +304,10 @@ def main_loop(world, results_path):
         annual_num_deaths += num_new_deaths
         annual_num_marr += num_new_marr
         annual_num_divo += num_new_divo
+        annual_num_out_migr_LL_indiv += num_new_out_migr_LL_indiv
+        annual_num_ret_migr_LL_indiv += num_new_ret_migr_LL_indiv
         annual_num_out_migr_LD_indiv += num_new_out_migr_LD_indiv
-        annual_num_ret_LD_migr_indiv += num_new_ret_LD_migr_indiv
+        annual_num_ret_migr_LD_indiv += num_new_ret_migr_LD_indiv
         annual_num_in_migr_HH += num_new_in_migr_HH
         annual_num_out_migr_HH += num_new_out_migr_HH
 
@@ -288,11 +315,12 @@ def main_loop(world, results_path):
         # is running.
         num_persons = region.num_persons()
         num_households = region.num_households()
-        stats_string = "%s: P: %5s TMa: %5s THH: %5s NMa: %3s NDv: %3s NB: %3s ND: %3s NOM: %3s NRM: %3s NOMH: %3s NIMH: %3s"%(
+        stats_string = "%s: P: %5s TMa: %5s THH: %5s NMa: %3s NDv: %3s NB: %3s ND: %3s NOLL: %3s NRLL: %3s NOLD: %3s NRLD: %3s NOMH: %3s NIMH: %3s"%(
                 model_time.get_cur_date_string().ljust(7), num_persons, 
                 region.get_num_marriages(), num_households,
                 num_new_marr, num_new_divo, num_new_births, num_new_deaths, 
-                num_new_out_migr_LD_indiv, num_new_ret_LD_migr_indiv, 
+                num_new_out_migr_LL_indiv, num_new_ret_migr_LL_indiv, 
+                num_new_out_migr_LD_indiv, num_new_ret_migr_LD_indiv, 
                 num_new_out_migr_HH, num_new_in_migr_HH)
         logger.info('%s'%stats_string)
 
@@ -307,11 +335,12 @@ def main_loop(world, results_path):
             # The last condition in the above if statement is necessary as 
             # there is no total to print on the first timestep, so it wouldn't 
             # make sense to print it.
-            total_string = "%s totals: New Ma: %3s Dv: %3s B: %3s D: %3s LDOutMi: %3s LDRetMi: %3s OutMiHH: %3s InMiHH: %3s"%(
+            total_string = "%s totals: New Ma: %3s Dv: %3s B: %3s D: %3s LLOutMi: %3s LLRetMi: %3s LDOutMi: %3s LDRetMi: %3s OutMiHH: %3s InMiHH: %3s"%(
                     model_time.get_cur_year(), annual_num_marr, 
                     annual_num_divo, annual_num_births,
-                    annual_num_deaths, annual_num_out_migr_LD_indiv, 
-                    annual_num_ret_LD_migr_indiv, annual_num_out_migr_HH, 
+                    annual_num_deaths, annual_num_out_migr_LL_indiv,
+                    annual_num_ret_migr_LL_indiv, annual_num_out_migr_LD_indiv, 
+                    annual_num_ret_migr_LD_indiv, annual_num_out_migr_HH, 
                     annual_num_in_migr_HH)
             logger.info('%s'%total_string)
             logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))

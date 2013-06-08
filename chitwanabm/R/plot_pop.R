@@ -50,8 +50,9 @@ vital_events <- with(pop.results, data.frame(time.Robj=time.Robj, marr, births, 
 vital_events <- melt(vital_events, id.vars="time.Robj")
 names(vital_events)[2:3] <- c("Event_type", "events")
 
-migrations <- with(pop.results, data.frame(time.Robj=time.Robj, out_migr_indiv, 
-                                           ret_migr_indiv, out_migr_HH, in_migr_HH))
+migrations <- with(pop.results, data.frame(time.Robj=time.Robj, out_migr_LD_indiv, 
+                                           ret_migr_LD_indiv, out_migr_LL_indiv, 
+                                           ret_migr_LL_indiv, out_migr_HH, in_migr_HH))
 migrations <- melt(migrations, id.vars="time.Robj")
 names(migrations)[2:3] <- c("Event_type", "events")
 
@@ -75,13 +76,21 @@ ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH,
         dpi=300)
 
 # Plot migration
-p <- qplot(time.Robj, events, geom="line", linetype=Event_type, 
+p <- qplot(time.Robj, events, geom="line", linetype=Event_type, colour=Event_type,
            xlab="Year", ylab="Number of Migrants", data=migrations)
 p + scale_linetype_discrete(name="Legend",
-                            breaks=c("out_migr_indiv", "ret_migr_indiv", 
+                            breaks=c("out_migr_LD_indiv", "ret_migr_LD_indiv", 
+                                     "out_migr_LL_indiv", "ret_migr_LL_indiv", 
                                      "out_migr_HH", "in_migr_HH"),
-                            labels=c("Out-migrant Indiv.",
-                                     "Return Migrant Indiv.",
+                            labels=c("LD Out-migrant Indiv.", "LD Return Migrant Indiv.",
+                                     "LL Out-migrant Indiv.", "LL Return Migrant Indiv.",
+                                     "Out-migrant HH", "In-migrant HH")) +
+    scale_colour_discrete(name="Legend",
+                            breaks=c("out_migr_LD_indiv", "ret_migr_LD_indiv", 
+                                     "out_migr_LL_indiv", "ret_migr_LL_indiv", 
+                                     "out_migr_HH", "in_migr_HH"),
+                            labels=c("LD Out-migrant Indiv.", "LD Return Migrant Indiv.",
+                                     "LL Out-migrant Indiv.", "LL Return Migrant Indiv.",
                                      "Out-migrant HH", "In-migrant HH"))
 ggsave(paste(DATA_PATH, "migrations.png", sep="/"), width=PLOT_WIDTH, 
        height=PLOT_HEIGHT,
