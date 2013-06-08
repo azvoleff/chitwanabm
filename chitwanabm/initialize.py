@@ -57,6 +57,7 @@ def main():
     if world == 1:
         logger.critical("Problem generating world")
         return 1
+    return 0
 
 def read_CVFS_data(textfile, key_field):
     """
@@ -542,6 +543,9 @@ def generate_world():
         Rscript_binary = rcParams['path.Rscript_binary']
         preprocess_script = resource_filename(__name__, 'R/data_preprocess.R')
         processed_data_path = tempfile.mkdtemp()
+        if Rscript_binary == None:
+            logger.critical("Cannot preprocess data without valid Rscript path")
+            return 1
         subprocess.check_call([Rscript_binary, preprocess_script, 
             raw_data_path, processed_data_path, str(rcParams['random_seed'])])
     except subprocess.CalledProcessError:
@@ -550,7 +554,6 @@ def generate_world():
     logger.info("Generating world from preprocessed CVFS data")
     model_world = assemble_world(processed_data_path)
     shutil.rmtree(processed_data_path)
-
 
     #TODO: Re-enable saving a pickled world when kinks are worked out.
     # try:
