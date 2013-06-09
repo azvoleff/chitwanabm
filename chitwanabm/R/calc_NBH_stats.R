@@ -44,7 +44,7 @@ calc_NBH_LULC <- function(DATA_PATH, timestep) {
     # that are a percentage of total neighborhood area.
     lulc.sd <- lulc/nbh.area
 
-    lulc.nbh <- data.frame(nid=lulc$nid, x=lulc$x, y=lulc$y, agveg=lulc.sd[agveg.col],
+    lulc.nbh <- data.frame(nid=run_results$nid, x=run_results$x, y=run_results$y, agveg=lulc.sd[agveg.col],
             nonagveg=lulc.sd[nonagveg.col], pubbldg=lulc.sd[pubbldg.col],
             privbldg=lulc.sd[privbldg.col], other=lulc.sd[other.col])
 
@@ -54,8 +54,9 @@ calc_NBH_LULC <- function(DATA_PATH, timestep) {
 
 calc_agg_LULC <- function(DATA_PATH) {
     # Make plots of LULC for a model run.
-    lulc <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
+    run_results <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
             na.strings=c("NA", "nan"))
+    lulc <- run_results[grepl('^(agveg|nonagveg|pubbldg|privbldg|other)\\.[0-9]*$', names(run_results))]
     time.values <- read.csv(paste(DATA_PATH, "time.csv", sep="/"))
     time.Robj <- as.Date(paste(time.values$time_date, "15", sep=","),
             format="%m/%Y,%d")
