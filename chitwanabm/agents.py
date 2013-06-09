@@ -38,13 +38,13 @@ from pyabm.agents import Agent, Agent_set, Agent_Store
 
 from chitwanabm import rc_params
 from chitwanabm.statistics import calc_probability_death, \
-        calc_probability_LD_migration_simple, calc_first_birth_time, \
-        calc_birth_interval, calc_hh_area, calc_des_num_children, \
-        calc_first_birth_prob_zvoleff, calc_migration_length, \
-        calc_education_level, calc_spouse_age_diff, choose_spouse, \
-        calc_num_inmigrant_households, calc_inmigrant_household_ethnicity, \
-        calc_inmigrant_household_size, calc_probability_HH_outmigration, \
-        calc_probability_divorce, calc_fuelwood_usage_probability
+        calc_first_birth_time, calc_birth_interval, calc_hh_area, \
+        calc_des_num_children, calc_first_birth_prob_zvoleff, \
+        calc_migration_length, calc_education_level, calc_spouse_age_diff, \
+        choose_spouse, calc_num_inmigrant_households, \
+        calc_inmigrant_household_ethnicity, calc_inmigrant_household_size, \
+        calc_probability_HH_outmigration, calc_probability_divorce, \
+        calc_fuelwood_usage_probability
 
 logger = logging.getLogger(__name__)
 person_event_logger = logging.getLogger('person_events')
@@ -63,12 +63,17 @@ elif rcParams['submodel.parameterization.marriage'] == 'zvoleff':
 else:
     raise Exception("Unknown option for marriage parameterization: '%s'"%rcParams['submodel.parameterization.marriage'])
 
-if rcParams['submodel.parameterization.migration'] == 'simple':
+if rcParams['submodel.parameterization.LL_migration'] == 'zvoleff':
+    from chitwanabm.statistics import calc_probability_LL_migration_zvoleff as calc_probability_LL_migration
+else:
+    raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['submodel.parameterization.LL_migration'])
+
+if rcParams['submodel.parameterization.LD_migration'] == 'simple':
     from chitwanabm.statistics import calc_probability_LD_migration_simple as calc_probability_LD_migration
-elif rcParams['submodel.parameterization.migration'] == 'zvoleff':
+elif rcParams['submodel.parameterization.LD_migration'] == 'zvoleff':
     from chitwanabm.statistics import calc_probability_LD_migration_zvoleff as calc_probability_LD_migration
 else:
-    raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['submodel.parameterization.migration'])
+    raise Exception("Unknown option for migration parameterization: '%s'"%rcParams['submodel.parameterization.LD_migration'])
 
 if rcParams['submodel.parameterization.fuelwood_usage'] == 'simple':
     from chitwanabm.statistics import calc_daily_fuelwood_usage_simple as calc_daily_fuelwood_usage
@@ -1185,7 +1190,7 @@ class Region(Agent_set):
         n_LD_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if np.random.rand() < calc_probability_LD_migration(person):
+                if np.random.rand() < calc_probability_LD_migration(person, time_float):
                     person.make_individual_LD_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
                     if not neighborhood.get_ID() in n_LD_outmigr_indiv:
@@ -1208,7 +1213,7 @@ class Region(Agent_set):
         n_LL_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if np.random.rand() < calc_probability_LD_migration(person):
+                if np.random.rand() < calc_probability_LL_migration(person, time_float):
                     person.make_individual_LL_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
                     if not neighborhood.get_ID() in n_LL_outmigr_indiv:

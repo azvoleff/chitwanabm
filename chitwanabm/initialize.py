@@ -134,6 +134,8 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood._forest_closest_km = float(neigh_data['closest_meters']) / 1000.
         neighborhood._forest_closest_type = neigh_data['closest_type']
 
+        neighborhood._num_groups = neigh_data['num_groups']
+
         neighborhood.NFOs = {}
         neighborhood.NFOs['school_min_ft'] = float(neigh_data['SCHLFT52']) * rcParams['NFOs.initmultiplier.school_min_ft']
         neighborhood.NFOs['health_min_ft'] = float(neigh_data['HLTHFT52']) * rcParams['NFOs.initmultiplier.health_min_ft']
@@ -176,7 +178,9 @@ def assemble_households(householdsFile, model_world):
         household = model_world.new_household(HID=HHID, initial_agent=True)
         household._own_house_plot = bool(int(household_data['BAA43'])) # does the household own the plot of land the house is on
         household._rented_out_land = int(household_data['BAA44']) # does the household rent out any land
-
+        household._any_farming = bool(int(household_data['any_farming_1996']))
+        household._total_possessions = float(household_data['own_total_1996'])
+        household._TLU_livestock = float(household_data['TLU_all_1996'])
 
         # Roughly a third of households will have had a person make an LD 
         # migration within the last year:

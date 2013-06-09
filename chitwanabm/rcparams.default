@@ -76,7 +76,8 @@
 'submodels.schooling' : [True | validate_boolean]
 'submodel.parameterization.marriage': ["zvoleff" | validate_string]
 'submodel.parameterization.firstbirth': ["zvoleff" | validate_string]
-'submodel.parameterization.migration' : ["zvoleff" | validate_string]
+'submodel.parameterization.LD_migration' : ["zvoleff" | validate_string]
+'submodel.parameterization.LL_migration' : ["zvoleff" | validate_string]
 'submodel.parameterization.fuelwood_usage' : ["simple" | validate_string]
 
 ###############################################################################
@@ -202,8 +203,8 @@
 'firstbirth.zv.coef.mother_num_children' : [-0.023222 | validate_float]
 'firstbirth.zv.coef.parents_contracep_ever' : [-0.032068 | validate_float]
 
-# Migration coefficents from Zvoleff's analysis of CVFS household registry, 
-# following Massey, Axinn, and Ghimire (2010).
+# Migration coefficents from Zvoleff's analysis of local-distant CVFS household 
+# registry, following Massey, Axinn, and Ghimire (2010).
 'migration.ld.zv.coef.in_school' : [-.198 | validate_float]
 'migration.ld.zv.coef.years_schooling' : [.072 | validate_float]
 'migration.ld.zv.coef.log_market_min_ft' : [.025 | validate_float]
@@ -218,6 +219,31 @@
 'migration.ld.zv.coef.ethnicHillTibeto' : [.201 | validate_float]
 'migration.ld.zv.coef.ethnicTeraiTibeto' : [-.484 | validate_float]
 'migration.ld.zv.coef.intercept' : [-4.903 | validate_float]
+
+# Migration coefficents from Zvoleff's local-local analysis of CVFS household 
+# registry.
+'migration.ll.zv.coef.(Intercept)' : [-7.265395 | validate_float]
+'migration.ll.zv.coef.mean_Sinteg_500m_24mth_2002_scaled' : [0.350981 | validate_float]
+'migration.ll.zv.coef.mean_Sinteg_500m_24mth_chg_2002_scaled' : [0.444993 | validate_float]
+'migration.ll.zv.coef.NEAR_R_EVD_reversed' : [-0.043495 | validate_float]
+'migration.ll.zv.coef.SCHLFT_2001' : [-0.031604 | validate_float]
+'migration.ll.zv.coef.MARFT_2001' : [0.034326 | validate_float]
+'migration.ll.zv.coef.EMPFT_2001' : [0.017291 | validate_float]
+'migration.ll.zv.coef.num_groups_2001' : [-0.187723 | validate_float]
+'migration.ll.zv.coef.own_total_2001' : [0.169105 | validate_float]
+'migration.ll.zv.coef.any_farming_2001TRUE' : [-0.09102 | validate_float]
+'migration.ll.zv.coef.TLU_livestock_2001' : [-0.3044 | validate_float]
+'migration.ll.zv.coef.genderfemale' : [0.202949 | validate_float]
+'migration.ll.zv.coef.agedecades' : [1.333818 | validate_float]
+'migration.ll.zv.coef.I(agedecades^2)' : [-0.195972 | validate_float]
+'migration.ll.zv.coef.ethnicHillTibeto' : [0.417442 | validate_float]
+'migration.ll.zv.coef.ethnicLowHindu' : [-1.488328 | validate_float]
+'migration.ll.zv.coef.ethnicNewar' : [-2.214649 | validate_float]
+'migration.ll.zv.coef.ethnicTeraiTibeto' : [-0.548805 | validate_float]
+'migration.ll.zv.coef.Period_num' : [0.063714 | validate_float]
+'migration.ll.zv.coef.I(Period_num^2)' : [-0.009496 | validate_float]
+'migration.ll.zv.coef.SeasonMonsoon (MJJA)' : [0.220482 | validate_float]
+'migration.ll.zv.coef.SeasonWinter (SOND)' : [-0.596578 | validate_float]
 
 ###############################################################################
 # Household agent parameters

@@ -304,7 +304,7 @@ def calc_probability_LD_migration_simple(person):
     elif person.get_sex() == 'male':
         return migration_probabilities_male[probability_index]
 
-def calc_probability_LD_migration_zvoleff(person):
+def calc_probability_LD_migration_zvoleff(person, time):
     """
     Calculates the probability of local-distant migration for an agent, using 
     the results of Alex Zvoleff's empirical analysis of the CVFS data, 
@@ -366,35 +366,56 @@ def calc_probability_LD_migration_zvoleff(person):
         logger.debug("Person %s local-distant migration probability %.6f (age: %s)"%(person.get_ID(), prob, person.get_age_years()))
     return prob
 
-def calc_probability_LL_migration_zvoleff(person):
+def calc_probability_LL_migration_zvoleff(person, time):
     """
     Calculates the probability of local-local migration for an agent, using the 
     results of Alex Zvoleff's empirical analysis of the CVFS data, as presented 
     in chapter 3 of his dissertation.
     """
+    household = person.get_parent_agent()
+    neighborhood = household.get_parent_agent()
+
     #########################################################################
     # Intercept
-    inner = rcParams['migration.ll.zv.coef.intercept']
-
-    if person.is_in_school():
-        inner += rcParams['migration.ll.zv.coef.in_school']
-
-    inner += person.get_years_schooling() * rcParams['migration.ll.zv.coef.years_schooling']
-
-    #######################################################################
-    # Household level variables
-    household = person.get_parent_agent()
-    inner += rcParams['migration.ll.zv.coef.own_farmland'] * household._own_land
+    inner = rcParams['migration.ll.zv.coef.(Intercept)']
 
     #######################################################################
     # Neighborhood level variables
-    neighborhood = household.get_parent_agent()
-    inner += rcParams['migration.ll.zv.coef.log_market_min_ft'] * np.log(neighborhood.NFOs['market_min_ft'] + 1)
+    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_2002_scaled'] * neighborhood._EVI_1996
+    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_chg_2002_scaled'] * neighborhood._EVI
+    inner += rcPArams['migration.ll.zv.coef.NEAR_R_EVD_reversed'] * neighborhood._elevation_above_river
+    inner += rcParams['migration.ll.zv.coef.SCHLFT_2001'] * neighborhood.NFOs['school_min_ft']
+    inner += rcParams['migration.ll.zv.coef.MARFT_2001'] * neighborhood.NFOs['market_min_ft']
+    inner += rcParams['migration.ll.zv.coef.EMPFT_2001'] * neighborhood.NFOs['employer_min_ft']
+    inner += rcParams['migration.ll.zv.coef.num_groups_2001'] * neighborhood._num_groups
+
+    #######################################################################
+    # Household level variables
+    inner += rcParams['migration.ll.zv.coef.own_total_2001'] * household._total_possessions
+    inner += rcParams['migration.ll.zv.coef.any_farming_2001TRUE'] * household._any_farming
+    inner += rcParams['migration.ll.zv.coef.TLU_livestock_2001'] * household._TLU_livestock
 
     #########################################################################
-    # Other controls
+    # Individual level variables
     if person.get_sex() == "female":
-        inner += rcParams['migration.ll.zv.coef.female']
+        # Male is the reference class
+        inner += rcParams['migration.ll.zv.coef.genderfemale']
+    age = person.get_age_years()
+    inner += age * rcParams['migration.ll.zv.coef.agedecades']
+    inner += (age**2) * rcParams['migration.ll.zv.coef.agedecades']
+
+    #########################################################################
+    # Baseline hazard
+    month_num = int(np.mod(np.round(time*12, 0), 12) + 1)
+    if month_num in [1, 2, 3, 4]:
+        # Reference class
+        pass
+    elif month_num in [5, 6, 7, 8]:
+        inner += rcParams['migration.ll.zv.coef.SeasonMonsoon (MJJA)']
+    elif month_num in [9, 10, 11, 12]:
+        inner += rcParams['migration.ll.zv.coef.SeasonWinter (SOND)']
+    else:
+        raise StatisticsError("Month number is %s. Should not be outside range of [1, 12]"%month_num)
 
     ethnicity = person.get_ethnicity()
     assert ethnicity!=None, "Ethnicity must be defined"
@@ -409,19 +430,6 @@ def calc_probability_LL_migration_zvoleff(person):
         inner += rcParams['migration.ll.zv.coef.ethnicNewar']
     elif ethnicity == "TeraiTibeto":
         inner += rcParams['migration.ll.zv.coef.ethnicTeraiTibeto']
-
-    age = person.get_age_years()
-    if (age >= 15) & (age <= 24):
-        inner += rcParams['migration.ll.zv.coef.age15-24']
-    elif (age > 24) & (age <= 34):
-        inner += rcParams['migration.ll.zv.coef.age24-34']
-    elif (age > 34) & (age <= 44):
-        inner += rcParams['migration.ll.zv.coef.age34-44']
-    elif (age > 44) & (age <= 55):
-        inner += rcParams['migration.ll.zv.coef.age45-55']
-    elif (age > 55):
-        # Reference class
-        pass
 
     prob = 1./(1 + np.exp(-inner))
     if rcParams['log_stats_probabilities']:

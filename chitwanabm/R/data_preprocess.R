@@ -274,7 +274,52 @@ old_hhID_hhag <- sprintf("%05i", hhag$HHID)
 hhag$NEIGHID <- sprintf("%03i", as.numeric(substr(old_hhID_hhag, 1, 3)))
 HHNUM_hhag <- sprintf("%03i", as.numeric(substr(old_hhID_hhag, 4, 5)))
 hhag$HHID <- paste(hhag$NEIGHID, HHNUM_hhag, sep="")
-hhag.processed <- with(hhag, data.frame(HHID, NEIGHID, BAA10A, BAA18A, BAA43, BAA44))
+# Calculate total livestock units
+chickduck_1996<- hhag$BAB2
+pigeons_1996 <- hhag$BAB3
+bulls_1996 <- hhag$BAB5
+cows_1996 <- hhag$BAB6
+hebuff_1996<- hhag$BAB7
+shebuff_1996 <- hhag$BAB8
+sheep_goats_1996 <- hhag$BAB9
+pigs_1996 <- hhag$BAB10
+chickduck_1996[chickduck_1996 == -1] <- 0
+pigeons_1996[pigeons_1996 == -1] <- 0
+bulls_1996[bulls_1996 == -1] <- 0
+cows_1996[cows_1996 == -1] <- 0
+hebuff_1996[hebuff_1996 == -1] <- 0
+shebuff_1996[shebuff_1996 == -1] <- 0
+sheep_goats_1996[sheep_goats_1996 == -1] <- 0
+pigs_1996[pigs_1996 == -1] <- 0
+hhag$TLU_birds_1996 <- chickduck_1996 * .01 # chickens and ducks_1996
+hhag$TLU_birds_1996 <- hhag$TLU_birds_1996 + pigeons_1996 * .01 # pigeons
+hhag$TLU_livestock_1996 <- bulls_1996 *.5 # bullock_1996s
+hhag$TLU_livestock_1996 <- hhag$TLU_livestock_1996 + cows_1996 * .5 # cows
+hhag$TLU_livestock_1996 <- hhag$TLU_livestock_1996 + hebuff_1996 * .5 # he buffaloes
+hhag$TLU_livestock_1996 <- hhag$TLU_livestock_1996 + shebuff_1996 * .5 # she buffaloes
+hhag$TLU_livestock_1996 <- hhag$TLU_livestock_1996 + sheep_goats_1996 * .1 # sheep and goats
+hhag$TLU_livestock_1996 <- hhag$TLU_livestock_1996 + pigs_1996 * .2 # pigs
+hhag$TLU_birds_1996[is.na(hhag$TLU_birds_1996)] <- 0
+hhag$TLU_livestock_1996[is.na(hhag$TLU_livestock_1996)] <- 0
+hhag$TLU_all_1996 <- hhag$TLU_birds_1996 + hhag$TLU_livestock_1996
+hhag$TLU_all_restrict_1996 <- hhag$TLU_all_1996
+hhag$TLU_all_restrict_1996[hhag$TLU_all_restrict_1996 > 15] <- 15
+# Did household do any farming?
+hhag$any_farming_1996 <- hhag$BAA1
+# Wealth measures
+hhag$own_radio_1996 <- hhag$BAC1
+hhag$own_TV_1996 <- hhag$BAC3
+hhag$own_bike_1996 <- hhag$BAC5
+hhag$own_motorbike_1996 <- hhag$BAC7
+hhag$own_cart_1996 <- hhag$BAC9
+hhag$own_total_1996 <- rowSums(cbind(hhag$own_radio_1996,
+                                     hhag$own_TV_1996,
+                                     hhag$own_bike_1996,
+                                     hhag$own_motorbike_1996,
+                                     hhag$own_cart_1996))
+hhag.processed <- with(hhag, data.frame(HHID, NEIGHID, BAA10A, BAA18A, BAA43, 
+                                        BAA44, TLU_all_1996, any_farming_1996, 
+                                        own_total_1996))
 # Need to handle households where questions BAA10A and BAA18A were 
 # innappropriate (where they did no farming on that type of land).
 hhag.processed$BAA10A[hhag.processed$BAA10A==1] <- TRUE
@@ -283,7 +328,6 @@ hhag.processed$BAA18A[hhag.processed$BAA18A==1] <- TRUE
 hhag.processed$BAA18A[hhag.processed$BAA18A!=1] <- FALSE
 hhag.processed$BAA43[hhag.processed$BAA43==1] <- TRUE
 hhag.processed$BAA43[hhag.processed$BAA43!=1] <- FALSE
-
 # Only include individuals in hhrel that are in households for which hhag 
 # information is available:
 in_hhag <- which(hhrel.processed$HHID %in% hhag.processed$HHID)
@@ -319,6 +363,19 @@ avg_yrs_services_lt30 <- rowSums(services_lt30) / 5
 # Find if electricity is currently available in the neighborhood (as of the 
 # census)
 elec_avail <- neigh$ELEC52
+# Get total number of community groups in 1996 in each neighborhood
+neigh_grps_var_names <- paste(c('NEIGHID',
+                              'GRPWMN52',
+                              'GRPUSR52',
+                              'SFMRG52',
+                              'GRPOTR52'), collapse='|')
+neigh_grps_cols <- grep(paste('^(', neigh_grps_var_names, ')$', sep=''), names(neigh))
+neigh_grps_vars <- neigh[neigh_grps_cols]
+# TODO: Check with Dirgha why there are so many missing values for number of 
+# community groups in the neighborhood history dataset for T1
+neigh_grps_vars[is.na(neigh_grps_vars)] <- 0
+num_groups_1996 <- rowSums(with(neigh_grps_vars, cbind(GRPWMN52, GRPUSR52, 
+                                                       SFMRG52, GRPOTR52)))
 
 # Calculate the distance of each neighborhood from Narayanghat (using the 
 # coordinates of the center of the road in the middle of the downtown area of 
@@ -327,8 +384,11 @@ dist_narayanghat <- sqrt((neigh$NX - 245848)**2 + (neigh$NY - 3066013)**2)
 # Now convert from meters to kilometers
 dist_narayanghat <- (dist_narayanghat / 1000)
 
-neigh.processed <- data.frame(NEIGHID=neigh_ID, avg_yrs_services_lt15, avg_yrs_services_lt30, ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY, dist_nara=dist_narayanghat)
-
+neigh.processed <- data.frame(NEIGHID=neigh_ID, avg_yrs_services_lt15, 
+                              avg_yrs_services_lt30, 
+                              num_groups=num_groups_1996, 
+                              ELEC_AVAIL=elec_avail, X=neigh$NX, Y=neigh$NY, 
+                              dist_nara=dist_narayanghat)
 # Merge the 1996 non-family services data.  Below are the variables for 
 # non-family services w/in a 1 hour walk at age 12.
 # 	school SCHLFT52
