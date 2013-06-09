@@ -79,6 +79,9 @@
 'submodel.parameterization.LD_migration' : ["zvoleff" | validate_string]
 'submodel.parameterization.LL_migration' : ["zvoleff" | validate_string]
 'submodel.parameterization.fuelwood_usage' : ["simple" | validate_string]
+'submodel.EVI_growth' : [True | validate_boolean]
+'submodel.EVI_growth.1996_Valley_Mean' : [30000 | validate_float]
+'submodel.EVI_growth.slope' : [1000 | validate_float]
 
 ###############################################################################
 # Location of input data (these are restricted data)

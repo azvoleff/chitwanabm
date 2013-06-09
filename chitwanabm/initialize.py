@@ -99,7 +99,7 @@ def read_CVFS_data(textfile, key_field):
 
     return data
 
-def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_world):
+def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, EVI_file, model_world):
     """
     Reads in data from the CVFS (from dataset DS0014) on number of years 
     non-family services were available within a 30 min walk of each 
@@ -111,6 +111,8 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
     # other data is in UTM44N. So use this separate CSV file to read 
     # coordinates in UTM44N.
     neigh_coords = read_CVFS_data(neighborhoods_coords_file, "NEIGHID") 
+
+    EVI_data = read_CVFS_data(EVI_file, "NEIGHID")
 
     neighborhoods = []
     for neigh_data in neigh_datas.itervalues():
@@ -150,6 +152,20 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, model_w
         neighborhood.NFOs_change_rate['bus_min_ft'] = float(neigh_data['BUSFT_change'])
         neighborhood.NFOs_change_rate['market_min_ft'] = float(neigh_data['MARFT_change'])
         neighborhood.NFOs_change_rate['employer_min_ft'] = float(neigh_data['EMPFT_change'])
+
+        neighborhood._elevation_above_river = float(neigh_coords[NEIGHID]['elevation_above_river'])
+        
+        # The below will be set in the environmental_change function of the 
+        # region agent
+        neighborhood._EVI_t0 = float(EVI_data[NEIGHID]['Growth_T0'])
+        neighborhood._EVI = float(EVI_data[NEIGHID]['Growth_T0'])
+        neighborhood._EVI_anom_mean = float(EVI_data[NEIGHID]['mean_anom'])
+        neighborhood._EVI_anom_sd = float(EVI_data[NEIGHID]['sd'])
+        # _EVI_ts will store a timeseries of EVI for this neighborhood, needed 
+        # for the calculation of lagged means. To allow calculation of a 2 year 
+        # mean, store two values in it at the initial timestep. These will be 
+        # the values for t-2 and t-1
+        neighborhood._EVI_ts = [neighborhood._EVI_t0, neighborhood._EVI_t0]
 
         neighborhood._x = float(neigh_coords[NEIGHID]['x'])
         neighborhood._y = float(neigh_coords[NEIGHID]['y'])
@@ -440,13 +456,14 @@ def assemble_world(data_path):
     households_file = os.path.join(data_path, 'hhag.csv')
     neighborhoods_file = os.path.join(data_path,  'neigh.csv')
     neighborhoods_coords_file = os.path.join(data_path, 'neigh_coords.csv')
+    EVI_file = os.path.join(data_path, "Chitwan_NBH_EVI_data.csv")
 
     persons, RESPID_HHID_map = assemble_persons(relationships_grid_file,
             model_world)
     households, HHID_NEIGHID_map = assemble_households(households_file,
             model_world)
     neighborhoods = assemble_neighborhoods(neighborhoods_file,
-            neighborhoods_coords_file, model_world)
+            neighborhoods_coords_file, EVI_file, model_world)
 
     for neighborhood in neighborhoods:
         # To each neighborhood, add a list of IDs of the other neighborhoods, 
@@ -474,6 +491,9 @@ def assemble_world(data_path):
     # different probabilites of migration, death, mortality, etc. Currently 
     # just one region is used.
     region = model_world.new_region()
+
+    region._EVI_Valley_Mean = rcParams['submodel.EVI_growth.1996_Valley_Mean']
+    region._EVI_Slope = rcParams['submodel.EVI_growth.slope']
 
     for neighborhood in neighborhoods:
         region.add_agent(neighborhood)

@@ -476,6 +476,8 @@ save(hhag.processed, file=paste(PROCESSED_DATA_PATH, "hhag.Rdata", sep="/"))
 write.csv(neigh.processed, file=paste(PROCESSED_DATA_PATH, "neigh.csv", sep="/"), row.names=FALSE)
 save(neigh.processed, file=paste(PROCESSED_DATA_PATH, "neigh.Rdata", sep="/"))
 
-# Save a copy of the neighborhoods coordinates to the temp path
+# Save copies of the neighborhoods coordinates and EVI data to the temp path
 neigh_coords <- read.csv(paste(RAW_DATA_PATH, "neigh_coords.csv", sep="/"))
 write.csv(neigh_coords, file=paste(PROCESSED_DATA_PATH, "neigh_coords.csv", sep="/"), row.names=FALSE)
+EVI_data <- read.csv(paste(RAW_DATA_PATH, "Chitwan_NBH_EVI_data.csv", sep="/"))
+write.csv(EVI_data, file=paste(PROCESSED_DATA_PATH, "Chitwan_NBH_EVI_data.csv", sep="/"), row.names=FALSE)

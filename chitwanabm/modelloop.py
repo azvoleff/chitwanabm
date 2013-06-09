@@ -352,6 +352,10 @@ def main_loop(world, results_path):
                 if not test.validate_neighborhood_attributes(world):
                     logger.critical("Neighborhood attributes validation failed")
 
+            # Model this years agricultural productivity, to be used in the 
+            # next year's model runs.
+            region.agricultural_productivity()
+
         if num_persons == 0:
             logger.info("End of model run: population is zero")
             break

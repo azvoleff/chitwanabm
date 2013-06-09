@@ -381,8 +381,12 @@ def calc_probability_LL_migration_zvoleff(person, time):
 
     #######################################################################
     # Neighborhood level variables
-    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_2002_scaled'] * neighborhood._EVI_1996
-    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_chg_2002_scaled'] * neighborhood._EVI
+    #
+    # Note that the EVI measures are based off 2 year mean EVI for the change, 
+    # so calculate the 2 year mean EVI.
+    EVI_2yr_mean = np.mean(neighborhood._EVI_ts[-2:])
+    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_2002'] * neighborhood._EVI_t0
+    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_chg_2002'] * (EVI_2yr_mean - neighborhood._EVI_t0)
     inner += rcPArams['migration.ll.zv.coef.NEAR_R_EVD_reversed'] * neighborhood._elevation_above_river
     inner += rcParams['migration.ll.zv.coef.SCHLFT_2001'] * neighborhood.NFOs['school_min_ft']
     inner += rcParams['migration.ll.zv.coef.MARFT_2001'] * neighborhood.NFOs['market_min_ft']

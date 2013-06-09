@@ -877,6 +877,20 @@ class Region(Agent_set):
         for agent_store_name in self._agent_stores['person'].keys():
             yield self._agent_stores['person'][agent_store_name]
 
+    def agricultural_productivity(self):
+        """
+        Models change in agricultural productivity using results from Chapter 2 
+        of Zvoleff's dissertation. Note that 'EVI' in this function is actually 
+        referring to the seasonally integrated EVI (total seasonal vegetation 
+        growth) as calculated from MODIS data in TIMESAT.
+        """
+        self._Valley_Mean_EVI = self._Valley_Mean_EVI + self._Valley_Mean_EVI_Slope
+        for neighborhood in self.iter_agents():
+            neighborhood._EVI = valley_mean_EVI + neighborhood._EVI_anom_mean + \
+                np.random.randn()*neighborhood._EVI_anom_sd
+            neighborhood._EVI_t0 = neighborhood._EVI
+            neighborhood._EVI_ts.append[neighborhood._EVI]
+
     def births(self, time, timestep, simulate=False):
         """
         Runs through the population and agents give birth probabilistically 
