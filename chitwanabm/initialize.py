@@ -493,8 +493,7 @@ def assemble_world(data_path):
     # just one region is used.
     region = model_world.new_region()
 
-    region._EVI_Valley_Mean = rcParams['submodel.EVI_growth.1996_Valley_Mean']
-    region._EVI_Slope = rcParams['submodel.EVI_growth.slope']
+    region._EVI_Valley_Mean = rcParams['submodel.EVI_growth.1997_Valley_Mean']
 
     for neighborhood in neighborhoods:
         region.add_agent(neighborhood)

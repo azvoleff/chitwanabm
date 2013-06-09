@@ -835,8 +835,8 @@ class Region(Agent_set):
         # debugging only.
         self._cemetery = {}
 
-        self._Valley_Mean_EVI =  rcParams['submodel.EVI_growth.1996_Valley_Mean']
-        self._Valley_Mean_EVI_Slope = rcParams['submodel.EVI_growth.slope']
+        self._Valley_Mean_EVI =  rcParams['submodel.EVI_growth.1997_Valley_Mean']
+        self._Valley_Mean_EVI_1997 =  rcParams['submodel.EVI_growth.1997_Valley_Mean']
 
     def __str__(self):
         return "Region(RID: %s, %s neighborhood(s), %s household(s), %s person(s))"%(self.get_ID(), \
@@ -893,12 +893,22 @@ class Region(Agent_set):
         referring to the seasonally integrated EVI (total seasonal vegetation 
         growth) as calculated from MODIS data in TIMESAT.
         """
+        logger.debug("Running agricultural productivity model")
         EVIs = {}
-        self._Valley_Mean_EVI = self._Valley_Mean_EVI + self._Valley_Mean_EVI_Slope
+        if rcParams['submodel.EVI_growth.model'] == 'slope':
+            self._Valley_Mean_EVI = self._Valley_Mean_EVI + \
+                    rcParams['submodel.EVI_growth.model.slope.param']
+        elif rcParams['submodel.EVI_growth.model'] == 'stddev':
+            self._Valley_Mean_EVI = self._Valley_Mean_EVI_1997 + \
+                    rcParams['submodel.EVI_growth.model.stddev.param']*np.random.randn()
+        else:
+            raise Exception('unrecognized EVI growth submodel "%s"'%rcParams['submodel.EVI_growth.model'])
         for neighborhood in self.iter_agents():
             neighborhood._EVI = self._Valley_Mean_EVI + neighborhood._EVI_anom_mean + \
                 np.random.randn()*neighborhood._EVI_anom_sd
-            neighborhood._EVI_t0 = neighborhood._EVI
+            if neighborhood._EVI < rcParams['submodel.EVI_growth.min_EVI']:
+                neighborhood._EVI = rcParams['submodel.EVI_growth.min_EVI']
+                logger.debug("EVI reset to minimum for %s"%neighborhood.get_ID())
             neighborhood._EVI_ts.append(neighborhood._EVI)
             EVIs[neighborhood.get_ID()] = neighborhood._EVI
         return EVIs

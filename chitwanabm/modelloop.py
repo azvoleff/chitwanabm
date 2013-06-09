@@ -124,7 +124,7 @@ def main_loop(world, results_path):
         empty_events[neighborhood.get_ID()] = np.NaN
         EVIs[neighborhood.get_ID()] = neighborhood._EVI
     saved_data[0] = {}
-    saved_data[0]['EVIs'] = EVIs
+    saved_data[0]['EVI'] = EVIs
     saved_data[0]['births'] = empty_events
     saved_data[0]['deaths'] = empty_events
     saved_data[0]['marr'] = empty_events
@@ -276,7 +276,7 @@ def main_loop(world, results_path):
         # Save event, LULC, and population data in the saved_data dictionary 
         # for later output to CSV.
         saved_data[timestep] = {}
-        saved_data[timestep]['EVIs'] = EVIs
+        saved_data[timestep]['EVI'] = EVIs
         saved_data[timestep]['births'] = new_births
         saved_data[timestep]['deaths'] = new_deaths
         saved_data[timestep]['marr'] = new_marr
