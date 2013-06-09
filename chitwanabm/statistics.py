@@ -408,7 +408,7 @@ def calc_probability_LL_migration_zvoleff(person, time):
         inner += rcParams['migration.ll.zv.coef.genderfemale']
     age_decades = person.get_age_years() / 10.
     inner += age_decades * rcParams['migration.ll.zv.coef.agedecades']
-    inner += (age_decades**2) * rcParams['migration.ll.zv.coef.agedecades']
+    inner += (age_decades**2) * rcParams['migration.ll.zv.coef.I(agedecades^2)']
 
     #########################################################################
     # Baseline hazard

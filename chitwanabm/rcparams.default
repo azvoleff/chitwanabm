@@ -70,7 +70,7 @@
 'submodels.mortality' : [True | validate_boolean]
 'submodels.marriage' : [True | validate_boolean]
 'submodels.divorce' : [True | validate_boolean]
-'submodels.migration_LL_individual' : [False | validate_boolean]
+'submodels.migration_LL_individual' : [True | validate_boolean]
 'submodels.migration_LD_individual' : [True | validate_boolean]
 'submodels.migration_household' : [True | validate_boolean]
 'submodels.schooling' : [True | validate_boolean]
