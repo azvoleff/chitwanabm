@@ -32,6 +32,8 @@ library(RColorBrewer)
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
 
+DATA_PATH <- 'R:/Data/Nepal/chitwanabm_runs/Testing_500EVIslope/20130609-154403_azvoleff-think'
+
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="
 script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
@@ -70,8 +72,29 @@ ggsave(paste(DATA_PATH, "LULC.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 
 ###############################################################################
-# Plot the transition matrix
+# Plot EVI trends
 run_results <- read.csv(paste(DATA_PATH, "/run_results.csv", sep=""))
+EVI <- data.frame(neighid=run_results$neighid,
+                  run_results[grep('^EVI.[0-9]*$', names(run_results))])
+EVI <- melt(EVI, id.vars='neighid')
+EVI$neighid <- factor(EVI$neighid)
+# Retrieve the timestep from the variable name string
+EVI$timestep <- as.numeric(substr(EVI$variable, 5, 99))
+# Drop all except for the January timesteps, since indicator is constant 
+# throughout the year.
+EVI <- EVI[EVI$timestep %% 12 == 1, ]
+EVI$Year <- (EVI$timestep-1)/12 + 1997
+EVI_mean <- ddply(EVI, .(Year), summarize,
+                  EVI_mean=mean(value))
+
+ggplot() + geom_line(data=EVI, aes(Year, value, colour=neighid), size=.25, show_guide=FALSE) +
+    xlab('Year') + ylab('Seasonal Growth (EVI*10,000)') +
+    geom_line(data=EVI_mean, aes(Year, EVI_mean), size=1, show_guide=FALSE)
+ggsave(paste(DATA_PATH, "EVI_spaghetti.png", sep="/"), width=PLOT_WIDTH, 
+       height=PLOT_HEIGHT, dpi=300)
+
+###############################################################################
+# Plot the transition matrix
 lulc_cols <- grep('^(agveg|nonagveg|privbldg|pubbldg|other).[0-9]*$', names(run_results))
 lulc_results <- cbind(run_results[lulc_cols])
 total_nbh_area <- with(lulc_results, agveg.1 + nonagveg.1 + privbldg.1 + pubbldg.1 + other.1)
