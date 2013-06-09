@@ -119,9 +119,12 @@ def main_loop(world, results_path):
     # TODO: Fix this to work for multiple regions.
     region = world.get_regions()[0]
     empty_events = {}
+    EVIs = {}
     for neighborhood in region.iter_agents():
         empty_events[neighborhood.get_ID()] = np.NaN
+        EVIs[neighborhood.get_ID()] = neighborhood._EVI
     saved_data[0] = {}
+    saved_data[0]['EVIs'] = EVIs
     saved_data[0]['births'] = empty_events
     saved_data[0]['deaths'] = empty_events
     saved_data[0]['marr'] = empty_events
@@ -150,7 +153,8 @@ def main_loop(world, results_path):
             dtype=timesteps_dtype)
 
     #TODO: Finish this
-    nbh_dtype = [('births', 'i2'),
+    nbh_dtype = [('EVI', 'f4'),
+                 ('births', 'i2'),
                  ('deaths', 'i2'),
                  ('marr', 'i2'),
                  ('divo', 'i2'),
@@ -272,6 +276,7 @@ def main_loop(world, results_path):
         # Save event, LULC, and population data in the saved_data dictionary 
         # for later output to CSV.
         saved_data[timestep] = {}
+        saved_data[timestep]['EVIs'] = EVIs
         saved_data[timestep]['births'] = new_births
         saved_data[timestep]['deaths'] = new_deaths
         saved_data[timestep]['marr'] = new_marr
@@ -332,16 +337,22 @@ def main_loop(world, results_path):
 
         if model_time.get_cur_month() == 12 or model_time.is_last_iteration() \
                 and model_time.get_cur_date() != model_time._starttime:
+            # Model this years agricultural productivity, to be used in the 
+            # next year's model runs.
+            EVIs = region.agricultural_productivity()
+            mean_NBH_EVI = np.mean(EVIs.values())
+            mean_Valley_EVI = region._Valley_Mean_EVI
+
             # The last condition in the above if statement is necessary as 
             # there is no total to print on the first timestep, so it wouldn't 
             # make sense to print it.
-            total_string = "%s totals: New Ma: %3s Dv: %3s B: %3s D: %3s LLOutMi: %3s LLRetMi: %3s LDOutMi: %3s LDRetMi: %3s OutMiHH: %3s InMiHH: %3s"%(
+            total_string = "%s totals: New Ma: %3s Dv: %3s B: %3s D: %3s LLOutMi: %3s LLRetMi: %3s LDOutMi: %3s LDRetMi: %3s OutMiHH: %3s InMiHH: %3s | NBHEVI: %3s ValEVI: %3s"%(
                     model_time.get_cur_year(), annual_num_marr, 
                     annual_num_divo, annual_num_births,
                     annual_num_deaths, annual_num_out_migr_LL_indiv,
                     annual_num_ret_migr_LL_indiv, annual_num_out_migr_LD_indiv, 
                     annual_num_ret_migr_LD_indiv, annual_num_out_migr_HH, 
-                    annual_num_in_migr_HH)
+                    annual_num_in_migr_HH, mean_NBH_EVI, mean_Valley_EVI)
             logger.info('%s'%total_string)
             logger.info("Elapsed time: %11s"%elapsed_time(modelrun_starttime))
             if rcParams['run_validation_checks']:
@@ -351,10 +362,6 @@ def main_loop(world, results_path):
                     logger.critical("Household attributes validation failed")
                 if not test.validate_neighborhood_attributes(world):
                     logger.critical("Neighborhood attributes validation failed")
-
-            # Model this years agricultural productivity, to be used in the 
-            # next year's model runs.
-            region.agricultural_productivity()
 
         if num_persons == 0:
             logger.info("End of model run: population is zero")

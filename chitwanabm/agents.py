@@ -893,12 +893,15 @@ class Region(Agent_set):
         referring to the seasonally integrated EVI (total seasonal vegetation 
         growth) as calculated from MODIS data in TIMESAT.
         """
+        EVIs = {}
         self._Valley_Mean_EVI = self._Valley_Mean_EVI + self._Valley_Mean_EVI_Slope
         for neighborhood in self.iter_agents():
             neighborhood._EVI = self._Valley_Mean_EVI + neighborhood._EVI_anom_mean + \
                 np.random.randn()*neighborhood._EVI_anom_sd
             neighborhood._EVI_t0 = neighborhood._EVI
             neighborhood._EVI_ts.append(neighborhood._EVI)
+            EVIs[neighborhood.get_ID()] = neighborhood._EVI
+        return EVIs
 
     def births(self, time, timestep, simulate=False):
         """
