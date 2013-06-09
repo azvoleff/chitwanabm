@@ -33,7 +33,6 @@ script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initia
 script.basename <- dirname(script.name)
 source(paste(script.basename, "calc_NBH_stats.R", sep="/"))
 
-DATA_PATH <- 'R:/Data/Nepal/chitwanabm_runs/Testing_500EVIslope/20130609-145625_azvoleff-think'
 DATA_PATH <- commandArgs(trailingOnly=TRUE)[1]
 if (is.na(DATA_PATH)) stop("Data path must be supplied")
 

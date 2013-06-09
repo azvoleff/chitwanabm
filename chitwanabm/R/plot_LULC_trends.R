@@ -32,7 +32,6 @@ library(RColorBrewer)
 PLOT_WIDTH = 8.33
 PLOT_HEIGHT = 5.53
 
-DATA_PATH <- 'R:/Data/Nepal/chitwanabm_runs/Testing_500EVIslope/20130609-145625_azvoleff-think'
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="
 script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
