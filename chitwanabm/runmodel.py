@@ -257,7 +257,6 @@ def main():
     results_to_h5(run_results_new_format, run_results_new_format_h5_file, run_ID_number)
     results_to_csv(run_results_new_format, results_path)
 
-
     # Write neighborhood LULC, pop, x, y coordinates, etc. for the last 
     # timestep.
     world.write_NBHs_to_csv("END", results_path)
