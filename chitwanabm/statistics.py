@@ -385,9 +385,11 @@ def calc_probability_LL_migration_zvoleff(person, time):
     # Note that the EVI measures are based off 2 year mean EVI for the change, 
     # so calculate the 2 year mean EVI.
     EVI_2yr_mean = np.mean(neighborhood._EVI_ts[-2:])
-    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_2002'] * neighborhood._EVI_t0
-    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_chg_2002'] * (EVI_2yr_mean - neighborhood._EVI_t0)
-    inner += rcPArams['migration.ll.zv.coef.NEAR_R_EVD_reversed'] * neighborhood._elevation_above_river
+    # Note that the EVI coefficients are expressed for EVI/1000 (given the need 
+    # to get smaller betas for lmer to converge when estimating the model)
+    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_2002_div_1000'] * (neighborhood._EVI_t0/1000)
+    inner += rcParams['migration.ll.zv.coef.mean_Sinteg_500m_24mth_chg_2002_div_1000'] * ((EVI_2yr_mean - neighborhood._EVI_t0)/1000)
+    inner += rcParams['migration.ll.zv.coef.NEAR_R_EVD_reversed'] * neighborhood._elevation_above_river
     inner += rcParams['migration.ll.zv.coef.SCHLFT_2001'] * neighborhood.NFOs['school_min_ft']
     inner += rcParams['migration.ll.zv.coef.MARFT_2001'] * neighborhood.NFOs['market_min_ft']
     inner += rcParams['migration.ll.zv.coef.EMPFT_2001'] * neighborhood.NFOs['employer_min_ft']
@@ -404,9 +406,9 @@ def calc_probability_LL_migration_zvoleff(person, time):
     if person.get_sex() == "female":
         # Male is the reference class
         inner += rcParams['migration.ll.zv.coef.genderfemale']
-    age = person.get_age_years()
-    inner += age * rcParams['migration.ll.zv.coef.agedecades']
-    inner += (age**2) * rcParams['migration.ll.zv.coef.agedecades']
+    age_decades = person.get_age_years() / 10.
+    inner += age_decades * rcParams['migration.ll.zv.coef.agedecades']
+    inner += (age_decades**2) * rcParams['migration.ll.zv.coef.agedecades']
 
     #########################################################################
     # Baseline hazard
@@ -513,7 +515,28 @@ def calc_des_num_children():
 def calc_birth_interval():
     "Calculates the birth interval for this person."
     birth_interval_prob_dist = rcParams['prob.birth.intervals']
-    return np.floor(draw_from_prob_dist(birth_interval_prob_dist ))
+    return np.floor(draw_from_prob_dist(birth_interval_prob_dist))
+
+def calc_TLU_livestock(is_farming):
+    """
+    Calculates the livestock ownership (in Tropical Livestock Units) of this 
+    household (based on analysis of 1996 CVFS data).
+    """
+    if is_farming:
+        TLU = draw_from_prob_dist(rcParams['TLU_probs.farmer'])
+    else:
+        TLU = draw_from_prob_dist(rcParams['TLU_probs.nonfarmer'])
+    # Given the way this prob dist was defined in R, if TLU is less than zero, 
+    # it means that the household has 0 livestock units.
+    if TLU < 0: TLU = 0
+    return TLU
+
+def calc_total_possessions():
+    """
+    Calculates the number of possessions this household owns (based on analysis 
+    of 1996 CVFS data).
+    """
+    return np.floor(draw_from_prob_dist(rcParams['total_possessions_probs']) + 1)
 
 def calc_hh_area():
     "Calculates the area of this household."

@@ -44,7 +44,8 @@ from chitwanabm.statistics import calc_probability_death, \
         choose_spouse, calc_num_inmigrant_households, \
         calc_inmigrant_household_ethnicity, calc_inmigrant_household_size, \
         calc_probability_HH_outmigration, calc_probability_divorce, \
-        calc_fuelwood_usage_probability
+        calc_fuelwood_usage_probability, calc_TLU_livestock, \
+        calc_total_possessions
 
 logger = logging.getLogger(__name__)
 person_event_logger = logging.getLogger('person_events')
@@ -584,6 +585,11 @@ class Household(Agent_set):
         self._own_land = boolean_choice(.61) # From Axinn, Ghimire (2007)
         self._rented_out_land = boolean_choice(.11) # From Axinn, Ghimire (2007)
         self._lastmigrant_time = None
+
+        self._any_farming = boolean_choice(.8319) # 1996 CVFS
+        self._TLU_livestock = calc_TLU_livestock(self._any_farming)
+        self._total_possessions = calc_total_possessions()
+
         # The _members_away list tracks household members that area away 
         # (returning migrants).
         self._members_away = []
@@ -829,6 +835,9 @@ class Region(Agent_set):
         # debugging only.
         self._cemetery = {}
 
+        self._Valley_Mean_EVI =  rcParams['submodel.EVI_growth.1996_Valley_Mean']
+        self._Valley_Mean_EVI_Slope = rcParams['submodel.EVI_growth.slope']
+
     def __str__(self):
         return "Region(RID: %s, %s neighborhood(s), %s household(s), %s person(s))"%(self.get_ID(), \
                 len(self._members), self.num_households(), self.num_persons())
@@ -886,10 +895,10 @@ class Region(Agent_set):
         """
         self._Valley_Mean_EVI = self._Valley_Mean_EVI + self._Valley_Mean_EVI_Slope
         for neighborhood in self.iter_agents():
-            neighborhood._EVI = valley_mean_EVI + neighborhood._EVI_anom_mean + \
+            neighborhood._EVI = self._Valley_Mean_EVI + neighborhood._EVI_anom_mean + \
                 np.random.randn()*neighborhood._EVI_anom_sd
             neighborhood._EVI_t0 = neighborhood._EVI
-            neighborhood._EVI_ts.append[neighborhood._EVI]
+            neighborhood._EVI_ts.append(neighborhood._EVI)
 
     def births(self, time, timestep, simulate=False):
         """
@@ -1204,7 +1213,10 @@ class Region(Agent_set):
         n_LD_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if np.random.rand() < calc_probability_LD_migration(person, time_float):
+                if (person.get_age_years() < rcParams['migration_LD.minimum_age_years']) | \
+                        (person.get_age_years() > rcParams['migration_LD.maximum_age_years']):
+                    continue
+                elif np.random.rand() < calc_probability_LD_migration(person, time_float):
                     person.make_individual_LD_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
                     if not neighborhood.get_ID() in n_LD_outmigr_indiv:
@@ -1227,7 +1239,10 @@ class Region(Agent_set):
         n_LL_outmigr_indiv = {}
         for household in self.iter_households():
             for person in household.iter_agents():
-                if np.random.rand() < calc_probability_LL_migration(person, time_float):
+                if (person.get_age_years() < rcParams['migration_LL.minimum_age_years']) | \
+                        (person.get_age_years() > rcParams['migration_LL.maximum_age_years']):
+                    continue
+                elif np.random.rand() < calc_probability_LL_migration(person, time_float):
                     person.make_individual_LL_migration(time_float, timestep, self, BURN_IN)
                     neighborhood = household.get_parent_agent()
                     if not neighborhood.get_ID() in n_LL_outmigr_indiv:

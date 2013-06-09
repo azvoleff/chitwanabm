@@ -136,7 +136,8 @@ def assemble_neighborhoods(neighborhoodsFile, neighborhoods_coords_file, EVI_fil
         neighborhood._forest_closest_km = float(neigh_data['closest_meters']) / 1000.
         neighborhood._forest_closest_type = neigh_data['closest_type']
 
-        neighborhood._num_groups = neigh_data['num_groups']
+        # Store the number of neighborhood community groups
+        neighborhood._num_groups = float(neigh_data['num_groups'])
 
         neighborhood.NFOs = {}
         neighborhood.NFOs['school_min_ft'] = float(neigh_data['SCHLFT52']) * rcParams['NFOs.initmultiplier.school_min_ft']
