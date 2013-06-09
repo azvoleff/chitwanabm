@@ -292,12 +292,12 @@ def main():
 
         if rcParams['save_NBH_data']:
             logger.info("Plotting LULC results")
-            plot_LULC_script = resource_filename(__name__, 'R/plot_LULC.R')
+            plot_LULC_script = resource_filename(__name__, 'R/plot_LULC_trends.R')
             try:
                 output = subprocess.check_output([Rscript_binary, plot_LULC_script, 
                     results_path], cwd=sys.path[0], stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError, e:
-                logger.exception("Problem running plot_LULC.R. R output: %s"%e.output)
+                logger.exception("Problem running plot_LULC_trends.R. R output: %s"%e.output)
 
         if rcParams['save_psn_data']:
             logger.info("Plotting persons results")
