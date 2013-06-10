@@ -20,6 +20,7 @@ setup(
     install_requires = ['numpy >= 1.7.0',
                         'matplotlib >= 0.98.4',
                         'pyabm[gdal] >= 0.3',
+                        'numpexpr >- 2.0.0',
                         'tables >= 2.4.0'],
     author = "Alex Zvoleff",
     author_email = "azvoleff@mail.sdsu.edu",
