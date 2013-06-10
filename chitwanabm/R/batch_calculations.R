@@ -98,6 +98,18 @@ calc_agg_LULC <- function(results, time_values) {
     return(lulc_pct.mean)
 }
 
+calc_agg_EVI <- function(results, time_values) {
+    # Calculate the total land area of each neighborhood
+    EVI_cols <- grep('^EVI.[0-9]*$', names(results))
+    EVI.mean <- data.frame(time.Robj=time_values$time.Robj,
+                           EVI=apply(results[EVI_cols], 2, mean),
+                           row.names=NULL)
+    # Drop all except for the January timesteps, since indicator is constant 
+    # throughout the year.
+    EVI.mean <- EVI.mean[time_values$timestep %% 12 == 1, ]
+    return(EVI.mean)
+}
+
 calc_rate_change_agveg <- function(DATA_PATH) {
     # Make plots of LULC for a model run.
     results <- read.csv(paste(DATA_PATH, "run_results.csv", sep="/"),
@@ -162,8 +174,8 @@ calc_NBH_pop <- function(results, time_values) {
             deaths=apply(results[deaths.cols], 2, sum),
             out_migr_LL_indiv=apply(results[out_migr_LL_indiv.cols], 2, sum),
             ret_migr_LL_indiv=apply(results[ret_migr_LL_indiv.cols], 2, sum), 
-            out_migr_LL_indiv=apply(results[out_migr_LL_indiv.cols], 2, sum),
-            ret_migr_LL_indiv=apply(results[ret_migr_LL_indiv.cols], 2, sum), 
+            out_migr_LD_indiv=apply(results[out_migr_LD_indiv.cols], 2, sum),
+            ret_migr_LD_indiv=apply(results[ret_migr_LD_indiv.cols], 2, sum), 
             in_migr_HH=apply(results[in_migr_HH.cols], 2, sum), 
             out_migr_HH=apply(results[out_migr_HH.cols], 2, sum),
             num_hs=apply(results[num_hs.cols], 2, sum), 
@@ -235,6 +247,14 @@ for (directory in directories) {
     else {events <- rbind(events, events.new)}
  
     ###########################################################################
+    # Handle calculation of EVI trends
+    EVI.new <- calc_agg_EVI(results, time_values)
+    names(EVI.new) <- paste(names(EVI.new), runname, sep=".")
+
+    if (n==1) EVI <- EVI.new
+    else EVI <- cbind(EVI, EVI.new)
+    
+    ###########################################################################
     # Handle calculation of change in land use (aggregated)
     lulc.new <- calc_agg_LULC(results, time_values)
     names(lulc.new) <- paste(names(lulc.new), runname, sep=".")
@@ -295,4 +315,5 @@ save(events, file=paste(DATA_PATH, "events.Rdata", sep="/"))
 save(lulc_agg, file=paste(DATA_PATH, "lulc_agg.Rdata", sep="/"))
 save(lulc_rtchange, file=paste(DATA_PATH, "lulc_rtchange.Rdata", sep="/"))
 save(lulc_nbh, file=paste(DATA_PATH, "lulc_nbh.Rdata", sep="/"))
+save(EVI, file=paste(DATA_PATH, "EVI.Rdata", sep="/"))
 save(pop_results, file=paste(DATA_PATH, "pop_results.Rdata", sep="/"))

@@ -64,7 +64,7 @@ calc_ensemble_results <- function(model_results) {
     return(ens_res)
 }
 
-make_shaded_error_plot <- function(ens_res, ylabel, typelabel) {
+make_shaded_error_plot <- function(ens_res, ylabel, typelabel, cat_labels=NULL) {
     # The first column of ens_res dataframe should be the times
     # For each variable listed in "variable_names", there should be two columns,
     # one of means, named "variable_name.mean" and one of standard deviations,
@@ -129,6 +129,18 @@ make_shaded_error_plot(pop_events, "Number of Events", "Event Type")
 ggsave(paste(DATA_PATH, "pop_events.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
         dpi=DPI)
 
+# Plot local-local migrations
+pop_events <- ens_results[c(1, grep("^(out_migr_LL_indiv|ret_migr_LL_indiv)", names(ens_results)))]
+make_shaded_error_plot(pop_events, "Number of migrants", "Migration type")
+ggsave(paste(DATA_PATH, "migrations_LL.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
+        dpi=DPI)
+
+# Plot local-distant migrations
+pop_events <- ens_results[c(1, grep("^(out_migr_LD_indiv|ret_migr_LD_indiv)", names(ens_results)))]
+make_shaded_error_plot(pop_events, "Number of migrants", "Migration type")
+ggsave(paste(DATA_PATH, "migrations_LD.png", sep="/"), width=PLOT_WIDTH, height=PLOT_HEIGHT,
+        dpi=DPI)
+
 # Now plot total households and total marriages
 num.hs.marr <- ens_results[c(1, grep("^(num_marr|num_hs)", names(ens_results)))]
 make_shaded_error_plot(num.hs.marr, "Number", "Type")
@@ -151,6 +163,18 @@ make_shaded_error_plot(fw_usage, "Metric Tons of Fuelwood", NA)
 ggsave(paste(DATA_PATH, "fw_usage.png", sep="/"), width=PLOT_WIDTH,
         height=PLOT_HEIGHT, dpi=300)
 write.csv(fw_usage, file=paste(DATA_PATH, "fw_usage_ens_results.csv", sep="/"), row.names=FALSE)
+
+###########################################################################
+# Plot EVI data
+###########################################################################
+load(file=paste(DATA_PATH, "EVI.Rdata", sep="/"))
+ens_results <- calc_ensemble_results(EVI)
+save(ens_results, file=paste(DATA_PATH, "ens_results_EVI.Rdata", sep="/"))
+write.csv(ens_results, file=paste(DATA_PATH, "ens_results_EVI.csv", sep="/"), row.names=FALSE)
+
+make_shaded_error_plot(ens_results, "Seasonal Growth (EVI*1000)", typelabel=NA)
+ggsave(paste(DATA_PATH, "batch_EVI.png", sep="/"), width=PLOT_WIDTH,
+        height=PLOT_HEIGHT, dpi=DPI)
 
 ###########################################################################
 # Plot aggregate land use
