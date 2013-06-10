@@ -17,7 +17,7 @@ setup(
                                         'chitwanabm_run_batch = chitwanabm.threaded_batch_run:main',
                                         'chitwanabm_process_scenario = chitwanabm.process_scenario:main']},
     zip_safe = True,
-    install_requires = ['numpy >= 1.6.1',
+    install_requires = ['numpy >= 1.7.0',
                         'matplotlib >= 0.98.4',
                         'pyabm[gdal] >= 0.3'],
     author = "Alex Zvoleff",
