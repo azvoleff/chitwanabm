@@ -80,7 +80,7 @@
 'submodel.parameterization.LL_migration' : ["zvoleff" | validate_string]
 'submodel.parameterization.fuelwood_usage' : ["simple" | validate_string]
 'submodel.EVI_growth' : [True | validate_boolean]
-'submodel.EVI_growth.1997_Valley_Mean' : [29727 | validate_float]
+'submodel.EVI_growth.1997_Valley_Mean' : [30322 | validate_float]
 'submodel.EVI_growth.model' : ['slope'| validate_string]
 'submodel.EVI_growth.model.slope.param' : [0 | validate_float]
 'submodel.EVI_growth.model.stddev.param' : [5143 | validate_float]
