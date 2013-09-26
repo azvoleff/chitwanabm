@@ -31,7 +31,7 @@
 # in the rcparams.defaults file. To add a new parameter to chitwanabm, the parameter 
 # must first be defined in rcparams.defaults.
 #
-# See the README.txt file for author contact information.
+# See the README.rst file for author contact information.
 ###############################################################################
 
 ###############################################################################

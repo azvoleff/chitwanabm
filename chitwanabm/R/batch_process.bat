@@ -15,7 +15,7 @@ REM
 REM You should have received a copy of the GNU General Public License along with
 REM chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 REM
-REM See the README.txt file for author contact information.
+REM See the README.rst file for author contact information.
 
 set R_BIN="C:\Program Files\R\R-2.15.2\bin\x64\Rscript.exe"
 set SCRIPT_PATH=C:\Users\azvoleff\Code\Python\chitwanabm\chitwanabm\R

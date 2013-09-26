@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
-# See the README.txt file for author contact information.
+# See the README.rst file for author contact information.
 
 library(ggplot2, quietly=TRUE)
 library(reshape)

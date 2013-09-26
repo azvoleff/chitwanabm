@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
-# See the README.txt file for author contact information.
+# See the README.rst file for author contact information.
 
 DATA_PATH <- shQuote(commandArgs(trailingOnly=TRUE)[1])
 if (is.na(DATA_PATH)) stop("Data path must be supplied")
