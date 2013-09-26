@@ -26,7 +26,7 @@ setup(
     description = "An agent-based model of the Chitwan Valley, Nepal",
     keywords = "agent-based modeling ABM simulation model",
     license = "GPL v3 or later",
-    url = "http://rohan.sdsu.edu/~zvoleff/research/chitwanabm",   # project home page, if any
+    url = "http://www.azvoleff.com/research/chitwanabm",   # project home page, if any
     long_description = ''.join(open('README.rst').readlines()[6:]),
     classifiers = [
         "Development Status :: 4 - Beta",

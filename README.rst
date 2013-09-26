@@ -18,9 +18,8 @@ project `(grant OISE 0729709) <http://pire.psc.isr.umich.edu>`_ investigating
 human-environment interactions in the Western Chitwan Valley. Development of 
 the model is in progress, and model documentation is still incomplete.
 
-See the `chitwanabm website 
-<http://rohan.sdsu.edu/~zvoleff/research/chitwanabm>`_ for more information, 
-past releases, publications, and recent presentations.
+See the `chitwanabm website <http://www.azvoleff.com/research/chitwanabm>`_ for 
+more information, past releases, publications, and recent presentations.
 
 .. note:: The model requires restricted access survey data from the
     Chitwan Valley Family Study (CVFS) to run. See the  `Interuniversity 

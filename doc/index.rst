@@ -15,9 +15,8 @@ the model is in progress, and model documentation is still incomplete.  As work
 continues, this page will be updated with more information on initializing and 
 running the model, and on interpreting the model output.
 
-See the `chitwanabm website 
-<http://rohan.sdsu.edu/~zvoleff/research/ChitwanABM.php>`_ for more 
-information, past releases, publications, and recent presentations.
+See the `chitwanabm website <http://www.azvoleff.com/research/chitwanabm>`_ for 
+more information, past releases, publications, and recent presentations.
 
 .. note:: The model requires restricted access survey data from the
     Chitwan Valley Family Study (CVFS) to run. See the  `Interuniversity 
