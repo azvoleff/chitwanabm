@@ -22,7 +22,7 @@ setup(
                         'pyabm[gdal] >= 0.3',
                         'tables >= 2.4.0'],
     author = "Alex Zvoleff",
-    author_email = "azvoleff@mail.sdsu.edu",
+    author_email = "azvoleff@conservation.org",
     description = "An agent-based model of the Chitwan Valley, Nepal",
     keywords = "agent-based modeling ABM simulation model",
     license = "GPL v3 or later",

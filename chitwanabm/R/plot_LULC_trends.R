@@ -16,9 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # chitwanabm.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Contact Alex Zvoleff in the Department of Geography at San Diego State 
-# University with any comments or questions. See the README.txt file for 
-# contact information.
+# See the README.txt file for author contact information.
 
 ###############################################################################
 # Plots basic LULC data from a model run.
