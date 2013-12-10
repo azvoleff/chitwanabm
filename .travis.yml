@@ -8,7 +8,8 @@ python:
 
 before_install:
     - sudo apt-get update -qq -y
-    - sudo apt-get install -qq python-numpy python-matplotlib python-gdal gdal-bin python-tables
+    - sudo pip install git+https://github.com/azvoleff/pyabm.git#egg=pyabm
+    - sudo apt-get install -qq python-numpy python-matplotlib python-gdal gdal-bin python-tables python-numexpr
 
 install:
     - pip install .
