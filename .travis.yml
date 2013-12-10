@@ -9,7 +9,9 @@ python:
 before_install:
     - sudo apt-get update -qq -y
     - sudo pip install git+https://github.com/azvoleff/pyabm.git#egg=pyabm
-    - sudo apt-get install -qq python-numpy python-matplotlib python-gdal gdal-bin python-tables python-numexpr
+    - sudo apt-get install -qq python-numpy python-matplotlib python-dev
+      # numexpr>=2.0.0 is needed due to for tables>=2.4.0
+    - sudo pip install -q "numexpr>=2.0.0"
 
 install:
     - pip install .
