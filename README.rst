@@ -1,6 +1,6 @@
-=================
-chitwanabm README
-=================
+==========
+chitwanabm
+==========
 
 .. image:: https://travis-ci.org/azvoleff/chitwanabm.png
     :alt: Build Status
