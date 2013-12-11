@@ -2,6 +2,10 @@
 chitwanabm README
 =================
 
+.. image:: https://travis-ci.org/azvoleff/chitwanabm.png
+    :alt: Build Status
+    :target: https://travis-ci.org/azvoleff/chitwanabm
+
 chitwanabm: an agent-based model of the western Chitwan Valley, Nepal.
  
 Model Description
